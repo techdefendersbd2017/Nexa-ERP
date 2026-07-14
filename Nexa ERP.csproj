@@ -1,0 +1,800 @@
+﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{789AF96A-8698-4259-B03E-0826115E9125}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Nexa_ERP</RootNamespace>
+    <AssemblyName>Nexa ERP</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort>44333</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AxShockwaveFlashObjects, Version=1.0.0.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.AxShockwaveFlashObjects.13.0.4003\lib\net40\AxShockwaveFlashObjects.dll</HintPath>
+    </Reference>
+    <Reference Include="CRVsPackageLib, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.13.0.5.891\lib\net40\CRVsPackageLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="CrystalDecisions.CrystalReports.Design, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.Design.13.0.4003\lib\net40\CrystalDecisions.CrystalReports.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalDecisions.CrystalReports.TemplateEngine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.13.0.5.891\lib\net40\CrystalDecisions.CrystalReports.TemplateEngine.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="CrystalDecisions.Data.AdoDotNetInterop, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.13.0.5.891\lib\net40\CrystalDecisions.Data.AdoDotNetInterop.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalDecisions.Enterprise.Viewing.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.13.0.5.891\lib\net40\CrystalDecisions.Enterprise.Viewing.ReportSource.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalDecisions.Shared.1.0.0\lib\CrystalDecisions.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalDecisions.VSDesigner, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.13.0.5.891\lib\net40\CrystalDecisions.VSDesigner.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalDecisions.Web, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.13.0.5.891\lib\net40\CrystalDecisions.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalDecisions.Windows.Forms, Version=13.0.4000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.Windows.Forms.13.0.4003\lib\net40\CrystalDecisions.Windows.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalQuartz.AspNetCore, Version=7.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalQuartz.AspNetCore.7.3.0\lib\netstandard2.0\CrystalQuartz.AspNetCore.dll</HintPath>
+    </Reference>
+    <Reference Include="FlashControlV71, Version=1.0.3187.32366, Culture=neutral, PublicKeyToken=692fbea5521e1304">
+      <HintPath>packages\CrystalReports.13.0.5.891\lib\net40\FlashControlV71.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=3.3.0.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>packages\log4net.3.3.0\lib\net462\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MicroKnights.Log4NetAdoNetAppender, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\MicroKnights.Log4NetAdoNetAppender.2.2.0\lib\netstandard2.0\MicroKnights.Log4NetAdoNetAppender.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Abstractions, Version=2.0.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNetCore.Http.Abstractions.2.0.3\lib\netstandard2.0\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Features, Version=2.0.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNetCore.Http.Features.2.0.3\lib\netstandard2.0\Microsoft.AspNetCore.Http.Features.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=10.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.10.0.3\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\lib\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.Configuration, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Configuration.10.0.3\lib\net462\Microsoft.Extensions.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Configuration.Abstractions.10.0.3\lib\net462\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.FileExtensions, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Configuration.FileExtensions.10.0.3\lib\net462\Microsoft.Extensions.Configuration.FileExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Json, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Configuration.Json.10.0.3\lib\net462\Microsoft.Extensions.Configuration.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.FileProviders.Abstractions, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.FileProviders.Abstractions.10.0.3\lib\net462\Microsoft.Extensions.FileProviders.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.FileProviders.Physical, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.FileProviders.Physical.10.0.3\lib\net462\Microsoft.Extensions.FileProviders.Physical.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.FileSystemGlobbing, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.FileSystemGlobbing.10.0.3\lib\net462\Microsoft.Extensions.FileSystemGlobbing.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Primitives.10.0.3\lib\net462\Microsoft.Extensions.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="ShockwaveFlashObjects, Version=1.0.0.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <HintPath>packages\CrystalReports.ShockwaveFlashObjects.13.0.4003\lib\net40\ShockwaveFlashObjects.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SqlClient, Version=4.6.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Data.SqlClient.4.9.1\lib\net462\System.Data.SqlClient.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Pipelines, Version=10.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.IO.Pipelines.10.0.3\lib\net462\System.IO.Pipelines.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web, Version=10.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Encodings.Web.10.0.3\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=10.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Json.10.0.3\lib\net462\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Extensions.4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AccountsModule\MasterData\bankInformation.aspx" />
+    <Content Include="AccountsModule\MasterData\ChartOfAccounts.aspx" />
+    <Content Include="AccountsModule\MasterData\chequeBookRegistration.aspx" />
+    <Content Include="AccountsModule\MasterData\costCenterGroupInfo.aspx" />
+    <Content Include="AccountsModule\MasterData\CostCenterInfo.aspx" />
+    <Content Include="AccountsModule\MasterData\fiscalsyearsInformation.aspx" />
+    <Content Include="AccountsModule\MasterData\PaymentMode.aspx" />
+    <Content Include="Approval\HRM\Leave\LeaveApproved.aspx" />
+    <Content Include="Approval\HRM\Payroll\DeductionEarningApproval.aspx" />
+    <Content Include="Deahboard.aspx" />
+    <Content Include="Default.aspx" />
+    <Content Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx" />
+    <Content Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx" />
+    <Content Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx" />
+    <Content Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\FormEntry.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\MenuEntry.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\RoleBasedPermission.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\Roles.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\UserEntry.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\UserToBranchPermission.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\UserToRolePermission.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EMP.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeBankAccountEntry.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeDelete.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeInformationChange.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeSeperation.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\PersonalInformationUpdate.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\ProbationTimeExtension.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\AttendanceSetting\CreateShift.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\AttendanceSetting\CreateBranchPolicy.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\HRMSetting\CreateCategory.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\HRMSetting\CreateSubSection.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\HRMSetting\DepartmentSetting.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\HRMSetting\DesignationInformation.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\HRMSetting\JobDescription.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\HRMSetting\SectionInformation.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\LeaveSetting\AnnualLeavePaymentPolicy.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\LeaveSetting\CreateLeaveName.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\PayrollSetting\CreateAbsentDeductionPolicy.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\PayrollSetting\CreateSalaryBreakdownPolicy.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\PayrollSetting\OTPaymentPolicy.aspx" />
+    <Content Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveDeclare.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\LeaveSetting\MonthWiseLeaveSet.aspx" />
+    <Content Include="HRMPayroll\LeaveInformation\LeaveApplication.aspx" />
+    <Content Include="HRMPayroll\LeaveInformation\ShortLeaveApplication.aspx" />
+    <Content Include="HRMPayroll\LeaveInformation\YearsWiseAnnualLeaveProcess.aspx" />
+    <Content Include="HRMPayroll\Payrollinformation\AllowanceProcess.aspx" />
+    <Content Include="HRMPayroll\Payrollinformation\DeductionEarnning.aspx" />
+    <Content Include="HRMPayroll\Payrollinformation\FestivalBonusProcess.aspx" />
+    <Content Include="Approval\HRM\Payroll\IncrementApproval.aspx" />
+    <Content Include="HRMPayroll\Payrollinformation\IncrementEntry.aspx" />
+    <Content Include="HRMPayroll\Payrollinformation\MaternityPaymentProcess.aspx" />
+    <Content Include="HRMPayroll\Payrollinformation\PaymentConfirmProcess.aspx" />
+    <Content Include="HRMPayroll\Payrollinformation\SalaryBreckDownProcess.aspx" />
+    <Content Include="HRMPayroll\Payrollinformation\SalaryProcess.aspx" />
+    <Content Include="images\Loginbg1.jpg" />
+    <Content Include="images\Loginbg2.jpg" />
+    <Content Include="images\loginbg3.jpg" />
+    <Content Include="images\loginbg4.jpg" />
+    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx" />
+    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
+    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx" />
+    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx" />
+    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ProductDepartmentInformation.aspx" />
+    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\YarnCountInformation.aspx" />
+    <Content Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx" />
+    <Content Include="MerchandisingMarketing\OrderInformation\StyleInfo.aspx" />
+    <Content Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx" />
+    <Content Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx" />
+    <Content Include="Test.aspx" />
+    <Content Include="Web.config" />
+    <Content Include="Welcome.aspx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccountsModule\MasterData\bankInformation.aspx.cs">
+      <DependentUpon>bankInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\bankInformation.aspx.designer.cs">
+      <DependentUpon>bankInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\ChartOfAccounts.aspx.cs">
+      <DependentUpon>ChartOfAccounts.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\ChartOfAccounts.aspx.designer.cs">
+      <DependentUpon>ChartOfAccounts.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\chequeBookRegistration.aspx.cs">
+      <DependentUpon>chequeBookRegistration.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\chequeBookRegistration.aspx.designer.cs">
+      <DependentUpon>chequeBookRegistration.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\costCenterGroupInfo.aspx.cs">
+      <DependentUpon>costCenterGroupInfo.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\costCenterGroupInfo.aspx.designer.cs">
+      <DependentUpon>costCenterGroupInfo.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\CostCenterInfo.aspx.cs">
+      <DependentUpon>CostCenterInfo.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\CostCenterInfo.aspx.designer.cs">
+      <DependentUpon>CostCenterInfo.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\fiscalsyearsInformation.aspx.cs">
+      <DependentUpon>fiscalsyearsInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\fiscalsyearsInformation.aspx.designer.cs">
+      <DependentUpon>fiscalsyearsInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\PaymentMode.aspx.cs">
+      <DependentUpon>PaymentMode.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountsModule\MasterData\PaymentMode.aspx.designer.cs">
+      <DependentUpon>PaymentMode.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Approval\HRM\Leave\LeaveApproved.aspx.cs">
+      <DependentUpon>LeaveApproved.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Approval\HRM\Leave\LeaveApproved.aspx.designer.cs">
+      <DependentUpon>LeaveApproved.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Approval\HRM\Payroll\DeductionEarningApproval.aspx.cs">
+      <DependentUpon>DeductionEarningApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Approval\HRM\Payroll\DeductionEarningApproval.aspx.designer.cs">
+      <DependentUpon>DeductionEarningApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Connection\DatabaseConectionAccounts.cs" />
+    <Compile Include="Connection\DatabaseConnectionMerchandising.cs" />
+    <Compile Include="Connection\Database_Connection.cs" />
+    <Compile Include="Connection\PayrollDB.cs" />
+    <Compile Include="Deahboard.aspx.cs">
+      <DependentUpon>Deahboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Deahboard.aspx.designer.cs">
+      <DependentUpon>Deahboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx.cs">
+      <DependentUpon>BranchInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx.designer.cs">
+      <DependentUpon>BranchInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx.cs">
+      <DependentUpon>FloorInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx.designer.cs">
+      <DependentUpon>FloorInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx.cs">
+      <DependentUpon>GroupInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx.designer.cs">
+      <DependentUpon>GroupInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx.cs">
+      <DependentUpon>ProductionBuilding.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx.designer.cs">
+      <DependentUpon>ProductionBuilding.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\FormEntry.aspx.cs">
+      <DependentUpon>FormEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\FormEntry.aspx.designer.cs">
+      <DependentUpon>FormEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\MenuEntry.aspx.cs">
+      <DependentUpon>MenuEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\MenuEntry.aspx.designer.cs">
+      <DependentUpon>MenuEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\RoleBasedPermission.aspx.cs">
+      <DependentUpon>RoleBasedPermission.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\RoleBasedPermission.aspx.designer.cs">
+      <DependentUpon>RoleBasedPermission.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\Roles.aspx.cs">
+      <DependentUpon>Roles.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\Roles.aspx.designer.cs">
+      <DependentUpon>Roles.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\UserEntry.aspx.cs">
+      <DependentUpon>UserEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\UserEntry.aspx.designer.cs">
+      <DependentUpon>UserEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\UserToBranchPermission.aspx.cs">
+      <DependentUpon>UserToBranchPermission.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\UserToBranchPermission.aspx.designer.cs">
+      <DependentUpon>UserToBranchPermission.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\UserToRolePermission.aspx.cs">
+      <DependentUpon>UserToRolePermission.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\UserToRolePermission.aspx.designer.cs">
+      <DependentUpon>UserToRolePermission.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EMP.aspx.cs">
+      <DependentUpon>EMP.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EMP.aspx.designer.cs">
+      <DependentUpon>EMP.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeBankAccountEntry.aspx.cs">
+      <DependentUpon>EmployeeBankAccountEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeBankAccountEntry.aspx.designer.cs">
+      <DependentUpon>EmployeeBankAccountEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeDelete.aspx.cs">
+      <DependentUpon>EmployeeDelete.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeDelete.aspx.designer.cs">
+      <DependentUpon>EmployeeDelete.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx.cs">
+      <DependentUpon>EmployeeEntryInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx.designer.cs">
+      <DependentUpon>EmployeeEntryInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeInformationChange.aspx.cs">
+      <DependentUpon>EmployeeInformationChange.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeInformationChange.aspx.designer.cs">
+      <DependentUpon>EmployeeInformationChange.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeSeperation.aspx.cs">
+      <DependentUpon>EmployeeSeperation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeSeperation.aspx.designer.cs">
+      <DependentUpon>EmployeeSeperation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\PersonalInformationUpdate.aspx.cs">
+      <DependentUpon>PersonalInformationUpdate.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\PersonalInformationUpdate.aspx.designer.cs">
+      <DependentUpon>PersonalInformationUpdate.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\ProbationTimeExtension.aspx.cs">
+      <DependentUpon>ProbationTimeExtension.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\ProbationTimeExtension.aspx.designer.cs">
+      <DependentUpon>ProbationTimeExtension.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\AttendanceSetting\CreateShift.aspx.cs">
+      <DependentUpon>CreateShift.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\AttendanceSetting\CreateShift.aspx.designer.cs">
+      <DependentUpon>CreateShift.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\AttendanceSetting\CreateBranchPolicy.aspx.cs">
+      <DependentUpon>CreateBranchPolicy.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\AttendanceSetting\CreateBranchPolicy.aspx.designer.cs">
+      <DependentUpon>CreateBranchPolicy.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\CreateCategory.aspx.cs">
+      <DependentUpon>CreateCategory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\CreateCategory.aspx.designer.cs">
+      <DependentUpon>CreateCategory.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\CreateSubSection.aspx.cs">
+      <DependentUpon>CreateSubSection.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\CreateSubSection.aspx.designer.cs">
+      <DependentUpon>CreateSubSection.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\DepartmentSetting.aspx.cs">
+      <DependentUpon>DepartmentSetting.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\DepartmentSetting.aspx.designer.cs">
+      <DependentUpon>DepartmentSetting.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\DesignationInformation.aspx.cs">
+      <DependentUpon>DesignationInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\DesignationInformation.aspx.designer.cs">
+      <DependentUpon>DesignationInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\JobDescription.aspx.cs">
+      <DependentUpon>JobDescription.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\JobDescription.aspx.designer.cs">
+      <DependentUpon>JobDescription.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\SectionInformation.aspx.cs">
+      <DependentUpon>SectionInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\SectionInformation.aspx.designer.cs">
+      <DependentUpon>SectionInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\LeaveSetting\AnnualLeavePaymentPolicy.aspx.cs">
+      <DependentUpon>AnnualLeavePaymentPolicy.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\LeaveSetting\AnnualLeavePaymentPolicy.aspx.designer.cs">
+      <DependentUpon>AnnualLeavePaymentPolicy.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\LeaveSetting\CreateLeaveName.aspx.cs">
+      <DependentUpon>CreateLeaveName.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\LeaveSetting\CreateLeaveName.aspx.designer.cs">
+      <DependentUpon>CreateLeaveName.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\PayrollSetting\CreateAbsentDeductionPolicy.aspx.cs">
+      <DependentUpon>CreateAbsentDeductionPolicy.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\PayrollSetting\CreateAbsentDeductionPolicy.aspx.designer.cs">
+      <DependentUpon>CreateAbsentDeductionPolicy.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\PayrollSetting\CreateSalaryBreakdownPolicy.aspx.cs">
+      <DependentUpon>CreateSalaryBreakdownPolicy.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\PayrollSetting\CreateSalaryBreakdownPolicy.aspx.designer.cs">
+      <DependentUpon>CreateSalaryBreakdownPolicy.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\PayrollSetting\OTPaymentPolicy.aspx.cs">
+      <DependentUpon>OTPaymentPolicy.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\PayrollSetting\OTPaymentPolicy.aspx.designer.cs">
+      <DependentUpon>OTPaymentPolicy.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveDeclare.aspx.cs">
+      <DependentUpon>EmployeeWiseLeaveDeclare.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveDeclare.aspx.designer.cs">
+      <DependentUpon>EmployeeWiseLeaveDeclare.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\LeaveSetting\MonthWiseLeaveSet.aspx.cs">
+      <DependentUpon>MonthWiseLeaveSet.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\LeaveSetting\MonthWiseLeaveSet.aspx.designer.cs">
+      <DependentUpon>MonthWiseLeaveSet.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\LeaveApplication.aspx.cs">
+      <DependentUpon>LeaveApplication.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\LeaveApplication.aspx.designer.cs">
+      <DependentUpon>LeaveApplication.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\ShortLeaveApplication.aspx.cs">
+      <DependentUpon>ShortLeaveApplication.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\ShortLeaveApplication.aspx.designer.cs">
+      <DependentUpon>ShortLeaveApplication.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\YearsWiseAnnualLeaveProcess.aspx.cs">
+      <DependentUpon>YearsWiseAnnualLeaveProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\YearsWiseAnnualLeaveProcess.aspx.designer.cs">
+      <DependentUpon>YearsWiseAnnualLeaveProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\AllowanceProcess.aspx.cs">
+      <DependentUpon>AllowanceProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\AllowanceProcess.aspx.designer.cs">
+      <DependentUpon>AllowanceProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\DeductionEarnning.aspx.cs">
+      <DependentUpon>DeductionEarnning.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\DeductionEarnning.aspx.designer.cs">
+      <DependentUpon>DeductionEarnning.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\FestivalBonusProcess.aspx.cs">
+      <DependentUpon>FestivalBonusProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\FestivalBonusProcess.aspx.designer.cs">
+      <DependentUpon>FestivalBonusProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Approval\HRM\Payroll\IncrementApproval.aspx.cs">
+      <DependentUpon>IncrementApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Approval\HRM\Payroll\IncrementApproval.aspx.designer.cs">
+      <DependentUpon>IncrementApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\IncrementEntry.aspx.cs">
+      <DependentUpon>IncrementEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\IncrementEntry.aspx.designer.cs">
+      <DependentUpon>IncrementEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\MaternityPaymentProcess.aspx.cs">
+      <DependentUpon>MaternityPaymentProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\MaternityPaymentProcess.aspx.designer.cs">
+      <DependentUpon>MaternityPaymentProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\PaymentConfirmProcess.aspx.cs">
+      <DependentUpon>PaymentConfirmProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\PaymentConfirmProcess.aspx.designer.cs">
+      <DependentUpon>PaymentConfirmProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\SalaryBreckDownProcess.aspx.cs">
+      <DependentUpon>SalaryBreckDownProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\SalaryBreckDownProcess.aspx.designer.cs">
+      <DependentUpon>SalaryBreckDownProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\SalaryProcess.aspx.cs">
+      <DependentUpon>SalaryProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\SalaryProcess.aspx.designer.cs">
+      <DependentUpon>SalaryProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx.cs">
+      <DependentUpon>BuyerInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx.designer.cs">
+      <DependentUpon>BuyerInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx.cs">
+      <DependentUpon>BuyingHouseAgent.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx.designer.cs">
+      <DependentUpon>BuyingHouseAgent.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx.cs">
+      <DependentUpon>ColorInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx.designer.cs">
+      <DependentUpon>ColorInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx.cs">
+      <DependentUpon>ItemsInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx.designer.cs">
+      <DependentUpon>ItemsInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ProductDepartmentInformation.aspx.cs">
+      <DependentUpon>ProductDepartmentInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ProductDepartmentInformation.aspx.designer.cs">
+      <DependentUpon>ProductDepartmentInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\YarnCountInformation.aspx.cs">
+      <DependentUpon>YarnCountInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\YarnCountInformation.aspx.designer.cs">
+      <DependentUpon>YarnCountInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx.cs">
+      <DependentUpon>PORegistration.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx.designer.cs">
+      <DependentUpon>PORegistration.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\StyleInfo.aspx.cs">
+      <DependentUpon>StyleInfo.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\StyleInfo.aspx.designer.cs">
+      <DependentUpon>StyleInfo.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx.cs">
+      <DependentUpon>StyleInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx.designer.cs">
+      <DependentUpon>StyleInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx.cs">
+      <DependentUpon>StyleRegistrationSystem.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx.designer.cs">
+      <DependentUpon>StyleRegistrationSystem.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test.aspx.cs">
+      <DependentUpon>Test.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Test.aspx.designer.cs">
+      <DependentUpon>Test.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Welcome.aspx.cs">
+      <DependentUpon>Welcome.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Welcome.aspx.designer.cs">
+      <DependentUpon>Welcome.aspx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="APIControlar\" />
+    <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>65347</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost:44333/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Import Project="packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets" Condition="Exists('packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets'))" />
+    <Error Condition="!Exists('packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets'))" />
+  </Target>
+  <Import Project="packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets" Condition="Exists('packages\System.ValueTuple.4.6.2\build\net471\System.ValueTuple.targets')" />
+</Project>
