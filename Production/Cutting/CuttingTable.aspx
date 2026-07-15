@@ -120,7 +120,6 @@
                                 <asp:Button ID="btnRefresh" runat="server" Text="Refresh" CssClass="btn btn-secondary" />
                                 <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-success" />
                                 <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn btn-danger" />
-                                <asp:Button ID="btnClear" runat="server" Text="Clear" CssClass="btn btn-secondary" />
                             </div>
                         </div>
                     </div>
@@ -138,7 +137,7 @@
                         </div>
                         <div class="grid-wrapper">
                              <!-- GridView or ListView -->
-                            <asp:GridView ID="gvCuttingTable" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="true" Width="100%">
+                            <asp:GridView ID="gvCuttingTable" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false" Width="100%">
                             </asp:GridView>
                         </div>
                     </div>
