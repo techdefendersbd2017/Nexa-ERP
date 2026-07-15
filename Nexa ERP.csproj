@@ -272,6 +272,7 @@
     <Content Include="Production\Finishing\PackedReject.aspx" />
     <Content Include="Production\Finishing\PackingList.aspx" />
     <Content Include="Production\Finishing\ShipmentChallanAndGatePass.aspx" />
+    <Content Include="Production\Sewing\a.aspx" />
     <Content Include="Test.aspx" />
     <Content Include="Web.config" />
     <Content Include="Welcome.aspx" />
@@ -911,6 +912,13 @@
     <Compile Include="Production\Finishing\ShipmentChallanAndGatePass.aspx.designer.cs">
       <DependentUpon>ShipmentChallanAndGatePass.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Production\Sewing\a.aspx.cs">
+      <DependentUpon>a.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Sewing\a.aspx.designer.cs">
+      <DependentUpon>a.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.aspx.cs">
       <DependentUpon>Test.aspx</DependentUpon>
@@ -939,7 +947,6 @@
   <ItemGroup>
     <Folder Include="APIControlar\" />
     <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
-    <Folder Include="Production\Sewing\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
