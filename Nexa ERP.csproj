@@ -249,6 +249,29 @@
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInfo.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx" />
+    <Content Include="Production\Cutting\cuttingContrastFabricsEntry.aspx" />
+    <Content Include="Production\Cutting\cuttingNumberWiseRecutEntry.aspx" />
+    <Content Include="Production\Cutting\cuttingReject.aspx" />
+    <Content Include="Production\Cutting\CuttingTable.aspx" />
+    <Content Include="Production\Cutting\DailyCuttingEntry.aspx" />
+    <Content Include="Production\Cutting\DailyCuttingTargetAndManpowerSet.aspx" />
+    <Content Include="Production\Cutting\DailyPieceCuttingEntry.aspx" />
+    <Content Include="Production\Cutting\SizeGradingOrPOtoPOTransfer.aspx" />
+    <Content Include="Production\Cutting\StyleWiseBodyPartsEntry.aspx" />
+    <Content Include="Production\Cutting\StyleWiseBundlePartsMapping.aspx" />
+    <Content Include="Production\Finishing\CartonOrPackedOutput.aspx" />
+    <Content Include="Production\Finishing\CreatePackingList.aspx" />
+    <Content Include="Production\Finishing\DailyFinishingTargetAndManpowerSet.aspx" />
+    <Content Include="Production\Finishing\DispatchFromFinishing.aspx" />
+    <Content Include="Production\Finishing\FinishingOutput.aspx" />
+    <Content Include="Production\Finishing\FinishingPoToPoTransfer.aspx" />
+    <Content Include="Production\Finishing\FinishingReceive.aspx" />
+    <Content Include="Production\Finishing\FinishingReject.aspx" />
+    <Content Include="Production\Finishing\FinishingSizeGrading.aspx" />
+    <Content Include="Production\Finishing\PackedInput.aspx" />
+    <Content Include="Production\Finishing\PackedReject.aspx" />
+    <Content Include="Production\Finishing\PackingList.aspx" />
+    <Content Include="Production\Finishing\ShipmentChallanAndGatePass.aspx" />
     <Content Include="Test.aspx" />
     <Content Include="Web.config" />
     <Content Include="Welcome.aspx" />
@@ -727,6 +750,167 @@
     <Compile Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx.designer.cs">
       <DependentUpon>StyleRegistrationSystem.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Production\Cutting\cuttingContrastFabricsEntry.aspx.cs">
+      <DependentUpon>cuttingContrastFabricsEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\cuttingContrastFabricsEntry.aspx.designer.cs">
+      <DependentUpon>cuttingContrastFabricsEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Cutting\cuttingNumberWiseRecutEntry.aspx.cs">
+      <DependentUpon>cuttingNumberWiseRecutEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\cuttingNumberWiseRecutEntry.aspx.designer.cs">
+      <DependentUpon>cuttingNumberWiseRecutEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Cutting\cuttingReject.aspx.cs">
+      <DependentUpon>cuttingReject.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\cuttingReject.aspx.designer.cs">
+      <DependentUpon>cuttingReject.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Cutting\CuttingTable.aspx.cs">
+      <DependentUpon>CuttingTable.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\CuttingTable.aspx.designer.cs">
+      <DependentUpon>CuttingTable.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Cutting\DailyCuttingEntry.aspx.cs">
+      <DependentUpon>DailyCuttingEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\DailyCuttingEntry.aspx.designer.cs">
+      <DependentUpon>DailyCuttingEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Cutting\DailyCuttingTargetAndManpowerSet.aspx.cs">
+      <DependentUpon>DailyCuttingTargetAndManpowerSet.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\DailyCuttingTargetAndManpowerSet.aspx.designer.cs">
+      <DependentUpon>DailyCuttingTargetAndManpowerSet.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Cutting\DailyPieceCuttingEntry.aspx.cs">
+      <DependentUpon>DailyPieceCuttingEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\DailyPieceCuttingEntry.aspx.designer.cs">
+      <DependentUpon>DailyPieceCuttingEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Cutting\SizeGradingOrPOtoPOTransfer.aspx.cs">
+      <DependentUpon>SizeGradingOrPOtoPOTransfer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\SizeGradingOrPOtoPOTransfer.aspx.designer.cs">
+      <DependentUpon>SizeGradingOrPOtoPOTransfer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Cutting\StyleWiseBodyPartsEntry.aspx.cs">
+      <DependentUpon>StyleWiseBodyPartsEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\StyleWiseBodyPartsEntry.aspx.designer.cs">
+      <DependentUpon>StyleWiseBodyPartsEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Cutting\StyleWiseBundlePartsMapping.aspx.cs">
+      <DependentUpon>StyleWiseBundlePartsMapping.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\StyleWiseBundlePartsMapping.aspx.designer.cs">
+      <DependentUpon>StyleWiseBundlePartsMapping.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\CartonOrPackedOutput.aspx.cs">
+      <DependentUpon>CartonOrPackedOutput.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\CartonOrPackedOutput.aspx.designer.cs">
+      <DependentUpon>CartonOrPackedOutput.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\CreatePackingList.aspx.cs">
+      <DependentUpon>CreatePackingList.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\CreatePackingList.aspx.designer.cs">
+      <DependentUpon>CreatePackingList.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\DailyFinishingTargetAndManpowerSet.aspx.cs">
+      <DependentUpon>DailyFinishingTargetAndManpowerSet.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\DailyFinishingTargetAndManpowerSet.aspx.designer.cs">
+      <DependentUpon>DailyFinishingTargetAndManpowerSet.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\DispatchFromFinishing.aspx.cs">
+      <DependentUpon>DispatchFromFinishing.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\DispatchFromFinishing.aspx.designer.cs">
+      <DependentUpon>DispatchFromFinishing.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingOutput.aspx.cs">
+      <DependentUpon>FinishingOutput.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingOutput.aspx.designer.cs">
+      <DependentUpon>FinishingOutput.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingPoToPoTransfer.aspx.cs">
+      <DependentUpon>FinishingPoToPoTransfer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingPoToPoTransfer.aspx.designer.cs">
+      <DependentUpon>FinishingPoToPoTransfer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingReceive.aspx.cs">
+      <DependentUpon>FinishingReceive.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingReceive.aspx.designer.cs">
+      <DependentUpon>FinishingReceive.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingReject.aspx.cs">
+      <DependentUpon>FinishingReject.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingReject.aspx.designer.cs">
+      <DependentUpon>FinishingReject.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingSizeGrading.aspx.cs">
+      <DependentUpon>FinishingSizeGrading.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\FinishingSizeGrading.aspx.designer.cs">
+      <DependentUpon>FinishingSizeGrading.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\PackedInput.aspx.cs">
+      <DependentUpon>PackedInput.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\PackedInput.aspx.designer.cs">
+      <DependentUpon>PackedInput.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\PackedReject.aspx.cs">
+      <DependentUpon>PackedReject.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\PackedReject.aspx.designer.cs">
+      <DependentUpon>PackedReject.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\PackingList.aspx.cs">
+      <DependentUpon>PackingList.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\PackingList.aspx.designer.cs">
+      <DependentUpon>PackingList.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\ShipmentChallanAndGatePass.aspx.cs">
+      <DependentUpon>ShipmentChallanAndGatePass.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\ShipmentChallanAndGatePass.aspx.designer.cs">
+      <DependentUpon>ShipmentChallanAndGatePass.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.aspx.cs">
       <DependentUpon>Test.aspx</DependentUpon>
@@ -755,6 +939,7 @@
   <ItemGroup>
     <Folder Include="APIControlar\" />
     <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
+    <Folder Include="Production\Sewing\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
