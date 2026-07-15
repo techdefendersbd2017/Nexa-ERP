@@ -239,6 +239,7 @@
     <Content Include="images\Loginbg2.jpg" />
     <Content Include="images\loginbg3.jpg" />
     <Content Include="images\loginbg4.jpg" />
+    <Content Include="IndustrialEngineering\WebForm1.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx" />
@@ -679,6 +680,13 @@
     </Compile>
     <Compile Include="HRMPayroll\Payrollinformation\SalaryProcess.aspx.designer.cs">
       <DependentUpon>SalaryProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="IndustrialEngineering\WebForm1.aspx.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="IndustrialEngineering\WebForm1.aspx.designer.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx.cs">
       <DependentUpon>BuyerInformation.aspx</DependentUpon>
