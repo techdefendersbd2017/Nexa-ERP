@@ -17,15 +17,15 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
         SqlCommand cmd;
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                string user = Request.QueryString["user"];
-                if (!string.IsNullOrEmpty(user))
-                {
-                    Label1.Text = "Welcome, " + user;
-                }
-                LoadgvItemsInformation();
-            }
+            //if (!IsPostBack)
+            //{
+            //    string user = Request.QueryString["user"];
+            //    if (!string.IsNullOrEmpty(user))
+            //    {
+            //        Label1.Text = "Welcome, " + user;
+            //    }
+            //    LoadgvItemsInformation();
+            //}
         }
 
         private void LoadgvItemsInformation()
