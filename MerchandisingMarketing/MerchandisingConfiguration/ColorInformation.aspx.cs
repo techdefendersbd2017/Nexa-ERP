@@ -37,17 +37,17 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                string user = Request.QueryString["user"];
-                //if (!string.IsNullOrEmpty(user))
-                //{
-                //    Label1.Text = "Welcome, " + user;
-                //}
-                BindColorTypes();
-                LoadColorMasterInformation(); 
-                LoadNextColorID();
-            }
+            //if (!IsPostBack)
+            //{
+            //    string user = Request.QueryString["user"];
+            //    //if (!string.IsNullOrEmpty(user))
+            //    //{
+            //    //    Label1.Text = "Welcome, " + user;
+            //    //}
+            //    BindColorTypes();
+            //    LoadColorMasterInformation(); 
+            //    LoadNextColorID();
+            //}
         }
 
         void LoadNextColorID()
