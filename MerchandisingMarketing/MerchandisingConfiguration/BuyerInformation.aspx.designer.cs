@@ -78,15 +78,6 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
         protected global::System.Web.UI.WebControls.TextBox txtEmail;
 
         /// <summary>
-        /// ddlMainBuyer control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlMainBuyer;
-
-        /// <summary>
         /// ddlCountry control.
         /// </summary>
         /// <remarks>

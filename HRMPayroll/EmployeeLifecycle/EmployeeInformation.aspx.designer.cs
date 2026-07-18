@@ -11,7 +11,7 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
 {
 
 
-    public partial class EmployeeEntryInformation
+    public partial class EmployeeInformation
     {
 
         /// <summary>

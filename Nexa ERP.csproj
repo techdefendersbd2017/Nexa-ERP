@@ -204,6 +204,7 @@
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeBankAccountEntry.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeDelete.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeInformation.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeInformationChange.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeSeperation.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\PersonalInformationUpdate.aspx" />
@@ -239,7 +240,6 @@
     <Content Include="images\Loginbg2.jpg" />
     <Content Include="images\loginbg3.jpg" />
     <Content Include="images\loginbg4.jpg" />
-    <Content Include="IndustrialEngineering\WebForm1.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx" />
@@ -466,6 +466,13 @@
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx.designer.cs">
       <DependentUpon>EmployeeEntryInformation.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeInformation.aspx.cs">
+      <DependentUpon>EmployeeInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeInformation.aspx.designer.cs">
+      <DependentUpon>EmployeeInformation.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeInformationChange.aspx.cs">
       <DependentUpon>EmployeeInformationChange.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -682,13 +689,6 @@
     </Compile>
     <Compile Include="HRMPayroll\Payrollinformation\SalaryProcess.aspx.designer.cs">
       <DependentUpon>SalaryProcess.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="IndustrialEngineering\WebForm1.aspx.cs">
-      <DependentUpon>WebForm1.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="IndustrialEngineering\WebForm1.aspx.designer.cs">
-      <DependentUpon>WebForm1.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx.cs">
       <DependentUpon>BuyerInformation.aspx</DependentUpon>
@@ -963,6 +963,7 @@
   <ItemGroup>
     <Folder Include="APIControlar\" />
     <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
+    <Folder Include="IndustrialEngineering\" />
     <Folder Include="Production\Sewing\" />
   </ItemGroup>
   <PropertyGroup>
