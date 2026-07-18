@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -29,11 +30,11 @@
                 <div class="grid grid-cols-12 gap-x-3 gap-y-1 h-full">
 
                     <%-- left input --%>
-                    <div class="col-span-12">
+                    <div class="col-span-7">
                         <div class="flex flex-col space-y-2">
 
                             <%-- top input --%>
-                            <div class="grid grid-cols-5 gap-x-2 gap-y-1">
+                            <div class="grid grid-cols-3 gap-x-2 gap-y-1">
 
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="whitespace-nowrap">Short Ship. Report Id</label>
@@ -53,34 +54,39 @@
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="whitespace-nowrap">Style</label>
-                                    <asp:TextBox ID="txtStyle" runat="server"  CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtStyle" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:TextBox>
                                 </div>
-                                <div class="flex flex-col gap-0.5 w-full col-span-2">
+
+                                <div class="flex flex-col gap-0.5 w-full">
                                     <label class="whitespace-nowrap">PO</label>
                                     <asp:TextBox ID="txtPo" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:TextBox>
                                 </div>
-                                <div class="flex flex-col gap-2">
-                                    <fieldset class="border border-gray-400 rounded p-2">
-                                        <legend class="italic font-medium text-sm px-2">PO</legend>
-                                        <div class="border border-gray-400 bg-gray-300 rounded w-full h-32 overflow-y-auto overflow-x-auto mt-2 mb-1">
-                                            <asp:ListView ID="ListView1" runat="server"></asp:ListView>
-                                        </div>
-                                    </fieldset>
-                                    <div class="flex items-end">
-                                        <asp:Button ID="btnClear1" runat="server" Text="Clear" CssClass="rounded bg-[#64748B] text-white px-4 py-0.5 shadow-sm hover:bg-[#475569] cursor-pointer transition delay-150 duration-300 ease-in-out" />   
-                                    </div>
+
+                                <div class="flex items-end gap-3 justify-end mt-2 col-span-3">
+                                    <asp:Button ID="btnAdd" runat="server" Text="Add" CssClass="rounded bg-[#64748B] text-white px-4 py-0.5 shadow-sm hover:bg-[#475569] cursor-pointer transition delay-150 duration-300 ease-in-out" />
+
+                                    <asp:Button ID="btnShow" runat="server" Text="Show" CssClass="rounded bg-[#64748B] text-white px-4 py-0.5 shadow-sm hover:bg-[#475569] cursor-pointer transition delay-150 duration-300 ease-in-out" />
                                 </div>
-                                <div class="flex items-end">
-                                    <asp:Button ID="btnAdd" runat="server" Text="Add" CssClass="rounded bg-[#64748B] text-white px-4 py-0.5 shadow-sm hover:bg-[#475569] cursor-pointer transition delay-150 duration-300 ease-in-out" />   
-                                </div>
-                                <div class="flex items-end">
-                                     <asp:Button ID="btnShow" runat="server" Text="Show" CssClass="rounded bg-[#64748B] text-white px-4 py-1 shadow-sm hover:bg-[#475569] cursor-pointer transition delay-150 duration-300 ease-in-out" />
-                                </div>
-                                
+
                             </div>
                         </div>
-                    </div>             
+                    </div>
+                    <div class="col-span-5">
+
+                        <div class="flex flex-col gap-2">
+                            <fieldset class="border border-gray-400 rounded py-1 px-2">
+                                <legend class="italic font-medium text-sm px-2">PO</legend>
+                                <div class="border border-gray-400 bg-gray-300 rounded w-full h-24 overflow-y-auto overflow-x-auto mt-2 mb-1">
+                                    <asp:ListView ID="ListView1" runat="server"></asp:ListView>
+                                </div>
+                                <div class="flex items-end justify-end">
+                                    <asp:Button ID="btnClear1" runat="server" Text="Clear" CssClass="rounded bg-[#64748B] text-white px-4 py-0.5 shadow-sm hover:bg-[#475569] cursor-pointer transition delay-150 duration-300 ease-in-out" />
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
                 </div>
+
 
                 <!--below  btn -->
                 <div class="space-x-4 flex justify-between items-center mt-3">
@@ -92,7 +98,7 @@
                             <asp:Label for="chkIsActive" AssociatedControlID="chkIsActive" runat="server" Text="Is Active?" CssClass="cursor-pointer"></asp:Label>
                         </div>
                     </div>
-                    <div class="flex gap-3">                    
+                    <div class="flex gap-3">
 
                         <asp:Button ID="btnClear" runat="server" Text="Clear" CssClass="rounded bg-[#64748B] text-white px-4 py-1 shadow-sm hover:bg-[#475569] cursor-pointer transition delay-150 duration-300 ease-in-out" />
 
