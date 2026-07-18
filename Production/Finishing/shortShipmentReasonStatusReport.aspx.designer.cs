@@ -11,7 +11,7 @@ namespace Nexa_ERP.Production.Finishing
 {
 
 
-    public partial class shortShipmentReason
+    public partial class shortShipmentReasonStatusReport
     {
 
         /// <summary>
@@ -51,13 +51,13 @@ namespace Nexa_ERP.Production.Finishing
         protected global::System.Web.UI.WebControls.DropDownList ddlDate;
 
         /// <summary>
-        /// txtOrderPlacementMonth control.
+        /// ddlTo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtOrderPlacementMonth;
+        protected global::System.Web.UI.WebControls.DropDownList ddlTo;
 
         /// <summary>
         /// txtBuyer control.
@@ -87,78 +87,6 @@ namespace Nexa_ERP.Production.Finishing
         protected global::System.Web.UI.WebControls.TextBox txtPo;
 
         /// <summary>
-        /// txtOrderQty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtOrderQty;
-
-        /// <summary>
-        /// txtCuttingQty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCuttingQty;
-
-        /// <summary>
-        /// txtSewingQty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSewingQty;
-
-        /// <summary>
-        /// txtShipmentQty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtShipmentQty;
-
-        /// <summary>
-        /// txtShortOrExcessQty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtShortOrExcessQty;
-
-        /// <summary>
-        /// ddlShortShipmentReason control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlShortShipmentReason;
-
-        /// <summary>
-        /// txtAffectedQty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtAffectedQty;
-
-        /// <summary>
-        /// txtRemSMark control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRemSMark;
-
-        /// <summary>
         /// btnAdd control.
         /// </summary>
         /// <remarks>
@@ -168,13 +96,31 @@ namespace Nexa_ERP.Production.Finishing
         protected global::System.Web.UI.WebControls.Button btnAdd;
 
         /// <summary>
-        /// GridView1 control.
+        /// btnShow control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView GridView1;
+        protected global::System.Web.UI.WebControls.Button btnShow;
+
+        /// <summary>
+        /// ListView1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ListView ListView1;
+
+        /// <summary>
+        /// btnClear1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnClear1;
 
         /// <summary>
         /// btnRefresh control.
@@ -193,33 +139,6 @@ namespace Nexa_ERP.Production.Finishing
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
-
-        /// <summary>
-        /// btnShow control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnShow;
-
-        /// <summary>
-        /// btnSave control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSave;
-
-        /// <summary>
-        /// btnDelete control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDelete;
 
         /// <summary>
         /// btnClear control.
