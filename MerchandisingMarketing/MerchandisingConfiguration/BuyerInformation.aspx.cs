@@ -21,107 +21,51 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
             if (!IsPostBack)
             {
                 string user = Request.QueryString["user"];
-                LoadBuyerType();
                 CountryInformationLoad();
-                BuyingAgentTypeInformationLoad();
+                LoadBuyerInformation();
             }
 
         }
-        private void BuyingAgentTypeInformationLoad()
-        {
-            //try
-            //{
-            //    con = conn.openConnection();
-            //    {
-            //        string query = "SELECT * FROM BuyingHouseAgent";
-            //        using (SqlCommand cmd = new SqlCommand(query, con))
-            //        {
-            //            SqlDataAdapter da = new SqlDataAdapter(cmd);
-            //            DataSet ds = new DataSet();
-            //            da.Fill(ds);
 
-            //            ddlBuyingHouseName.DataSource = ds.Tables[0];
-            //            ddlBuyingHouseName.DataTextField = "HouseName";
-            //            ddlBuyingHouseName.DataValueField = "AgentID";
-            //            ddlBuyingHouseName.DataBind();
-
-            //            ddlBuyingHouseName.Items.Insert(0, new ListItem("--Select--", "0"));
-            //        }
-            //    }
-            //    con.Close();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Response.Write("Error: " + ex.Message);
-            //}
-        }
-        private void LoadBuyerType()
-        {
-            //try
-            //{
-            //    con = conn.openConnection();
-            //    {
-            //        string query = "SELECT * FROM BuyerType";
-            //        using (SqlCommand cmd = new SqlCommand(query, con))
-            //        {
-            //            SqlDataAdapter da = new SqlDataAdapter(cmd);
-            //            DataSet ds = new DataSet();
-            //            da.Fill(ds);
-
-            //            ddlBuyerType.DataSource = ds.Tables[0];
-            //            ddlBuyerType.DataTextField = "BuyerTypeName";
-            //            ddlBuyerType.DataValueField = "BuyerTypeID";
-            //            ddlBuyerType.DataBind();
-
-            //            ddlBuyerType.Items.Insert(0, new ListItem("--Select--", "0"));
-            //        }
-            //    }
-            //    con.Close();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Response.Write("Error: " + ex.Message);
-            //}
-        }
         private void CountryInformationLoad()
         {
-            //try
-            //{
-            //    con = conn.openConnection();
-            //    {
-            //        string query = "SELECT * FROM CountryMaster";
-            //        using (SqlCommand cmd = new SqlCommand(query, con))
-            //        {
-            //            SqlDataAdapter da = new SqlDataAdapter(cmd);
-            //            DataSet ds = new DataSet();
-            //            da.Fill(ds);
+            try
+            {
+                con = conn.openConnection();
+                {
+                    string query = "SELECT * FROM CountryMaster";
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        SqlDataAdapter da = new SqlDataAdapter(cmd);
+                        DataSet ds = new DataSet();
+                        da.Fill(ds);
 
-            //            ddlCountryName.DataSource = ds.Tables[0];
-            //            ddlCountryName.DataTextField = "CountryName";
-            //            ddlCountryName.DataValueField = "CountryID";
-            //            ddlCountryName.DataBind();
+                        ddlCountry.DataSource = ds.Tables[0];
+                        ddlCountry.DataTextField = "CountryName";
+                        ddlCountry.DataValueField = "CountryID";
+                        ddlCountry.DataBind();
 
-            //            ddlCountryName.Items.Insert(0, new ListItem("--Select--", "0"));
-            //        }
-            //    }
-            //    con.Close();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Response.Write("Error: " + ex.Message);
-            //}
+                        ddlCountry.Items.Insert(0, new ListItem("--Select--", "0"));
+                    }
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Response.Write("Error: " + ex.Message);
+            }
         }
         private void LoadBuyerInformation()
         {
-            //con = conn.openConnection();
-            //{
-            //    SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM BuyerInformation where BuyingHouseID='"+ddlBuyingHouseName.SelectedValue+"'", con);
-            //    DataTable dt = new DataTable();
-            //    da.Fill(dt);
-            //    gvBuyerInformation.DataSource = dt;
-            //    gvBuyerInformation.DataBind();
-            //}
-            //con.Close();
+            con = conn.openConnection();
+            {
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM BuyerInformation Order By BuyerName asc", con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvBuyer.DataSource = dt;
+                gvBuyer.DataBind();
+            }
+            con.Close();
         }
 
         protected void LinkButton1_Click(object sender, EventArgs e)
@@ -160,7 +104,7 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
             //    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
             //        "alert('" + ex.Message.Replace("'", "") + "');", true);
             //}
-            LoadBuyerInformation();
+            //LoadBuyerInformation();
         }
 
         protected void CheckBox1_CheckedChanged(object sender, EventArgs e)
@@ -178,7 +122,7 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
 
         protected void ddlBuyingHouseName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadBuyerInformation();
+            //LoadBuyerInformation();
         }
 
         protected void gvBuyerInformation_SelectedIndexChanged(object sender, EventArgs e)
@@ -239,6 +183,52 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
             //CountryInformationLoad();
             //LoadBuyerType();
 
+        }
+
+        protected void btnSave_Click(object sender, EventArgs e)
+        {
+            //con = conn.openConnection();
+            //{
+            //    try
+            //    {
+            //        using (SqlCommand cmd = new SqlCommand("sp_SaveBuyer", con))
+            //        {
+            //            cmd.CommandType = CommandType.StoredProcedure;
+            //            cmd.Parameters.AddWithValue("@BuyerID", txtBuyerID.Text.Trim());
+            //            cmd.Parameters.AddWithValue("@BuyerCode", txtBuyerCode.Text.Trim());
+            //            cmd.Parameters.AddWithValue("@BuyerName", txtBuyerName.Text.Trim());
+            //            cmd.Parameters.AddWithValue("@DisplayName", txtDisplayName.Text.Trim());
+            //            cmd.Parameters.AddWithValue("@Currency", txtCurrency.Text.Trim());
+            //            cmd.Parameters.AddWithValue("@ContactNo", txtContact.Text.Trim());
+            //            cmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim());
+            //            cmd.Parameters.AddWithValue("@CountryID", ddlCountry.SelectedValue);
+            //            cmd.Parameters.AddWithValue("@Address", txtAddress.Text.Trim());
+            //            cmd.ExecuteNonQuery();
+            //            ClearFields();
+            //            ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('তথ্যটি সফলভাবে সংরক্ষিত হয়েছে!');", true);
+            //        }
+            //    }
+            //    catch (SqlException ex)
+            //    {
+            //        // ৫. ডুপ্লিকেট বা ডাটাবেস এরর হ্যান্ডলিং
+            //        ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Error: " + ex.Message.Replace("'", "") + "');", true);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('An unexpected error occurred: " + ex.Message.Replace("'", "") + "');", true);
+            //    }
+            //}
+        }
+        private void ClearFields()
+        {
+            txtBuyerCode.Text = "";
+            txtBuyerName.Text = "";
+            txtDisplayName.Text = "";
+            txtCurrency.Text = "";
+            txtContact.Text = "";
+            txtEmail.Text = "";
+            txtAddress.Text = "";
+            ddlCountry.SelectedIndex = 0;
         }
     }
 }

@@ -67,7 +67,6 @@
                                 <div class="col-md-6"><label>Currency</label><asp:TextBox ID="txtCurrency" runat="server" CssClass="form-control" /></div>
                                 <div class="col-md-6"><label>Contact No</label><asp:TextBox ID="txtContact" runat="server" CssClass="form-control" /></div>
                                 <div class="col-12"><label>Email</label><asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" /></div>
-                                <div class="col-md-6"><label>Main Buyer</label><asp:DropDownList ID="ddlMainBuyer" runat="server" CssClass="form-select"></asp:DropDownList></div>
                                 <div class="col-12"><label>Country</label><asp:DropDownList ID="ddlCountry" runat="server" CssClass="form-select"></asp:DropDownList></div>
                                 <div class="col-12"><label>Address</label><asp:TextBox ID="txtAddress" runat="server" TextMode="MultiLine" Rows="2" CssClass="form-control" /></div>
                                 
@@ -85,7 +84,7 @@
                                 <!-- নিচের বাটনস -->
                                 <div class="card-footer bg-light d-flex justify-content-between">
                                     <div class="d-flex gap-1">
-                                        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-success btn-sm" />
+                                        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-success btn-sm" OnClick="btnSave_Click" />
                                         <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn btn-danger btn-sm" />
                                         <asp:Button ID="btnClear" runat="server" Text="Clear" CssClass="btn btn-warning btn-sm" />
                                     </div>
@@ -107,13 +106,12 @@
                             </div>
                         </div>
                         <div class="grid-wrapper">
-                            <!-- গ্রিড ভিউতে Select বাটন যুক্ত -->
-                            <asp:GridView ID="gvBuyer" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="False">
+                            <asp:GridView ID="gvBuyer" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="False" DataKeyNames="BuyerID"
+                                Width="100%">
                                 <Columns>
-                                    <asp:CommandField ShowSelectButton="True" SelectText="Select" ButtonType="Button" ControlStyle-CssClass="btn btn-sm btn-outline-primary" />
-                                    <asp:BoundField DataField="Code" HeaderText="Code" />
+                                    <asp:CommandField ShowSelectButton="True" SelectText="Select"> <ItemStyle Width="80px" /> </asp:CommandField>
+                                    <asp:BoundField DataField="BuyerID" HeaderText="ID" />
                                     <asp:BoundField DataField="BuyerName" HeaderText="Buyer Name" />
-                                    <asp:BoundField DataField="DisplayName" HeaderText="Display Name" />
                                 </Columns>
                             </asp:GridView>
                         </div>
