@@ -7,7 +7,7 @@ namespace Nexa_ERP.Connection
     public class DatabaseConectionAccounts
     {
         // কানেকশন স্ট্রিংটি এখানে সরাসরি না রেখে Web.config এ রাখলে ভালো হয়
-        private string connectionString = @"Server=.; Database=NexaAccounts; User Id=sa; Password=bip1#;";
+        private string connectionString = @"Server=103.125.255.14,9436; Database=nexa_acc; User Id=sa; Password=bip1#;";
 
         public SqlConnection openConnection()
         {

@@ -3,153 +3,515 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Color Master</title>
-    <style>
-        * { font-family: Arial, sans-serif; font-size: 13px; box-sizing: border-box; }
-        body { background: #f0f0f0; padding: 15px; }
+    <title>Color Master - NexaERP</title>
 
-        /* Page Header */
-        .page-header { background: #1a9ab1; color: #fff; padding: 8px 12px; font-size: 15px; font-weight: bold; margin-bottom: 10px; border-radius: 3px; }
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        /* Card / Section */
-        .card { background: #fff; border: 1px solid #ddd; border-radius: 3px; padding: 15px; margin-bottom: 15px; }
-        .section-title { color: #1a9ab1; font-weight: bold; text-decoration: underline; margin-bottom: 12px; font-size: 13px; }
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-        /* Form */
-        .form-row { display: flex; align-items: center; margin-bottom: 10px; }
-        .form-label { width: 120px; text-align: right; padding-right: 10px; font-weight: bold; }
-        .form-control { width: 320px; padding: 4px 6px; border: 1px solid #aaa; border-radius: 2px; height: 26px; }
-        .form-control[disabled], .form-control.readonly { background: #e8e8e8; }
-        .btn-add { background: #1a9ab1; color: #fff; border: none; padding: 3px 8px; cursor: pointer; margin-left: 5px; font-size: 16px; font-weight: bold; border-radius: 2px; }
-        .checkbox-row { margin-left: 130px; margin-bottom: 10px; }
-        .btn-save  { background: #5cb85c; color: #fff; border: none; padding: 5px 14px; cursor: pointer; border-radius: 3px; margin-right: 5px; }
-        .btn-reset { background: #d9534f; color: #fff; border: none; padding: 5px 14px; cursor: pointer; border-radius: 3px; }
-        .msg-label { margin-left: 130px; font-weight: bold; }
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
-        /* Grid */
-        .grid-title { color: #1a9ab1; font-weight: bold; text-decoration: underline; margin-bottom: 8px; }
-        table.grid { width: 100%; border-collapse: collapse; }
-        table.grid th { background: #1a9ab1; color: #fff; padding: 6px 8px; text-align: left; }
-        table.grid td { padding: 5px 8px; border-bottom: 1px solid #eee; }
-        table.grid tr:nth-child(even) td { background: #f7f7f7; }
-        .btn-edit { background: #5cb85c; color: #fff; border: none; padding: 2px 8px; cursor: pointer; border-radius: 2px; margin-right: 3px; }
-        .btn-del  { background: #d9534f; color: #fff; border: none; padding: 2px 6px; cursor: pointer; border-radius: 2px; }
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-        /* Pagination */
-        .pager { margin-top: 8px; font-size: 12px; color: #555; display: flex; align-items: center; gap: 4px; }
-        .pager a, .pager span { padding: 2px 7px; border: 1px solid #ccc; border-radius: 2px; text-decoration: none; color: #333; }
-        .pager .current { background: #1a9ab1; color: #fff; border-color: #1a9ab1; }
-    </style>
+<style>
+    :root {
+        --brand-primary: #0d6efd;
+        --brand-primary-dark: #0b5ed7;
+        --brand-success: #198754;
+        --brand-success-dark: #157347;
+        --surface: #ffffff;
+        --page-bg: #f2f4f8;
+        --border-soft: #e6e9ef;
+        --text-muted: #6b7280;
+    }
+
+    * {
+        font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+
+    body {
+        background: var(--page-bg);
+        margin: 0;
+        padding: 0;
+        color: #1f2937;
+    }
+
+    .main-container {
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .page-heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .page-heading i {
+        font-size: 1.4rem;
+        color: var(--brand-primary);
+    }
+
+    .page-heading h3 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.35rem;
+        color: #111827;
+    }
+
+    .page-heading small {
+        display: block;
+        color: var(--text-muted);
+        font-weight: 400;
+        font-size: 0.8rem;
+    }
+
+    .card {
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(17, 24, 39, 0.06);
+    }
+
+    .card-header {
+        border: none;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card-header.bg-primary {
+        background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark)) !important;
+    }
+
+    .card-header.bg-success {
+        background: linear-gradient(135deg, var(--brand-success), var(--brand-success-dark)) !important;
+    }
+
+    .card-header h4 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        margin: 0;
+    }
+
+    .card-header i {
+        font-size: 1.1rem;
+    }
+
+    label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #374151;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #d7dce3;
+        padding: 9px 12px;
+        font-size: 0.92rem;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+
+    .form-control[readonly],
+    .form-control[disabled] {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 8px 20px;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, var(--brand-success), var(--brand-success-dark));
+        border: none;
+        color: #fff;
+    }
+
+    .btn-reset {
+        background-color: #eef0f3;
+        border: 1px solid #d7dce3;
+        color: #374151;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 8px 20px;
+    }
+
+    .btn-reset:hover {
+        background-color: #e2e5ea;
+        color: #111827;
+    }
+
+    .btn-edit {
+        background: var(--brand-success);
+        color: #fff;
+        border: none;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin-right: 4px;
+    }
+
+    .btn-del {
+        background: #dc3545;
+        color: #fff;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--brand-success);
+        border-color: var(--brand-success);
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: auto;
+        padding-left: 0;
+    }
+
+    .form-check .form-check-input {
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .form-check label {
+        display: inline;
+        margin-bottom: 0;
+        font-weight: 500;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .left-panel {
+        max-height: calc(100vh - 220px);
+        overflow-y: auto;
+        padding: 22px;
+    }
+
+    .right-panel {
+        height: 100%;
+    }
+
+    .action-bar {
+        border-top: 1px solid var(--border-soft);
+        margin-top: 20px;
+        padding-top: 16px;
+    }
+
+    .msg-label {
+        margin-top: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--brand-success);
+    }
+
+    .grid-wrapper {
+        max-height: calc(100vh - 300px);
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
+    .grid-wrapper table {
+        margin-bottom: 0;
+        white-space: nowrap;
+        font-size: 0.88rem;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .grid-wrapper th {
+        position: sticky;
+        top: 0;
+        background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark)) !important;
+        color: #fff !important;
+        z-index: 100;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 12px 14px;
+        border: none;
+        text-align: left;
+    }
+
+    .grid-wrapper td {
+        padding: 10px 14px;
+        vertical-align: middle;
+        color: #374151;
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+    .grid-wrapper tbody tr:hover {
+        background-color: #f0f6ff;
+    }
+
+    .pager-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 14px 22px;
+        border-top: 1px solid var(--border-soft);
+        font-size: 0.82rem;
+        color: var(--text-muted);
+    }
+
+    .pager-bar .pager-controls {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pager-bar a,
+    .pager-bar .current {
+        padding: 4px 10px;
+        border: 1px solid var(--border-soft);
+        border-radius: 6px;
+        text-decoration: none;
+        color: #374151;
+        font-weight: 500;
+    }
+
+    .pager-bar .current {
+        background: var(--brand-primary);
+        color: #fff;
+        border-color: var(--brand-primary);
+    }
+
+    .pager-bar .form-select {
+        width: auto;
+        display: inline-block;
+        padding: 4px 10px;
+        height: auto;
+        font-size: 0.82rem;
+    }
+
+    /* Tablet & Mobile */
+    @media (max-width: 991.98px) {
+
+        .main-container {
+            height: auto;
+            padding: 14px;
+        }
+
+        .card {
+            height: auto !important;
+            margin-bottom: 15px;
+        }
+
+        .left-panel,
+        .grid-wrapper {
+            max-height: none;
+            overflow: visible;
+        }
+
+        .grid-wrapper {
+            overflow-x: auto;
+        }
+
+        .action-bar .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .page-heading h3 {
+            font-size: 1.1rem;
+        }
+
+        .card-header h4 {
+            font-size: 0.95rem;
+        }
+
+        .left-panel {
+            padding: 16px;
+        }
+
+        .action-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pager-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
 </head>
 <body>
 <form id="form1" runat="server">
 <asp:ScriptManager ID="ScriptManager1" runat="server" />
 
-    <!-- Page Header -->
-    <div class="page-header">Color Master</div>
+<div class="container-fluid main-container">
 
-    <!-- Master Data Form -->
-    <asp:UpdatePanel ID="upForm" runat="server">
-    <ContentTemplate>
-    <div class="card">
-        <div class="section-title"><a href="#">Master Data</a></div>
-
-        <!-- Color Code -->
-        <div class="form-row">
-            <span class="form-label">Color Code</span>
-            <asp:TextBox ID="txtColorCode" runat="server" CssClass="form-control readonly" ReadOnly="true" placeholder="[Auto Generated]" />
+    <div class="page-heading">
+        <i class="bi bi-palette-fill"></i>
+        <div>
+            <h3>Color Master</h3>
+            <small>Merchandising &amp; Marketing &rsaquo; Merchandising Configuration &rsaquo; Color Information</small>
         </div>
-
-        <!-- Color Type -->
-        <div class="form-row">
-            <span class="form-label">Color Type</span>
-            <asp:DropDownList ID="ddlColorType" runat="server" CssClass="form-control">
-                <asp:ListItem Value="">--Select Type--</asp:ListItem>
-            </asp:DropDownList>
-            <asp:Button ID="btnAddType" runat="server" Text="+" CssClass="btn-add" OnClick="btnAddType_Click" ToolTip="Add New Color Type" />
-        </div>
-
-        <!-- Color Name -->
-        <div class="form-row">
-            <span class="form-label">Color Name</span>
-            <asp:TextBox ID="txtColorName" runat="server" CssClass="form-control" placeholder="Color Name" MaxLength="100" />
-        </div>
-
-         <!-- pENTON Name -->
-        <div class="form-row">
-            <span class="form-label">Panton Name</span>
-            <asp:TextBox ID="txtPantenName" runat="server" CssClass="form-control" placeholder="Color Name" MaxLength="100" />
-        </div>
-
-        <!-- Is Active -->
-        <div class="checkbox-row">
-            <asp:CheckBox ID="chkIsActive" runat="server" Checked="true" Text="Is Active?" />
-        </div>
-
-        <!-- Buttons -->
-        <div style="margin-left:120px; margin-bottom:8px;">
-            <asp:Button ID="btnSave"  runat="server" Text="Save"  CssClass="btn-save"  OnClick="btnSave_Click" />
-            <asp:Button ID="btnReset" runat="server" Text="Reset" CssClass="btn-reset" OnClick="btnReset_Click" />
-        </div>
-
-        <!-- Message -->
-        <div class="msg-label">
-            <asp:Label ID="lblMessage" runat="server" />
-        </div>
-
-        <asp:HiddenField ID="hfColorID" runat="server" Value="0" />
     </div>
-    </ContentTemplate>
-    </asp:UpdatePanel>
 
-    <!-- Color List Grid -->
-    <asp:UpdatePanel ID="upGrid" runat="server">
-    <ContentTemplate>
-    <div class="card">
-        <div class="grid-title"><a href="#">Color List</a></div>
+    <div class="row">
 
-        <asp:GridView ID="gvColorList" runat="server" CssClass="grid" AutoGenerateColumns="false"
-            DataKeyNames="ColorID" OnRowCommand="gvColorList_RowCommand">
-            <Columns>
-                <asp:BoundField DataField="ColorCode" HeaderText="Color Code" />
-                <asp:BoundField DataField="ColorType" HeaderText="Color Type" />
-                <asp:BoundField DataField="ColorName" HeaderText="Color Name" />
-                <asp:BoundField DataField="IsActive"  HeaderText="Is Active?" />
-                <asp:TemplateField HeaderText="Action">
-                    <ItemTemplate>
-                        <asp:Button runat="server" Text="Edit" CssClass="btn-edit"
-                            CommandName="EditRow" CommandArgument='<%# Eval("ColorID") %>' />
-                        <asp:Button runat="server" Text="X" CssClass="btn-del"
-                            CommandName="DeleteRow" CommandArgument='<%# Eval("ColorID") %>'
-                            OnClientClick="return confirm('Are you sure you want to delete this record?');" />
-                    </ItemTemplate>
-                </asp:TemplateField>
-            </Columns>
-            <EmptyDataTemplate><p style="color:#888;">No records found.</p></EmptyDataTemplate>
-        </asp:GridView>
+        <!-- Left Side Form -->
+        <div class="col-12 col-lg-6 mb-3">
 
-        <!-- Pager -->
-        <div class="pager" style="margin-top:10px; justify-content:space-between;">
-            <div>
-                <asp:LinkButton ID="lbFirst" runat="server" OnClick="lbFirst_Click">1at page</asp:LinkButton>
-                <asp:LinkButton ID="lbPrev"  runat="server" OnClick="lbPrev_Click">‹</asp:LinkButton>
-                <asp:Label ID="lblCurrentPage" runat="server" CssClass="current" />
-                <asp:LinkButton ID="lbNext" runat="server" OnClick="lbNext_Click">›</asp:LinkButton>
-                <asp:LinkButton ID="lbLast" runat="server" OnClick="lbLast_Click">»</asp:LinkButton>
-                &nbsp;
-                <asp:DropDownList ID="ddlPageSize" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlPageSize_Changed">
-                    <asp:ListItem Value="10">10</asp:ListItem>
-                    <asp:ListItem Value="25">25</asp:ListItem>
-                    <asp:ListItem Value="50">50</asp:ListItem>
-                </asp:DropDownList>
-                items per page
+            <asp:UpdatePanel ID="upForm" runat="server">
+            <ContentTemplate>
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-droplet-fill"></i>
+                    <h4 class="mb-0">Master Data</h4>
+                </div>
+
+                <div class="card-body left-panel">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label>Color Code</label>
+                            <asp:TextBox ID="txtColorCode" runat="server" CssClass="form-control" ReadOnly="true" placeholder="[Auto Generated]" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Color Type</label>
+                            <asp:DropDownList ID="ddlColorType" runat="server" CssClass="form-select">
+                                <asp:ListItem Value="">--Select Type--</asp:ListItem>
+                            </asp:DropDownList>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Color Name</label>
+                            <asp:TextBox ID="txtColorName" runat="server" CssClass="form-control" placeholder="Color Name" MaxLength="100" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Panton Name</label>
+                            <asp:TextBox ID="txtPantenName" runat="server" CssClass="form-control" placeholder="Color Name" MaxLength="100" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check mt-4">
+                                <asp:CheckBox ID="chkIsActive" runat="server" Checked="true" Text="Is Active?"/>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between align-items-center action-bar">
+                        <asp:Button ID="btnReset" runat="server" Text="Reset" CssClass="btn btn-reset" OnClick="btnReset_Click" />
+                        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-save" OnClick="btnSave_Click" />
+                    </div>
+
+                    <div class="msg-label">
+                        <asp:Label ID="lblMessage" runat="server" />
+                    </div>
+
+                    <asp:HiddenField ID="hfColorID" runat="server" Value="0" />
+
+                </div>
+
             </div>
-            <asp:Label ID="lblRecordInfo" runat="server" />
-        </div>
-    </div>
-    </ContentTemplate>
-    </asp:UpdatePanel>
+            </ContentTemplate>
+            </asp:UpdatePanel>
 
+        </div>
+
+        <!-- Right Side Grid -->
+        <div class="col-12 col-lg-6 mb-3">
+
+            <asp:UpdatePanel ID="upGrid" runat="server">
+            <ContentTemplate>
+            <div class="card shadow right-panel">
+
+                <div class="card-header bg-success text-white">
+                    <i class="bi bi-list-check"></i>
+                    <h4 class="mb-0">Color List</h4>
+                </div>
+
+                <div class="grid-wrapper">
+                    <asp:GridView ID="gvColorList" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false"
+                        DataKeyNames="ColorID" Width="100%" OnRowCommand="gvColorList_RowCommand">
+                        <Columns>
+                            <asp:BoundField DataField="ColorCode" HeaderText="Color Code" />
+                            <asp:BoundField DataField="ColorType" HeaderText="Color Type" />
+                            <asp:BoundField DataField="ColorName" HeaderText="Color Name" />
+                            <asp:BoundField DataField="IsActive" HeaderText="Is Active?" />
+                            <asp:TemplateField HeaderText="Action">
+                                <ItemTemplate>
+                                    <asp:Button runat="server" Text="Edit" CssClass="btn-edit"
+                                        CommandName="EditRow" CommandArgument='<%# Eval("ColorID") %>' />
+                                    <asp:Button runat="server" Text="X" CssClass="btn-del"
+                                        CommandName="DeleteRow" CommandArgument='<%# Eval("ColorID") %>'
+                                        OnClientClick="return confirm('Are you sure you want to delete this record?');" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                        </Columns>
+                        <EmptyDataTemplate><p style="color:#888;">No records found.</p></EmptyDataTemplate>
+                    </asp:GridView>
+                </div>
+
+                <!-- Pager -->
+                <div class="pager-bar">
+                    <div class="pager-controls">
+                        <asp:LinkButton ID="lbFirst" runat="server" OnClick="lbFirst_Click">1st page</asp:LinkButton>
+                        <asp:LinkButton ID="lbPrev" runat="server" OnClick="lbPrev_Click">&lsaquo;</asp:LinkButton>
+                        <asp:Label ID="lblCurrentPage" runat="server" CssClass="current" />
+                        <asp:LinkButton ID="lbNext" runat="server" OnClick="lbNext_Click">&rsaquo;</asp:LinkButton>
+                        <asp:LinkButton ID="lbLast" runat="server" OnClick="lbLast_Click">&raquo;</asp:LinkButton>
+                        &nbsp;
+                        <asp:DropDownList ID="ddlPageSize" runat="server" CssClass="form-select" AutoPostBack="true" OnSelectedIndexChanged="ddlPageSize_Changed">
+                            <asp:ListItem Value="10">10</asp:ListItem>
+                            <asp:ListItem Value="25">25</asp:ListItem>
+                            <asp:ListItem Value="50">50</asp:ListItem>
+                        </asp:DropDownList>
+                        items per page
+                    </div>
+                    <asp:Label ID="lblRecordInfo" runat="server" />
+                </div>
+
+            </div>
+            </ContentTemplate>
+            </asp:UpdatePanel>
+
+        </div>
+
+    </div>
+
+</div>
 </form>
 </body>
 </html>

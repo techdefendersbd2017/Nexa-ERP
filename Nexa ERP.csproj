@@ -204,6 +204,7 @@
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeBankAccountEntry.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeDelete.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeInformation.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeInformationChange.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeSeperation.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\PersonalInformationUpdate.aspx" />
@@ -272,6 +273,9 @@
     <Content Include="Production\Finishing\PackedReject.aspx" />
     <Content Include="Production\Finishing\PackingList.aspx" />
     <Content Include="Production\Finishing\ShipmentChallanAndGatePass.aspx" />
+    <Content Include="Production\Finishing\shortShipmentReason.aspx" />
+    <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
+    <Content Include="Production\SewingProduction\WebForm1.aspx" />
     <Content Include="Test.aspx" />
     <Content Include="Web.config" />
     <Content Include="Welcome.aspx" />
@@ -462,6 +466,13 @@
     </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx.designer.cs">
       <DependentUpon>EmployeeEntryInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeInformation.aspx.cs">
+      <DependentUpon>EmployeeInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeInformation.aspx.designer.cs">
+      <DependentUpon>EmployeeInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeInformationChange.aspx.cs">
       <DependentUpon>EmployeeInformationChange.aspx</DependentUpon>
@@ -911,6 +922,27 @@
     <Compile Include="Production\Finishing\ShipmentChallanAndGatePass.aspx.designer.cs">
       <DependentUpon>ShipmentChallanAndGatePass.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Production\Finishing\shortShipmentReason.aspx.cs">
+      <DependentUpon>shortShipmentReason.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\shortShipmentReason.aspx.designer.cs">
+      <DependentUpon>shortShipmentReason.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\Finishing\shortShipmentReasonStatusReport.aspx.cs">
+      <DependentUpon>shortShipmentReasonStatusReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Finishing\shortShipmentReasonStatusReport.aspx.designer.cs">
+      <DependentUpon>shortShipmentReasonStatusReport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\SewingProduction\WebForm1.aspx.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\SewingProduction\WebForm1.aspx.designer.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.aspx.cs">
       <DependentUpon>Test.aspx</DependentUpon>
@@ -939,7 +971,7 @@
   <ItemGroup>
     <Folder Include="APIControlar\" />
     <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
-    <Folder Include="Production\Sewing\" />
+    <Folder Include="IndustrialEngineering\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

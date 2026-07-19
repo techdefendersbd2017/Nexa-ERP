@@ -69,22 +69,13 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.TextBox txtRemarks;
 
         /// <summary>
-        /// Label1 control.
+        /// chkIsActive control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label1;
-
-        /// <summary>
-        /// ListView1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.ListView ListView1;
+        protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
 
         /// <summary>
         /// btnRefresh control.
@@ -94,15 +85,6 @@ namespace Nexa_ERP.Production.Cutting
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnRefresh;
-
-        /// <summary>
-        /// chkIsActive control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
 
         /// <summary>
         /// btnSave control.
@@ -123,21 +105,12 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.Button btnDelete;
 
         /// <summary>
-        /// btnClear control.
+        /// gvCuttingTable control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClear;
-
-        /// <summary>
-        /// btnClose control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClose;
+        protected global::System.Web.UI.WebControls.GridView gvCuttingTable;
     }
 }

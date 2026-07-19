@@ -33,15 +33,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.Label Label27;
 
         /// <summary>
-        /// Label1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label1;
-
-        /// <summary>
         /// TextBox1 control.
         /// </summary>
         /// <remarks>
@@ -60,15 +51,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.Button Button1;
 
         /// <summary>
-        /// Label2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label2;
-
-        /// <summary>
         /// TextBox2 control.
         /// </summary>
         /// <remarks>
@@ -76,15 +58,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox TextBox2;
-
-        /// <summary>
-        /// Label3 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label3;
 
         /// <summary>
         /// TextBox3 control.
@@ -96,15 +69,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.TextBox TextBox3;
 
         /// <summary>
-        /// Label4 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label4;
-
-        /// <summary>
         /// DropDownList1 control.
         /// </summary>
         /// <remarks>
@@ -112,15 +76,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList DropDownList1;
-
-        /// <summary>
-        /// Label5 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label5;
 
         /// <summary>
         /// TextBox4 control.
@@ -132,15 +87,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.TextBox TextBox4;
 
         /// <summary>
-        /// Label6 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label6;
-
-        /// <summary>
         /// TextBox5 control.
         /// </summary>
         /// <remarks>
@@ -150,15 +96,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.TextBox TextBox5;
 
         /// <summary>
-        /// Label7 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label7;
-
-        /// <summary>
         /// TextBox6 control.
         /// </summary>
         /// <remarks>
@@ -166,15 +103,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox TextBox6;
-
-        /// <summary>
-        /// Label8 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label8;
 
         /// <summary>
         /// DropDownList2 control.
@@ -213,15 +141,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.Button Button2;
 
         /// <summary>
-        /// Label9 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label9;
-
-        /// <summary>
         /// DropDownList3 control.
         /// </summary>
         /// <remarks>
@@ -229,15 +148,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList DropDownList3;
-
-        /// <summary>
-        /// Label10 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label10;
 
         /// <summary>
         /// DropDownList4 control.
@@ -249,15 +159,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.DropDownList DropDownList4;
 
         /// <summary>
-        /// Label11 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label11;
-
-        /// <summary>
         /// DropDownList5 control.
         /// </summary>
         /// <remarks>
@@ -265,15 +166,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList DropDownList5;
-
-        /// <summary>
-        /// Label12 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label12;
 
         /// <summary>
         /// DropDownList6 control.
@@ -285,15 +177,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.DropDownList DropDownList6;
 
         /// <summary>
-        /// Label13 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label13;
-
-        /// <summary>
         /// DropDownList7 control.
         /// </summary>
         /// <remarks>
@@ -301,15 +184,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList DropDownList7;
-
-        /// <summary>
-        /// Label14 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label14;
 
         /// <summary>
         /// DropDownList8 control.
@@ -321,15 +195,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.DropDownList DropDownList8;
 
         /// <summary>
-        /// Label15 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label15;
-
-        /// <summary>
         /// DropDownList9 control.
         /// </summary>
         /// <remarks>
@@ -337,15 +202,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList DropDownList9;
-
-        /// <summary>
-        /// Label16 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label16;
 
         /// <summary>
         /// DropDownList10 control.
@@ -357,15 +213,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.DropDownList DropDownList10;
 
         /// <summary>
-        /// Label50 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label50;
-
-        /// <summary>
         /// ddlMachineName control.
         /// </summary>
         /// <remarks>
@@ -373,15 +220,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlMachineName;
-
-        /// <summary>
-        /// Label51 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label51;
 
         /// <summary>
         /// ddlSkilGrade control.
@@ -393,15 +231,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.DropDownList ddlSkilGrade;
 
         /// <summary>
-        /// Label17 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label17;
-
-        /// <summary>
         /// DropDownList11 control.
         /// </summary>
         /// <remarks>
@@ -409,15 +238,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList DropDownList11;
-
-        /// <summary>
-        /// Label18 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label18;
 
         /// <summary>
         /// DropDownList12 control.
@@ -429,15 +249,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.DropDownList DropDownList12;
 
         /// <summary>
-        /// Label19 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label19;
-
-        /// <summary>
         /// DropDownList13 control.
         /// </summary>
         /// <remarks>
@@ -445,15 +256,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList DropDownList13;
-
-        /// <summary>
-        /// Label20 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label20;
 
         /// <summary>
         /// TextBox8 control.
@@ -465,15 +267,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.TextBox TextBox8;
 
         /// <summary>
-        /// Label21 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label21;
-
-        /// <summary>
         /// TextBox9 control.
         /// </summary>
         /// <remarks>
@@ -481,15 +274,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox TextBox9;
-
-        /// <summary>
-        /// Label22 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label22;
 
         /// <summary>
         /// DropDownList14 control.
@@ -501,15 +285,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.DropDownList DropDownList14;
 
         /// <summary>
-        /// Label23 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label23;
-
-        /// <summary>
         /// TextBox10 control.
         /// </summary>
         /// <remarks>
@@ -517,15 +292,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox TextBox10;
-
-        /// <summary>
-        /// Label24 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label24;
 
         /// <summary>
         /// DropDownList15 control.
@@ -537,15 +303,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.DropDownList DropDownList15;
 
         /// <summary>
-        /// Label25 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label25;
-
-        /// <summary>
         /// DropDownList16 control.
         /// </summary>
         /// <remarks>
@@ -553,15 +310,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList DropDownList16;
-
-        /// <summary>
-        /// Label26 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label26;
 
         /// <summary>
         /// TextBox11 control.
@@ -589,15 +337,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox CheckBox2;
-
-        /// <summary>
-        /// Label28 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label28;
 
         /// <summary>
         /// Button4 control.
