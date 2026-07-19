@@ -964,7 +964,6 @@
     <Folder Include="APIControlar\" />
     <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
     <Folder Include="IndustrialEngineering\" />
-    <Folder Include="Production\Sewing\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
