@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Deahboard.aspx.cs" Inherits="Nexa_ERP.Deahboard" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Deahboard.aspx.cs" Inherits="Nexa_ERP.Deahboard" %>
 
 <!DOCTYPE html>
 <html>
