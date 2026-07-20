@@ -260,6 +260,7 @@
     <Content Include="Production\Cutting\SizeGradingOrPOtoPOTransfer.aspx" />
     <Content Include="Production\Cutting\StyleWiseBodyPartsEntry.aspx" />
     <Content Include="Production\Cutting\StyleWiseBundlePartsMapping.aspx" />
+    <Content Include="Production\Embellishments\Wash\HtmlPage1.html" />
     <Content Include="Production\Finishing\CartonOrPackedOutput.aspx" />
     <Content Include="Production\Finishing\CreatePackingList.aspx" />
     <Content Include="Production\Finishing\DailyFinishingTargetAndManpowerSet.aspx" />
@@ -972,6 +973,7 @@
     <Folder Include="APIControlar\" />
     <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
     <Folder Include="IndustrialEngineering\" />
+    <Folder Include="Production\Embellishments\PrintandOthers\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
