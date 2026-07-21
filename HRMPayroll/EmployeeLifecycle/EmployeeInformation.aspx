@@ -1,5 +1,4 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="EmployeeInformation.aspx.cs" Inherits="Nexa_ERP.HRMPayroll.EmployeeLifecycle.EmployeeInformation" %>
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -12,6 +11,9 @@
     <!-- Google Font (added to match CreateCategory header style) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Select2 (searchable dropdown) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 
     <style>
         :root {
@@ -108,6 +110,138 @@
         .footer-btns .btn:hover { background-color: #2e5bd7; color: #fff; }
 
         .btn-search-dark { background-color: #f8f9fa; border: 1px solid #ccc; color: #333; }
+
+        /* =========================================================
+           SEARCHABLE DROPDOWN (Select2) — styled to match the reference image:
+           rounded input box, chevron icon, rounded search panel with
+           a magnifying-glass icon inside a pill-shaped search field.
+        ========================================================= */
+
+        /* Closed box (the "Select department" bar) */
+        .select2-container--default .select2-selection--single {
+            height: 30px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(46, 91, 215, 0.12);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 28px;
+            padding-left: 12px;
+            padding-right: 30px;
+            font-size: 12px;
+            color: #222;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #8a93a3;
+        }
+
+        /* Chevron (up/down) icon like the screenshot */
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 28px;
+            width: 26px;
+            right: 4px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            display: none;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow::before {
+            font-family: "bootstrap-icons";
+            content: "\F2F4"; /* bi-chevron-expand */
+            font-size: 12px;
+            color: #8a93a3;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Dropdown result panel */
+        .select2-container--default .select2-dropdown {
+            border: 1px solid #e2e6ee;
+            border-radius: 12px;
+            box-shadow: 0 10px 28px rgba(17, 24, 39, 0.12);
+            overflow: hidden;
+            padding-top: 8px;
+            font-size: 12.5px;
+        }
+
+        .select2-dropdown--below { margin-top: 4px; }
+        .select2-dropdown--above { margin-top: -4px; }
+
+        /* Search box with magnifying-glass icon, pill shaped */
+        .select2-container--default .select2-search--dropdown {
+            padding: 4px 10px 10px 10px;
+            position: relative;
+        }
+
+        .select2-container--default .select2-search--dropdown::before {
+            font-family: "bootstrap-icons";
+            content: "\F52A"; /* bi-search */
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-45%);
+            color: #9aa2b1;
+            font-size: 13px;
+            pointer-events: none;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #e2e6ee;
+            border-radius: 20px;
+            padding: 6px 12px 6px 32px;
+            font-size: 12.5px;
+            outline: none;
+            background: #f8f9fb;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+            border-color: var(--brand-primary);
+            background: #fff;
+        }
+
+        /* Results list */
+        .select2-container--default .select2-results__options {
+            max-height: 260px;
+        }
+
+        .select2-container--default .select2-results__option {
+            padding: 8px 16px;
+            color: #333;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #f1f4fb;
+            color: var(--brand-primary-dark);
+        }
+
+        .select2-container--default .select2-results__option[aria-selected="true"] {
+            background-color: #eef3ff;
+            color: var(--brand-primary-dark);
+            font-weight: 600;
+        }
+
+        .select2-results__option:empty { display: none; }
+
+        /* Match the compact row height used across the form */
+        .select2-container { width: 100% !important; }
+        .form-row-custom .select2-container,
+        .col-md-6 .select2-container,
+        .col-md-12 .select2-container { flex: 1 1 auto; }
     </style>
 </head>
 <body>
@@ -357,13 +491,13 @@
                                 <div class="form-row-custom"><label>NID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Date Of Birth</label>
                                     <asp:TextBox runat="server" CssClass="form-control form-control-sm me-1" Width="120px" Placeholder="DD-MM-YYYY" />
-                                    <asp:DropDownList runat="server" CssClass="form-select form-select-sm" Width="100px"><asp:ListItem>Format</asp:ListItem></asp:DropDownList>
+                                    <asp:DropDownList runat="server" CssClass="form-select form-select-sm" Width="100px"><asp:ListItem Text="Format" Value=""></asp:ListItem></asp:DropDownList>
                                 </div>
-                                <div class="form-row-custom"><label>Religion</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem>Select</asp:ListItem></asp:DropDownList></div>
-                                <div class="form-row-custom"><label>Gender</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem>Select</asp:ListItem></asp:DropDownList></div>
-                                <div class="form-row-custom"><label>Blood Group</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem>Select</asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Religion</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Gender</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Blood Group</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                                 <div class="form-row-custom"><label>Personal Phone</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Education</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem>Select</asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Education</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                             </div>
                             <div class="col-md-6 ps-4">
                                 <div class="form-row-custom"><label>Father (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
@@ -371,7 +505,7 @@
                                 <div class="form-row-custom"><label>Husband (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Wife (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>BID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Marital Status</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem>Select</asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Marital Status</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                                 <div class="form-row-custom"><label>No of Child</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Height</label>
                                     <asp:TextBox runat="server" Width="50px" CssClass="form-control-sm me-1" /> ft 
@@ -415,7 +549,7 @@
                     <div class="tab-pane fade" id="tab3">
                         <div class="row">
                             <div class="col-md-6 border-end">
-                                <div class="form-row-custom"><label>Relation</label><asp:DropDownList runat="server" CssClass="form-select-sm w-100"><asp:ListItem>Select</asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Relation</label><asp:DropDownList runat="server" CssClass="form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                                 <div class="form-row-custom"><label>Nominee's Name</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>NID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>BID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
@@ -493,8 +627,8 @@
                     <div class="tab-pane fade" id="tab7">
                         <div class="row">
                             <div class="col-md-5 border-end pe-4">
-                                 <div class="form-row-custom"><label>Training Head</label><asp:DropDownList runat="server" CssClass="form-select-sm w-100"><asp:ListItem>Select</asp:ListItem></asp:DropDownList></div>
-                                 <div class="form-row-custom"><label>Training Subject</label><asp:DropDownList runat="server" CssClass="form-select-sm w-100"><asp:ListItem>Select</asp:ListItem></asp:DropDownList></div>
+                                 <div class="form-row-custom"><label>Training Head</label><asp:DropDownList runat="server" CssClass="form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
+                                 <div class="form-row-custom"><label>Training Subject</label><asp:DropDownList runat="server" CssClass="form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                                  <div class="form-row-custom"><label>Duration Date</label><asp:TextBox runat="server" Width="110px" /> to <asp:TextBox runat="server" Width="110px" /></div>
                                  <div class="form-row-custom"><label>Days</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                  <div class="form-row-custom"><label>Trainer Name</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
@@ -530,18 +664,84 @@
         </div>
     </form>
 
+    <!-- jQuery (Select2 dependency) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 (searchable dropdown) -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var selectedTab = localStorage.getItem('activeTab');
-            if (selectedTab) {
-                var tabEl = document.querySelector(`button[data-bs-target="${selectedTab}"]`);
-                if (tabEl) new bootstrap.Tab(tabEl).show();
+document.addEventListener("DOMContentLoaded", function() {
+    var selectedTab = localStorage.getItem('activeTab');
+    if (selectedTab) {
+        var tabEl = document.querySelector(`button[data-bs-target="${selectedTab}"]`);
+        if (tabEl) new bootstrap.Tab(tabEl).show();
+    }
+    var tabLinks = document.querySelectorAll('.nav-link');
+    tabLinks.forEach(function(tab) {
+        tab.addEventListener('shown.bs.tab', function(e) {
+            localStorage.setItem('activeTab', e.target.getAttribute('data-bs-target'));
+        });
+    });
+});
+      // ==========================================================
+        // Initialize Select2 (searchable dropdown) on every <select>
+        // on the page, and re-position it correctly inside Bootstrap
+        // tab panes (which start hidden, so width detection needs a
+        // dropdownParent so the widget is not clipped/mis-sized).
+        // ==========================================================
+        $(function () {
+            function humanize(name) {
+                // Convert "ddlDepartment" -> "Department", "ddlSkillGrade" -> "Skill Grade"
+                var base = (name || 'Option').replace(/^ddl/i, '');
+                base = base.replace(/([a-z0-9])([A-Z])/g, '$1 $2').trim();
+                return base || 'Option';
             }
-            var tabLinks = document.querySelectorAll('.nav-link');
-            tabLinks.forEach(function (tab) {
-                tab.addEventListener('shown.bs.tab', function (e) {
-                    localStorage.setItem('activeTab', e.target.getAttribute('data-bs-target'));
+
+            // IMPORTANT: We never add/remove/reorder <option> elements here.
+            // ASP.NET WebForms' Event Validation only allows postback values
+            // that were actually rendered by the server. Injecting a new
+            // client-side <option value=""> (even just for a placeholder)
+            // causes "Invalid postback or callback argument" errors if that
+            // option ever gets submitted. So placeholders are only used for
+            // selects that ALREADY have a real, server-rendered empty-value
+            // option (e.g. <asp:ListItem Text="Select" Value="" />).
+            function initSelect2($el) {
+                var label = $el.closest('.form-row-custom').find('label').first().text().trim();
+                var placeholderText = 'Select ' + (label || humanize($el.attr('id')));
+                var hasEmptyOption = $el.find('option[value=""]').length > 0;
+                var $pane = $el.closest('.tab-pane');
+
+                var options = {
+                    width: '100%',
+                    dropdownParent: $pane.length ? $pane : $(document.body),
+                    minimumResultsForSearch: 0 // always show the search box, like the reference image
+                };
+
+                if (hasEmptyOption) {
+                    options.placeholder = placeholderText;
+                    options.allowClear = false;
+                }
+
+                $el.select2(options);
+            }
+
+            $('select').each(function () {
+                initSelect2($(this));
+            });
+
+            // Bootstrap tabs hide inactive panes with display:none, so Select2
+            // (which measures width on init) can render 0-width the first time
+            // a tab is opened. Force a re-calc when a tab becomes visible.
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var target = $(e.target).attr('data-bs-target');
+                $(target).find('select').each(function () {
+                    if ($(this).hasClass('select2-hidden-accessible')) {
+                        $(this).select2('destroy');
+                    }
+                });
+                $(target).find('select').each(function () {
+                    initSelect2($(this));
                 });
             });
         });
