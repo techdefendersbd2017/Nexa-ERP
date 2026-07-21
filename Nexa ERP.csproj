@@ -200,7 +200,6 @@
     <Content Include="ERPConfiguration\UserAuthorization\UserEntry.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\UserToBranchPermission.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\UserToRolePermission.aspx" />
-    <Content Include="HRMPayroll\EmployeeLifecycle\EMP.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeBankAccountEntry.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeDelete.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx" />
@@ -438,13 +437,6 @@
     </Compile>
     <Compile Include="ERPConfiguration\UserAuthorization\UserToRolePermission.aspx.designer.cs">
       <DependentUpon>UserToRolePermission.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="HRMPayroll\EmployeeLifecycle\EMP.aspx.cs">
-      <DependentUpon>EMP.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="HRMPayroll\EmployeeLifecycle\EMP.aspx.designer.cs">
-      <DependentUpon>EMP.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeBankAccountEntry.aspx.cs">
       <DependentUpon>EmployeeBankAccountEntry.aspx</DependentUpon>
