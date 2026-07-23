@@ -67,9 +67,29 @@
         .content-area { padding: 15px; }
 
         .fixed-top-section { border-bottom: 1px solid #eee; margin-bottom: 10px; padding-bottom: 10px; }
+
+        /* Joining Date / Probation Period / Employee Status / Separation Date
+           box (top-right of the fixed section). Grid guarantees the label
+           column and the input column line up on the same x-position on
+           every row, regardless of how long each label's text is. */
+        .employee-meta-grid {
+            display: grid;
+            grid-template-columns: auto 150px;
+            column-gap: 12px;
+            row-gap: 8px;
+            align-items: center;
+        }
+        .employee-meta-grid label {
+            text-align: left;
+            white-space: nowrap;
+        }
+        .employee-meta-grid .form-control-sm,
+        .employee-meta-grid .form-select-sm {
+            width: 100%;
+        }
         
         /* ছবি অনুযায়ী ফটো বক্স ও বাটন */
-        .photo-box { width: 120px; height: 140px; border: 1px solid #ccc; background: #f8f9fa; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; }
+        .photo-box { width: 120px; height: 140px; border: 1px solid #ccc; background: #f8f9fa; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; overflow: hidden; }
         .photo-btn { background: #eef3ff; border: 1px solid #adc5ff; color: #2e5bd7; font-weight: bold; width: 120px; font-size: 11px; padding: 2px; text-align: center; display: block; }
 
         /* ট্যাব কালার */
@@ -294,7 +314,7 @@
     </style>
 </head>
 <body>
-    <form id="form1" runat="server">
+    <form id="form1" runat="server" enctype="multipart/form-data">
         <asp:ScriptManager ID="ScriptManager1" runat="server" />
         <div class="main-wrapper">
             <!-- CreateCategory পেজের স্টাইলে পেজ হেডিং -->
@@ -310,12 +330,12 @@
                 <!-- 1. FIXED TOP SECTION -->
                 <div class="fixed-top-section">
                     <div class="row g-2">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <div class="form-row-custom">
                                 <label>Employee ID</label>
                                 <div class="input-group input-group-sm" style="width: 250px;">
                                     <asp:TextBox ID="txtEmpID" runat="server" CssClass="form-control"></asp:TextBox>
-                                    <asp:Button ID="btnSearch" runat="server" Text="Search" CssClass="btn btn-search-dark" />
+                                    <asp:Button ID="btnSearch" runat="server" Text="Search" CssClass="btn btn-search-dark" OnClick="btnSearch_Click" />
                                 </div>
                             </div>
                             <div class="form-row-custom">
@@ -328,32 +348,34 @@
                             </div>
                             <div class="mt-1"><span class="text-primary fw-bold">User Name: Monzil</span></div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="d-flex justify-content-end align-items-start">
-                                <div class="text-end small me-3 pt-1" style="min-width: 210px;">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label class="mb-0 me-2">Joining Date</label>
-                                        <asp:TextBox ID="txtJoiningDate" runat="server" TextMode="Date" CssClass="form-control form-control-sm" Width="130px"></asp:TextBox>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label class="mb-0 me-2">Probation Period</label>
-                                        <asp:TextBox ID="txtProbationPeriod" runat="server" TextMode="Date" CssClass="form-control form-control-sm" Width="130px"></asp:TextBox>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label class="mb-0 me-2">Employee Status</label>
-                                        <asp:DropDownList ID="ddlEmployeeStatus" runat="server" CssClass="form-select form-select-sm" Width="130px">
-                                            <asp:ListItem Text="Active" Value="Active" />
-                                            <asp:ListItem Text="Inactive" Value="Inactive" />
-                                        </asp:DropDownList>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <label class="mb-0 me-2">Separation Date</label>
-                                        <asp:TextBox ID="txtSeparationDate" runat="server" TextMode="Date" CssClass="form-control form-control-sm" Width="130px"></asp:TextBox>
-                                    </div>
+                                <div class="employee-meta-grid small pt-1 me-3">
+                                    <label class="mb-0">Joining Date</label>
+                                    <asp:TextBox ID="txtJoiningDate" runat="server" AutoPostBack="true" TextMode="Date" CssClass="form-control form-control-sm" OnTextChanged="txtJoiningDate_TextChanged"></asp:TextBox>
+
+                                    <label class="mb-0">Probation Period</label>
+                                    <asp:TextBox ID="txtProbationPeriod" runat="server" TextMode="Date" CssClass="form-control form-control-sm"></asp:TextBox>
+
+                                    <label class="mb-0">Employee Status</label>
+                                    <asp:DropDownList ID="ddlEmployeeStatus" runat="server" CssClass="form-select form-select-sm">
+                                        <asp:ListItem Text="Active" Value="Active" />
+                                        <asp:ListItem Text="Inactive" Value="Inactive" />
+                                    </asp:DropDownList>
+
+                                    <label class="mb-0">Separation Date</label>
+                                    <asp:TextBox ID="txtSeparationDate" runat="server" TextMode="Date" CssClass="form-control form-control-sm" ReadOnly="True"></asp:TextBox>
                                 </div>
                                 <div>
-                                    <div class="photo-box text-muted">Photo</div>
-                                    <span class="photo-btn">Photo</span>
+                                    <label for="<%= FileUpload1.ClientID %>" style="cursor:pointer; display:block;">
+                                        <div class="photo-box text-muted" id="photoPreviewBox">
+                                            <img id="imgPhotoPreview" runat="server" src="#" alt="Photo preview" style="max-width:100%; max-height:100%; object-fit:cover; display:none;" />
+                                            <span id="photoPlaceholderText" runat="server">Photo</span>
+                                        </div>
+                                    </label>
+                                    <asp:FileUpload ID="FileUpload1" runat="server" CssClass="d-none" onchange="previewEmployeePhoto(this)" accept="image/*" />
+                                    <label for="<%= FileUpload1.ClientID %>" class="photo-btn" style="cursor:pointer;">Choose Photo</label>
+                                    <div class="text-muted" style="font-size:10px; text-align:center; margin-top:2px;">সর্বোচ্চ 300KB</div>
                                 </div>
                             </div>
                         </div>
@@ -362,7 +384,7 @@
                     <!-- FOOTER BUTTONS (ফিক্সড সেকশন - সবসময় দৃশ্যমান থাকবে) -->
                     <div class="footer-btns">
                         <asp:Button ID="btnRefresh" runat="server" Text="Refresh" CssClass="btn" />
-                        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn" />
+                        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn" OnClick="btnSave_Click" />
                         <asp:Button ID="btnUpdate" runat="server" Text="Update" CssClass="btn" />
                         <asp:Button ID="btnClose" runat="server" Text="Close" CssClass="btn" />
                     </div>
@@ -370,19 +392,19 @@
 
                 <!-- 2. TAB NAVIGATION -->
                 <ul class="nav nav-tabs" id="hrTabs" role="tablist">
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab1">Office Information</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab2">Salary and Bank Information</button></li>
-                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab3">Personal Information</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab4">Address Information</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab5">Nominee Information</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab6">Job Experience</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab7">Reference</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab1">Office Information</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab2">Salary and Bank Information</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab3">Personal Information</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab4">Address Information</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab5">Nominee Information</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab6">Job Experience</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab7">Reference</button></li>
                 </ul>
 
                 <!-- 3. TAB CONTENT -->
                 <div class="tab-content">
                     <!-- 8. OFFICE INFORMATION (নতুন ট্যাব - EmployeeEntryInformation পেজ থেকে মিসিং এলিমেন্টগুলো এখানে যুক্ত করা হয়েছে) -->
-                    <div class="tab-pane fade" id="tab1">
+                    <div class="tab-pane fade show active" id="tab1">
                         <div class="row g-3">
 
                             <!-- বাম বক্স: জব / ওয়ার্ক অ্যাসাইনমেন্ট সংক্রান্ত তথ্য -->
@@ -423,7 +445,7 @@
                                         <div class="col-md-6">
                                             <div class="form-row-custom">
                                                 <label>Category</label>
-                                                <asp:DropDownList ID="ddlCategory" runat="server" AutoPostBack="true" CssClass="form-select form-select-sm w-100" OnSelectedIndexChanged="ddlCategory_SelectedIndexChanged"><asp:ListItem Text="Select" Value="">--</asp:ListItem></asp:DropDownList>
+                                                <asp:DropDownList ID="ddlCategory" runat="server" AutoPostBack="true" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value="">--</asp:ListItem></asp:DropDownList>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -481,41 +503,42 @@
 
                                         <div class="form-row-custom">
                                             <label>Gross Salary</label>
-                                            <asp:TextBox ID="TextBox1" runat="server" TextMode="Number"
+                                            <asp:TextBox ID="txtGrossSalary" runat="server" TextMode="Number"
                                                 CssClass="form-control form-control-sm w-100" />
                                         </div>
 
                                         <div class="form-row-custom">
                                             <label>Pay Type</label>
-                                            <asp:DropDownList ID="DropDownList13" runat="server"
+                                            <asp:DropDownList ID="ddlPayType" runat="server"
                                                 CssClass="form-select form-select-sm w-100">
-                                                <asp:ListItem Text="Select" Value="">--</asp:ListItem>
                                             </asp:DropDownList>
                                         </div>
 
                                         <div class="form-row-custom">
-                                            <label>Cash Gross</label>
-                                            <asp:TextBox ID="TextBox2" runat="server" TextMode="Number"
+                                            <label>Taxable Gross Salary</label>
+                                            <asp:TextBox ID="txtTaxableGrossSalary" runat="server" TextMode="Number"
                                                 CssClass="form-control form-control-sm w-100" />
                                         </div>
 
                                         <div class="form-row-custom">
-                                            <label>Non-Cash Gross</label>
-                                            <asp:TextBox ID="TextBox3" runat="server" TextMode="Number"
+                                            <label>Non-Taxable Gross Salary</label>
+                                            <asp:TextBox ID="txtNonTaxableGrossSalary" runat="server" TextMode="Number"
                                                 CssClass="form-control form-control-sm w-100" />
                                         </div>
 
                                         <div class="form-row-custom">
                                             <label>Tax Holder</label>
-                                            <asp:DropDownList ID="DropDownList14" runat="server"
+                                            <asp:DropDownList ID="ddlTaxHolder" runat="server"
                                                 CssClass="form-select form-select-sm w-100">
-                                                <asp:ListItem Text="Select" Value="">--</asp:ListItem>
+                                                <asp:ListItem Text="Select" Value="0"></asp:ListItem>
+                                                <asp:ListItem Text="Yes" Value="1"></asp:ListItem>
+                                                <asp:ListItem Text="No" Value="2"></asp:ListItem>
                                             </asp:DropDownList>
                                         </div>
 
                                         <div class="form-row-custom">
                                             <label>Amount</label>
-                                            <asp:TextBox ID="TextBox4" runat="server" TextMode="Number"
+                                            <asp:TextBox ID="txtTaxAmount" runat="server" TextMode="Number"
                                                 CssClass="form-control form-control-sm w-100" />
                                         </div>
 
@@ -526,29 +549,31 @@
 
                                         <div class="form-row-custom">
                                             <label>Bank Holder</label>
-                                            <asp:DropDownList ID="DropDownList15" runat="server"
+                                            <asp:DropDownList ID="ddlBankHolder" runat="server"
                                                 CssClass="form-select form-select-sm w-100">
-                                                <asp:ListItem Text="Select" Value="">--</asp:ListItem>
+                                                <asp:ListItem Text="Select" Value="0"></asp:ListItem>
+                                                <asp:ListItem Text="Yes" Value="1"></asp:ListItem>
+                                                <asp:ListItem Text="No" Value="2"></asp:ListItem>
                                             </asp:DropDownList>
                                         </div>
 
                                         <div class="form-row-custom">
                                             <label>Bank Name</label>
-                                            <asp:DropDownList ID="DropDownList16" runat="server"
+                                            <asp:DropDownList ID="ddlBank" runat="server"
                                                 CssClass="form-select form-select-sm w-100">
-                                                <asp:ListItem Text="Select" Value="">--</asp:ListItem>
+                                                <asp:ListItem Text="Select" Value="0"></asp:ListItem>
                                             </asp:DropDownList>
                                         </div>
 
                                         <div class="form-row-custom">
-                                            <label>A/C No</label>
-                                            <asp:TextBox ID="TextBox5" runat="server"
+                                            <label>Account Number</label>
+                                            <asp:TextBox ID="txtAccountNumber" runat="server"
                                                 CssClass="form-control form-control-sm w-100" />
                                         </div>
 
                                         <div class="form-row-custom">
                                             <label>Routing No</label>
-                                            <asp:TextBox ID="TextBox6" runat="server"
+                                            <asp:TextBox ID="txtRoutingNo" runat="server"
                                                 CssClass="form-control form-control-sm w-100" />
                                         </div>
 
@@ -563,8 +588,8 @@
                             <button type="button" class="btn-nav" data-goto="#tab1"><i class="bi bi-chevron-left"></i> Previous Page</button>
                             <button type="button" class="btn-nav" data-goto="#tab3">Next Page <i class="bi bi-chevron-right"></i></button>
                         </div>
-                    </div>
-                    <div class="tab-pane fade show active" id="tab3">
+                    </div>                    
+                    <div class="tab-pane fade" id="tab3">
                         <div class="row">
                             <div class="col-md-6 border-end pe-4">
                                 <div class="form-row-custom"><label>Father English</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
@@ -573,14 +598,26 @@
                                 <div class="form-row-custom"><label>Wife English</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>NID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Date Of Birth</label>
-                                    <asp:TextBox runat="server" CssClass="form-control form-control-sm me-1" Width="120px" Placeholder="DD-MM-YYYY" />
-                                    <asp:DropDownList runat="server" CssClass="form-select form-select-sm" Width="100px"><asp:ListItem Text="Format" Value=""></asp:ListItem></asp:DropDownList>
+                                    <asp:TextBox runat="server" CssClass="form-control form-control-sm" Placeholder="DD-MM-YYYY" />
                                 </div>
-                                <div class="form-row-custom"><label>Religion</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
-                                <div class="form-row-custom"><label>Gender</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
-                                <div class="form-row-custom"><label>Blood Group</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Religion</label><asp:DropDownList ID="ddlReligion" runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Gender</label><asp:DropDownList ID="ddlGender" runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Blood Group</label>
+                                    <asp:DropDownList ID="ddlBloodGroup" runat="server" CssClass="form-select form-select-sm w-100">
+                                        <asp:ListItem Text="Select" Value="0"></asp:ListItem>
+                                        <asp:ListItem Text="A+" Value="1"></asp:ListItem>
+                                        <asp:ListItem Text="A-" Value="2"></asp:ListItem>
+                                        <asp:ListItem Text="B+" Value="3"></asp:ListItem>
+                                        <asp:ListItem Text="B-" Value="4"></asp:ListItem>
+                                        <asp:ListItem Text="AB+" Value="5"></asp:ListItem>
+                                        <asp:ListItem Text="AB-" Value="6"></asp:ListItem>
+                                        <asp:ListItem Text="O+" Value="7"></asp:ListItem>
+                                        <asp:ListItem Text="O-" Value="8"></asp:ListItem>
+                                    </asp:DropDownList>
+
+                                </div>
                                 <div class="form-row-custom"><label>Personal Phone</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Education</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Education</label><asp:DropDownList ID="ddlEducation" runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                             </div>
                             <div class="col-md-6 ps-4">
                                 <div class="form-row-custom"><label>Father (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
@@ -588,7 +625,7 @@
                                 <div class="form-row-custom"><label>Husband (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Wife (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>BID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Marital Status</label><asp:DropDownList runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Marital Status</label><asp:DropDownList ID="ddlMaritalStatus" runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                                 <div class="form-row-custom"><label>No of Child</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Height</label>
                                     <asp:TextBox runat="server" Width="50px" CssClass="form-control-sm me-1" /> ft 
@@ -607,32 +644,66 @@
                             <button type="button" class="btn-nav" data-goto="#tab4">Next Page <i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
-
                     <div class="tab-pane fade" id="tab4">
+                        <asp:UpdatePanel ID="upAddressInfo" runat="server">
+                        <ContentTemplate>
                         <div class="row">
                             <div class="col-md-6 border-end">
                                 <span class="section-title">Permanent Address</span>
-                                <div class="form-row-custom"><label>Village</label><asp:DropDownList runat="server" CssClass="form-select-sm w-50 me-1"></asp:DropDownList><asp:TextBox runat="server" CssClass="form-control form-control-sm w-50"></asp:TextBox></div>
-                                <div class="form-row-custom"><label>Post Office</label><asp:DropDownList runat="server" CssClass="form-select-sm w-50 me-1"></asp:DropDownList><asp:TextBox runat="server" CssClass="form-control form-control-sm w-50"></asp:TextBox></div>
-                                <div class="form-row-custom"><label>Police Station</label><asp:DropDownList runat="server" CssClass="form-select-sm w-50 me-1"></asp:DropDownList><asp:TextBox runat="server" CssClass="form-control form-control-sm w-50"></asp:TextBox></div>
-                                <div class="form-row-custom"><label>District</label><asp:DropDownList runat="server" CssClass="form-select-sm w-100"></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>District</label>
+                                    <asp:DropDownList ID="ddlPermanentDistrict" runat="server" CssClass="form-select-sm w-100"></asp:DropDownList></div>
+                                <div class="form-row-custom">
+                                    <label>Police Station</label>
+                                    <asp:DropDownList ID="ddlPermanentPoliceStation" runat="server" CssClass="form-select-sm w-100"></asp:DropDownList>
+                                </div>
+                                <div class="form-row-custom">
+                                    <label>Post Office</label>
+                                    <asp:TextBox runat="server" ID="txtPermanentPostOfficeEnglish" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                    <asp:TextBox runat="server" ID="txtPermanentPostOfficeBangla" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                </div>                                
+                                <div class="form-row-custom">
+                                    <label>Village</label>
+                                    <asp:TextBox runat="server" ID="txtPermanentVillageEnglish" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                    <asp:TextBox runat="server" ID="txtPermanentVillageBangla" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                </div>                                
                             </div>
                             <div class="col-md-6">
-                                <div class="form-check mb-2 ms-4">
-                                    <input class="form-check-input" type="checkbox" id="chkSame" />
-                                    <label class="form-check-label fw-bold">If present or permanent address same click here.</label>
+                                <div class="form-check mb-4">
+                                    <asp:CheckBox ID="chkSame" class="form-select-sm w-100" AutoPostBack="true" Text=".   If present or permanent address same click here." runat="server" OnCheckedChanged="chkSame_CheckedChanged" />
                                 </div>
                                 <span class="section-title ms-4">Present Address</span>
                                 <div class="ms-4">
-                                    <div class="form-row-custom"><label>Village</label><asp:DropDownList runat="server" CssClass="form-select-sm w-50 me-1"></asp:DropDownList><asp:TextBox runat="server" CssClass="form-control form-control-sm w-50"></asp:TextBox></div>
-                                    <div class="form-row-custom"><label>Post Office</label><asp:DropDownList runat="server" CssClass="form-select-sm w-50 me-1"></asp:DropDownList><asp:TextBox runat="server" CssClass="form-control form-control-sm w-50"></asp:TextBox></div>
-                                    <div class="form-row-custom"><label>Police Station</label><asp:DropDownList runat="server" CssClass="form-select-sm w-50 me-1"></asp:DropDownList><asp:TextBox runat="server" CssClass="form-control form-control-sm w-50"></asp:TextBox></div>
-                                    <div class="form-row-custom"><label>District</label><asp:DropDownList runat="server" CssClass="form-select-sm w-50 me-1"></asp:DropDownList><asp:TextBox runat="server" CssClass="form-control form-control-sm w-50"></asp:TextBox></div>
-                                    <div class="form-row-custom"><label>House Holder</label><asp:TextBox runat="server" CssClass="form-control form-control-sm w-100"></asp:TextBox></div>
-                                    <div class="form-row-custom"><label>Phone</label><asp:TextBox runat="server" CssClass="form-control form-control-sm w-100"></asp:TextBox></div>
+                                    <div class="form-row-custom">
+                                        <label>District</label>
+                                        <asp:DropDownList runat="server" ID="ddlPresentDistrict" CssClass="form-select-sm w-100"></asp:DropDownList>
+                                    </div>
+                                    <div class="form-row-custom">
+                                        <label>Police Station</label>
+                                        <asp:DropDownList runat="server" ID="ddlPresentPoliceStation"  CssClass="form-select-sm w-100"></asp:DropDownList>
+                                    </div>
+                                    <div class="form-row-custom">
+                                        <label>Post Office</label>
+                                        <asp:TextBox runat="server" ID="txtPresentPostOfficeEnglish" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                        <asp:TextBox runat="server" ID="txtPresentPostOfficeBangla" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                    </div>
+                                    <div class="form-row-custom">
+                                        <label>Village</label>
+                                        <asp:TextBox runat="server" ID="txtPresentVillageEnglish" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                        <asp:TextBox runat="server" ID="txtPresentVillageBangla" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                    </div>
+                                    <div class="form-row-custom">
+                                        <label>House Holder</label>
+                                        <asp:TextBox runat="server" CssClass="form-control form-control-sm w-100"></asp:TextBox>
+                                    </div>
+                                    <div class="form-row-custom">
+                                        <label>Phone</label>
+                                        <asp:TextBox runat="server" CssClass="form-control form-control-sm w-100"></asp:TextBox>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        </ContentTemplate>
+                        </asp:UpdatePanel>
 
                         <!-- Page Navigation -->
                         <div class="tab-nav-btns">
@@ -640,11 +711,12 @@
                             <button type="button" class="btn-nav" data-goto="#tab5">Next Page <i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
+                    
 
                     <div class="tab-pane fade" id="tab5">
                         <div class="row">
                             <div class="col-md-6 border-end">
-                                <div class="form-row-custom"><label>Relation</label><asp:DropDownList runat="server" CssClass="form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
+                                <div class="form-row-custom"><label>Relation</label><asp:DropDownList ID="ddlNomineeRelation" runat="server" CssClass="form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                                 <div class="form-row-custom"><label>Nominee's Name</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>NID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>BID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
@@ -655,14 +727,35 @@
                                 <div class="form-row-custom"><label>Phone No</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
                             </div>
                         </div>
-                        <div class="form-check my-2"><input type="checkbox" /> If Employee & Nominee Address Same</div>
-                        <div class="row mt-2">
-                            <div class="col-md-6"><div class="form-row-custom"><label>Village</label><asp:TextBox runat="server" CssClass="form-control form-control-sm w-100" /></div></div>
-                            <div class="col-md-6"><asp:TextBox runat="server" CssClass="form-control form-control-sm w-100" /></div>
-                            <div class="col-md-6"><div class="form-row-custom"><label>District</label><asp:TextBox runat="server" CssClass="form-control form-control-sm w-100" /></div></div>
-                            <div class="col-md-6"><asp:TextBox runat="server" CssClass="form-control form-control-sm w-100" /></div>
-                            <div class="col-md-6"><asp:TextBox runat="server" CssClass="form-control form-control-sm w-100 mt-2" TextMode="MultiLine" Rows="3" /></div>
-                            <div class="col-md-6"><asp:TextBox runat="server" CssClass="form-control form-control-sm w-100 mt-2" TextMode="MultiLine" Rows="3" /></div>
+                        <div class="col-md-6">
+                        <asp:UpdatePanel ID="upNomineeInfo" runat="server">
+                        <ContentTemplate>
+                            <div class="form-check mb-4">
+                                <asp:CheckBox ID="CheckNominee" class="form-select-sm w-100" AutoPostBack="true" Text=".    If Employee & Nominee Address Same." runat="server" OnCheckedChanged="CheckNominee_CheckedChanged"/>
+                            </div>
+                            <span class="section-title ms-4">Nominee Address</span>
+                            <div class="ms-4">
+                                <div class="form-row-custom">
+                                    <label>District</label>
+                                    <asp:DropDownList runat="server" ID="ddlNomineeDistrict" CssClass="form-select-sm w-100"></asp:DropDownList>
+                                </div>
+                                <div class="form-row-custom">
+                                    <label>Police Station</label>
+                                    <asp:DropDownList runat="server" ID="ddlNomineePoliceStation"  CssClass="form-select-sm w-100"></asp:DropDownList>
+                                </div>
+                                <div class="form-row-custom">
+                                    <label>Post Office</label>
+                                    <asp:TextBox runat="server" ID="txtNomineePostOfficeEnglish" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                    <asp:TextBox runat="server" ID="txtNomineePostOfficeBangla" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                </div>
+                                <div class="form-row-custom">
+                                    <label>Village</label>
+                                    <asp:TextBox runat="server" ID="txtNomineeVillageEnglish" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                    <asp:TextBox runat="server" ID="txtNomineeVillageBangla" CssClass="form-control form-control-sm w-50"></asp:TextBox>
+                                </div>
+                            </div>
+                        </ContentTemplate>
+                        </asp:UpdatePanel>
                         </div>
 
                         <!-- Page Navigation -->
@@ -731,12 +824,46 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var selectedTab = localStorage.getItem('activeTab');
-            if (selectedTab) {
-                var tabEl = document.querySelector(`button[data-bs-target="${selectedTab}"]`);
-                if (tabEl) new bootstrap.Tab(tabEl).show();
+        // সর্বোচ্চ ছবির সাইজ: 300KB
+        var MAX_PHOTO_SIZE_BYTES = 300 * 1024;
+
+        // ছবি সিলেক্ট করার সাথে সাথে photo-box-এ প্রিভিউ দেখানো হয়
+        function previewEmployeePhoto(input) {
+            var img = document.getElementById('imgPhotoPreview');
+            var placeholder = document.getElementById('photoPlaceholderText');
+
+            if (input.files && input.files[0]) {
+                var file = input.files[0];
+
+                if (file.size > MAX_PHOTO_SIZE_BYTES) {
+                    alert('ছবির সাইজ 300KB-এর বেশি হতে পারবে না। আপনার ফাইলের সাইজ: ' + (file.size / 1024).toFixed(1) + 'KB');
+                    input.value = ''; // সিলেকশন বাতিল
+                    img.removeAttribute('src');
+                    img.style.display = 'none';
+                    placeholder.style.display = 'block';
+                    return;
+                }
+
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                img.removeAttribute('src');
+                img.style.display = 'none';
+                placeholder.style.display = 'block';
             }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var defaultTab = '#tab1';
+            var selectedTab = localStorage.getItem('activeTab') || defaultTab;
+            var tabEl = document.querySelector(`button[data-bs-target="${selectedTab}"]`);
+            if (tabEl) new bootstrap.Tab(tabEl).show();
+
             var tabLinks = document.querySelectorAll('.nav-link');
             tabLinks.forEach(function (tab) {
                 tab.addEventListener('shown.bs.tab', function (e) {
@@ -744,11 +871,6 @@
                 });
             });
 
-            // ==========================================================
-            // Previous Page / Next Page বাটন হ্যান্ডলার
-            // প্রতিটি ট্যাবের নিচে থাকা Previous/Next বাটনে ক্লিক করলে
-            // সংশ্লিষ্ট ট্যাবে চলে যাবে এবং কনটেন্ট এরিয়ার টপে স্ক্রল হবে।
-            // ==========================================================
             document.querySelectorAll('.tab-nav-btns [data-goto]').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var targetSelector = btn.getAttribute('data-goto');
@@ -764,12 +886,6 @@
             });
         });
 
-        // ==========================================================
-        // Initialize Select2 (searchable dropdown) on every <select>
-        // on the page, and re-position it correctly inside Bootstrap
-        // tab panes (which start hidden, so width detection needs a
-        // dropdownParent so the widget is not clipped/mis-sized).
-        // ==========================================================
         $(function () {
             function humanize(name) {
                 // Convert "ddlDepartment" -> "Department", "ddlSkillGrade" -> "Skill Grade"
@@ -777,15 +893,6 @@
                 base = base.replace(/([a-z0-9])([A-Z])/g, '$1 $2').trim();
                 return base || 'Option';
             }
-
-            // IMPORTANT: We never add/remove/reorder <option> elements here.
-            // ASP.NET WebForms' Event Validation only allows postback values
-            // that were actually rendered by the server. Injecting a new
-            // client-side <option value=""> (even just for a placeholder)
-            // causes "Invalid postback or callback argument" errors if that
-            // option ever gets submitted. So placeholders are only used for
-            // selects that ALREADY have a real, server-rendered empty-value
-            // option (e.g. <asp:ListItem Text="Select" Value="" />).
             function initSelect2($el) {
                 var label = $el.closest('.form-row-custom').find('label').first().text().trim();
                 var placeholderText = 'Select ' + (label || humanize($el.attr('id')));
@@ -824,6 +931,28 @@
                     initSelect2($(this));
                 });
             });
+
+            // =====================================================
+            // chkSame / CheckNominee live inside <asp:UpdatePanel>s,
+            // so toggling them causes an ASYNC (AJAX) postback that
+            // replaces only that panel's HTML — the page itself never
+            // reloads, so the active tab no longer resets. But the
+            // replaced <select> elements need Select2 re-initialized,
+            // since the plain DOM Select2 built earlier is discarded
+            // along with the old markup.
+            // =====================================================
+            if (window.Sys && Sys.WebForms && Sys.WebForms.PageRequestManager) {
+                Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function (sender, args) {
+                    var panel = args.get_panelsUpdated && args.get_panelsUpdated()[0];
+                    var $scope = panel ? $(panel) : $(document);
+                    $scope.find('select').each(function () {
+                        if ($(this).hasClass('select2-hidden-accessible')) {
+                            $(this).select2('destroy');
+                        }
+                        initSelect2($(this));
+                    });
+                });
+            }
         });
     </script>
 </body>
