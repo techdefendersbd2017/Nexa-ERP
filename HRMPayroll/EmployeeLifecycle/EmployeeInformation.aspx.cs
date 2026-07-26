@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -655,6 +656,11 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         }
         protected void chkSame_CheckedChanged(object sender, EventArgs e)
         {
+            presentpermanentaddresssame();
+        }
+
+        public void presentpermanentaddresssame()
+        {
             bool isSame = chkSame.Checked;
 
             ddlPresentDistrict.Enabled = !isSame;
@@ -677,6 +683,10 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
             }
         }
         protected void CheckNominee_CheckedChanged(object sender, EventArgs e)
+        {
+            
+        }
+        public void EmployeeNomineeaddresssame()
         {
             bool isSame = CheckNominee.Checked;
 
@@ -755,6 +765,80 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                     cmd.Parameters.AddWithValue("@NonTaxableGrossSalary", txtNonTaxableGrossSalary.Text);
                     cmd.Parameters.AddWithValue("@TaxHolderID", ddlTaxHolder.SelectedValue);
                     cmd.Parameters.AddWithValue("@TaxAmount", txtTaxAmount.Text);
+
+                    cmd.Parameters.AddWithValue("@FatherEnglish", txtFatherEnglish.Text);
+                    cmd.Parameters.AddWithValue("@FatherBangla", txtFatherBangla.Text);
+                    cmd.Parameters.AddWithValue("@MotherEnglish", txtMotherEnglish.Text);
+                    cmd.Parameters.AddWithValue("@MotherBangla", txtMotherBangla.Text);
+                    cmd.Parameters.AddWithValue("@SpouseEnglish", txtSpouseEnglish.Text);
+                    cmd.Parameters.AddWithValue("@SpouseBangla", txtSpouseBangla.Text);
+                    cmd.Parameters.AddWithValue("@NID", txtNID.Text);
+                    cmd.Parameters.AddWithValue("@BID", txtBID.Text);
+                    cmd.Parameters.AddWithValue("@DateOfBirth", txtDateOfBirth.Text);
+                    cmd.Parameters.AddWithValue("@MaritalStatus", ddlMaritalStatus.SelectedValue);
+                    cmd.Parameters.AddWithValue("@Religion", ddlReligion.SelectedValue);
+                    cmd.Parameters.AddWithValue("@NoofChild", txtNoofChild.Text);
+                    cmd.Parameters.AddWithValue("@Gender", ddlGender.SelectedValue);
+                    cmd.Parameters.AddWithValue("@HeightFeet", txtHeightFeet.Text);
+                    cmd.Parameters.AddWithValue("@HeightInch", txtHeightInch.Text);
+                    cmd.Parameters.AddWithValue("@WeightKG", txtWeightKG.Text);
+                    cmd.Parameters.AddWithValue("@BloodGroup", ddlBloodGroup.SelectedValue);
+                    cmd.Parameters.AddWithValue("@TIN", txtTIN.Text);
+                    cmd.Parameters.AddWithValue("@PersonalPhone", txtPersonalPhone.Text);
+                    cmd.Parameters.AddWithValue("@HomePhone", txtHomePhone.Text);
+                    cmd.Parameters.AddWithValue("@Education", ddlEducation.SelectedValue);
+                    cmd.Parameters.AddWithValue("@Email", txtEmail.Text);
+
+                    cmd.Parameters.AddWithValue("@PermanentDistrictID",ddlPermanentDistrict.SelectedValue );
+                    cmd.Parameters.AddWithValue("@PermanentPoliceStationID", ddlPermanentPoliceStation.SelectedValue);
+                    cmd.Parameters.AddWithValue("@PermanentPostOfficeEnglish", txtPermanentPostOfficeEnglish.Text);
+                    cmd.Parameters.AddWithValue("@PermanentPostOfficeBangla", txtPermanentPostOfficeBangla.Text);
+                    cmd.Parameters.AddWithValue("@PermanentVillageEnglish", txtPermanentVillageEnglish.Text);
+                    cmd.Parameters.AddWithValue("@PermanentVillageBangla", txtPermanentVillageBangla.Text);
+                    cmd.Parameters.AddWithValue("@presentpermanentaddresssame", chkSame.Checked);
+                    cmd.Parameters.AddWithValue("@PresentDistrictID", ddlPresentDistrict.SelectedValue);
+                    cmd.Parameters.AddWithValue("@PresentPoliceStationID", ddlPresentPoliceStation.SelectedValue);
+                    cmd.Parameters.AddWithValue("@PresentPostOfficeEnglish", txtPresentPostOfficeEnglish.Text);
+                    cmd.Parameters.AddWithValue("@PresentPostOfficeBangla", txtPresentPostOfficeBangla.Text);
+                    cmd.Parameters.AddWithValue("@PresentVillageEnglish", txtPresentVillageEnglish.Text);
+                    cmd.Parameters.AddWithValue("@PresentVillageBangla", txtPresentVillageBangla.Text);
+
+                    cmd.Parameters.AddWithValue("@HouseHolderNameEnglish", txtHouseHolderNameEnglish.Text);
+                    cmd.Parameters.AddWithValue("@HouseHolderNameBangla", txtHouseHolderNameBangla.Text);
+                    cmd.Parameters.AddWithValue("@HouseHolderPhoneNo", txtHouseHolderPhoneNo.Text);
+
+                    cmd.Parameters.AddWithValue("@RelationWithNominee", string.IsNullOrEmpty(ddlNomineeRelation.SelectedValue) ? (object)DBNull.Value : ddlNomineeRelation.SelectedValue);
+                    cmd.Parameters.AddWithValue("@NomineesName", txtNomineesName.Text.Trim());
+                    cmd.Parameters.AddWithValue("@NomineeNameBangla", txtNomineeNameBangla.Text.Trim());
+                    cmd.Parameters.AddWithValue("@NomineesNID", txtNomineesNID.Text.Trim());
+                    cmd.Parameters.AddWithValue("@NomineesBID", txtNomineesBID.Text.Trim());
+                    cmd.Parameters.AddWithValue("@NomineesDateOfBirth", string.IsNullOrEmpty(txtNomineesDateOfBirth.Text) ? (object)DBNull.Value : txtNomineesDateOfBirth.Text);
+                    cmd.Parameters.AddWithValue("@NomineesPhoneNo", txtNomineesPhoneNo.Text.Trim());
+                    cmd.Parameters.AddWithValue("@EmployeeNomineeAddressSame", CheckNominee.Checked);
+                    cmd.Parameters.AddWithValue("@NomineesDistrictID", string.IsNullOrEmpty(ddlNomineeDistrict.SelectedValue) ? (object)DBNull.Value : ddlNomineeDistrict.SelectedValue);
+                    cmd.Parameters.AddWithValue("@NomineesPoliceStationID", string.IsNullOrEmpty(ddlNomineePoliceStation.SelectedValue) ? (object)DBNull.Value : ddlNomineePoliceStation.SelectedValue);
+                    cmd.Parameters.AddWithValue("@NomineesPostOfficeEnglish", txtNomineePostOfficeEnglish.Text.Trim());
+                    cmd.Parameters.AddWithValue("@NomineesPostOfficeBangla", txtNomineePostOfficeBangla.Text.Trim());
+                    cmd.Parameters.AddWithValue("@NomineesVillageEnglish", txtNomineeVillageEnglish.Text.Trim());
+                    cmd.Parameters.AddWithValue("@NomineesVillageBangla", txtNomineeVillageBangla.Text.Trim());
+
+                    // --- Tab 6: Experience Parameters ---
+                    cmd.Parameters.AddWithValue("@FactoryName", txtFactoryName.Text.Trim());
+                    cmd.Parameters.AddWithValue("@FactoryAddress", txtFactoryAddress.Text.Trim());
+                    cmd.Parameters.AddWithValue("@TotalExperienceYear", string.IsNullOrEmpty(txtTotalExpYear.Text) ? (object)DBNull.Value : Convert.ToInt32(txtTotalExpYear.Text));
+                    cmd.Parameters.AddWithValue("@TotalExperienceMonth", string.IsNullOrEmpty(txtTotalExpMonth.Text) ? (object)DBNull.Value : Convert.ToInt32(txtTotalExpMonth.Text));
+                    cmd.Parameters.AddWithValue("@UseExperienceDateRange", chkUseExpDate.Checked);
+                    cmd.Parameters.AddWithValue("@ExperienceFromDate", string.IsNullOrEmpty(txtExpFromDate.Text) ? (object)DBNull.Value : Convert.ToDateTime(txtExpFromDate.Text));
+                    cmd.Parameters.AddWithValue("@ExperienceTillDate", string.IsNullOrEmpty(txtExpTillDate.Text) ? (object)DBNull.Value : Convert.ToDateTime(txtExpTillDate.Text));
+
+                    // --- Tab 7: Reference Parameters ---
+                    cmd.Parameters.AddWithValue("@RefEmployeeIDNo", txtRefEmpID.Text.Trim());
+                    cmd.Parameters.AddWithValue("@RefName", txtRefName.Text.Trim());
+                    cmd.Parameters.AddWithValue("@RefDesignation", txtRefDesignation.Text.Trim());
+                    cmd.Parameters.AddWithValue("@RefCompany", txtRefCompany.Text.Trim());
+                    cmd.Parameters.AddWithValue("@RefEmail", txtRefEmail.Text.Trim());
+                    cmd.Parameters.AddWithValue("@RefPhone", txtRefPhone.Text.Trim());
+
                     try
                     {
                         if (con.State != ConnectionState.Open)
@@ -804,15 +888,14 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                             {
                                 txtName.Text = reader["Name"] == DBNull.Value ? "" : reader["Name"].ToString();
                                 txtBanglaName.Text = reader["BanglaName"] == DBNull.Value ? "" : reader["BanglaName"].ToString();
-                                txtJoiningDate.Text = reader["JoiningDate"] == DBNull.Value? "" : Convert.ToDateTime(reader["JoiningDate"]).ToString("yyyy-MM-dd");
-                                txtProbationPeriod.Text = reader["ProbationPeriod"] == DBNull.Value? "" : Convert.ToDateTime(reader["ProbationPeriod"]).ToString("yyyy-MM-dd");
+                                txtJoiningDate.Text = reader["JoiningDate"] == DBNull.Value ? "" : Convert.ToDateTime(reader["JoiningDate"]).ToString("yyyy-MM-dd");
+                                txtProbationPeriod.Text = reader["ProbationPeriod"] == DBNull.Value ? "" : Convert.ToDateTime(reader["ProbationPeriod"]).ToString("yyyy-MM-dd");
                                 txtSeparationDate.Text = reader["SeparationDate"] == DBNull.Value ? "" : Convert.ToDateTime(reader["SeparationDate"]).ToString("yyyy-MM-dd");
                                 string status = reader["EmployeeStatus"] == DBNull.Value ? "" : reader["EmployeeStatus"].ToString();
                                 if (ddlEmployeeStatus.Items.FindByValue(status) != null)
                                 {
                                     ddlEmployeeStatus.SelectedValue = status;
                                 }
-
                                 if (reader["Photo"] != DBNull.Value)
                                 {
                                     byte[] photoBytes = (byte[])reader["Photo"];
@@ -828,7 +911,7 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                                     photoPlaceholderText.Style["display"] = "block";
                                 }
                                 string BranchID = reader["BranchID"] == DBNull.Value ? "" : reader["BranchID"].ToString();
-                                if (ddlBranch.Items.FindByValue(BranchID ) != null)
+                                if (ddlBranch.Items.FindByValue(BranchID) != null)
                                 {
                                     ddlBranch.SelectedValue = BranchID;
                                 }
@@ -852,7 +935,7 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                                 {
                                     ddlDesignation.SelectedValue = DesignationID;
                                 }
-                                string CategoryID= reader["CategoryID"] == DBNull.Value ? "" : reader["CategoryID"].ToString();
+                                string CategoryID = reader["CategoryID"] == DBNull.Value ? "" : reader["CategoryID"].ToString();
                                 if (ddlCategory.Items.FindByValue(CategoryID) != null)
                                 {
                                     ddlCategory.SelectedValue = CategoryID;
@@ -870,7 +953,7 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                                 string WeeklyHolidayID = reader["WeeklyHolidayID"] == DBNull.Value ? "" : reader["WeeklyHolidayID"].ToString();
                                 if (ddlWeekoff.Items.FindByValue(WeeklyHolidayID) != null)
                                 {
-                                    ddlWeekoff.SelectedValue = WeeklyHolidayID    ;
+                                    ddlWeekoff.SelectedValue = WeeklyHolidayID;
                                 }
                                 txtGrossSalary.Text = reader["GrossSalary"] == DBNull.Value ? "" : reader["GrossSalary"].ToString();
                                 txtAccountNumber.Text = reader["AccountNumber"] == DBNull.Value ? "" : reader["AccountNumber"].ToString();
@@ -878,7 +961,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                                 txtTaxableGrossSalary.Text = reader["TaxableGrossSalary"] == DBNull.Value ? "" : reader["TaxableGrossSalary"].ToString();
                                 txtNonTaxableGrossSalary.Text = reader["NonTaxableGrossSalary"] == DBNull.Value ? "" : reader["NonTaxableGrossSalary"].ToString();
                                 txtTaxAmount.Text = reader["TaxAmount"] == DBNull.Value ? "" : reader["TaxAmount"].ToString();
-                                
                                 string BankHolderID = reader["BankHolderID"] == DBNull.Value ? "" : reader["BankHolderID"].ToString();
                                 if (ddlBankHolder.Items.FindByValue(BankHolderID) != null)
                                 {
@@ -899,7 +981,142 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                                 {
                                     ddlTaxHolder.SelectedValue = TaxHolderID;
                                 }
+                                txtFatherEnglish.Text = reader["FatherEnglish"] == DBNull.Value ? "" : reader["FatherEnglish"].ToString();
+                                txtFatherBangla.Text = reader["FatherBangla"] == DBNull.Value ? "" : reader["FatherBangla"].ToString();
+                                txtMotherEnglish.Text = reader["MotherEnglish"] == DBNull.Value ? "" : reader["MotherEnglish"].ToString();
+                                txtMotherBangla.Text = reader["MotherBangla"] == DBNull.Value ? "" : reader["MotherBangla"].ToString();
+                                txtSpouseEnglish.Text = reader["SpouseEnglish"] == DBNull.Value ? "" : reader["SpouseEnglish"].ToString();
+                                txtSpouseBangla.Text = reader["SpouseBangla"] == DBNull.Value ? "" : reader["SpouseBangla"].ToString();
+                                txtNID.Text = reader["NID"] == DBNull.Value ? "" : reader["NID"].ToString();
+                                txtBID.Text = reader["BID"] == DBNull.Value ? "" : reader["BID"].ToString();
+                                txtDateOfBirth.Text = reader["DateOfBirth"] == DBNull.Value ? "" : reader["DateOfBirth"].ToString();
+                                string maritalStatus = reader["MaritalStatus"] == DBNull.Value ? "" : reader["MaritalStatus"].ToString();
+                                if (ddlMaritalStatus.Items.FindByValue(maritalStatus) != null)
+                                {
+                                    ddlMaritalStatus.SelectedValue = maritalStatus;
+                                }
+                                string religion = reader["Religion"] == DBNull.Value ? "" : reader["Religion"].ToString();
+                                if (ddlReligion.Items.FindByValue(religion) != null)
+                                {
+                                    ddlReligion.SelectedValue = religion;
+                                }
+                                txtNoofChild.Text = reader["NoofChild"] == DBNull.Value ? "" : reader["NoofChild"].ToString();
+                                string gender = reader["Gender"] == DBNull.Value ? "" : reader["Gender"].ToString();
+                                if (ddlGender.Items.FindByValue(gender) != null)
+                                {
+                                    ddlGender.SelectedValue = gender;
+                                }
+                                txtHeightFeet.Text = reader["HeightFeet"] == DBNull.Value ? "" : reader["HeightFeet"].ToString();
+                                txtHeightInch.Text = reader["HeightInch"] == DBNull.Value ? "" : reader["HeightInch"].ToString();
+                                txtWeightKG.Text = reader["WeightKG"] == DBNull.Value ? "" : reader["WeightKG"].ToString();
+                                string bloodGroup = reader["BloodGroup"] == DBNull.Value ? "" : reader["BloodGroup"].ToString();
+                                if (ddlBloodGroup.Items.FindByValue(bloodGroup) != null)
+                                {
+                                    ddlBloodGroup.SelectedValue = bloodGroup;
+                                }
+                                txtTIN.Text = reader["TIN"] == DBNull.Value ? "" : reader["TIN"].ToString();
+                                txtPersonalPhone.Text = reader["PersonalPhone"] == DBNull.Value ? "" : reader["PersonalPhone"].ToString();
+                                txtHomePhone.Text = reader["HomePhone"] == DBNull.Value ? "" : reader["HomePhone"].ToString();
+                                string education = reader["Education"] == DBNull.Value ? "" : reader["Education"].ToString();
+                                if (ddlEducation.Items.FindByValue(education) != null)
+                                {
+                                    ddlEducation.SelectedValue = education;
+                                }
+                                txtEmail.Text = reader["Email"] == DBNull.Value ? "" : reader["Email"].ToString();
+                                string PermanentDistrictID = reader["PermanentDistrictID"] == DBNull.Value ? "" : reader["PermanentDistrictID"].ToString();
+                                if (ddlPermanentDistrict.Items.FindByValue(PermanentDistrictID) != null)
+                                {
+                                    ddlPermanentDistrict.SelectedValue = PermanentDistrictID;
+                                }
+                                string PermanentPoliceStationID = reader["PermanentPoliceStationID"] == DBNull.Value ? "" : reader["PermanentPoliceStationID"].ToString();
+                                if (ddlPermanentPoliceStation.Items.FindByValue(PermanentPoliceStationID) != null)
+                                {
+                                    ddlPermanentPoliceStation.SelectedValue = PermanentPoliceStationID;
+                                }
+                                txtPermanentPostOfficeEnglish.Text = reader["PermanentPostOfficeEnglish"] == DBNull.Value ? "" : reader["PermanentPostOfficeEnglish"].ToString();
+                                txtPermanentPostOfficeBangla.Text = reader["PermanentPostOfficeBangla"] == DBNull.Value ? "" : reader["PermanentPostOfficeBangla"].ToString();
+                                txtPermanentVillageEnglish.Text = reader["PermanentVillageEnglish"] == DBNull.Value ? "" : reader["PermanentVillageEnglish"].ToString();
+                                txtPermanentVillageBangla.Text = reader["PermanentVillageBangla"] == DBNull.Value ? "" : reader["PermanentVillageBangla"].ToString();
+                                object dbValue = reader["PresentPermanentAddressSame"];
+                                if (dbValue == DBNull.Value || dbValue == null)
+                                {
+                                    chkSame.Checked = false;
+                                }
+                                else if (dbValue is bool)
+                                {
+                                    chkSame.Checked = (bool)dbValue;
+                                }
+                                else
+                                {
+                                    string valStr = dbValue.ToString().Trim();
+                                    chkSame.Checked = valStr == "1" || valStr.Equals("Y", StringComparison.OrdinalIgnoreCase)
+                                                       || valStr.Equals("True", StringComparison.OrdinalIgnoreCase)
+                                                       || valStr.Equals("Yes", StringComparison.OrdinalIgnoreCase);
+                                }
+                                string PresentDistrictID = reader["PresentDistrictID"] == DBNull.Value ? "" : reader["PresentDistrictID"].ToString();
+                                if (ddlPresentDistrict.Items.FindByValue(PresentDistrictID) != null)
+                                {
+                                    ddlPresentDistrict.SelectedValue = PresentDistrictID;
+                                }
+                                string PresentPoliceStationID = reader["PresentPoliceStationID"] == DBNull.Value ? "" : reader["PresentPoliceStationID"].ToString();
+                                if (ddlPresentPoliceStation.Items.FindByValue(PresentPoliceStationID) != null)
+                                {
+                                    ddlPresentPoliceStation.SelectedValue = PresentPoliceStationID;
+                                }
+                                txtPresentPostOfficeEnglish.Text = reader["PresentPostOfficeEnglish"] == DBNull.Value ? "" : reader["PresentPostOfficeEnglish"].ToString();
+                                txtPresentPostOfficeBangla.Text = reader["PresentPostOfficeBangla"] == DBNull.Value ? "" : reader["PresentPostOfficeBangla"].ToString();
+                                txtPresentVillageEnglish.Text = reader["PresentVillageEnglish"] == DBNull.Value ? "" : reader["PresentVillageEnglish"].ToString();
+                                txtPresentVillageBangla.Text = reader["PresentVillageBangla"] == DBNull.Value ? "" : reader["PresentVillageBangla"].ToString();
 
+                                txtHouseHolderNameEnglish.Text = reader["HouseHolderNameEnglish"] == DBNull.Value ? "" : reader["HouseHolderNameEnglish"].ToString();
+                                txtHouseHolderNameBangla.Text = reader["HouseHolderNameBangla"] == DBNull.Value ? "" : reader["HouseHolderNameBangla"].ToString();
+                                txtHouseHolderPhoneNo.Text = reader["HouseHolderPhoneNo"] == DBNull.Value ? "" : reader["HouseHolderPhoneNo"].ToString();
+
+                                // --- Nominee Details (Tab 5) ---
+                                if (reader["RelationWithNominee"] != DBNull.Value) ddlNomineeRelation.SelectedValue = reader["RelationWithNominee"].ToString();
+                                txtNomineesName.Text = reader["NomineesName"] != DBNull.Value ? reader["NomineesName"].ToString() : string.Empty;
+                                txtNomineeNameBangla.Text = reader["NomineeNameBangla"] != DBNull.Value ? reader["NomineeNameBangla"].ToString() : string.Empty;
+                                txtNomineesNID.Text = reader["NomineesNID"] != DBNull.Value ? reader["NomineesNID"].ToString() : string.Empty;
+                                txtNomineesBID.Text = reader["NomineesBID"] != DBNull.Value ? reader["NomineesBID"].ToString() : string.Empty;
+                                txtNomineesDateOfBirth.Text = reader["NomineesDateOfBirth"] != DBNull.Value ? reader["NomineesDateOfBirth"].ToString() : string.Empty;
+                                txtNomineesPhoneNo.Text = reader["NomineesPhoneNo"] != DBNull.Value ? reader["NomineesPhoneNo"].ToString() : string.Empty;
+
+                                if (reader["EmployeeNomineeAddressSame"] != DBNull.Value)
+                                {
+                                    CheckNominee.Checked = Convert.ToBoolean(reader["EmployeeNomineeAddressSame"]);
+                                }
+                                if (reader["NomineesDistrictID"] != DBNull.Value) ddlNomineeDistrict.SelectedValue = reader["NomineesDistrictID"].ToString();
+                                if (reader["NomineesPoliceStationID"] != DBNull.Value) ddlNomineePoliceStation.SelectedValue = reader["NomineesPoliceStationID"].ToString();
+                                txtNomineePostOfficeEnglish.Text = reader["NomineesPostOfficeEnglish"] != DBNull.Value ? reader["NomineesPostOfficeEnglish"].ToString() : string.Empty;
+                                txtNomineePostOfficeBangla.Text = reader["NomineesPostOfficeBangla"] != DBNull.Value ? reader["NomineesPostOfficeBangla"].ToString() : string.Empty;
+                                txtNomineeVillageEnglish.Text = reader["NomineesVillageEnglish"] != DBNull.Value ? reader["NomineesVillageEnglish"].ToString() : string.Empty;
+                                txtNomineeVillageBangla.Text = reader["NomineesVillageBangla"] != DBNull.Value ? reader["NomineesVillageBangla"].ToString() : string.Empty;
+
+
+                                // --- Tab 6: Experience Details ---
+                                txtFactoryName.Text = reader["FactoryName"] != DBNull.Value ? reader["FactoryName"].ToString() : string.Empty;
+                                txtFactoryAddress.Text = reader["FactoryAddress"] != DBNull.Value ? reader["FactoryAddress"].ToString() : string.Empty;
+                                txtTotalExpYear.Text = reader["TotalExperienceYear"] != DBNull.Value ? reader["TotalExperienceYear"].ToString() : string.Empty;
+                                txtTotalExpMonth.Text = reader["TotalExperienceMonth"] != DBNull.Value ? reader["TotalExperienceMonth"].ToString() : string.Empty;
+
+                                if (reader["UseExperienceDateRange"] != DBNull.Value)
+                                {
+                                    chkUseExpDate.Checked = Convert.ToBoolean(reader["UseExperienceDateRange"]);
+                                }
+
+                                if (reader["ExperienceFromDate"] != DBNull.Value)
+                                    txtExpFromDate.Text = Convert.ToDateTime(reader["ExperienceFromDate"]).ToString("yyyy-MM-dd");
+
+                                if (reader["ExperienceTillDate"] != DBNull.Value)
+                                    txtExpTillDate.Text = Convert.ToDateTime(reader["ExperienceTillDate"]).ToString("yyyy-MM-dd");
+
+                                // --- Tab 7: Reference Details ---
+                                txtRefEmpID.Text = reader["RefEmployeeIDNo"] != DBNull.Value ? reader["RefEmployeeIDNo"].ToString() : string.Empty;
+                                txtRefName.Text = reader["RefName"] != DBNull.Value ? reader["RefName"].ToString() : string.Empty;
+                                txtRefDesignation.Text = reader["RefDesignation"] != DBNull.Value ? reader["RefDesignation"].ToString() : string.Empty;
+                                txtRefCompany.Text = reader["RefCompany"] != DBNull.Value ? reader["RefCompany"].ToString() : string.Empty;
+                                txtRefEmail.Text = reader["RefEmail"] != DBNull.Value ? reader["RefEmail"].ToString() : string.Empty;
+                                txtRefPhone.Text = reader["RefPhone"] != DBNull.Value ? reader["RefPhone"].ToString() : string.Empty;
                             }
                             else
                             {
@@ -912,16 +1129,17 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                                 imgPhotoPreview.Src = "#";
                                 imgPhotoPreview.Style["display"] = "none";
                                 photoPlaceholderText.Style["display"] = "block";
-
-                                ClientScript.RegisterStartupScript(this.GetType(), "SearchNotFound","alert('No employee record exists for the provided Employee ID.');", true);
+                                ClientScript.RegisterStartupScript(this.GetType(), "SearchNotFound", "alert('No employee record exists for the provided Employee ID.');", true);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        ClientScript.RegisterStartupScript(this.GetType(), "SearchError",    "alert('Unable to complete the search. Please try again or contact the system administrator.');", true);
+                        string safeMsg = ex.Message.Replace("'", "").Replace("\n", " ").Replace("\r", ""); ClientScript.RegisterStartupScript(this.GetType(), "SearchError", "alert('DEBUG ERROR: " + safeMsg + "');", true);
                     }
                 }
+                EmployeeNomineeaddresssame();
+                presentpermanentaddresssame();
             }
         }
 

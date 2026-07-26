@@ -195,6 +195,7 @@
     <Content Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\FormEntry.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\MenuEntry.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\ModuleInformation.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\RoleBasedPermission.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\Roles.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\UserEntry.aspx" />
@@ -221,6 +222,7 @@
     <Content Include="HRMPayroll\HRConfiguration\PayrollSetting\CreateAbsentDeductionPolicy.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\PayrollSetting\CreateSalaryBreakdownPolicy.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\PayrollSetting\OTPaymentPolicy.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\HRMReports.aspx" />
     <Content Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveDeclare.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\LeaveSetting\MonthWiseLeaveSet.aspx" />
     <Content Include="HRMPayroll\LeaveInformation\LeaveApplication.aspx" />
@@ -275,6 +277,12 @@
     <Content Include="Production\Finishing\shortShipmentReason.aspx" />
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
     <Content Include="Test.aspx" />
+    <Content Include="TrimsAccessories\MsterSetup\ItemCategory.aspx" />
+    <Content Include="TrimsAccessories\MsterSetup\ItemName.aspx" />
+    <Content Include="TrimsAccessories\MsterSetup\RawMaterial.aspx" />
+    <Content Include="TrimsAccessories\MsterSetup\SubCategory.aspx" />
+    <Content Include="TrimsAccessories\PriceQuotation.aspx" />
+    <Content Include="TrimsAccessories\SheetNesting.aspx" />
     <Content Include="Web.config" />
     <Content Include="Welcome.aspx" />
   </ItemGroup>
@@ -401,6 +409,13 @@
     </Compile>
     <Compile Include="ERPConfiguration\UserAuthorization\MenuEntry.aspx.designer.cs">
       <DependentUpon>MenuEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\ModuleInformation.aspx.cs">
+      <DependentUpon>ModuleInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\ModuleInformation.aspx.designer.cs">
+      <DependentUpon>ModuleInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="ERPConfiguration\UserAuthorization\RoleBasedPermission.aspx.cs">
       <DependentUpon>RoleBasedPermission.aspx</DependentUpon>
@@ -583,6 +598,13 @@
     </Compile>
     <Compile Include="HRMPayroll\HRConfiguration\PayrollSetting\OTPaymentPolicy.aspx.designer.cs">
       <DependentUpon>OTPaymentPolicy.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRMReports.aspx.cs">
+      <DependentUpon>HRMReports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRMReports.aspx.designer.cs">
+      <DependentUpon>HRMReports.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveDeclare.aspx.cs">
       <DependentUpon>EmployeeWiseLeaveDeclare.aspx</DependentUpon>
@@ -934,6 +956,48 @@
     </Compile>
     <Compile Include="Test.aspx.designer.cs">
       <DependentUpon>Test.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\ItemCategory.aspx.cs">
+      <DependentUpon>ItemCategory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\ItemCategory.aspx.designer.cs">
+      <DependentUpon>ItemCategory.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\ItemName.aspx.cs">
+      <DependentUpon>ItemName.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\ItemName.aspx.designer.cs">
+      <DependentUpon>ItemName.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\RawMaterial.aspx.cs">
+      <DependentUpon>RawMaterial.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\RawMaterial.aspx.designer.cs">
+      <DependentUpon>RawMaterial.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\SubCategory.aspx.cs">
+      <DependentUpon>SubCategory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\SubCategory.aspx.designer.cs">
+      <DependentUpon>SubCategory.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrimsAccessories\PriceQuotation.aspx.cs">
+      <DependentUpon>PriceQuotation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\PriceQuotation.aspx.designer.cs">
+      <DependentUpon>PriceQuotation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrimsAccessories\SheetNesting.aspx.cs">
+      <DependentUpon>SheetNesting.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\SheetNesting.aspx.designer.cs">
+      <DependentUpon>SheetNesting.aspx</DependentUpon>
     </Compile>
     <Compile Include="Welcome.aspx.cs">
       <DependentUpon>Welcome.aspx</DependentUpon>

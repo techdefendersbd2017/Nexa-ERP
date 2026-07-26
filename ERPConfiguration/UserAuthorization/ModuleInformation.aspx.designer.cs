@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexa_ERP.ERPConfiguration.CompanyInformation
+namespace Nexa_ERP.ERPConfiguration.UserAuthorization
 {
 
 
-    public partial class BranchInformation
+    public partial class ModuleInformation
     {
 
         /// <summary>
@@ -33,139 +33,76 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         protected global::System.Web.UI.ScriptManager ScriptManager1;
 
         /// <summary>
-        /// hfUserId control.
+        /// UPModuleInfo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfUserId;
+        protected global::System.Web.UI.UpdatePanel UPModuleInfo;
 
         /// <summary>
-        /// Label1 control.
+        /// lblStatusInfo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label1;
+        protected global::System.Web.UI.WebControls.Label lblStatusInfo;
 
         /// <summary>
-        /// txtBranchID control.
+        /// hfModuleID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtBranchID;
+        protected global::System.Web.UI.WebControls.HiddenField hfModuleID;
 
         /// <summary>
-        /// ddlGroup control.
+        /// txtModuleID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlGroup;
+        protected global::System.Web.UI.WebControls.TextBox txtModuleID;
 
         /// <summary>
-        /// rfvGroup control.
+        /// txtSortingNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvGroup;
+        protected global::System.Web.UI.WebControls.TextBox txtSortingNo;
 
         /// <summary>
-        /// txtBranch control.
+        /// txtModuleName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtBranch;
+        protected global::System.Web.UI.WebControls.TextBox txtModuleName;
 
         /// <summary>
-        /// rfvBranch control.
+        /// txtModuleCode control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvBranch;
+        protected global::System.Web.UI.WebControls.TextBox txtModuleCode;
 
         /// <summary>
-        /// txtPrefix control.
+        /// txtIconClass control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPrefix;
-
-        /// <summary>
-        /// txtEmail control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtEmail;
-
-        /// <summary>
-        /// revEmail control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revEmail;
-
-        /// <summary>
-        /// txtPhone control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPhone;
-
-        /// <summary>
-        /// revPhone control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revPhone;
-
-        /// <summary>
-        /// txtWeb control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtWeb;
-
-        /// <summary>
-        /// revWeb control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revWeb;
-
-        /// <summary>
-        /// txtAddress control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtAddress;
+        protected global::System.Web.UI.WebControls.TextBox txtIconClass;
 
         /// <summary>
         /// chkIsActive control.
@@ -195,12 +132,12 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         protected global::System.Web.UI.WebControls.Button btnSave;
 
         /// <summary>
-        /// gvBranch control.
+        /// gvModuleInfo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvBranch;
+        protected global::System.Web.UI.WebControls.GridView gvModuleInfo;
     }
 }

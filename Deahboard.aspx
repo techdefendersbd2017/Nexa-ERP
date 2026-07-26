@@ -166,11 +166,6 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ============================================================
-   নতুন সংযোজন: মডিউল ড্যাশবোর্ড (হোম পেজ কার্ড ভিউ)
-   - এই কার্ডগুলো ডানপাশে (mainContent) সব মডিউল দেখাবে
-   - প্রতিটি কার্ডে মডিউলের আইকন, নাম এবং মেনু সংখ্যা দেখাবে
-   ============================================================ */
 #moduleDashboard {
     animation: fadeIn 0.25s ease-in-out;
 }
@@ -211,11 +206,6 @@
     color: #8a97a5;
 }
 
-/* ============================================================
-   নতুন সংযোজন: "সকল মডিউলে ফিরে যান" বাটন (সাইডবারে)
-   - যখন কোনো একটি মডিউল সিলেক্ট করা হয়, তখন এই বাটন দেখা যাবে
-   - এতে ক্লিক করলে আবার সব মডিউল সাইডবারে ফিরে আসবে
-   ============================================================ */
 #backToModulesBtn {
     background: rgba(13,110,253,0.15);
     padding: 8px 10px;
@@ -227,10 +217,6 @@
     background: rgba(13,110,253,0.3);
 }
 
-/* ============================================================
-   নতুন সংযোজন: পেজ টাইটেল বার
-   - কোনো ফর্মে ক্লিক করলে এখানে "মডিউল / মেনু" নাম দেখাবে
-   ============================================================ */
 #pageTitleBar {
     background: #ffffff;
     border: 1px solid #e5e9ef;
@@ -253,17 +239,14 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3" style="height:56px">
 
-        <!-- ✅ type="button" দেওয়া হয়েছে যাতে form submit না হয় -->
         <button id="navbarToggleBtn" type="button" onclick="toggleSidebar(); return false;">
             <i id="toggleIcon" class="bi bi-layout-sidebar"></i>
         </button>
 
-        <!-- ✅ "NexaERP Home" এ ক্লিক করলে আবার সব মডিউলের ড্যাশবোর্ড (হোম কার্ড ভিউ) দেখাবে -->
         <a class="navbar-brand fw-bold" onclick="backToModules(); return false;"> NexaERP Home</a>
 
         <div class="ms-auto">
             <span class="text-white me-3">Welcome, <asp:Label ID="lblUser" runat="server" Text="Admin" /></span>
-            <!-- ✅ OnClientClick="return false;" দেওয়া হয়েছে যাতে Logout postback না করে -->
             <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="btn btn-outline-light btn-sm" />
         </div>
     </nav>
@@ -280,7 +263,6 @@
                    onclick="toggleBranchPopup(); return false;"
                    style="cursor:pointer; color:inherit;">
 
-                    <!-- Company Logo -->
                     <img src="Images/company-logo.png" class="company-logo" />
 
                     <span>Pantex Limited</span>
@@ -288,22 +270,18 @@
                     <i class="bi bi-chevron-down small ms-auto" id="branchArrow"></i>
                 </a>
 
-                <!-- Popup List View -->
-                <div id="branchPopup" class="branch-popup">
+<%--                <div id="branchPopup" class="branch-popup">
                     <ul>
                         <li onclick="loadPage('Dashboard.aspx')">🏢 Head Office</li>
                         <li onclick="loadPage('Branch1.aspx')">🏭 Gazipur Branch</li>
                         <li onclick="loadPage('Branch2.aspx')">🏬 Chittagong Branch</li>
                     </ul>
-                </div>
+                </div>--%>
 
             </h6>
 
             <div class="tree-menu px-4">
 
-                <!-- ✅ নতুন সংযোজন: এই বাটনটি ডিফল্টভাবে লুকানো থাকবে।
-                     যখন ডানপাশের কোনো মডিউল কার্ডে ক্লিক করা হবে, তখন এটি দেখা যাবে।
-                     এতে ক্লিক করলে সাইডবারে আবার সব মডিউল দেখা যাবে। -->
                 <div id="backToModulesBtn"
                      class="d-flex align-items-center gap-2 text-info mb-3"
                      style="display:none; cursor:pointer;"
@@ -315,9 +293,7 @@
                 <ul class="tree-root">
                     <asp:Repeater ID="rptModules" runat="server">
                         <ItemTemplate>
-                            <!-- ✅ "module-item" ক্লাস এবং "data-module-id" যোগ করা হয়েছে
-                                 যাতে জাভাস্ক্রিপ্ট দিয়ে সহজে এই লিস্ট আইটেমটিকে
-                                 খুঁজে বের করে দেখানো/লুকানো (filter) করা যায় -->
+
                             <li class="module-item" data-module-id="mod_<%# Eval("Module_ID") %>">
                                 <a onclick="toggleMenu('mod_<%# Eval("Module_ID") %>', this); return false;"
                                    class="d-flex justify-content-between align-items-center">
@@ -328,8 +304,6 @@
                                     <i class="bi bi-chevron-down toggle-icon"></i>
                                 </a>
 
-                                <!-- ✅ "data-module-name" যোগ করা হয়েছে যাতে ফর্মে ক্লিক করার সময়
-                                     আমরা জানতে পারি এটি কোন মডিউলের অন্তর্গত (title bar এ দেখানোর জন্য) -->
                                 <ul id="mod_<%# Eval("Module_ID") %>" class="submenu"
                                     data-module-name="<%# Eval("Module_Name") %>"
                                     style="display:none; padding-left:20px;">
@@ -345,16 +319,13 @@
                                                     <i class="bi bi-chevron-down toggle-icon"></i>
                                                 </a>
 
-                                                <!-- ✅ "data-menu-name" যোগ করা হয়েছে যাতে ফর্মে ক্লিক করলে
-                                                     পেজ টাইটেল বার-এ এই মেনুর নাম দেখানো যায় -->
                                                 <ul id="menu_<%# Eval("Menu_ID") %>" class="pages"
                                                     data-menu-name="<%# Eval("Menu_Name") %>"
                                                     style="display:none; padding-left:20px;">
                                                     <asp:Repeater ID="rptForms" runat="server" DataSource='<%# Eval("Forms") %>'>
                                                         <ItemTemplate>
                                                             <li>
-                                                                <!-- ✅ "this" পাঠানো হচ্ছে যাতে loadPage() ফাংশনটি
-                                                                     ঠিক কোন মডিউল/মেনু থেকে ক্লিক হয়েছে তা বুঝতে পারে -->
+
                                                                 <a onclick="loadPage('<%# Eval("Form_Url") %>', this); return false;">
                                                                     <i class='<%# Eval("Icon_Class") %> me-1'></i>
                                                                     <%# Eval("Form_Name") %>
@@ -374,19 +345,12 @@
             </div>
         </div>
 
-        <!-- MAIN CONTENT (ডানপাশ) -->
         <div id="mainContent">
 
-            <!-- ✅ নতুন সংযোজন: মডিউল ড্যাশবোর্ড (হোম ভিউ)
-                 এখানে সব মডিউল কার্ড আকারে দেখানো হবে। এটি জাভাস্ক্রিপ্ট দিয়ে
-                 সাইডবারের ডেটা থেকে অটোমেটিক তৈরি হয় (buildModuleDashboard ফাংশন)। -->
             <div id="moduleDashboard" class="row g-3 p-2">
                 <div class="text-muted p-4">মডিউল লোড হচ্ছে...</div>
             </div>
 
-            <!-- ✅ নতুন সংযোজন: ফর্ম/পেজ ভিউ (ডিফল্টভাবে লুকানো)
-                 কোনো ফর্মে ক্লিক করলে এটি দেখানো হবে এবং উপরে টাইটেল বার-এ
-                 কোন মেনুর ফর্ম খোলা হয়েছে তা দেখাবে। -->
             <div id="pageViewWrapper" style="display:none;">
                 <div id="pageTitleBar"></div>
                 <iframe id="mainFrame" src="about:blank"></iframe>
@@ -399,12 +363,7 @@
 </form>
 
 <script>
-    // ✅ সব script form এর বাইরে এবং body শেষে রাখা হয়েছে
 
-    /* ============================================================
-       পেজ লোড হওয়ার সাথে সাথে সাইডবারের (hidden) ডেটা থেকে
-       ডানপাশের "মডিউল ড্যাশবোর্ড" কার্ডগুলো তৈরি করা হয়
-       ============================================================ */
     document.addEventListener("DOMContentLoaded", buildModuleDashboard);
 
     function buildModuleDashboard() {
@@ -426,7 +385,6 @@
             var nameSpan = link.querySelector("span");
             var moduleName = nameSpan ? nameSpan.textContent.trim() : "Module";
 
-            // এই মডিউলের অধীনে কতগুলো মেনু আছে তা গণনা করা হচ্ছে
             var submenu = document.getElementById(moduleId);
             var menuCount = submenu ? submenu.querySelectorAll(":scope > li").length : 0;
 
@@ -443,21 +401,12 @@
         });
     }
 
-    /* ============================================================
-       ডানপাশে কোনো মডিউল কার্ডে ক্লিক করলে এই ফাংশন কাজ করবে:
-       ১) সাইডবারে শুধুমাত্র সিলেক্ট করা মডিউলটি দেখাবে (বাকিগুলো লুকাবে)
-       ২) সিলেক্ট করা মডিউলের সাব-মেনু অটোমেটিক ওপেন করে দিবে
-       ৩) "সকল মডিউলে ফিরে যান" বাটন দেখাবে
-       ৪) ডানপাশে ফর্ম ভিউ প্লেসহোল্ডার দেখাবে (ফর্ম সিলেক্ট করার আগ পর্যন্ত)
-       ============================================================ */
     function selectModule(moduleId) {
 
-        // ১) সাইডবারের সব মডিউল থেকে শুধু সিলেক্টেড মডিউলটি দৃশ্যমান রাখা
         document.querySelectorAll(".tree-root > li.module-item").forEach(function (li) {
             li.style.display = (li.getAttribute("data-module-id") === moduleId) ? "" : "none";
         });
 
-        // ২) সিলেক্টেড মডিউলের সাব-মেনু (menu list) খুলে দেওয়া
         var submenu = document.getElementById(moduleId);
         if (submenu) {
             submenu.style.display = "block";
@@ -466,10 +415,8 @@
             if (icon) icon.classList.add("rotate");
         }
 
-        // ৩) "সকল মডিউলে ফিরে যান" বাটন দেখানো
         document.getElementById("backToModulesBtn").style.display = "flex";
 
-        // ৪) ডানপাশে ড্যাশবোর্ড কার্ড লুকিয়ে ফর্ম ভিউ (খালি অবস্থায়) দেখানো
         document.getElementById("moduleDashboard").style.display = "none";
         document.getElementById("pageViewWrapper").style.display = "block";
         document.getElementById("pageTitleBar").innerHTML =
@@ -477,34 +424,21 @@
         document.getElementById("mainFrame").src = "about:blank";
     }
 
-    /* ============================================================
-       "সকল মডিউলে ফিরে যান" বাটনে বা "NexaERP Home" এ ক্লিক করলে
-       আবার সব মডিউল সাইডবার এবং ডানপাশের ড্যাশবোর্ডে দেখানো হবে
-       ============================================================ */
     function backToModules() {
-        document.querySelectorAll(".tree-root > li.module-item").forEach(function (li) {
-            li.style.display = "";
-
-            // প্রতিটি মডিউলের সাব-মেনু আবার বন্ধ (collapsed) করে দেওয়া হচ্ছে
+        document.querySelectorAll(".tree-root > li.module-item").forEach(function (li) {li.style.display = "";
             var link = li.querySelector(":scope > a");
             var submenu = li.querySelector(":scope > ul.submenu");
             if (submenu) submenu.style.display = "none";
             var icon = link ? link.querySelector(".toggle-icon") : null;
             if (icon) icon.classList.remove("rotate");
         });
-
         document.getElementById("backToModulesBtn").style.display = "none";
         document.getElementById("moduleDashboard").style.display = "flex";
         document.getElementById("pageViewWrapper").style.display = "none";
         document.getElementById("mainFrame").src = "about:blank";
     }
 
-    /* ============================================================
-       কোনো ফর্মে ক্লিক করলে এই ফাংশন কাজ করে:
-       - iframe এ ফর্মের পেজ লোড করে
-       - পেজ টাইটেল বার-এ "মডিউলের নাম / মেনুর নাম" দেখায়
-       - প্যারামিটার "el" হলো যে <a> ট্যাগে ক্লিক করা হয়েছে সেটি
-       ============================================================ */
+
     function loadPage(url, el) {
         var lbl = document.getElementById('<%= lblUser.ClientID %>');
         var userName = lbl ? lbl.innerText : '';
@@ -513,8 +447,6 @@
         var moduleName = '';
 
         if (el) {
-            // el (ক্লিক করা ফর্মের লিংক) থেকে উপরের দিকে খুঁজে
-            // সংশ্লিষ্ট মেনু ও মডিউলের নাম বের করা হচ্ছে
             var pagesUl = el.closest('.pages');
             if (pagesUl) menuName = pagesUl.getAttribute('data-menu-name') || '';
 
@@ -522,7 +454,6 @@
             if (submenuUl) moduleName = submenuUl.getAttribute('data-module-name') || '';
         }
 
-        // টাইটেল বার-এ "মডিউল / মেনু" আকারে ব্রেডক্রাম্ব দেখানো
         var breadcrumb = [moduleName, menuName].filter(Boolean).join(' / ');
         var titleBar = document.getElementById('pageTitleBar');
         if (titleBar) {
@@ -531,14 +462,11 @@
                 : '';
         }
 
-        // ড্যাশবোর্ড কার্ড লুকিয়ে ফর্ম ভিউ দেখানো
         document.getElementById('moduleDashboard').style.display = 'none';
         document.getElementById('pageViewWrapper').style.display = 'block';
-
         document.getElementById("mainFrame").src = url + "?user=" + encodeURIComponent(userName);
     }
 
-    // Tree menu open/close — ✅ return false দেওয়া আছে যাতে form submit না হয়
     function toggleMenu(id, el) {
         var submenu = document.getElementById(id);
         if (!submenu) return;
@@ -547,7 +475,6 @@
         if (icon) icon.classList.toggle("rotate");
     }
 
-    // ✅ Sidebar toggle — CSS width দিয়ে কাজ করে, কোনো class conflict নেই
     function toggleSidebar() {
         var sidebar = document.getElementById("sidebarPanel");
         var icon = document.getElementById("toggleIcon");
@@ -572,8 +499,6 @@
             arrow.classList.add("rotate");
         }
     }
-
-    // Outside click করলে auto close
     document.addEventListener("click", function (e) {
         var popup = document.getElementById("branchPopup");
         if (!e.target.closest(".navbar-brand")) {

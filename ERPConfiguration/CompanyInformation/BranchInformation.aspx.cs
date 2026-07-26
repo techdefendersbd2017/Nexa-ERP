@@ -19,7 +19,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         SqlCommand cmd;
 
         protected void Page_Load(object sender, EventArgs e)
-        {
+        {            
             if (!IsPostBack)
             {
                 string user = Request.QueryString["user"];
@@ -27,16 +27,17 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                 {
                     Label1.Text = "Welcome, " + user;
                 }
-                GroupInformationLoad();
                 LoadNextBranchID();
+                GroupInformationLoad();
                 LoadBranchInformation();
             }
         }
+
         void LoadNextBranchID()
         {
             con = conn.openConnection();
             {
-                SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(Branch_ID ),0)+1 FROM Branch_Information", con);
+                SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(Branch_ID),0)+1 FROM Branch_Information", con);
                 txtBranchID.Text = cmd.ExecuteScalar().ToString();
             }
             con.Close();
@@ -75,22 +76,22 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             try
             {
                 con = conn.openConnection();
+                using (SqlCommand cmd = new SqlCommand("sp_BranchInformation", con))
                 {
-                    using (SqlCommand cmd = new SqlCommand("sp_BranchInformationInsertUpdate", con))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@Branch_ID", SqlDbType.Int).Value = txtBranchID.Text;
-                        cmd.Parameters.Add("@Group_ID", SqlDbType.NVarChar).Value = ddlGroup.SelectedValue;
-                        cmd.Parameters.Add("@Branch_Name", SqlDbType.NVarChar).Value = txtBranch.Text;
-                        cmd.Parameters.Add("@Prifix", SqlDbType.NVarChar).Value = txtPrefix.Text;
-                        cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar).Value = txtEmail.Text;
-                        cmd.Parameters.Add("@Phone_No", SqlDbType.NVarChar).Value = txtPhone.Text;
-                        cmd.Parameters.Add("@Web", SqlDbType.NVarChar).Value = txtWeb.Text;
-                        cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = txtAddress.Text;
-                        cmd.Parameters.Add("@is_active", SqlDbType.Bit).Value = chkIsActive.Checked;
-                        cmd.ExecuteNonQuery();
-                        ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
-                    }
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@Branch_ID", SqlDbType.Int).Value = txtBranchID.Text;
+                    cmd.Parameters.Add("@Group_ID", SqlDbType.NVarChar).Value = ddlGroup.SelectedValue;
+                    cmd.Parameters.Add("@Branch_Name", SqlDbType.NVarChar).Value = txtBranch.Text;
+                    cmd.Parameters.Add("@Prifix", SqlDbType.NVarChar).Value = txtPrefix.Text;
+                    cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar).Value = txtEmail.Text;
+                    cmd.Parameters.Add("@Phone_No", SqlDbType.NVarChar).Value = txtPhone.Text;
+                    cmd.Parameters.Add("@Web", SqlDbType.NVarChar).Value = txtWeb.Text;
+                    cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = txtAddress.Text;
+                    cmd.Parameters.Add("@is_active", SqlDbType.Bit).Value = chkIsActive.Checked;
+
+                    cmd.ExecuteNonQuery();
+
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
                 }
                 con.Close();
             }
@@ -98,13 +99,14 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             {
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message + "');", true);
             }
+
             LoadBranchInformation();
         }
         private void LoadBranchInformation()
         {
             con = conn.openConnection();
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Branch_Information", con);
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Branch_Information ", con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 gvBranch.DataSource = dt;
@@ -149,6 +151,11 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             {
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
             }
+        }
+
+        protected void btnClear_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

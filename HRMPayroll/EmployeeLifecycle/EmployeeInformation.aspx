@@ -592,13 +592,13 @@
                     <div class="tab-pane fade" id="tab3">
                         <div class="row">
                             <div class="col-md-6 border-end pe-4">
-                                <div class="form-row-custom"><label>Father English</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Mother English</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Husband English</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Wife English</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>NID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Father English</label><asp:TextBox ID="txtFatherEnglish" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Mother English</label><asp:TextBox ID="txtMotherEnglish" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Husband English</label><asp:TextBox ID="txtHusbandEnglish" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Spous English</label><asp:TextBox ID="txtSpouseEnglish" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>NID</label><asp:TextBox ID="txtNID" runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Date Of Birth</label>
-                                    <asp:TextBox runat="server" CssClass="form-control form-control-sm" Placeholder="DD-MM-YYYY" />
+                                    <asp:TextBox ID="txtDateOfBirth" runat="server" CssClass="form-control form-control-sm" Placeholder="DD-MM-YYYY" TextMode="Date" />
                                 </div>
                                 <div class="form-row-custom"><label>Religion</label><asp:DropDownList ID="ddlReligion" runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                                 <div class="form-row-custom"><label>Gender</label><asp:DropDownList ID="ddlGender" runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
@@ -616,25 +616,25 @@
                                     </asp:DropDownList>
 
                                 </div>
-                                <div class="form-row-custom"><label>Personal Phone</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Personal Phone</label><asp:TextBox ID="txtPersonalPhone" runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Education</label><asp:DropDownList ID="ddlEducation" runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
                             </div>
                             <div class="col-md-6 ps-4">
-                                <div class="form-row-custom"><label>Father (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Mother (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Husband (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Wife (Bangla)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>BID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Father (Bangla)</label><asp:TextBox ID="txtFatherBangla" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Mother (Bangla)</label><asp:TextBox ID="txtMotherBangla" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Husband (Bangla)</label><asp:TextBox ID="txtHusbandBangla" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Spouse (Bangla)</label><asp:TextBox ID="txtSpouseBangla" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>BID</label><asp:TextBox ID="txtBID" runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Marital Status</label><asp:DropDownList ID="ddlMaritalStatus" runat="server" CssClass="form-select form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
-                                <div class="form-row-custom"><label>No of Child</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>No of Child</label><asp:TextBox ID="txtNoofChild" runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>Height</label>
-                                    <asp:TextBox runat="server" Width="50px" CssClass="form-control-sm me-1" /> ft 
-                                    <asp:TextBox runat="server" Width="50px" CssClass="form-control-sm mx-1" /> inc
-                                    <label style="width:70px; min-width:70px;" class="ms-2">Weight KG</label><asp:TextBox runat="server" Width="60px" CssClass="form-control-sm" />
+                                    <asp:TextBox ID="txtHeightFeet" runat="server" Width="50px" CssClass="form-control-sm me-1" /> ft 
+                                    <asp:TextBox ID="txtHeightInch" runat="server" Width="50px" CssClass="form-control-sm mx-1" /> inc
+                                    <label style="width:70px; min-width:70px;" class="ms-2">Weight KG</label><asp:TextBox ID="txtWeightKG" runat="server" Width="60px" CssClass="form-control-sm" />
                                 </div>
-                                <div class="form-row-custom"><label>TIN</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Home Phone</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>E-mail</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>TIN</label><asp:TextBox ID="txtTIN" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Home Phone</label><asp:TextBox ID="txtHomePhone" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>E-mail</label><asp:TextBox ID="txtEmail" runat="server" CssClass="form-control form-control-sm" /></div>
                             </div>
                         </div>
 
@@ -693,11 +693,15 @@
                                     </div>
                                     <div class="form-row-custom">
                                         <label>House Holder</label>
-                                        <asp:TextBox runat="server" CssClass="form-control form-control-sm w-100"></asp:TextBox>
+                                        <asp:TextBox runat="server" ID="txtHouseHolderNameEnglish" CssClass="form-control form-control-sm w-100"></asp:TextBox>
+                                    </div>
+                                    <div class="form-row-custom">
+                                        <label>House Holder (Bangla)</label>
+                                        <asp:TextBox runat="server" ID="txtHouseHolderNameBangla" CssClass="form-control form-control-sm w-100"></asp:TextBox>
                                     </div>
                                     <div class="form-row-custom">
                                         <label>Phone</label>
-                                        <asp:TextBox runat="server" CssClass="form-control form-control-sm w-100"></asp:TextBox>
+                                        <asp:TextBox runat="server" ID="txtHouseHolderPhoneNo" CssClass="form-control form-control-sm w-100"></asp:TextBox>
                                     </div>
                                 </div>
                             </div>
@@ -717,24 +721,27 @@
                         <div class="row">
                             <div class="col-md-6 border-end">
                                 <div class="form-row-custom"><label>Relation</label><asp:DropDownList ID="ddlNomineeRelation" runat="server" CssClass="form-select-sm w-100"><asp:ListItem Text="Select" Value=""></asp:ListItem></asp:DropDownList></div>
-                                <div class="form-row-custom"><label>Nominee's Name</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>NID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>BID</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Nominee's Name</label><asp:TextBox ID="txtNomineesName" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>NID</label><asp:TextBox ID="txtNomineesNID" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>BID</label><asp:TextBox ID="txtNomineesBID" runat="server" CssClass="form-control form-control-sm" /></div>
                             </div>
                             <div class="col-md-6 ps-4">
-                                <div class="form-row-custom"><label>Nominee Name(Ban)</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Date Of Birth</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" Width="150px" /></div>
-                                <div class="form-row-custom"><label>Phone No</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Nominee Name(Ban)</label><asp:TextBox ID="txtNomineeNameBangla" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Date Of Birth</label><asp:TextBox ID="txtNomineesDateOfBirth" runat="server" CssClass="form-control form-control-sm" Width="150px" TextMode="Date"  /></div>
+                                <div class="form-row-custom"><label>Phone No</label><asp:TextBox ID="txtNomineesPhoneNo" runat="server" CssClass="form-control form-control-sm" /></div>
                             </div>
                         </div>
                         <div class="col-md-6">
                         <asp:UpdatePanel ID="upNomineeInfo" runat="server">
                         <ContentTemplate>
-                            <div class="form-check mb-4">
-                                <asp:CheckBox ID="CheckNominee" class="form-select-sm w-100" AutoPostBack="true" Text=".    If Employee & Nominee Address Same." runat="server" OnCheckedChanged="CheckNominee_CheckedChanged"/>
-                            </div>
                             <span class="section-title ms-4">Nominee Address</span>
+
+
+
                             <div class="ms-4">
+                                <div class="form-check mb-4">
+                                    <asp:CheckBox ID="CheckNominee" class="form-select-sm w-100" AutoPostBack="true" Text=".    If Employee & Nominee Address Same." runat="server" OnCheckedChanged="CheckNominee_CheckedChanged"/>
+                                </div>
                                 <div class="form-row-custom">
                                     <label>District</label>
                                     <asp:DropDownList runat="server" ID="ddlNomineeDistrict" CssClass="form-select-sm w-100"></asp:DropDownList>
@@ -768,14 +775,14 @@
                     <div class="tab-pane fade" id="tab6">
                         <div class="row">
                             <div class="col-md-7 border-end">
-                                <div class="form-row-custom"><label>Factory Name</label><asp:TextBox runat="server" CssClass="form-control form-control-sm w-100" /></div>
-                                <div class="form-row-custom"><label>Address</label><asp:TextBox runat="server" TextMode="MultiLine" Rows="2" CssClass="form-control form-control-sm w-100" /></div>
+                                <div class="form-row-custom"><label>Factory Name</label><asp:TextBox ID="txtFactoryName" runat="server" CssClass="form-control form-control-sm w-100" /></div>
+                                <div class="form-row-custom"><label>Address</label><asp:TextBox ID="txtFactoryAddress" runat="server" TextMode="MultiLine" Rows="2" CssClass="form-control form-control-sm w-100" /></div>
                             </div>
                             <div class="col-md-5 ps-4">
-                                <div class="form-row-custom"><label>Total Experience</label><asp:TextBox Width="40px" runat="server" /> Year <asp:TextBox Width="40px" runat="server" CssClass="ms-2" /> Month</div>
-                                <div class="form-check mb-2"><input type="checkbox" /> If you use Experience From & Till Date</div>
-                                <div class="form-row-custom"><label>From Date</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" Width="150px" /></div>
-                                <div class="form-row-custom"><label>Till Date</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" Width="150px" /></div>
+                                <div class="form-row-custom"><label>Total Experience</label><asp:TextBox ID="txtTotalExpYear" Width="40px" runat="server" /> Year <asp:TextBox ID="txtTotalExpMonth" Width="40px" runat="server" CssClass="ms-2" /> Month</div>
+                                <div class="form-check mb-2"> <asp:CheckBox ID="chkUseExpDate" runat="server" /><label for="chkUseExpDate"> If you use Experience From & Till Date</label></div>
+                                <div class="form-row-custom"><label>From Date</label><asp:TextBox ID="txtExpFromDate" runat="server" CssClass="form-control form-control-sm" Width="150px" /></div>
+                                <div class="form-row-custom"><label>Till Date</label><asp:TextBox ID="txtExpTillDate" runat="server" CssClass="form-control form-control-sm" Width="150px" /></div>
                             </div>
                         </div>
 
@@ -792,15 +799,15 @@
                                 <div class="form-row-custom">
                                     <label>Ref. Employee ID</label>
                                     <div class="input-group input-group-sm">
-                                        <asp:TextBox runat="server" CssClass="form-control" />
+                                        <asp:TextBox ID="txtRefEmpID" runat="server" CssClass="form-control" />
                                         <asp:Button runat="server" Text="Search" CssClass="btn btn-search-dark" />
                                     </div>
                                 </div>
-                                <div class="form-row-custom"><label>Name</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Designation</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Company</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Email</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Phone</label><asp:TextBox runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Name</label><asp:TextBox ID="txtRefName" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Designation</label><asp:TextBox ID="txtRefDesignation" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Company</label><asp:TextBox ID="txtRefCompany" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Email</label><asp:TextBox ID="txtRefEmail" runat="server" CssClass="form-control form-control-sm" /></div>
+                                <div class="form-row-custom"><label>Phone</label><asp:TextBox ID="txtRefPhone" runat="server" CssClass="form-control form-control-sm" /></div>
                             </div>
                         </div>
 

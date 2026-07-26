@@ -1,14 +1,8 @@
 ﻿using Nexa_ERP.Connection;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Web;
-using System.Web.Security;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace Nexa_ERP.ERPConfiguration.CompanyInformation
 {
@@ -20,6 +14,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
 
         protected void Page_Load(object sender, EventArgs e)
         {
+
             if (!IsPostBack)
             {
                 string user = Request.QueryString["user"];
@@ -27,8 +22,8 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                 {
                     Label1.Text = "Welcome, " + user;
                 }
-                LoadGroupInformation();
                 LoadNextGroupID();
+                LoadGroupInformation();
             }
         }
 
@@ -36,7 +31,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         {
             con = conn.openConnection();
             {
-                SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(Group_ID ),0)+1 FROM Group_Information", con);
+                SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(Group_ID),0)+1 FROM Group_Information", con);
                 txtGroupID.Text = cmd.ExecuteScalar().ToString();
             }
             con.Close();
@@ -47,21 +42,21 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             try
             {
                 con = conn.openConnection();
+                using (SqlCommand cmd = new SqlCommand("sp_GroupInformation_Insert", con)) 
                 {
-                    using (SqlCommand cmd = new SqlCommand("sp_GroupInformation_InsertUpdate", con))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@Group_ID", SqlDbType.Int).Value = txtGroupID.Text;
-                        cmd.Parameters.Add("@Group_Name", SqlDbType.NVarChar).Value = txtGroupName.Text;
-                        cmd.Parameters.Add("@Prifix", SqlDbType.NVarChar).Value = txtPrefix.Text;
-                        cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar).Value = txtEmail.Text;
-                        cmd.Parameters.Add("@Phone_No", SqlDbType.NVarChar).Value = txtPhone.Text;
-                        cmd.Parameters.Add("@Web", SqlDbType.NVarChar).Value = txtWeb.Text;
-                        cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = txtAddress.Text;
-                        cmd.Parameters.Add("@is_active", SqlDbType.Bit).Value = chkIsActive.Checked;
-                        cmd.ExecuteNonQuery();
-                        ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
-                    }
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@Group_ID", SqlDbType.Int).Value = Convert.ToInt32(txtGroupID.Text);
+                    cmd.Parameters.Add("@Group_Name", SqlDbType.NVarChar, 100).Value = txtGroupName.Text.Trim();
+                    cmd.Parameters.Add("@Prifix", SqlDbType.NVarChar, 20).Value = txtPrefix.Text.Trim();
+                    cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar, 100).Value = txtEmail.Text.Trim();
+                    cmd.Parameters.Add("@Phone_No", SqlDbType.NVarChar, 20).Value = txtPhone.Text.Trim();
+                    cmd.Parameters.Add("@Web", SqlDbType.NVarChar, 100).Value = txtWeb.Text.Trim();
+                    cmd.Parameters.Add("@Address", SqlDbType.NVarChar, 250).Value = txtAddress.Text.Trim();
+                    cmd.Parameters.Add("@is_active", SqlDbType.Bit).Value = chkIsActive.Checked;
+
+                    cmd.ExecuteNonQuery();
+
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
                 }
                 con.Close();
             }
@@ -72,62 +67,75 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             LoadGroupInformation();
         }
 
-        private void LoadGroupInformation()
+        void LoadGroupInformation()
         {
             con = conn.openConnection();
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Group_Information", con);
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Group_Information ", con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 gvGroup.DataSource = dt;
                 gvGroup.DataBind();
             }
             con.Close();
+
         }
 
         protected void gvGroup_SelectedIndexChanged(object sender, EventArgs e)
         {
-            txtGroupID.Text = gvGroup.SelectedRow.Cells[1].Text;
+            if (gvGroup.SelectedDataKey == null ||
+                !int.TryParse(gvGroup.SelectedDataKey.Value?.ToString(), out int groupId))
+            {
+                return;
+            }
+
+            const string sql = "SELECT * FROM Group_Information WHERE Group_ID = @GroupID";
+
             try
             {
-                string sql = "Select * from Group_Information where Group_ID ='" + txtGroupID.Text + "'";
-                con = conn.openConnection();
-                cmd = new SqlCommand(sql, con);
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.HasRows)
+                using (SqlConnection con = conn.openConnection())
+                using (SqlCommand cmd = new SqlCommand(sql, con))
                 {
-                    while (reader.Read())
+                    cmd.Parameters.Add("@GroupID", SqlDbType.Int).Value = groupId;
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        txtGroupID.Text = reader[0].ToString();
-                        txtGroupName.Text = reader[1].ToString();
-                        txtPrefix.Text = reader[2].ToString();
-                        txtEmail.Text = reader[3].ToString();
-                        txtPhone.Text = reader[4].ToString();
-                        txtWeb.Text = reader[5].ToString();
-                        txtAddress.Text = reader[6].ToString();
-                        chkIsActive.Checked = reader[7] != DBNull.Value && Convert.ToBoolean(reader[7]); // ✅ CheckBox
+                        if (reader.Read())
+                        {
+                            txtGroupID.Text = reader["Group_ID"].ToString();
+                            txtGroupName.Text = reader["Group_Name"].ToString();
+                            txtPrefix.Text = reader["Prifix"].ToString();
+                            txtEmail.Text = reader["E_Mail"].ToString();
+                            txtPhone.Text = reader["Phone_No"].ToString();
+                            txtWeb.Text = reader["Web"].ToString();
+                            txtAddress.Text = reader["Address"].ToString();
+                            chkIsActive.Checked = Convert.ToBoolean(reader["Is_Active"]);
+                        }
                     }
                 }
-                else
-                {
-                    txtGroupID.Text = txtGroupName.Text = txtPrefix.Text = txtEmail.Text = string.Empty;
-                    txtPhone.Text =txtWeb.Text = txtAddress.Text = string.Empty;
-                    chkIsActive.Checked = false;
-                }
-                con.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+                ScriptManager.RegisterStartupScript(this, GetType(), "alert",
+                    "alert('Could not load the selected group. Please try again.');", true);
             }
         }
 
         protected void btnClear_Click(object sender, EventArgs e)
         {
-            LoadNextGroupID();
-            txtGroupID.Text = txtGroupName.Text = txtPrefix.Text = txtEmail.Text = string.Empty;
-            txtPhone.Text = txtWeb.Text = txtAddress.Text = string.Empty;
+            ClearForm();
+        }
+
+        private void ClearForm()
+        {
+            txtGroupName.Text = string.Empty;
+            txtPrefix.Text = string.Empty;
+            txtEmail.Text = string.Empty;
+            txtPhone.Text = string.Empty;
+            txtWeb.Text = string.Empty;
+            txtAddress.Text = string.Empty;
             chkIsActive.Checked = false;
+            LoadNextGroupID();
         }
     }
 }
