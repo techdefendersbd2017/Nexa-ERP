@@ -33,15 +33,6 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
         protected global::System.Web.UI.WebControls.TextBox txtSubCategoryId;
 
         /// <summary>
-        /// ddlItemCategory control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlItemCategory;
-
-        /// <summary>
         /// txtSubCategoryName control.
         /// </summary>
         /// <remarks>
@@ -49,6 +40,15 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtSubCategoryName;
+
+        /// <summary>
+        /// ddlItemCategory control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlItemCategory;
 
         /// <summary>
         /// ddlStatus control.

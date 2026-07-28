@@ -24,13 +24,103 @@ namespace Nexa_ERP.TrimsAccessories
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// txtCustomer control.
+        /// Costing_No control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCustomer;
+        protected global::System.Web.UI.WebControls.HiddenField Costing_No;
+
+        /// <summary>
+        /// pnlList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlList;
+
+        /// <summary>
+        /// btnAddNew control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnAddNew;
+
+        /// <summary>
+        /// txtSearchQuotationNo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtSearchQuotationNo;
+
+        /// <summary>
+        /// ddlSearchCustomer control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlSearchCustomer;
+
+        /// <summary>
+        /// txtFromDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtFromDate;
+
+        /// <summary>
+        /// txtTillDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTillDate;
+
+        /// <summary>
+        /// btnSearch control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSearch;
+
+        /// <summary>
+        /// gvQuotationList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvQuotationList;
+
+        /// <summary>
+        /// pnlEntry control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlEntry;
+
+        /// <summary>
+        /// ddlCustomer control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlCustomer;
 
         /// <summary>
         /// txtQuotationCode control.
@@ -51,22 +141,22 @@ namespace Nexa_ERP.TrimsAccessories
         protected global::System.Web.UI.WebControls.TextBox txtCreateDate;
 
         /// <summary>
-        /// txtItemCategory control.
+        /// ddlItemCategory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtItemCategory;
+        protected global::System.Web.UI.WebControls.DropDownList ddlItemCategory;
 
         /// <summary>
-        /// txtSubCategory control.
+        /// ddlSubCategory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSubCategory;
+        protected global::System.Web.UI.WebControls.DropDownList ddlSubCategory;
 
         /// <summary>
         /// txtQuotationName control.
@@ -96,13 +186,13 @@ namespace Nexa_ERP.TrimsAccessories
         protected global::System.Web.UI.WebControls.Button btnCopy;
 
         /// <summary>
-        /// txtItemName control.
+        /// ddlItemName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtItemName;
+        protected global::System.Web.UI.WebControls.DropDownList ddlItemName;
 
         /// <summary>
         /// txtQty control.
@@ -132,13 +222,13 @@ namespace Nexa_ERP.TrimsAccessories
         protected global::System.Web.UI.WebControls.DropDownList ddlStatus;
 
         /// <summary>
-        /// txtRawMaterial control.
+        /// ddlRawMaterial control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRawMaterial;
+        protected global::System.Web.UI.WebControls.DropDownList ddlRawMaterial;
 
         /// <summary>
         /// txtReqQty control.
@@ -150,13 +240,13 @@ namespace Nexa_ERP.TrimsAccessories
         protected global::System.Web.UI.WebControls.TextBox txtReqQty;
 
         /// <summary>
-        /// txtPer control.
+        /// ddlDetailUnit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPer;
+        protected global::System.Web.UI.WebControls.DropDownList ddlDetailUnit;
 
         /// <summary>
         /// txtUnitPrice control.
@@ -168,13 +258,13 @@ namespace Nexa_ERP.TrimsAccessories
         protected global::System.Web.UI.WebControls.TextBox txtUnitPrice;
 
         /// <summary>
-        /// txtCurrency control.
+        /// ddlCurrency control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCurrency;
+        protected global::System.Web.UI.WebControls.DropDownList ddlCurrency;
 
         /// <summary>
         /// txtLoss control.

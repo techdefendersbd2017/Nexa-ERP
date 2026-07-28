@@ -43,6 +43,7 @@ namespace Nexa_ERP
                     {
                         User_ID = reader[0].ToString();
                         lblUser.Text = reader[4].ToString();
+                        lblUserName.Text = reader[4].ToString(); // sidebar-এর নাম dynamic ভাবে সেট হবে
                     }
                 }
                 con.Close();
@@ -65,7 +66,7 @@ namespace Nexa_ERP
         {
             try
             {
-                string sql = "Select * from UserToRolePermission where User_ID='" + User_ID + "'";
+                string sql = "Select * from UserToRolePermission where User_ID='" + User_ID + "' and Permission_Status=1";
                 con = conn.openConnection();
                 cmd = new SqlCommand(sql, con);
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -92,12 +93,15 @@ namespace Nexa_ERP
                 // Load Modules
                 DataTable dtModules = new DataTable();
                 using (SqlCommand cmdModule = new SqlCommand(
-                    "SELECT Module_ID, Module_Name, Icon_Class FROM View_Module_Information WHERE role_id=@RoleID AND is_Active=1 ORDER BY Module_ID", con))
+                    "SELECT dbo.roles.role_id, dbo.Module_Information.Module_ID, dbo.Module_Information.Module_Name, dbo.Module_Information.Icon_Class, dbo.Module_Information.is_Active, " +
+                         "dbo.User_Module_Access_Information.Permission_Status FROM dbo.User_Module_Access_Information INNER JOIN " +
+                         "dbo.Module_Information ON dbo.User_Module_Access_Information.Module_ID = dbo.Module_Information.Module_ID INNER JOIN " +
+                         "dbo.roles ON dbo.User_Module_Access_Information.Role_ID = dbo.roles.role_id " +
+                    "WHERE dbo.roles.role_id=@RoleID AND dbo.Module_Information.is_Active=1 AND dbo.User_Module_Access_Information.Permission_Status=1 ORDER BY dbo.Module_Information.Module_ID", con))
                 {
                     cmdModule.Parameters.AddWithValue("@RoleID", Role_ID);
                     new SqlDataAdapter(cmdModule).Fill(dtModules);
                 }
-
                 // Load ALL Menus (no role filter - will be filtered by module)
                 DataTable dtMenus = new DataTable();
                 using (SqlCommand cmdMenu = new SqlCommand(
@@ -109,8 +113,11 @@ namespace Nexa_ERP
                 // Load ALL Forms (no role filter - will be filtered by menu)
                 DataTable dtForms = new DataTable();
                 using (SqlCommand cmdForm = new SqlCommand(
-                    "SELECT Form_ID, Module_ID, Menu_ID, Form_Name, Form_Url, Icon_Class FROM Form_Information WHERE Is_Active=1 ORDER BY Form_ID", con))
+                    @"SELECT        f.Form_ID, f.Module_ID, f.Menu_ID, f.Form_Name, f.Form_Url, f.Icon_Class, f.Is_Active, r.role_id, p.Form_Permission, f.SortingNo
+                        FROM            dbo.RoleBasedPermission p INNER JOIN dbo.roles r ON p.Role_ID = r.role_id INNER JOIN dbo.Form_Information f ON p.Form_ID = f.Form_ID
+                    Where r.role_id=@RoleID and p.Form_Permission=1 and f.Is_Active=1 Order by f.SortingNo asc", con))
                 {
+                    cmdForm.Parameters.AddWithValue("@RoleID", Role_ID);
                     new SqlDataAdapter(cmdForm).Fill(dtForms);
                 }
 
@@ -187,6 +194,13 @@ namespace Nexa_ERP
                     rptForms.DataBind();
                 }
             }
+        }
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            Session.Clear();
+            Session.Abandon();
+            Response.Redirect("Default.aspx");
         }
     }
 }

@@ -31,11 +31,23 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Sub Category</label>
-                                <asp:DropDownList ID="ddlSubCategory" runat="server" CssClass="form-select"></asp:DropDownList>
+
+                                <asp:DropDownList ID="ddlSubCategory" runat="server" CssClass="form-select">                                    
+                                    <asp:ListItem Text="--Select Sub Category--" Value="0" Selected="True"></asp:ListItem>
+                                </asp:DropDownList>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Item Name</label>
                                 <asp:TextBox ID="txtItemName" runat="server" CssClass="form-control" placeholder="Enter Item Name"></asp:TextBox>
+                            </div>                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Item Types</label>
+                                <asp:DropDownList ID="ddlItemsType" runat="server" CssClass="form-select">
+                                    <asp:ListItem Text="--Select Item Types--" Value="0" Selected="True"></asp:ListItem>
+                                    <asp:ListItem Text="Finished" Value="1"></asp:ListItem>
+                                    <asp:ListItem Text="Semi-Finished" Value="2"></asp:ListItem>
+                                    <asp:ListItem Text="Raw Material" Value="3"></asp:ListItem>
+                                </asp:DropDownList>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Unit</label>

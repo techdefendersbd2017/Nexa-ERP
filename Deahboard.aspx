@@ -155,6 +155,7 @@
     cursor: pointer;
     font-size: 14px;
     transition: 0.2s;
+    color: #1f2933;
 }
 
 .branch-popup li:hover {
@@ -230,6 +231,32 @@
     min-height: 20px;
 }
 
+/* ===== HOME ICON (navbar) ===== */
+#homeIconBtn {
+    cursor: pointer;
+    font-size: 20px;
+    color: #fff;
+    margin-right: 8px;
+    transition: color 0.2s;
+}
+#homeIconBtn:hover {
+    color: #0d6efd;
+}
+
+/* ===== USER PROFILE (sidebar) ===== */
+.user-profile-trigger {
+    cursor: pointer;
+    color: inherit;
+}
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0d6efd;
+    box-shadow: 0 0 8px rgba(13,110,253,0.6);
+}
+
     </style>
 </head>
 
@@ -243,11 +270,14 @@
             <i id="toggleIcon" class="bi bi-layout-sidebar"></i>
         </button>
 
-        <a class="navbar-brand fw-bold" onclick="backToModules(); return false;"> NexaERP Home</a>
+        <span class="navbar-brand fw-bold d-flex align-items-center gap-2 mb-0">
+            <i id="homeIconBtn" class="bi bi-house-door-fill" title="Home" onclick="backToModules(); return false;"></i>
+            <span>NexaERP</span>
+        </span>
 
         <div class="ms-auto">
             <span class="text-white me-3">Welcome, <asp:Label ID="lblUser" runat="server" Text="Admin" /></span>
-            <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="btn btn-outline-light btn-sm" />
+            <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="btn btn-outline-light btn-sm" OnClick="btnLogout_Click" />
         </div>
     </nav>
 
@@ -259,24 +289,23 @@
 
             <h6 class="text-info px-3 position-relative">
 
-                <a class="navbar-brand fw-bold d-flex align-items-center gap-2"
-                   onclick="toggleBranchPopup(); return false;"
-                   style="cursor:pointer; color:inherit;">
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2 user-profile-trigger"
+                   onclick="toggleUserPopup(); return false;">
 
-                    <img src="Images/company-logo.png" class="company-logo" />
+                    <img src="Images/user-avatar.png" class="user-avatar" id="userAvatarImg" />
 
-                    <span>Pantex Limited</span>
+                    <span><asp:Label ID="lblUserName" runat="server" Text="Admin" /></span>
 
-                    <i class="bi bi-chevron-down small ms-auto" id="branchArrow"></i>
+                    <i class="bi bi-chevron-down small ms-auto" id="userArrow"></i>
                 </a>
 
-<%--                <div id="branchPopup" class="branch-popup">
+                <div id="userPopup" class="branch-popup">
                     <ul>
-                        <li onclick="loadPage('Dashboard.aspx')">🏢 Head Office</li>
-                        <li onclick="loadPage('Branch1.aspx')">🏭 Gazipur Branch</li>
-                        <li onclick="loadPage('Branch2.aspx')">🏬 Chittagong Branch</li>
+                        <li onclick="doLogout(); return false;">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </li>
                     </ul>
-                </div>--%>
+                </div>
 
             </h6>
 
@@ -487,9 +516,10 @@
             icon.className = "bi bi-layout-sidebar-reverse";
         }
     }
-    function toggleBranchPopup() {
-        var popup = document.getElementById("branchPopup");
-        var arrow = document.getElementById("branchArrow");
+
+    function toggleUserPopup() {
+        var popup = document.getElementById("userPopup");
+        var arrow = document.getElementById("userArrow");
 
         if (popup.style.display === "block") {
             popup.style.display = "none";
@@ -499,10 +529,24 @@
             arrow.classList.add("rotate");
         }
     }
+
+    function doLogout() {
+        // Server-side btnLogout ক্লিক করে দেয়, তাহলে code-behind এ থাকা
+        // Session clear + Login পেজে redirect করার লজিক কাজ করবে।
+        var logoutBtn = document.getElementById('<%= btnLogout.ClientID %>');
+        if (logoutBtn) {
+            logoutBtn.click();
+        } else {
+            window.location.href = "Login.aspx";
+        }
+    }
+
     document.addEventListener("click", function (e) {
-        var popup = document.getElementById("branchPopup");
-        if (!e.target.closest(".navbar-brand")) {
+        var popup = document.getElementById("userPopup");
+        if (popup && !e.target.closest(".user-profile-trigger") && !e.target.closest("#userPopup")) {
             popup.style.display = "none";
+            var arrow = document.getElementById("userArrow");
+            if (arrow) arrow.classList.remove("rotate");
         }
     });
 

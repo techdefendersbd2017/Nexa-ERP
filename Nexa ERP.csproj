@@ -190,14 +190,17 @@
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx" />
+    <Content Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx" />
+    <Content Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\FormEntry.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\MenuEntry.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\ModuleInformation.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\RoleBasedPermission.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\Roles.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\RoleToModulePermission.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\UserEntry.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\UserToBranchPermission.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\UserToRolePermission.aspx" />
@@ -277,11 +280,13 @@
     <Content Include="Production\Finishing\shortShipmentReason.aspx" />
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
     <Content Include="Test.aspx" />
+    <Content Include="TrimsAccessories\EstimationCostings\PriceQuotationPrint.aspx" />
     <Content Include="TrimsAccessories\MsterSetup\ItemCategory.aspx" />
     <Content Include="TrimsAccessories\MsterSetup\ItemName.aspx" />
+    <Content Include="TrimsAccessories\MsterSetup\ModelSetup.aspx" />
     <Content Include="TrimsAccessories\MsterSetup\RawMaterial.aspx" />
     <Content Include="TrimsAccessories\MsterSetup\SubCategory.aspx" />
-    <Content Include="TrimsAccessories\PriceQuotation.aspx" />
+    <Content Include="TrimsAccessories\EstimationCostings\PriceQuotation.aspx" />
     <Content Include="TrimsAccessories\SheetNesting.aspx" />
     <Content Include="Web.config" />
     <Content Include="Welcome.aspx" />
@@ -375,6 +380,13 @@
     <Compile Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx.designer.cs">
       <DependentUpon>BranchInformation.aspx</DependentUpon>
     </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx.cs">
+      <DependentUpon>CustomerSupplier.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx.designer.cs">
+      <DependentUpon>CustomerSupplier.aspx</DependentUpon>
+    </Compile>
     <Compile Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx.cs">
       <DependentUpon>FloorInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -395,6 +407,13 @@
     </Compile>
     <Compile Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx.designer.cs">
       <DependentUpon>ProductionBuilding.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx.cs">
+      <DependentUpon>UnitSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx.designer.cs">
+      <DependentUpon>UnitSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="ERPConfiguration\UserAuthorization\FormEntry.aspx.cs">
       <DependentUpon>FormEntry.aspx</DependentUpon>
@@ -430,6 +449,13 @@
     </Compile>
     <Compile Include="ERPConfiguration\UserAuthorization\Roles.aspx.designer.cs">
       <DependentUpon>Roles.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\RoleToModulePermission.aspx.cs">
+      <DependentUpon>RoleToModulePermission.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\RoleToModulePermission.aspx.designer.cs">
+      <DependentUpon>RoleToModulePermission.aspx</DependentUpon>
     </Compile>
     <Compile Include="ERPConfiguration\UserAuthorization\UserEntry.aspx.cs">
       <DependentUpon>UserEntry.aspx</DependentUpon>
@@ -957,6 +983,13 @@
     <Compile Include="Test.aspx.designer.cs">
       <DependentUpon>Test.aspx</DependentUpon>
     </Compile>
+    <Compile Include="TrimsAccessories\EstimationCostings\PriceQuotationPrint.aspx.cs">
+      <DependentUpon>PriceQuotationPrint.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\EstimationCostings\PriceQuotationPrint.aspx.designer.cs">
+      <DependentUpon>PriceQuotationPrint.aspx</DependentUpon>
+    </Compile>
     <Compile Include="TrimsAccessories\MsterSetup\ItemCategory.aspx.cs">
       <DependentUpon>ItemCategory.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -970,6 +1003,13 @@
     </Compile>
     <Compile Include="TrimsAccessories\MsterSetup\ItemName.aspx.designer.cs">
       <DependentUpon>ItemName.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\ModelSetup.aspx.cs">
+      <DependentUpon>ModelSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\MsterSetup\ModelSetup.aspx.designer.cs">
+      <DependentUpon>ModelSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="TrimsAccessories\MsterSetup\RawMaterial.aspx.cs">
       <DependentUpon>RawMaterial.aspx</DependentUpon>
@@ -985,11 +1025,11 @@
     <Compile Include="TrimsAccessories\MsterSetup\SubCategory.aspx.designer.cs">
       <DependentUpon>SubCategory.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\PriceQuotation.aspx.cs">
+    <Compile Include="TrimsAccessories\EstimationCostings\PriceQuotation.aspx.cs">
       <DependentUpon>PriceQuotation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\PriceQuotation.aspx.designer.cs">
+    <Compile Include="TrimsAccessories\EstimationCostings\PriceQuotation.aspx.designer.cs">
       <DependentUpon>PriceQuotation.aspx</DependentUpon>
     </Compile>
     <Compile Include="TrimsAccessories\SheetNesting.aspx.cs">

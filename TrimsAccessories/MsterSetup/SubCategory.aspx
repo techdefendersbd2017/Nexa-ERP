@@ -26,12 +26,12 @@
                                 <asp:TextBox ID="txtSubCategoryId" runat="server" CssClass="form-control" placeholder="Sub Category ID Auto Generated" ReadOnly="true"></asp:TextBox>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Item Category</label>
-                                <asp:DropDownList ID="ddlItemCategory" runat="server" CssClass="form-select"></asp:DropDownList>
-                            </div>
-                            <div class="mb-3">
                                 <label class="form-label fw-bold">Sub Category Name</label>
                                 <asp:TextBox ID="txtSubCategoryName" runat="server" CssClass="form-control" placeholder="Enter Sub Category Name"></asp:TextBox>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Item Category</label>
+                                <asp:DropDownList ID="ddlItemCategory" runat="server" CssClass="form-select"></asp:DropDownList>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Status</label>

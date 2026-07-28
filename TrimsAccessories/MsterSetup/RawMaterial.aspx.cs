@@ -22,6 +22,35 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             if (!IsPostBack)
             {
                 LoadRawMaterialInformation();
+                loadUnit();
+            }
+        }
+        private void loadUnit()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = "SELECT * FROM tbl_UnitSetup WHERE Status='Active' ORDER BY UnitName ASC";
+                SqlDataAdapter da = new SqlDataAdapter(query, con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                ddlUnit.DataSource = dt;
+                ddlUnit.DataTextField = "UnitName";
+                ddlUnit.DataValueField = "UnitID";
+                ddlUnit.DataBind();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
             }
         }
 
