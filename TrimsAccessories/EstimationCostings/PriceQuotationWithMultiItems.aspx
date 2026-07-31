@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="PriceQuotation.aspx.cs" Inherits="Nexa_ERP.TrimsAccessories.PriceQuotation" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="PriceQuotationWithMultiItems.aspx.cs" Inherits="Nexa_ERP.TrimsAccessories.EstimationCostings.PriceQuotationWithMultiItems" %>
 
 <!DOCTYPE html>
 <html>
@@ -20,12 +20,21 @@
             background-color: #1f4e78;
             color: white;
         }
+        .active-item-row {
+            background-color: #d1e7ff !important;
+        }
+        .selected-item-badge {
+            background-color: #198754;
+        }
     </style>
 </head>
 <body>
     <form id="form1" runat="server">
         <div class="container my-4">
             <asp:HiddenField ID="Costing_No" runat="server" />
+            <!-- Tracks which Item (from gvItemList) is currently active for Raw Material entry -->
+            <asp:HiddenField ID="hdnSelectedItemSlNo" runat="server" />
+
             <!-- ========================================== -->
             <!-- SECTION 1: PRICE QUOTATION LIST (DEFAULT) -->
             <!-- ========================================== -->
@@ -58,7 +67,6 @@
                                 <asp:TextBox ID="txtTillDate" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
                             </div>
                             <div class="col-md-2">
-                                <!-- FIX: OnClick যুক্ত করা হয়েছে, আগে এটি মিসিং ছিল -->
                                 <asp:Button ID="btnSearch" runat="server" CssClass="btn btn-primary btn-sm w-100" Text="Search" OnClick="btnSearch_Click" />
                             </div>
                         </div>
@@ -78,7 +86,8 @@
                                     <asp:TemplateField HeaderText="Action">
                                         <ItemTemplate>
                                             <asp:Button ID="btnEdit" runat="server" CssClass="btn btn-primary btn-sm px-2 py-0" Text="Edit" CommandName="EditQuotation" CommandArgument='<%# Eval("QuotationID") %>' />
-                                            <asp:Button ID="btnPrint" runat="server" CssClass="btn btn-secondary btn-sm px-2 py-0" Text="Print" CommandName="PrintQuotation" CommandArgument='<%# Eval("QuotationID") %>' CausesValidation="false" />
+                                            <asp:Button ID="btnShort" runat="server" CssClass="btn btn-secondary btn-sm px-2 py-0" Text="Print Short" CommandName="PrintQuotationShort" CommandArgument='<%# Eval("QuotationID") %>' CausesValidation="false" />
+                                            <asp:Button ID="btnPrint" runat="server" CssClass="btn btn-secondary btn-sm px-2 py-0" Text="Print Details" CommandName="PrintQuotation" CommandArgument='<%# Eval("QuotationID") %>' CausesValidation="false" />
                                         </ItemTemplate>
                                     </asp:TemplateField>
                                 </Columns>
@@ -100,7 +109,7 @@
                     </div>
                     <div class="card-body">
 
-                        <!-- Master Info Section -->
+                        <!-- Master Info Section (Quotation level - one per Quotation) -->
                         <fieldset class="border p-3 rounded mb-4">
                             <legend class="float-none w-auto px-3 fs-6 fw-bold text-primary">Master Info</legend>
 
@@ -121,19 +130,7 @@
                                     <asp:TextBox ID="txtCreateDate" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
                                 </div>
 
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Item Category</label>
-                                    <asp:DropDownList ID="ddlItemCategory" AutoPostBack="true" runat="server" CssClass="form-select form-select-sm" OnSelectedIndexChanged="ddlItemCategory_SelectedIndexChanged">
-                                        <asp:ListItem Text="--Select Category--" Value="0" />
-                                    </asp:DropDownList>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Sub Category</label>
-                                    <asp:DropDownList ID="ddlSubCategory" AutoPostBack="true" runat="server" CssClass="form-select form-select-sm" OnSelectedIndexChanged="ddlSubCategory_SelectedIndexChanged">
-                                        <asp:ListItem Text="--Select Sub Category--" Value="0" />
-                                    </asp:DropDownList>
-                                </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label class="form-label fw-bold">Quotation Name</label>
                                     <div class="input-group input-group-sm">
                                         <asp:TextBox ID="txtQuotationName" runat="server" CssClass="form-control" Text="RSP-SINGLE POLY"></asp:TextBox>
@@ -141,23 +138,7 @@
                                         <asp:Button ID="btnCopy" runat="server" CssClass="btn btn-primary" Text="Copy" />
                                     </div>
                                 </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Item Name</label>
-                                    <asp:DropDownList ID="ddlItemName" runat="server" AutoPostBack="true" CssClass="form-select form-select-sm" OnSelectedIndexChanged="ddlItemName_SelectedIndexChanged">
-                                        <asp:ListItem Text="--Select Item Name--" Value="0" />
-                                    </asp:DropDownList>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Unit & Qty</label>
-                                    <div class="input-group input-group-sm">
-                                        <asp:TextBox ID="txtQty" runat="server" CssClass="form-control" Text="1"></asp:TextBox>
-                                        <asp:DropDownList ID="ddlItemUnit" runat="server" CssClass="form-select">
-                                            <asp:ListItem Text="Select" Value="0" />
-                                        </asp:DropDownList>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Status</label>
                                     <asp:DropDownList ID="ddlStatus" runat="server" CssClass="form-select form-select-sm">
                                         <asp:ListItem Text="Active" Value="1" Selected="True" />
@@ -167,9 +148,81 @@
                             </div>
                         </fieldset>
 
-                        <!-- Item Details Section -->
+                        <!-- ========================================== -->
+                        <!-- Item List Section (Multi Items Add) -->
+                        <!-- ========================================== -->
                         <fieldset class="border p-3 rounded mb-4">
-                            <legend class="float-none w-auto px-3 fs-6 fw-bold text-primary">Item Details</legend>
+                            <legend class="float-none w-auto px-3 fs-6 fw-bold text-primary">Item List</legend>
+
+                            <!-- Item Entry Input Row -->
+                            <div class="row g-2 align-items-end bg-light p-2 rounded">
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">Item Category</label>
+                                    <asp:DropDownList ID="ddlItemCategory" AutoPostBack="true" runat="server" CssClass="form-select form-select-sm" OnSelectedIndexChanged="ddlItemCategory_SelectedIndexChanged">
+                                        <asp:ListItem Text="--Select Category--" Value="0" />
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">Sub Category</label>
+                                    <asp:DropDownList ID="ddlSubCategory" AutoPostBack="true" runat="server" CssClass="form-select form-select-sm" OnSelectedIndexChanged="ddlSubCategory_SelectedIndexChanged">
+                                        <asp:ListItem Text="--Select Sub Category--" Value="0" />
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">Item Name</label>
+                                    <asp:DropDownList ID="ddlItemName" runat="server" AutoPostBack="true" CssClass="form-select form-select-sm" OnSelectedIndexChanged="ddlItemName_SelectedIndexChanged">
+                                        <asp:ListItem Text="--Select Item Name--" Value="0" />
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-bold">Qty</label>
+                                    <div class="input-group input-group-sm">
+                                        <asp:TextBox ID="txtQty" runat="server" CssClass="form-control" Text="1"></asp:TextBox>
+                                        <asp:DropDownList ID="ddlItemUnit" runat="server" CssClass="form-select">
+                                            <asp:ListItem Text="Select" Value="0" />
+                                        </asp:DropDownList>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <asp:Button ID="btnAddItem" runat="server" CssClass="btn btn-success btn-sm w-100" Text="Add Item" OnClick="btnAddItem_Click" />
+                                </div>
+                            </div>
+
+                            <!-- Item List Grid -->
+                            <div class="table-responsive mt-3">
+                                <asp:GridView ID="gvItemList" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle" AutoGenerateColumns="False" DataKeyNames="ItemSlNo" EmptyDataText="No item added yet. Add items above." OnRowCommand="gvItemList_RowCommand" OnRowDataBound="gvItemList_RowDataBound">
+                                    <HeaderStyle CssClass="table-dark-custom" />
+                                    <Columns>
+                                        <asp:BoundField DataField="ItemSlNo" HeaderText="Sl No" />
+                                        <asp:BoundField DataField="ItemCategory" HeaderText="Category" />
+                                        <asp:BoundField DataField="SubCategory" HeaderText="Sub Category" />
+                                        <asp:BoundField DataField="ItemName" HeaderText="Item Name" />
+                                        <asp:BoundField DataField="Qty" HeaderText="Qty" />
+                                        <asp:BoundField DataField="Unit" HeaderText="Unit" />
+                                        <asp:BoundField DataField="ItemTotalCost" HeaderText="Item Total Cost" />
+                                        <asp:TemplateField HeaderText="Action">
+                                            <ItemTemplate>
+                                                <asp:Button ID="btnSelectItem" runat="server" CssClass="btn btn-info btn-sm px-2 py-0 text-white" Text="Add Materials" CommandName="SelectItem" CommandArgument='<%# Eval("ItemSlNo") %>' CausesValidation="false" />
+                                                <asp:Button ID="btnEditItem" runat="server" CssClass="btn btn-primary btn-sm px-2 py-0" Text="Edit" CommandName="EditItem" CommandArgument='<%# Eval("ItemSlNo") %>' CausesValidation="false" />
+                                                <asp:Button ID="btnDeleteItem" runat="server" CssClass="btn btn-danger btn-sm px-2 py-0" Text="X" CommandName="DeleteItem" CommandArgument='<%# Eval("ItemSlNo") %>' CausesValidation="false" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                    </Columns>
+                                </asp:GridView>
+                            </div>
+                        </fieldset>
+
+                        <!-- ========================================== -->
+                        <!-- Item Details / Raw Material Costing Section -->
+                        <!-- (Materials belong to the currently selected Item above) -->
+                        <!-- ========================================== -->
+                        <fieldset class="border p-3 rounded mb-4">
+                            <legend class="float-none w-auto px-3 fs-6 fw-bold text-primary">Raw Material Costing Details</legend>
+
+                            <div class="alert alert-primary py-2 px-3 mb-3 d-flex justify-content-between align-items-center">
+                                <span>Currently adding materials for Item: <asp:Label ID="lblSelectedItemName" runat="server" CssClass="fw-bold" Text="-- No item selected --"></asp:Label></span>
+                                <span class="badge selected-item-badge">Select "Add Materials" from the Item List above</span>
+                            </div>
 
                             <!-- Item Details Input Fields -->
                             <div class="row g-2 align-items-end bg-light p-2 rounded">
@@ -214,9 +267,9 @@
                                 </div>
                             </div>
 
-                            <!-- Data Table -->
+                            <!-- Data Table: Materials for the currently selected Item only -->
                             <div class="table-responsive mt-3">
-                                <asp:GridView ID="gvQuotationDetails" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle" AutoGenerateColumns="False" DataKeyNames="SlNo" OnRowDeleting="gvQuotationDetails_RowDeleting">
+                                <asp:GridView ID="gvQuotationDetails" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle" AutoGenerateColumns="False" DataKeyNames="SlNo" EmptyDataText="No material added for this item yet." OnRowDeleting="gvQuotationDetails_RowDeleting">
                                     <HeaderStyle CssClass="table-dark-custom" />
                                     <Columns>
                                         <asp:BoundField DataField="SlNo" HeaderText="Sl No" />
@@ -238,27 +291,44 @@
                                     </Columns>
                                 </asp:GridView>
                             </div>
-                            <!-- Summary Totals Section -->
+
+                            <!-- Per-Item Summary -->
                             <div class="row justify-content-end mt-3">
                                 <div class="col-md-4">
-                                    <div class="input-group input-group-sm mb-1">
-                                        <span class="input-group-text fw-bold w-50">Total Cost</span>
-                                        <asp:TextBox ID="txtTotalCostSum" runat="server" CssClass="form-control text-end" Text="6.65" ReadOnly="true"></asp:TextBox>
-                                        <span class="input-group-text">BDT</span>
-                                    </div>
-                                    <div class="input-group input-group-sm mb-1">
-                                        <span class="input-group-text fw-bold w-50">Others Cost</span>
-                                        <asp:TextBox ID="txtOthersCost" runat="server" CssClass="form-control text-end" Text="2.00"></asp:TextBox>
-                                        <span class="input-group-text">BDT</span>
-                                    </div>
                                     <div class="input-group input-group-sm">
-                                        <span class="input-group-text fw-bold w-50 bg-secondary text-white">G. Total Cost</span>
-                                        <asp:TextBox ID="txtGTotalCost" runat="server" CssClass="form-control text-end fw-bold" Text="8.65" ReadOnly="true"></asp:TextBox>
-                                        <span class="input-group-text bg-secondary text-white">BDT</span>
+                                        <span class="input-group-text fw-bold w-50">This Item's Total Cost</span>
+                                        <asp:TextBox ID="txtItemTotalCost" runat="server" CssClass="form-control text-end" Text="0.00" ReadOnly="true"></asp:TextBox>
+                                        <span class="input-group-text">BDT</span>
                                     </div>
                                 </div>
                             </div>
 
+                        </fieldset>
+
+                        <!-- ========================================== -->
+                        <!-- Quotation Grand Total Section (all Items combined) -->
+                        <!-- ========================================== -->
+                        <fieldset class="border p-3 rounded mb-4">
+                            <legend class="float-none w-auto px-3 fs-6 fw-bold text-primary">Quotation Summary</legend>
+                            <div class="row justify-content-end">
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-sm mb-1">
+                                        <span class="input-group-text fw-bold w-50">Total Cost (All Items)</span>
+                                        <asp:TextBox ID="txtTotalCostSum" runat="server" CssClass="form-control text-end" Text="0.00" ReadOnly="true"></asp:TextBox>
+                                        <span class="input-group-text">BDT</span>
+                                    </div>
+                                    <div class="input-group input-group-sm mb-1">
+                                        <span class="input-group-text fw-bold w-50">Others Cost</span>
+                                        <asp:TextBox ID="txtOthersCost" runat="server" CssClass="form-control text-end" Text="0.00"></asp:TextBox>
+                                        <span class="input-group-text">BDT</span>
+                                    </div>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text fw-bold w-50 bg-secondary text-white">G. Total Cost</span>
+                                        <asp:TextBox ID="txtGTotalCost" runat="server" CssClass="form-control text-end fw-bold" Text="0.00" ReadOnly="true"></asp:TextBox>
+                                        <span class="input-group-text bg-secondary text-white">BDT</span>
+                                    </div>
+                                </div>
+                            </div>
                         </fieldset>
 
                         <!-- Bottom Action Buttons -->

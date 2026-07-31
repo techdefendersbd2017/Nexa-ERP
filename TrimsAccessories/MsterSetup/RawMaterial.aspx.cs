@@ -179,7 +179,6 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
                     }
 
                     clearform();
-                    LoadRawMaterialInformation();
                 }
             }
             catch (Exception ex)
@@ -193,6 +192,8 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
                     con.Close();
                 }
             }
+
+            LoadRawMaterialInformation();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="PriceQuotationPrint.aspx.cs" Inherits="Nexa_ERP.TrimsAccessories.EstimationCostings.PriceQuotationPrint" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="PriceQuotationPrintItemsWise.aspx.cs" Inherits="Nexa_ERP.TrimsAccessories.EstimationCostings.PriceQuotationPrintItemsWise" %>
 
 <!DOCTYPE html>
 <html>
@@ -114,6 +114,18 @@
                 padding: 0;
             }
         }
+        .group-header td {
+            background: #dfe6ec;
+            font-weight: bold;
+            padding: 6px 8px;
+            border: 1px solid #000;
+        }
+        .group-subtotal td {
+            background: #f7f7f7;
+            font-weight: bold;
+            border: 1px solid #000;
+            padding: 6px 8px;
+        }
     </style>
 </head>
 <body>
@@ -157,14 +169,8 @@
                 GridLines="None" EmptyDataText="কোনো আইটেম পাওয়া যায়নি।">
                 <Columns>
                     <asp:BoundField DataField="SlNo" HeaderText="Sl" ItemStyle-CssClass="center" />
-                    <asp:BoundField DataField="RawMaterialName" HeaderText="Raw Material" />
-                    <asp:BoundField DataField="ReqQty" HeaderText="Qty" ItemStyle-CssClass="num" />
-                    <asp:BoundField DataField="Unit" HeaderText="Unit" ItemStyle-CssClass="center" />
-                    <asp:BoundField DataField="UnitPrice" HeaderText="Unit Price" ItemStyle-CssClass="num" />
-                    <asp:BoundField DataField="Currency" HeaderText="Ccy" ItemStyle-CssClass="center" />
-                    <asp:BoundField DataField="Loss" HeaderText="Loss%" ItemStyle-CssClass="center" />
-                    <asp:BoundField DataField="TotalCost" HeaderText="Total Cost" ItemStyle-CssClass="num" />
-                    <asp:BoundField DataField="Remarks" HeaderText="Remarks" />
+                    <asp:BoundField DataField="ItemName" HeaderText="Item Name" />
+                    <asp:BoundField DataField="ItemTotalCost" HeaderText="Total Cost" ItemStyle-CssClass="num" DataFormatString="{0:0.00}" />
                 </Columns>
             </asp:GridView>
 

@@ -1,16 +1,12 @@
 ﻿using Nexa_ERP.Connection;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 {
-    public partial class PriceQuotationPrint : System.Web.UI.Page
+    public partial class PriceQuotationPrintItemsWise : System.Web.UI.Page
     {
         SqlConnection con;
         DatabaseConnectionMerchandising conn = new DatabaseConnectionMerchandising();
@@ -33,8 +29,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 LoadDetails(quotationId);
             }
         }
-
-
 
         private void LoadMaster(int quotationId)
         {
@@ -90,16 +84,27 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             }
         }
 
+        // ==========================================================
+        // পরিবর্তন: Remarks থেকে item name পার্স করার বদলে,
+        // tbl_PriceQuotationDetails.ItemID কে ta_ItemName.ItemID এর
+        // সাথে জয়েন করে সরাসরি Item Name আনা হচ্ছে এবং সেই অনুযায়ী
+        // group + sum করা হচ্ছে
+        // ==========================================================
         private void LoadDetails(int quotationId)
         {
             try
             {
                 con = conn.openConnection();
-                string query = @"SELECT ROW_NUMBER() OVER(ORDER BY DetailID) AS SlNo,
-                                         RawMaterialName, ReqQty, Unit, UnitPrice, Currency, Loss, TotalCost, Remarks
-                                  FROM tbl_PriceQuotationDetails
-                                  WHERE QuotationID = @QuotationID
-                                  ORDER BY DetailID";
+
+                string query = @"
+            SELECT ROW_NUMBER() OVER (ORDER BY ISNULL(i.ItemName, 'N/A')) AS SlNo,
+                   ISNULL(i.ItemName, 'N/A') AS ItemName,
+                   SUM(d.TotalCost) AS ItemTotalCost
+            FROM tbl_PriceQuotationDetails d
+            LEFT JOIN ta_ItemName i ON d.ItemID = i.ItemID
+            WHERE d.QuotationID = @QuotationID
+            GROUP BY ISNULL(i.ItemName, 'N/A')
+            ORDER BY ISNULL(i.ItemName, 'N/A')";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -114,7 +119,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     decimal totalCostSum = 0;
                     foreach (DataRow row in dt.Rows)
                     {
-                        totalCostSum += Convert.ToDecimal(row["TotalCost"]);
+                        totalCostSum += Convert.ToDecimal(row["ItemTotalCost"]);
                     }
                     lblTotalCostSum.Text = totalCostSum.ToString("0.00");
                 }

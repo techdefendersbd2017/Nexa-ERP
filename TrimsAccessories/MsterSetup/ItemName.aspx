@@ -51,11 +51,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Unit</label>
-                                <asp:DropDownList ID="ddlUnit" runat="server" CssClass="form-select">
-                                    <asp:ListItem Text="Pcs" Value="Pcs"></asp:ListItem>
-                                    <asp:ListItem Text="Roll" Value="Roll"></asp:ListItem>
-                                    <asp:ListItem Text="Kg" Value="Kg"></asp:ListItem>
-                                </asp:DropDownList>
+                                <asp:DropDownList ID="ddlUnit" runat="server" CssClass="form-select"> </asp:DropDownList>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Status</label>
