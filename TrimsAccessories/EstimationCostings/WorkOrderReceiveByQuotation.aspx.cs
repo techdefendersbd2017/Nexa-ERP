@@ -407,6 +407,20 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     true
                 );
             }
+            else if (e.CommandName == "RawMaterialReport")
+            {
+                int worcvId = Convert.ToInt32(e.CommandArgument);
+
+                string url = ResolveUrl("~/TrimsAccessories/EstimationCostings/OrdersReports/RawMaterialReports.aspx?WORcvID=" + worcvId);
+
+                ScriptManager.RegisterStartupScript(
+                    this,
+                    this.GetType(),
+                    "OpenReport",
+                    "window.open('" + url + "', '_blank');",
+                    true
+                );
+            }
         }
         private void LoadWorkOrderReceiveForEdit(string woRcvNo)
         {

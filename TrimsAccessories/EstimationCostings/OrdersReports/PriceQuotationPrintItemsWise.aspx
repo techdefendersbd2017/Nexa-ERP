@@ -166,7 +166,7 @@
             </table>
 
             <asp:GridView ID="gvPrintDetails" runat="server" CssClass="detail-table" AutoGenerateColumns="False"
-                GridLines="None" EmptyDataText="কোনো আইটেম পাওয়া যায়নি।">
+                GridLines="None" EmptyDataText="Items Not Found">
                 <Columns>
                     <asp:BoundField DataField="SlNo" HeaderText="Sl" ItemStyle-CssClass="center" />
                     <asp:BoundField DataField="ItemName" HeaderText="Item Name" />

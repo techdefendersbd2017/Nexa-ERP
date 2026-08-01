@@ -284,6 +284,7 @@
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\BookingInformation.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\PriceQuotationPrint.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\PriceQuotationPrintItemsWise.aspx" />
+    <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\RawMaterialReports.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReports.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\PriceQuotationWithMultiItems.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\WorkOrderReceiveByQuotation.aspx" />
@@ -1015,6 +1016,13 @@
     </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\PriceQuotationPrintItemsWise.aspx.designer.cs">
       <DependentUpon>PriceQuotationPrintItemsWise.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\RawMaterialReports.aspx.cs">
+      <DependentUpon>RawMaterialReports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\RawMaterialReports.aspx.designer.cs">
+      <DependentUpon>RawMaterialReports.aspx</DependentUpon>
     </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReports.aspx.cs">
       <DependentUpon>ReceivedOrdersReports.aspx</DependentUpon>

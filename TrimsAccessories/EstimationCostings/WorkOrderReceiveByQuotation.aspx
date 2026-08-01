@@ -593,11 +593,16 @@
                             </ItemTemplate>
                             <ItemStyle Width="40px" />
                         </asp:TemplateField>
-                        <asp:BoundField DataField="WORcvNo" HeaderText="WO Rcv No" />
-                        <asp:BoundField DataField="WORcvDate" HeaderText="WO Rcv Date" DataFormatString="{0:dd-MM-yyyy}" />
-                        <asp:BoundField DataField="DeliveryDate" HeaderText="Delivery Date" DataFormatString="{0:dd-MM-yyyy}" />
-                        <asp:BoundField DataField="GrandTotal" HeaderText="Total Value" />
-                        <asp:TemplateField HeaderText="Action">
+        
+                        <asp:BoundField DataField="WORcvNo" HeaderText="WO Rcv No" ItemStyle-Width="15%" />
+        
+                        <asp:BoundField DataField="WORcvDate" HeaderText="WO Rcv Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="15%" />
+        
+                        <asp:BoundField DataField="DeliveryDate" HeaderText="Delivery Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="15%" />
+        
+                        <asp:BoundField DataField="GrandTotal" HeaderText="Total Value" DataFormatString="{0:N2}" HtmlEncode="false" ItemStyle-Width="15%" />
+        
+                        <asp:TemplateField HeaderText="Action" ItemStyle-Width="40%" >
                             <ItemTemplate>
                                 <div style="display: flex; gap: 5px; align-items: center;">
                                     <!-- Edit Button -->
@@ -610,7 +615,11 @@
                                         OnClientClick="return confirm('Are you sure you want to delete this item?');" />
             
                                     <!-- Report View Button -->
-                                    <asp:LinkButton ID="lnkPrintView" runat="server" Text="Report" CommandName="ReportView" CommandArgument='<%# Eval("WORcvID") %>' 
+                                    <asp:LinkButton ID="lnkPrintView" runat="server" Text="WO Report" CommandName="ReportView" CommandArgument='<%# Eval("WORcvID") %>' 
+                                        Style="background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid #a5d6a7;" />
+                                    
+                                    <!-- Raw Metiral Report View Button -->
+                                    <asp:LinkButton ID="btnRawMaterialReport" runat="server" Text="Raw Material Report" CommandName="RawMaterialReport" CommandArgument='<%# Eval("WORcvID") %>' 
                                         Style="background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid #a5d6a7;" />
                                 </div>
                             </ItemTemplate>
@@ -808,13 +817,6 @@
                     <div class="section-label" style="margin-top:20px;">
                         Quotation Items &mdash; uncheck "Include" to drop an item, enter Order Qty for the rest
                     </div>
-
-                    <div class="list-toolbar">
-                        <div></div>
-                        <asp:Button ID="btnLoadItems" runat="server" Text="Load Items From Selected Quotation" 
-                            CssClass="btn btn-add" OnClick="btnLoadItems_Click" />
-                    </div>
-
                     <asp:GridView ID="gvQuotationItems" runat="server" CssClass="grid" AutoGenerateColumns="False" 
                         EmptyDataText="No items loaded. Set the filter above and click Load Items.">
                         <Columns>
