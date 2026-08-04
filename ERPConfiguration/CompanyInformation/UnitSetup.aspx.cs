@@ -17,35 +17,39 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         {
             if (!IsPostBack)
             {
-                LoadUnitInformation();
+                LoadRawMaterialInformation();
             }
         }
 
-        private void LoadUnitInformation()
+        private void LoadRawMaterialInformation()
         {
             try
             {
                 con = conn.openConnection();
-                string query = @"SELECT UnitID, ROW_NUMBER() OVER(ORDER BY UnitID) AS SlNo, 
-                                 UnitName, ShortCode, Status 
-                                 FROM tbl_UnitSetup 
-                                 ORDER BY UnitName ASC";
+                // UnitSetup টেবিলের সাথে JOIN করে UnitName নিয়ে আসা হচ্ছে
+                string query = @"SELECT r.*, u.UnitName 
+                         FROM ta_RawMaterial r 
+                         LEFT JOIN tbl_UnitSetup u ON r.Unit = u.UnitID 
+                         ORDER BY r.RawMaterialName ASC";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
-
-                gvUnit.DataSource = dt;
-                gvUnit.DataBind();
+                gvRawMaterial.DataSource = dt;
+                gvRawMaterial.DataBind();
                 con.Close();
             }
             catch (Exception ex)
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "\\'") + "');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
+                    "alert('" + ex.Message.Replace("'", "\\'") + "');", true);
             }
             finally
             {
-                if (con != null && con.State == ConnectionState.Open) con.Close();
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
             }
         }
 
@@ -60,7 +64,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
 
         protected void gvUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string unitId = gvUnit.SelectedDataKey.Value.ToString();
+            string unitId = gvRawMaterial.SelectedDataKey.Value.ToString();
             txtUnitID.Text = unitId;
 
             try
@@ -139,7 +143,6 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                     }
 
                     ClearForm();
-                    LoadUnitInformation();
                 }
             }
             catch (Exception ex)

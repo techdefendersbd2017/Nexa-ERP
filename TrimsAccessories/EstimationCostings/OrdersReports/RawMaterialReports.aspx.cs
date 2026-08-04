@@ -90,7 +90,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
                         lblPhone.Text = row["Phone_No"].ToString();
                         lblWeb.Text = row["Web"].ToString();
 
-                        lblWorkOrderNo.Text = row["WorkOrderID"].ToString();
+                        lblWorkOrderNo.Text = row["WORcvID"].ToString();
 
                         if (row["WORcvDate"] != DBNull.Value)
                             lblWORcvDate.Text = Convert.ToDateTime(row["WORcvDate"]).ToString("dd-MMM-yyyy");

@@ -319,6 +319,11 @@
                     <span>Return to Main Dashboard</span>
                 </div>
 
+                <div>
+                    <asp:TextBox ID="txtFormNameSearch" runat="server" CssClass="form-control form-control-sm mb-2" 
+                        placeholder="Search form..." onkeyup="searchMenu()"></asp:TextBox>
+                </div>
+
                 <ul class="tree-root">
                     <asp:Repeater ID="rptModules" runat="server">
                         <ItemTemplate>
@@ -355,7 +360,9 @@
                                                         <ItemTemplate>
                                                             <li>
 
-                                                                <a onclick="loadPage('<%# Eval("Form_Url") %>', this); return false;">
+                                                                <a href='Deahboard.aspx?form=<%# System.Web.HttpUtility.UrlEncode(Eval("Form_Url").ToString()) %>'
+                                                                   data-formurl='<%# Eval("Form_Url") %>'
+                                                                   onclick="return loadPage(event, this);">
                                                                     <i class='<%# Eval("Icon_Class") %> me-1'></i>
                                                                     <%# Eval("Form_Name") %>
                                                                 </a>
@@ -393,7 +400,10 @@
 
 <script>
 
-    document.addEventListener("DOMContentLoaded", buildModuleDashboard);
+    document.addEventListener("DOMContentLoaded", function () {
+        buildModuleDashboard();
+        autoOpenFromQueryString();
+    });
 
     function buildModuleDashboard() {
         var dashboard = document.getElementById("moduleDashboard");
@@ -467,8 +477,38 @@
         document.getElementById("mainFrame").src = "about:blank";
     }
 
+    /**
+     * Fires on click of a form link.
+     * - Plain left click: loads the page inside the iframe (SPA-style), same as before.
+     * - Ctrl/Cmd+Click or Shift+Click: browser's native "open link in new tab" behavior
+     *   is allowed to run (we do NOT call preventDefault). The href points back at
+     *   THIS dashboard page (Deahboard.aspx?form=...), not the raw child page, so the
+     *   new tab still shows the full dashboard shell (sidebar + navbar) -
+     *   autoOpenFromQueryString() then loads the requested form into its iframe.
+     * - Right click -> "Open link in new tab" from the context menu works the same way,
+     *   since a real href is present.
+     */
+    function loadPage(e, el) {
+        if (e && (e.ctrlKey || e.metaKey || e.shiftKey)) {
+            // Let the browser handle it natively (opens Deahboard.aspx?form=... in a new tab)
+            return true;
+        }
 
-    function loadPage(url, el) {
+        if (e && e.preventDefault) e.preventDefault();
+
+        openFormInDashboard(el.getAttribute('data-formurl'), el);
+
+        return false;
+    }
+
+    /**
+     * Actually loads a form's URL into the dashboard's iframe, updates the breadcrumb,
+     * and switches from the module-cards view to the page view. Shared by loadPage()
+     * (normal click) and autoOpenFromQueryString() (page opened via ?form=... in a new tab).
+     */
+    function openFormInDashboard(url, el) {
+        if (!url) return;
+
         var lbl = document.getElementById('<%= lblUser.ClientID %>');
         var userName = lbl ? lbl.innerText : '';
 
@@ -493,7 +533,48 @@
 
         document.getElementById('moduleDashboard').style.display = 'none';
         document.getElementById('pageViewWrapper').style.display = 'block';
-        document.getElementById("mainFrame").src = url + "?user=" + encodeURIComponent(userName);
+
+        var sep = url.indexOf('?') > -1 ? '&' : '?';
+        document.getElementById("mainFrame").src = url + sep + "user=" + encodeURIComponent(userName);
+    }
+
+    /**
+     * If the dashboard was opened as Deahboard.aspx?form=<url> (i.e. from Ctrl+Click /
+     * "Open in new tab" on a menu link), automatically expand the right module/menu in
+     * the sidebar and load that page into the iframe - so the new tab looks exactly like
+     * the original tab would after clicking that same link.
+     */
+    function autoOpenFromQueryString() {
+        var params = new URLSearchParams(window.location.search);
+        var formUrl = params.get('form');
+        if (!formUrl) return;
+
+        var links = document.querySelectorAll('.pages a[data-formurl]');
+        var target = null;
+        links.forEach(function (a) {
+            if (a.getAttribute('data-formurl') === formUrl) target = a;
+        });
+
+        if (!target) {
+            // Link not found in the current menu tree - still load the page so the user isn't stuck.
+            openFormInDashboard(formUrl, null);
+            return;
+        }
+
+        var moduleLi = target.closest('li.module-item');
+        if (moduleLi) {
+            selectModule(moduleLi.getAttribute('data-module-id'));
+        }
+
+        var pagesUl = target.closest('.pages');
+        if (pagesUl) {
+            pagesUl.style.display = 'block';
+            var menuLink = pagesUl.previousElementSibling;
+            var icon = menuLink ? menuLink.querySelector('.toggle-icon') : null;
+            if (icon) icon.classList.add('rotate');
+        }
+
+        openFormInDashboard(formUrl, target);
     }
 
     function toggleMenu(id, el) {
@@ -549,6 +630,61 @@
             if (arrow) arrow.classList.remove("rotate");
         }
     });
+function searchMenu() {
+    var input = document.getElementById('<%= txtFormNameSearch.ClientID %>');
+    var term = input.value.trim().toLowerCase();
+
+    var moduleItems = document.querySelectorAll('.tree-root > li.module-item');
+
+    // সার্চ বক্স খালি হলে সব কিছু আগের অবস্থায় (collapsed) ফিরিয়ে দেওয়া
+    if (term === '') {
+        moduleItems.forEach(function(modLi) {
+            modLi.style.display = '';
+            var subUl = modLi.querySelector(':scope > ul.submenu');
+            if (subUl) {
+                subUl.style.display = 'none';
+                subUl.querySelectorAll('li').forEach(function(li) { li.style.display = ''; });
+                subUl.querySelectorAll('ul.pages').forEach(function(pagesUl) {
+                    pagesUl.style.display = 'none';
+                });
+                var icon = modLi.querySelector(':scope > a .toggle-icon');
+                if (icon) icon.classList.remove('rotate');
+            }
+        });
+        return;
+    }
+
+    moduleItems.forEach(function(modLi) {
+        var subUl = modLi.querySelector(':scope > ul.submenu');
+        var moduleHasMatch = false;
+
+        if (subUl) {
+            var menuLis = subUl.querySelectorAll(':scope > li');
+            menuLis.forEach(function(menuLi) {
+                var pagesUl = menuLi.querySelector(':scope > ul.pages');
+                var menuHasMatch = false;
+
+                if (pagesUl) {
+                    var formLis = pagesUl.querySelectorAll(':scope > li');
+                    formLis.forEach(function(formLi) {
+                        var a = formLi.querySelector('a[data-formurl]');
+                        var formName = a ? a.textContent.trim().toLowerCase() : '';
+                        var isMatch = formName.indexOf(term) > -1;
+                        formLi.style.display = isMatch ? '' : 'none';
+                        if (isMatch) menuHasMatch = true;
+                    });
+                }
+
+                menuLi.style.display = menuHasMatch ? '' : 'none';
+                if (pagesUl) pagesUl.style.display = menuHasMatch ? 'block' : 'none';
+                if (menuHasMatch) moduleHasMatch = true;
+            });
+        }
+
+        modLi.style.display = moduleHasMatch ? '' : 'none';
+        if (subUl) subUl.style.display = moduleHasMatch ? 'block' : subUl.style.display;
+    });
+}
 
 </script>
 

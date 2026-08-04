@@ -407,13 +407,6 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label>Color Type</label>
-                            <asp:DropDownList ID="ddlColorType" runat="server" CssClass="form-select">
-                                <asp:ListItem Value="">--Select Type--</asp:ListItem>
-                            </asp:DropDownList>
-                        </div>
-
-                        <div class="col-md-6">
                             <label>Color Name</label>
                             <asp:TextBox ID="txtColorName" runat="server" CssClass="form-control" placeholder="Color Name" MaxLength="100" />
                         </div>

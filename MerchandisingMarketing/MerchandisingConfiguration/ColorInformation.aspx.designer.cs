@@ -51,15 +51,6 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
         protected global::System.Web.UI.WebControls.TextBox txtColorCode;
 
         /// <summary>
-        /// ddlColorType control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlColorType;
-
-        /// <summary>
         /// txtColorName control.
         /// </summary>
         /// <remarks>

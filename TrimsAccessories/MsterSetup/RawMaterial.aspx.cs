@@ -25,6 +25,7 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
                 loadUnit();
             }
         }
+
         private void loadUnit()
         {
             try
@@ -59,13 +60,11 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             try
             {
                 con = conn.openConnection();
-                {
-                    SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM ta_RawMaterial Order by RawMaterialName asc", con);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    gvRawMaterial.DataSource = dt;
-                    gvRawMaterial.DataBind();
-                }
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM ta_RawMaterial Order by RawMaterialName asc", con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvRawMaterial.DataSource = dt;
+                gvRawMaterial.DataBind();
                 con.Close();
             }
             catch (Exception ex)
@@ -85,7 +84,13 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
         private void clearform()
         {
             txtRawMaterialId.Text = txtMaterialCode.Text = txtRawMaterialName.Text = txtUnitPrice.Text = string.Empty;
-            ddlUnit.SelectedValue = "Pcs";
+            txtLength.Text = txtWidth.Text = txtThickness.Text = txtDensity.Text = txtConcentration.Text = txtPhValue.Text = string.Empty;
+
+            ddlItemCategory.SelectedValue = "General";
+            pnlGeneralFields.Visible = true;
+            pnlLiquidFields.Visible = false;
+
+            if (ddlUnit.Items.Count > 0) ddlUnit.SelectedIndex = 0;
             ddlCurrency.SelectedValue = "BDT";
             ddlStatus.SelectedValue = "Active";
         }
@@ -95,7 +100,6 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             txtRawMaterialId.Text = gvRawMaterial.SelectedRow.Cells[0].Text.Trim();
             try
             {
-
                 string sql = "Select * from ta_RawMaterial where RawMaterialID = '" + txtRawMaterialId.Text + "'";
                 con = conn.openConnection();
                 cmd = new SqlCommand(sql, con);
@@ -111,6 +115,31 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
                         txtUnitPrice.Text = reader["UnitPrice"].ToString();
                         ddlCurrency.SelectedValue = reader["Currency"].ToString();
                         ddlStatus.SelectedValue = reader["Status"].ToString();
+
+                        // Item Category & Dynamic Fields Handling
+                        string itemCategory = reader["ItemCategory"] != DBNull.Value ? reader["ItemCategory"].ToString() : "General";
+                        ddlItemCategory.SelectedValue = itemCategory;
+
+                        if (itemCategory == "Liquid")
+                        {
+                            pnlLiquidFields.Visible = true;
+                            pnlGeneralFields.Visible = false;
+
+                            txtDensity.Text = reader["Density"].ToString();
+                            txtConcentration.Text = reader["Concentration"].ToString();
+                            txtPhValue.Text = reader["PhValue"].ToString();
+                        }
+                        else
+                        {
+                            pnlLiquidFields.Visible = false;
+                            pnlGeneralFields.Visible = true;
+
+                            txtLength.Text = reader["Length"].ToString();
+                            txtWidth.Text = reader["Width"].ToString();
+                            txtThickness.Text = reader["Thickness"].ToString();
+                            if (reader["DimensionUnit"] != DBNull.Value)
+                                ddlDimensionUnit.SelectedValue = reader["DimensionUnit"].ToString();
+                        }
                     }
                 }
                 else
@@ -160,6 +189,33 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
                     cmd.Parameters.AddWithValue("@Currency", ddlCurrency.SelectedValue);
                     cmd.Parameters.AddWithValue("@Status", ddlStatus.SelectedValue);
 
+                    // New Parameters mapping based on Item Type
+                    string category = ddlItemCategory.SelectedValue;
+                    cmd.Parameters.AddWithValue("@ItemCategory", category);
+
+                    if (category == "Liquid")
+                    {
+                        cmd.Parameters.AddWithValue("@Length", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Width", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Thickness", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@DimensionUnit", DBNull.Value);
+
+                        cmd.Parameters.AddWithValue("@Density", string.IsNullOrEmpty(txtDensity.Text.Trim()) ? (object)DBNull.Value : Convert.ToDecimal(txtDensity.Text.Trim()));
+                        cmd.Parameters.AddWithValue("@Concentration", string.IsNullOrEmpty(txtConcentration.Text.Trim()) ? (object)DBNull.Value : txtConcentration.Text.Trim());
+                        cmd.Parameters.AddWithValue("@PhValue", string.IsNullOrEmpty(txtPhValue.Text.Trim()) ? (object)DBNull.Value : txtPhValue.Text.Trim());
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@Length", string.IsNullOrEmpty(txtLength.Text.Trim()) ? (object)DBNull.Value : Convert.ToDecimal(txtLength.Text.Trim()));
+                        cmd.Parameters.AddWithValue("@Width", string.IsNullOrEmpty(txtWidth.Text.Trim()) ? (object)DBNull.Value : Convert.ToDecimal(txtWidth.Text.Trim()));
+                        cmd.Parameters.AddWithValue("@Thickness", string.IsNullOrEmpty(txtThickness.Text.Trim()) ? (object)DBNull.Value : txtThickness.Text.Trim());
+                        cmd.Parameters.AddWithValue("@DimensionUnit", ddlDimensionUnit.SelectedValue);
+
+                        cmd.Parameters.AddWithValue("@Density", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Concentration", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@PhValue", DBNull.Value);
+                    }
+
                     using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
                         if (rdr.Read())
@@ -194,6 +250,20 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             }
 
             LoadRawMaterialInformation();
+        }
+
+        protected void ddlItemCategory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ddlItemCategory.SelectedValue == "Liquid")
+            {
+                pnlLiquidFields.Visible = true;
+                pnlGeneralFields.Visible = false;
+            }
+            else
+            {
+                pnlLiquidFields.Visible = false;
+                pnlGeneralFields.Visible = true;
+            }
         }
     }
 }

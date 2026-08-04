@@ -24,6 +24,15 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
+        /// hfScrollPosition control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfScrollPosition;
+
+        /// <summary>
         /// txtUnitID control.
         /// </summary>
         /// <remarks>
@@ -78,12 +87,12 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         protected global::System.Web.UI.WebControls.Button btnCancel;
 
         /// <summary>
-        /// gvUnit control.
+        /// gvRawMaterial control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvUnit;
+        protected global::System.Web.UI.WebControls.GridView gvRawMaterial;
     }
 }

@@ -1,4 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="RawMaterialReports.aspx.cs" Inherits="Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports.RawMaterialReports" %>
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -10,6 +11,7 @@
             color: #000;
             margin: 0;
             padding: 20px;
+            background-color: #fff;
         }
         .report-container {
             max-width: 1000px;
@@ -51,6 +53,8 @@
             font-weight: bold;
             width: 130px;
         }
+        
+        /* GridView Styling */
         table.detail-table {
             width: 100%;
             border-collapse: collapse;
@@ -72,6 +76,20 @@
         .center {
             text-align: center;
         }
+        
+        /* Group Header Row Styling */
+        .group-header {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* Footer Total Styling */
+        .footer-total {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+
         .signature-row {
             display: flex;
             justify-content: space-between;
@@ -115,7 +133,7 @@
 
         <div class="report-container">
 
-            <!-- Company Dynamic Header (From vw_Branch_Information) -->
+            <!-- Company Dynamic Header -->
             <div class="company-header">
                 <h2><asp:Label ID="lblBranchName" runat="server" Text="Branch Name Ltd." /></h2>
                 <div class="sub">
@@ -127,7 +145,7 @@
 
             <div class="report-title">RAW MATERIAL REQUIREMENT REPORT</div>
 
-            <!-- Master Information (Work Order & Delivery Details) -->
+            <!-- Master Information -->
             <table class="info-table">
                 <tr>
                     <td class="info-label">Work Order No:</td>
@@ -138,14 +156,15 @@
                 <tr>
                     <td class="info-label">Delivery Date</td>
                     <td>: <asp:Label ID="lblDeliveryDate" runat="server" /></td>
-                    <td class="info-label">Status / Info</td>
-                    <td>: <asp:Label ID="lblExtraInfo" runat="server" /></td>
+                    <td class="info-label"></td>
+                    <td></td>
                 </tr>
             </table>
 
-            <!-- Details GridView based on SQL Query Fields -->
+            <!-- Details GridView with CSS Class and Grouping Support -->
             <asp:GridView ID="gvRawMaterialReport" runat="server" AutoGenerateColumns="False" 
-                ShowFooter="true" OnRowDataBound="gvRawMaterialReport_RowDataBound">
+                ShowFooter="true" OnRowDataBound="gvRawMaterialReport_RowDataBound"
+                CssClass="detail-table">
                 <Columns>
                     <asp:BoundField DataField="SlNo" HeaderText="SL" ItemStyle-CssClass="center" />
                     <asp:BoundField DataField="ItemsName" HeaderText="Finished Goods Item" />

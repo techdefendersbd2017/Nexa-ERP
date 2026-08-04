@@ -337,6 +337,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
                 hdnActivePanel.Value = "pnlList";
                 BindWorkOrderReceiveList();
+                LoadWorkOrderReceiveList();
             }
             catch (Exception ex)
             {

@@ -135,7 +135,7 @@
                                     <div class="input-group input-group-sm">
                                         <asp:TextBox ID="txtQuotationName" runat="server" CssClass="form-control" Text="RSP-SINGLE POLY"></asp:TextBox>
                                         <asp:TextBox ID="txtSameAs" runat="server" CssClass="form-control" placeholder="Same As"></asp:TextBox>
-                                        <asp:Button ID="btnCopy" runat="server" CssClass="btn btn-primary" Text="Copy" />
+                                        <asp:Button ID="btnCopy" runat="server" CssClass="btn btn-primary" Text="Copy" OnClick="btnCopy_Click" />
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -269,8 +269,7 @@
 
                             <!-- Data Table: Materials for the currently selected Item only -->
                             <div class="table-responsive mt-3">
-                                <asp:GridView ID="gvQuotationDetails" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle" AutoGenerateColumns="False" DataKeyNames="SlNo" EmptyDataText="No material added for this item yet." OnRowDeleting="gvQuotationDetails_RowDeleting">
-                                    <HeaderStyle CssClass="table-dark-custom" />
+                                <asp:GridView ID="gvQuotationDetails" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle" AutoGenerateColumns="False" DataKeyNames="SlNo" EmptyDataText="No material added for this item yet." OnRowDeleting="gvQuotationDetails_RowDeleting" OnRowCommand="gvQuotationDetails_RowCommand" OnSelectedIndexChanged="gvQuotationDetails_SelectedIndexChanged">
                                     <Columns>
                                         <asp:BoundField DataField="SlNo" HeaderText="Sl No" />
                                         <asp:BoundField DataField="RawMaterialID" HeaderText="Material ID" ItemStyle-Width="80px"/>

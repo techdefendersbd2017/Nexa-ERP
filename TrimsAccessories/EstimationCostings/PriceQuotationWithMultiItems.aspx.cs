@@ -603,7 +603,6 @@ WHERE m.QuotationID = @QuotationID";
                         InitialiseItemsTable();
                         DataTable itemsDt = CurrentItemsTable;
                         int slNo = 1;
-
                         while (reader.Read())
                         {
                             if (isFirstRow)
@@ -618,7 +617,6 @@ WHERE m.QuotationID = @QuotationID";
                                 SetSelectedValueSafe(ddlStatus, reader["Status"].ToString());
                                 isFirstRow = false;
                             }
-
                             DataRow itemRow = itemsDt.NewRow();
                             itemRow["ItemSlNo"] = slNo;
                             itemRow["CategoryID"] = reader["CategoryID"] == DBNull.Value ? 0 : Convert.ToInt32(reader["CategoryID"]);
@@ -634,7 +632,6 @@ WHERE m.QuotationID = @QuotationID";
                             itemsDt.Rows.Add(itemRow);
                             slNo++;
                         }
-
                         CurrentItemsTable = itemsDt;
                         NextItemSlNo = slNo;
                         SelectedItemSlNo = 1;
@@ -658,13 +655,8 @@ WHERE m.QuotationID = @QuotationID";
             {
                 InitialiseDetailsTable();
                 DataTable dt = CurrentDetailsTable;
-
                 con = conn.openConnection();
-                string query = @"SELECT RawMaterialID, RawMaterialName, ReqQty, Unit, UnitPrice, Currency, Loss, TotalCost, Remarks
-                                  FROM tbl_PriceQuotationDetails
-                                  WHERE QuotationID = @QuotationID
-                                  ORDER BY DetailID";
-
+                string query = @"SELECT RawMaterialID, RawMaterialName, ReqQty, Unit, UnitPrice, Currency, Loss, TotalCost, Remarks FROM tbl_PriceQuotationDetails WHERE QuotationID = @QuotationID ORDER BY DetailID";
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@QuotationID", quotationID);
@@ -691,9 +683,7 @@ WHERE m.QuotationID = @QuotationID";
                     }
                 }
                 con.Close();
-
                 CurrentDetailsTable = dt;
-
                 RecalculateItemTotal(1);
                 BindItemList();
                 BindDetailsForSelectedItem();
@@ -708,25 +698,18 @@ WHERE m.QuotationID = @QuotationID";
                 if (con != null && con.State == ConnectionState.Open) con.Close();
             }
         }
-
-        // ==========================================
-        // ITEM LIST (gvItemList) - Category/SubCategory/ItemName/Qty per Item
-        // ==========================================
         protected void ddlItemCategory_SelectedIndexChanged(object sender, EventArgs e)
         {
             LoadSubCategoryList(ddlItemCategory.SelectedValue);
         }
-
         protected void ddlSubCategory_SelectedIndexChanged(object sender, EventArgs e)
         {
             LoadItemNameList(ddlSubCategory.SelectedValue);
         }
-
         protected void ddlItemName_SelectedIndexChanged(object sender, EventArgs e)
         {
             LoadItemUnitList();
         }
-
         private void ClearItemEntryInputs()
         {
             if (ddlItemCategory.Items.Count > 0) ddlItemCategory.SelectedIndex = 0;
@@ -760,9 +743,7 @@ WHERE m.QuotationID = @QuotationID";
                     ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please enter a valid Qty!');", true);
                     return;
                 }
-
                 DataTable dt = CurrentItemsTable;
-
                 object editingObj = ViewState["EditingItemSlNo"];
                 if (editingObj != null)
                 {
@@ -780,7 +761,6 @@ WHERE m.QuotationID = @QuotationID";
                         dr["UnitID"] = ddlItemUnit.SelectedValue;
                         dr["Unit"] = ddlItemUnit.SelectedItem.Text;
                         dr["Qty"] = qty;
-                        // ItemTotalCost intentionally left unchanged - it reflects the item's materials, not its Qty/Unit
                     }
                     ViewState["EditingItemSlNo"] = null;
                     btnAddItem.Text = "Add Item";
@@ -835,20 +815,17 @@ WHERE m.QuotationID = @QuotationID";
                 LoadSubCategoryList(itemRow["CategoryID"].ToString());
                 LoadItemNameList(itemRow["SubCategoryID"].ToString());
                 LoadItemUnitList();
-
                 SetSelectedValueSafe(ddlItemCategory, itemRow["CategoryID"].ToString());
                 SetSelectedValueSafe(ddlSubCategory, itemRow["SubCategoryID"].ToString());
                 SetSelectedValueSafe(ddlItemName, itemRow["ItemID"].ToString());
                 SetSelectedValueSafe(ddlItemUnit, itemRow["UnitID"].ToString());
                 txtQty.Text = itemRow["Qty"].ToString();
-
                 ViewState["EditingItemSlNo"] = itemSlNo;
                 btnAddItem.Text = "Update Item";
             }
             else if (e.CommandName == "DeleteItem")
             {
                 CurrentItemsTable.Rows.Remove(itemRow);
-
                 DataTable detailsDt = CurrentDetailsTable;
                 foreach (DataRow d in detailsDt.Select("ItemSlNo = " + itemSlNo))
                 {
@@ -862,13 +839,11 @@ WHERE m.QuotationID = @QuotationID";
                     lblSelectedItemName.Text = "-- No item selected --";
                     txtItemTotalCost.Text = "0.00";
                 }
-
                 BindItemList();
                 BindDetailsForSelectedItem();
                 RecalculateGrandTotal();
             }
         }
-
         protected void gvItemList_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
@@ -880,21 +855,25 @@ WHERE m.QuotationID = @QuotationID";
                 }
             }
         }
-
         private void BindItemList()
         {
             gvItemList.DataSource = CurrentItemsTable;
             gvItemList.DataBind();
         }
-
-        // ==========================================
-        // RAW MATERIAL DETAILS (gvQuotationDetails) - per selected Item
-        // ==========================================
+        private void SetSelectedTextSafe(DropDownList ddl, string text)
+        {
+            if (ddl == null || string.IsNullOrEmpty(text)) return;
+            ListItem item = ddl.Items.FindByText(text);
+            if (item != null)
+            {
+                ddl.ClearSelection();
+                item.Selected = true;
+            }
+        }
         protected void ddlRawMaterial_SelectedIndexChanged(object sender, EventArgs e)
         {
             LoadddlDetailUnit();
         }
-
         private void ClearMaterialEntryInputs()
         {
             if (ddlRawMaterial.Items.Count > 0) ddlRawMaterial.SelectedIndex = 0;
@@ -905,7 +884,6 @@ WHERE m.QuotationID = @QuotationID";
             txtLoss.Text = "5";
             txtTotalCostInput.Text = "1.05";
         }
-
         protected void btnAdd_Click(object sender, EventArgs e)
         {
             try
@@ -942,17 +920,12 @@ WHERE m.QuotationID = @QuotationID";
                     return;
                 }
                 decimal.TryParse(lossStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal lossPercentValue);
-
                 decimal subTotal = reqQty * unitPrice;
                 decimal totalCost = Math.Round(subTotal + (subTotal * (lossPercentValue / 100)), 2);
-
-                // Unit ID ও Unit Name — দুটোই আলাদাভাবে নিয়ে রাখা হলো
                 string selectedUnitId = ddlDetailUnit.SelectedValue;
                 string selectedUnitName = ddlDetailUnit.SelectedItem.Text;
-
                 DataTable dt = CurrentDetailsTable;
                 object editingObj = ViewState["EditingDetailSlNo"];
-
                 if (editingObj != null)
                 {
                     int editingSlNo = (int)editingObj;
@@ -963,10 +936,7 @@ WHERE m.QuotationID = @QuotationID";
                         dr["RawMaterialID"] = ddlRawMaterial.SelectedValue;
                         dr["RawMaterialName"] = ddlRawMaterial.SelectedItem.Text;
                         dr["ReqQty"] = reqQty;
-
-                        // পরিবর্তন: Unit কলামে এখন Name সেভ হবে (ID না)
                         dr["Unit"] = selectedUnitName;
-
                         dr["UnitPrice"] = unitPrice;
                         dr["Currency"] = ddlCurrency.SelectedValue;
                         dr["Loss"] = lossPercentValue;
@@ -984,10 +954,7 @@ WHERE m.QuotationID = @QuotationID";
                     dr["RawMaterialID"] = ddlRawMaterial.SelectedValue;
                     dr["RawMaterialName"] = ddlRawMaterial.SelectedItem.Text;
                     dr["ReqQty"] = reqQty;
-
-                    // পরিবর্তন: Unit কলামে এখন Name সেভ হবে (ID না)
                     dr["Unit"] = selectedUnitName;
-
                     dr["UnitPrice"] = unitPrice;
                     dr["Currency"] = ddlCurrency.SelectedValue;
                     dr["Loss"] = lossPercentValue;
@@ -1009,11 +976,6 @@ WHERE m.QuotationID = @QuotationID";
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Error adding material: " + ex.Message.Replace("'", "\\'") + "');", true);
             }
         }
-
-        // NOTE: the aspx markup for gvQuotationDetails currently only wires OnRowDeleting.
-        // The "EditDetail" button will not do anything until this handler is also wired:
-        //   <asp:GridView ID="gvQuotationDetails" ... OnRowDeleting="gvQuotationDetails_RowDeleting"
-        //       OnRowCommand="gvQuotationDetails_RowCommand">
         protected void gvQuotationDetails_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             if (e.CommandName == "EditDetail")
@@ -1022,21 +984,19 @@ WHERE m.QuotationID = @QuotationID";
                 DataView view = new DataView(CurrentDetailsTable);
                 view.RowFilter = "ItemSlNo = " + SelectedItemSlNo;
                 if (rowIndex < 0 || rowIndex >= view.Count) return;
-
                 DataRowView drv = view[rowIndex];
                 SetSelectedValueSafe(ddlRawMaterial, drv["RawMaterialID"].ToString());
+                LoadddlDetailUnit();                                    // ✅ নতুন লাইন — Unit dropdown রিলোড
                 txtReqQty.Text = drv["ReqQty"].ToString();
-                SetSelectedValueSafe(ddlDetailUnit, drv["Unit"].ToString());
+                SetSelectedValueSafe(ddlDetailUnit, drv["Unit"].ToString()); // ✅ Value নয়, Text দিয়ে match
                 txtUnitPrice.Text = drv["UnitPrice"].ToString();
                 SetSelectedValueSafe(ddlCurrency, drv["Currency"].ToString());
                 txtLoss.Text = drv["Loss"].ToString();
                 txtTotalCostInput.Text = Convert.ToDecimal(drv["TotalCost"]).ToString("0.00");
-
                 ViewState["EditingDetailSlNo"] = Convert.ToInt32(drv["SlNo"]);
                 btnAdd.Text = "Update";
             }
         }
-
         protected void gvQuotationDetails_RowDeleting(object sender, GridViewDeleteEventArgs e)
         {
             int slNo = Convert.ToInt32(gvQuotationDetails.DataKeys[e.RowIndex]["SlNo"]);
@@ -1046,14 +1006,12 @@ WHERE m.QuotationID = @QuotationID";
             {
                 dt.Rows.Remove(found[0]);
                 CurrentDetailsTable = dt;
-
                 BindDetailsForSelectedItem();
                 RecalculateItemTotal(SelectedItemSlNo);
                 BindItemList();
                 RecalculateGrandTotal();
             }
         }
-
         private void BindDetailsForSelectedItem()
         {
             DataView view = new DataView(CurrentDetailsTable);
@@ -1061,32 +1019,24 @@ WHERE m.QuotationID = @QuotationID";
             gvQuotationDetails.DataSource = view;
             gvQuotationDetails.DataBind();
         }
-
-        // ==========================================
-        // TOTALS
-        // ==========================================
         private void RecalculateItemTotal(int itemSlNo)
         {
             if (itemSlNo == 0) return;
-
             decimal itemSum = 0;
             foreach (DataRow row in CurrentDetailsTable.Select("ItemSlNo = " + itemSlNo))
             {
                 itemSum += Convert.ToDecimal(row["TotalCost"]);
             }
-
             DataRow[] itemRows = CurrentItemsTable.Select("ItemSlNo = " + itemSlNo);
             if (itemRows.Length > 0)
             {
                 itemRows[0]["ItemTotalCost"] = itemSum;
             }
-
             if (SelectedItemSlNo == itemSlNo)
             {
                 txtItemTotalCost.Text = itemSum.ToString("0.00");
             }
         }
-
         private void RecalculateGrandTotal()
         {
             decimal totalCostSum = 0;
@@ -1101,99 +1051,64 @@ WHERE m.QuotationID = @QuotationID";
 
             txtGTotalCost.Text = (totalCostSum + othersCost).ToString("0.00");
         }
-
-        // ==========================================
-        // SAVE
-        // ==========================================
         protected void btnSave_Click(object sender, EventArgs e)
         {
             SqlConnection con = null;
-            // 1. Customer বাধ্যতামূলক
             if (ddlCustomer.SelectedValue == "0")
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(),
-                    "alert", "alert('Please select a Customer!');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please select a Customer!');", true);
                 return;
             }
-
-            // 2. Quotation Name বাধ্যতামূলক
             if (string.IsNullOrEmpty(txtQuotationName.Text.Trim()))
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(),
-                    "alert", "alert('Please enter the Quotation Name!');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please enter the Quotation Name!');", true);
                 return;
             }
-
-            // 3. Quotation Code ফাঁকা থাকা উচিত না (auto-generate হলেও safety check)
             if (string.IsNullOrEmpty(txtQuotationCode.Text.Trim()))
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(),
-                    "alert", "alert('Quotation Code is missing!');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Quotation Code is missing!');", true);
                 return;
             }
-
-            // 4. Create Date valid হতে হবে
             if (!DateTime.TryParse(txtCreateDate.Text.Trim(), out DateTime _))
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(),
-                    "alert", "alert('Please enter a valid Create Date!');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please enter a valid Create Date!');", true);
                 return;
             }
-
-            // 5. Status নির্বাচন বাধ্যতামূলক
             if (ddlStatus.SelectedValue == "0")
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(),
-                    "alert", "alert('Please select a Status!');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please select a Status!');", true);
                 return;
             }
-
-            // 6. প্রতিটি Item-এ কমপক্ষে একটি Raw Material detail থাকতে হবে
             foreach (DataRow itemRow in CurrentItemsTable.Rows)
             {
                 int itemSlNo = Convert.ToInt32(itemRow["ItemSlNo"]);
                 if (CurrentDetailsTable.Select("ItemSlNo = " + itemSlNo).Length == 0)
                 {
-                    ScriptManager.RegisterStartupScript(this, this.GetType(),
-                        "alert", "alert('Item \"" + itemRow["ItemName"] + "\" has no Raw Material added!');", true);
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Item \"" + itemRow["ItemName"] + "\" has no Raw Material added!');", true);
                     return;
                 }
             }
-
-            // 7. Grand Total শূন্য বা ঋণাত্মক হতে পারবে না
             if (!decimal.TryParse(txtGTotalCost.Text.Trim(), out decimal gTotal) || gTotal <= 0)
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(),
-                    "alert", "alert('Grand Total Cost must be greater than 0!');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Grand Total Cost must be greater than 0!');", true);
                 return;
             }
-
             try
             {
                 if (CurrentItemsTable.Rows.Count == 0)
                 {
-                    ScriptManager.RegisterStartupScript(this, this.GetType(),
-                        "alert", "alert('Please add at least one Item before saving.');", true);
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please add at least one Item before saving.');", true);
                     return;
                 }
 
                 con = conn.openConnection();
-
                 int currentUserId = Session["UserID"] != null ? Convert.ToInt32(Session["UserID"]) : 0;
                 int existingId = string.IsNullOrEmpty(Costing_No.Value) ? 0 : Convert.ToInt32(Costing_No.Value);
-
-                // ---------- STEP 1: Save Master ONCE (same procedure/parameters as before) ----------
-                // Master row no longer carries meaningful CategoryID/SubCategoryID/ItemID/Qty/ItemUnit
-                // for multi-item quotations; each Item is now persisted in its own row via the
-                // @IsItemCall block below (STEP 2). We still pass the first item's values here for
-                // backward-compatibility with the existing table columns.
                 DataRow firstItem = CurrentItemsTable.Rows[0];
-
                 int savedQuotationId;
                 using (SqlCommand cmdMaster = new SqlCommand("sp_InsertUpdatePriceQuotationMaster", con))
                 {
                     cmdMaster.CommandType = CommandType.StoredProcedure;
-
                     cmdMaster.Parameters.Add("@ID", SqlDbType.Int).Value = existingId == 0 ? (object)DBNull.Value : existingId;
                     cmdMaster.Parameters.Add("@QuotationCode", SqlDbType.VarChar, 50).Value = txtQuotationCode.Text.Trim();
                     cmdMaster.Parameters.Add("@CreateDate", SqlDbType.Date).Value = Convert.ToDateTime(txtCreateDate.Text);
@@ -1202,8 +1117,7 @@ WHERE m.QuotationID = @QuotationID";
                     cmdMaster.Parameters.Add("@SubCategoryID", SqlDbType.Int).Value = firstItem["SubCategoryID"];
                     cmdMaster.Parameters.Add("@ItemID", SqlDbType.Int).Value = firstItem["ItemID"];
                     cmdMaster.Parameters.Add("@QuotationName", SqlDbType.VarChar, 250).Value = txtQuotationName.Text.Trim();
-                    cmdMaster.Parameters.Add("@SameAs", SqlDbType.VarChar, 100).Value =
-                        string.IsNullOrEmpty(txtSameAs.Text) ? (object)DBNull.Value : txtSameAs.Text.Trim();
+                    cmdMaster.Parameters.Add("@SameAs", SqlDbType.VarChar, 100).Value = string.IsNullOrEmpty(txtSameAs.Text) ? (object)DBNull.Value : txtSameAs.Text.Trim();
                     cmdMaster.Parameters.Add("@Qty", SqlDbType.Decimal).Value = firstItem["Qty"];
                     cmdMaster.Parameters.Add("@ItemUnit", SqlDbType.VarChar, 50).Value = firstItem["UnitID"];
                     cmdMaster.Parameters.Add("@Status", SqlDbType.Int).Value = ddlStatus.SelectedValue;
@@ -1215,26 +1129,19 @@ WHERE m.QuotationID = @QuotationID";
                     cmdMaster.Parameters.Add("@UpdatedAt", SqlDbType.DateTime).Value = DateTime.Now;
                     cmdMaster.Parameters.Add("@IsMasterCall", SqlDbType.Bit).Value = true;
                     cmdMaster.Parameters.Add("@IsItemCall", SqlDbType.Bit).Value = false;
-
                     SqlParameter outputId = cmdMaster.Parameters.Add("@QuotationID", SqlDbType.Int);
                     outputId.Direction = ParameterDirection.Output;
-
                     cmdMaster.ExecuteNonQuery();
                     savedQuotationId = Convert.ToInt32(outputId.Value);
                 }
-
                 Costing_No.Value = savedQuotationId.ToString();
                 ViewState["QuotationID"] = savedQuotationId.ToString();
-
                 foreach (DataRow itemRow in CurrentItemsTable.Rows)
                 {
                     int itemId = itemRow["ItemID"] == DBNull.Value ? 0 : Convert.ToInt32(itemRow["ItemID"]);
-
-                    // ---------- STEP 2 (NEW): Save this Item as its own row ----------
                     using (SqlCommand cmdItem = new SqlCommand("sp_InsertUpdatePriceQuotationMaster", con))
                     {
                         cmdItem.CommandType = CommandType.StoredProcedure;
-
                         cmdItem.Parameters.Add("@ID", SqlDbType.Int).Value = savedQuotationId;
                         cmdItem.Parameters.Add("@IsMasterCall", SqlDbType.Bit).Value = false;
                         cmdItem.Parameters.Add("@IsItemCall", SqlDbType.Bit).Value = true;
@@ -1244,20 +1151,15 @@ WHERE m.QuotationID = @QuotationID";
                         cmdItem.Parameters.Add("@ItemID", SqlDbType.Int).Value = itemRow["ItemID"];
                         cmdItem.Parameters.Add("@Qty", SqlDbType.Decimal).Value = itemRow["Qty"];
                         cmdItem.Parameters.Add("@ItemUnit", SqlDbType.VarChar, 50).Value = itemRow["UnitID"];
-
                         SqlParameter outItemId = cmdItem.Parameters.Add("@QuotationID", SqlDbType.Int);
                         outItemId.Direction = ParameterDirection.Output;
-
                         cmdItem.ExecuteNonQuery();
                     }
-
-                    // ---------- STEP 3: Save this Item's Raw Material details (unchanged) ----------
                     foreach (DataRow row in CurrentDetailsTable.Select("ItemSlNo = " + itemRow["ItemSlNo"]))
                     {
                         using (SqlCommand cmdDetail = new SqlCommand("sp_InsertUpdatePriceQuotationMaster", con))
                         {
                             cmdDetail.CommandType = CommandType.StoredProcedure;
-
                             cmdDetail.Parameters.Add("@ID", SqlDbType.Int).Value = savedQuotationId;
                             cmdDetail.Parameters.Add("@IsMasterCall", SqlDbType.Bit).Value = false;
                             cmdDetail.Parameters.Add("@IsItemCall", SqlDbType.Bit).Value = false;
@@ -1270,22 +1172,16 @@ WHERE m.QuotationID = @QuotationID";
                             cmdDetail.Parameters.Add("@Loss", SqlDbType.VarChar, 50).Value = row["Loss"].ToString();
                             cmdDetail.Parameters.Add("@TotalCost", SqlDbType.Decimal).Value = row["TotalCost"];
                             cmdDetail.Parameters.Add("@ItemID", SqlDbType.Int).Value = itemId;
-
                             string remarks = row["Remarks"] == null || row["Remarks"] == DBNull.Value ? "" : row["Remarks"].ToString();
                             if (remarks == "-") remarks = "";
-                            cmdDetail.Parameters.Add("@Remarks", SqlDbType.VarChar, 250).Value =
-                                string.IsNullOrEmpty(remarks) ? (object)DBNull.Value : remarks;
-
-                            SqlParameter outParam = cmdDetail.Parameters.Add("@QuotationID", SqlDbType.Int);
+                            cmdDetail.Parameters.Add("@Remarks", SqlDbType.VarChar, 250).Value = string.IsNullOrEmpty(remarks) ? (object)DBNull.Value : remarks;SqlParameter outParam = cmdDetail.Parameters.Add("@QuotationID", SqlDbType.Int);
                             outParam.Direction = ParameterDirection.Output;
-
                             cmdDetail.ExecuteNonQuery();
                         }
                     }
                 }
 
-                ScriptManager.RegisterStartupScript(this, this.GetType(),
-                    "alert", "alert('Save Successfully!');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
 
                 pnlList.Visible = true;
                 pnlEntry.Visible = false;
@@ -1303,6 +1199,70 @@ WHERE m.QuotationID = @QuotationID";
                 if (con != null && con.State == ConnectionState.Open)
                     con.Close();
             }
+        }
+        private string GetQuotationIdFromCode(string quotationCodeSearch)
+        {
+            string id = "0";
+            try
+            {
+                con = conn.openConnection();
+                // Same search pattern as txtSearchQuotationNo in LoadQuotationList (LIKE match)
+                string query = @"SELECT TOP 1 QuotationID 
+                          FROM tbl_PriceQuotationMaster 
+                          WHERE QuotationCode LIKE @QuotationCode
+                          ORDER BY QuotationID DESC";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@QuotationCode", "%" + quotationCodeSearch + "%");
+                    object result = cmd.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                        id = result.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
+                    "alert('Error finding quotation: " + ex.Message.Replace("'", "\\'") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
+            return id;
+        }
+
+        protected void btnCopy_Click(object sender, EventArgs e)
+        {
+            string enteredCode = txtSameAs.Text.Trim();
+            if (string.IsNullOrEmpty(enteredCode))
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
+                    "alert('Please enter a Quotation No to copy from!');", true);
+                return;
+            }
+
+            string sourceQuotationId = GetQuotationIdFromCode(enteredCode); // ✅ List page-এর মতোই LIKE সার্চ
+            if (sourceQuotationId == "0")
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
+                    "alert('No quotation found matching that Quotation No!');", true);
+                return;
+            }
+
+            pnlList.Visible = false;
+            pnlEntry.Visible = true;
+            LoadQuotationDataForEdit(sourceQuotationId);
+            LoadQuotationDetailsForEdit(sourceQuotationId);
+            ViewState["QuotationID"] = "0";
+            Costing_No.Value = "0";
+            txtQuotationCode.Text = GetNextQuotationCode();
+            txtSameAs.Text = enteredCode;
+            btnSave.Text = "Save";
+        }
+
+        protected void gvQuotationDetails_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

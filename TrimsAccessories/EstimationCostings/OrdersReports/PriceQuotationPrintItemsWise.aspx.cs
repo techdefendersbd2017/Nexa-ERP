@@ -2,7 +2,10 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Xml.Linq;
 
 namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 {
@@ -133,6 +136,10 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 if (con != null && con.State == ConnectionState.Open) con.Close();
             }
+        }
+        protected void btnDownloadPdf_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
