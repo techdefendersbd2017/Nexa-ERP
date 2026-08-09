@@ -22,6 +22,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         {
             public int ColorSlNo { get; set; }
             public string ColorName { get; set; }
+            public string ColorRate { get; set; }
             public string ColorRemarks { get; set; }
             public decimal TotalReqQty { get; set; }
             public decimal ColorTotalAmount { get; set; }
@@ -83,6 +84,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 LoadColorNameDropdown();
                 LoadPartyName();
+                LoadReceivingBranch();
 
                 Session["WO_ColorList"] = new List<ColorItem>();
                 hdnSelectedColorSlNo.Value = "0";
@@ -95,6 +97,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 BindColorList();
                 BindSizeDetails();
                 LoadItemsName();
+                LoadSizeGroup();
             }
         }
         private string GenerateNextWorkOrderRef()
@@ -149,6 +152,32 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 ShowMessage("Error: " + ex.Message, "warning");
             }
         }
+        private void LoadSizeGroup()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = "SELECT GroupID, GroupName FROM SizeGroups ORDER BY GroupName";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    ddlsizeGroup.DataSource = dt;
+                    ddlsizeGroup.DataTextField = "GroupName";
+                    ddlsizeGroup.DataValueField = "GroupID";
+                    ddlsizeGroup.DataBind();
+
+                    ddlsizeGroup.Items.Insert(0, new ListItem("--Select Size Group--", "0"));
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Error: " + ex.Message, "warning");
+            }
+        }
 
         private void LoadPartyName()
         {
@@ -168,6 +197,33 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     ddlCustomerName.DataBind();
 
                     ddlCustomerName.Items.Insert(0, new ListItem("--Select Party Name--", "0"));
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Error: " + ex.Message, "warning");
+            }
+        }
+
+        private void LoadReceivingBranch()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = "SELECT Branch_ID, Branch_Name FROM vw_Branch_Information ORDER BY Branch_Name";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    ddlReceivingBranch.DataSource = dt;
+                    ddlReceivingBranch.DataTextField = "Branch_Name";
+                    ddlReceivingBranch.DataValueField = "Branch_ID";
+                    ddlReceivingBranch.DataBind();
+
+                    ddlReceivingBranch.Items.Insert(0, new ListItem("--Select Receiving Branch--", "0"));
                 }
                 con.Close();
             }
@@ -268,9 +324,13 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     ShowMessage("Delete Error: " + ex.Message, "warning");
                 }
             }
-            else if (e.CommandName == "ReportView" || e.CommandName == "RawMaterialReport")
+            else if (e.CommandName == "ReportView" )
             {
                 Response.Redirect($"~/TrimsAccessories/EstimationCostings/OrdersReports/ReceivedOrdersReports.aspx?WORcvID={arg}");
+            }
+            else if (e.CommandName == "RawMatrialView")
+            {
+                Response.Redirect($"~/TrimsAccessories/EstimationCostings/OrdersReports/RawMaterialReports.aspx?WORcvID={arg}");
             }
         }
         private void LoadWorkOrderForEdit(string workOrderNo)
@@ -304,9 +364,20 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             if (ddlCustomerName.Items.FindByValue(customerID) != null)
                                 ddlCustomerName.SelectedValue = customerID;
 
-                            string itemName = reader["ItemName"]?.ToString();
-                            if (ddlItemNameDetails.Items.FindByValue(itemName) != null)
-                                ddlItemNameDetails.SelectedValue = itemName;
+                            // ★★★ FIXED: ItemName টেক্সট এর বদলে ItemID কলাম দিয়ে সিলেক্ট করা হচ্ছে
+                            // (ddlItemNameDetails.DataValueField = "CategoryID" অর্থাৎ ID প্রয়োজন)
+                            string itemID = reader["ItemID"] != DBNull.Value ? reader["ItemID"].ToString() : null;
+                            if (!string.IsNullOrEmpty(itemID) && ddlItemNameDetails.Items.FindByValue(itemID) != null)
+                                ddlItemNameDetails.SelectedValue = itemID;
+
+                            // ★★★ NEW: Receiving Branch এডিট মোডে সিলেক্ট করা
+                            string branchID = reader["ReceivingBranch"] != DBNull.Value ? reader["ReceivingBranch"].ToString() : null;
+                            if (!string.IsNullOrEmpty(branchID) && ddlReceivingBranch.Items.FindByValue(branchID) != null)
+                                ddlReceivingBranch.SelectedValue = branchID;
+
+                            // ★★★ NEW: Quotation No এবং Items Description লোড করা
+                            txtQuotationNo.Text = reader["QuotationNo"]?.ToString();
+                            TextBox1.Text = reader["ItemsDescription"]?.ToString();
 
                             txtTransportCost.Text = Convert.ToDecimal(reader["TransportCost"]).ToString("0.00");
                             txtVatPercent.Text = Convert.ToDecimal(reader["VatPercent"]).ToString("0.00");
@@ -316,9 +387,9 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     }
                 }
 
-                // ২. কালার ডিটেইলস লোড করা
                 var newColorList = new List<ColorItem>();
-                string colorQuery = @"SELECT ColorSlNo, ColorName, ColorRemarks, TotalReqQty, ColorTotalAmount 
+                // ★★★ FIXED: ColorRate কলাম যোগ করা হয়েছে
+                string colorQuery = @"SELECT ColorSlNo, ColorName, ColorRate, ColorRemarks, TotalReqQty, ColorTotalAmount 
                                        FROM WorkOrder_Color_Details 
                                        WHERE WorkOrderNo = @WorkOrderNo 
                                        ORDER BY ColorSlNo";
@@ -333,6 +404,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             {
                                 ColorSlNo = Convert.ToInt32(reader["ColorSlNo"]),
                                 ColorName = reader["ColorName"]?.ToString(),
+                                ColorRate = reader["ColorRate"] != DBNull.Value ? reader["ColorRate"].ToString() : string.Empty,
                                 ColorRemarks = reader["ColorRemarks"]?.ToString(),
                                 TotalReqQty = Convert.ToDecimal(reader["TotalReqQty"]),
                                 ColorTotalAmount = Convert.ToDecimal(reader["ColorTotalAmount"]),
@@ -342,7 +414,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     }
                 }
 
-                // ৩. প্রতিটা কালারের Size ডিটেইলস লোড করা
                 string sizeQuery = @"SELECT SlNo, ColorSlNo, Size, Measurement, ReqQty, Unit, RateUnit, 
                                              ExtraPercent, TotalReqQty, TotalAmount, Remarks 
                                       FROM WorkOrder_Size_Details 
@@ -378,7 +449,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
                 con.Close();
 
-                // সেশনে বসানো
                 ColorList = newColorList;
                 SelectedColorSlNo = 0;
                 lblSelectedColorName.Text = "-- No color selected --";
@@ -413,6 +483,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 ColorSlNo = nextSlNo,
                 ColorName = ddlColorName.SelectedItem.Text,
+                ColorRate = txtRate.Text.Trim(),
                 ColorRemarks = txtColorRemarks.Text.Trim(),
                 TotalReqQty = 0,
                 ColorTotalAmount = 0,
@@ -456,6 +527,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     ddlColorName.ClearSelection();
                     var item = ddlColorName.Items.FindByText(color.ColorName);
                     if (item != null) item.Selected = true;
+                    txtRate.Text = color.ColorRate;
                     txtColorRemarks.Text = color.ColorRemarks;
 
                     ColorList.Remove(color);
@@ -608,6 +680,37 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     BindColorList();
                     RecalculateGrandTotal();
                     break;
+
+                case "UpdateSize":
+                    GridViewRow row = ((Control)e.CommandSource).NamingContainer as GridViewRow;
+                    if (row != null)
+                    {
+                        TextBox txtM = (TextBox)row.FindControl("txtMeasurement");
+                        TextBox txtQ = (TextBox)row.FindControl("txtReqQty");
+                        TextBox txtU = (TextBox)row.FindControl("txtUnit");
+                        TextBox txtR = (TextBox)row.FindControl("txtRateUnit");
+                        TextBox txtE = (TextBox)row.FindControl("txtExtraPercent");
+                        TextBox txtRem = (TextBox)row.FindControl("txtRemarks");
+
+                        decimal.TryParse(txtQ?.Text, out decimal uReqQty);
+                        decimal.TryParse(txtR?.Text, out decimal uRateUnit);
+                        decimal.TryParse(txtE?.Text, out decimal uExtraPercent);
+
+                        size.Measurement = txtM?.Text.Trim();
+                        size.ReqQty = uReqQty;
+                        size.Unit = txtU?.Text.Trim();
+                        size.RateUnit = uRateUnit;
+                        size.ExtraPercent = uExtraPercent;
+                        size.TotalReqQty = uReqQty + (uReqQty * (uExtraPercent / 100m));
+                        size.TotalAmount = size.TotalReqQty * uRateUnit;
+                        size.Remarks = txtRem?.Text.Trim();
+
+                        RecalculateColorTotals(color);
+                        BindSizeDetails();
+                        BindColorList();
+                        RecalculateGrandTotal();
+                    }
+                    break;
             }
 
             ShowFormPanel();
@@ -656,6 +759,18 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             txtGrandTotalAmount.Text = grandTotal.ToString("0.00");
         }
 
+        protected void txtTransportCost_TextChanged(object sender, EventArgs e)
+        {
+            RecalculateGrandTotal();
+            ShowFormPanel();
+        }
+
+        protected void txtVatPercent_TextChanged(object sender, EventArgs e)
+        {
+            RecalculateGrandTotal();
+            ShowFormPanel();
+        }
+
         #endregion
 
         #region ---------- Bottom Action Buttons ----------
@@ -669,14 +784,26 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 return;
             }
 
+            // ★★★ Receiving Branch বাধ্যতামূলক ভ্যালিডেশন
+            if (ddlReceivingBranch.SelectedValue == "0")
+            {
+                ShowMessage("Please select a Receiving Branch before saving.", "warning");
+                ShowFormPanel();
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(txtWoRef.Text)) txtWoRef.Text = GenerateNextWorkOrderRef();
             RecalculateGrandTotal();
+
+            // ★★★ FIXED: ColorRate কলাম যোগ করা হয়েছে
             DataTable dtColors = new DataTable();
             dtColors.Columns.Add("ColorSlNo", typeof(int));
             dtColors.Columns.Add("ColorName", typeof(string));
+            dtColors.Columns.Add("ColorRate", typeof(decimal));
             dtColors.Columns.Add("ColorRemarks", typeof(string));
             dtColors.Columns.Add("TotalReqQty", typeof(decimal));
             dtColors.Columns.Add("ColorTotalAmount", typeof(decimal));
+
             DataTable dtSizes = new DataTable();
             dtSizes.Columns.Add("SlNo", typeof(int));
             dtSizes.Columns.Add("ColorSlNo", typeof(int));
@@ -692,7 +819,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
             foreach (var col in ColorList)
             {
-                dtColors.Rows.Add(col.ColorSlNo, col.ColorName, col.ColorRemarks, col.TotalReqQty, col.ColorTotalAmount);
+                decimal.TryParse(col.ColorRate, out decimal colorRateVal);
+                dtColors.Rows.Add(col.ColorSlNo, col.ColorName, colorRateVal, col.ColorRemarks, col.TotalReqQty, col.ColorTotalAmount);
                 foreach (var sz in col.SizeDetails)
                 {
                     dtSizes.Rows.Add(sz.SlNo, col.ColorSlNo, sz.Size, sz.Measurement, sz.ReqQty, sz.Unit, sz.RateUnit, sz.ExtraPercent, sz.TotalReqQty, sz.TotalAmount, sz.Remarks);
@@ -713,7 +841,12 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     cmd.Parameters.AddWithValue("@Buyer", txtBuyer.Text.Trim());
                     cmd.Parameters.AddWithValue("@Style", txtStyle.Text.Trim());
                     cmd.Parameters.AddWithValue("@OrderNo", txtOrderNo.Text.Trim());
-                    cmd.Parameters.AddWithValue("@ItemName", ddlItemNameDetails.SelectedValue);
+                    cmd.Parameters.AddWithValue("@ItemName", ddlItemNameDetails.SelectedItem.Text);
+                    cmd.Parameters.AddWithValue("@ItemID", ddlItemNameDetails.SelectedValue);
+                    cmd.Parameters.AddWithValue("@ReceivingBranch", ddlReceivingBranch.SelectedValue);
+                    // ★★★ NEW: Quotation No এবং Items Description
+                    cmd.Parameters.AddWithValue("@QuotationNo", string.IsNullOrEmpty(txtQuotationNo.Text) ? (object)DBNull.Value : txtQuotationNo.Text.Trim());
+                    cmd.Parameters.AddWithValue("@ItemsDescription", string.IsNullOrEmpty(TextBox1.Text) ? (object)DBNull.Value : TextBox1.Text.Trim());
                     cmd.Parameters.AddWithValue("@SubTotalAmount", Convert.ToDecimal(txtSubTotalAmount.Text));
                     cmd.Parameters.AddWithValue("@TransportCost", Convert.ToDecimal(string.IsNullOrEmpty(txtTransportCost.Text) ? "0" : txtTransportCost.Text));
                     cmd.Parameters.AddWithValue("@VatPercent", Convert.ToDecimal(string.IsNullOrEmpty(txtVatPercent.Text) ? "0" : txtVatPercent.Text));
@@ -783,6 +916,9 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             txtOrderNo.Text = string.Empty;
             txtWoNoDetails.Text = string.Empty;
             ddlItemNameDetails.SelectedIndex = 0;
+            ddlReceivingBranch.SelectedIndex = 0;
+            txtQuotationNo.Text = string.Empty;   // ★★★ NEW
+            TextBox1.Text = string.Empty;         // ★★★ NEW
             txtTransportCost.Text = "0.00";
             txtVatPercent.Text = "0.00";
         }
@@ -801,5 +937,98 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             ScriptManager.RegisterStartupScript(this, this.GetType(), "wo_msg_" + Guid.NewGuid().ToString("N"), script, true);
         }
         #endregion
+
+        protected void txtRate_TextChanged(object sender, EventArgs e)
+        {
+            txtRateUnit.Text = txtRate.Text;
+        }
+
+        protected void txtRateUnit_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void txtColorRemarks_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void btnAddAllsize_Click(object sender, EventArgs e)
+        {
+            if (ddlsizeGroup.SelectedValue == "0")
+            {
+                ShowMessage("Please select a Size Group first.", "warning");
+                ShowFormPanel();
+                return;
+            }
+
+            var color = GetSelectedColor();
+            if (color == null)
+            {
+                ShowMessage("Please select a Color from the Color List first.", "warning");
+                ShowFormPanel();
+                return;
+            }
+
+            try
+            {
+                con = conn.openConnection();
+                string query = @"SELECT s.SizeID, s.SizeName AS Size
+                          FROM Sizes s 
+                          INNER JOIN SizeGroups g ON s.GroupID = g.GroupID 
+                          WHERE s.GroupID = @GroupID
+                          ORDER BY s.SizeID ASC";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@GroupID", ddlsizeGroup.SelectedValue);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    int nextSlNo = color.SizeDetails.Any() ? color.SizeDetails.Max(s => s.SlNo) + 1 : 1;
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        string sizeName = row["Size"].ToString();
+
+                        if (color.SizeDetails.Any(s => s.Size == sizeName))
+                            continue;
+
+                        color.SizeDetails.Add(new SizeDetail
+                        {
+                            SlNo = nextSlNo++,
+                            Size = sizeName,
+                            Measurement = string.Empty,
+                            ReqQty = 0,
+                            Unit = ddlUnit.SelectedValue,
+                            RateUnit = 0,
+                            ExtraPercent = 0,
+                            TotalReqQty = 0,
+                            TotalAmount = 0,
+                            Remarks = string.Empty
+                        });
+                    }
+
+                    RecalculateColorTotals(color);
+                }
+                con.Close();
+
+                BindSizeDetails();
+                BindColorList();
+                RecalculateGrandTotal();
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Error: " + ex.Message, "warning");
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) { con.Close(); }
+            }
+
+            ShowFormPanel();
+        }
+
     }
 }

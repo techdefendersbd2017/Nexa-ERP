@@ -93,11 +93,11 @@ namespace Nexa_ERP
                 // Load Modules
                 DataTable dtModules = new DataTable();
                 using (SqlCommand cmdModule = new SqlCommand(
-                    "SELECT dbo.roles.role_id, dbo.Module_Information.Module_ID, dbo.Module_Information.Module_Name, dbo.Module_Information.Icon_Class, dbo.Module_Information.is_Active, " +
+                    "SELECT dbo.roles.role_id, dbo.Module_Information.Module_ID, dbo.Module_Information.Module_Name, dbo.Module_Information.Icon_Class, dbo.Module_Information.is_Active,dbo.Module_Information.SortingNo, " +
                          "dbo.User_Module_Access_Information.Permission_Status FROM dbo.User_Module_Access_Information INNER JOIN " +
                          "dbo.Module_Information ON dbo.User_Module_Access_Information.Module_ID = dbo.Module_Information.Module_ID INNER JOIN " +
                          "dbo.roles ON dbo.User_Module_Access_Information.Role_ID = dbo.roles.role_id " +
-                    "WHERE dbo.roles.role_id=@RoleID AND dbo.Module_Information.is_Active=1 AND dbo.User_Module_Access_Information.Permission_Status=1 ORDER BY dbo.Module_Information.Module_ID", con))
+                    "WHERE dbo.roles.role_id=@RoleID AND dbo.Module_Information.is_Active=1 AND dbo.User_Module_Access_Information.Permission_Status=1 ORDER BY dbo.Module_Information.SortingNo", con))
                 {
                     cmdModule.Parameters.AddWithValue("@RoleID", Role_ID);
                     new SqlDataAdapter(cmdModule).Fill(dtModules);

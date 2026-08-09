@@ -18,7 +18,7 @@
         }
     </style>
     <script type="text/javascript">
-        // পেজ লোড হওয়ার পর স্ক্রোল পজিশন সেট করা
+        // পেজ লোড হওয়ার পর স্ক্রোল পজিশন সেট করা
         window.onload = function () {
             var scrollPos = document.getElementById('<%= hfScrollPosition.ClientID %>').value;
         if (scrollPos) {
@@ -26,7 +26,7 @@
         }
     };
 
-    // সেভ বা আপডেট বাটনে ক্লিক করার সময় বর্তমান স্ক্রোল পজিশন সেভ করা
+    // সেভ বা আপডেট বাটনে ক্লিক করার সময় বর্তমান স্ক্রোল পজিশন সেভ করা
     window.onscroll = function () {
         var scrollPos = window.pageYOffset || document.documentElement.scrollTop;
         document.getElementById('<%= hfScrollPosition.ClientID %>').value = scrollPos;
@@ -81,18 +81,11 @@
                         <div class="col-md-7 ps-md-4 mt-4 mt-md-0">
                             <h6 class="text-primary fw-bold mb-3">Unit List</h6>
                                 <div class="table-responsive">
-                                    <asp:GridView ID="gvRawMaterial" runat="server" CssClass="table table-bordered table-striped table-hover align-middle" AutoGenerateColumns="False" EmptyDataText="No raw materials found." OnSelectedIndexChanged="gvRawMaterial_SelectedIndexChanged" DataKeyNames="RawMaterialID">
+                                    <asp:GridView ID="gvRawMaterial" runat="server" CssClass="table table-bordered table-striped table-hover align-middle" AutoGenerateColumns="False" EmptyDataText="No units found." OnSelectedIndexChanged="gvRawMaterial_SelectedIndexChanged" DataKeyNames="UnitID">
                                         <Columns>
-                                            <!-- যদি আইডি লুকাতে চান, তবে এই BoundField টি বাদ দিতে পারেন অথবা রাখতে পারেন -->
-                                            <asp:BoundField DataField="RawMaterialID" HeaderText="ID"/>
-        
-                                            <asp:BoundField DataField="RawMaterialName" HeaderText="Raw Material Name" />
-        
-                                            <!-- এখানে UnitName ডাটাবেজ থেকে সরাসরি আসবে -->
-                                            <asp:BoundField DataField="UnitName" HeaderText="Unit" />
-
-                                            <asp:BoundField DataField="UnitPrice" HeaderText="Unit Price" />
-                                            <asp:BoundField DataField="Currency" HeaderText="Currency" />
+                                            <asp:BoundField DataField="UnitID" HeaderText="ID"/>
+                                            <asp:BoundField DataField="UnitName" HeaderText="Unit Name" />
+                                            <asp:BoundField DataField="ShortCode" HeaderText="Short Code" />
                                             <asp:BoundField DataField="Status" HeaderText="Status" />
         
                                             <asp:TemplateField HeaderText="Action">

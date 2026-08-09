@@ -1,10 +1,7 @@
 ﻿using Nexa_ERP.Connection;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -21,45 +18,19 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             if (!IsPostBack)
             {
                 LoadCategoryDropdown();
-                LoadItemNameInformation();
-                loadUnit();
-            }
-        }
-        private void loadUnit()
-        {
-            try
-            {
-                con = conn.openConnection();
-                string query = "SELECT * FROM tbl_UnitSetup WHERE Status='Active' ORDER BY UnitName ASC";
-                SqlDataAdapter da = new SqlDataAdapter(query, con);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-
-                ddlUnit.DataSource = dt;
-                ddlUnit.DataTextField = "UnitName";
-                ddlUnit.DataValueField = "UnitID";
-                ddlUnit.DataBind();
-                con.Close();
-            }
-            catch (Exception ex)
-            {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
-            }
-            finally
-            {
-                if (con != null && con.State == ConnectionState.Open)
-                {
-                    con.Close();
-                }
+                LoadUnitDropdown();
+                LoadItemList();
             }
         }
 
+        // ১. ক্যাটেগরি ড্রপডাউন লোড করা
         private void LoadCategoryDropdown()
         {
             try
             {
                 con = conn.openConnection();
-                SqlDataAdapter da = new SqlDataAdapter("SELECT CategoryID, CategoryName FROM ta_ItemCategory WHERE Status='Active' ORDER BY CategoryName ASC", con);
+                string sql = "SELECT CategoryID, CategoryName FROM ta_ItemCategory WHERE Status = 'Active' ORDER BY CategoryName ASC";
+                SqlDataAdapter da = new SqlDataAdapter(sql, con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
@@ -67,8 +38,7 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
                 ddlItemCategory.DataTextField = "CategoryName";
                 ddlItemCategory.DataValueField = "CategoryID";
                 ddlItemCategory.DataBind();
-                ddlItemCategory.Items.Insert(0, new ListItem("--Select Category--", "0"));
-                con.Close();
+                ddlItemCategory.Items.Insert(0, new ListItem("--Select Item Category--", "0"));
             }
             catch (Exception ex)
             {
@@ -80,58 +50,81 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             }
         }
 
+        // ২. সাব-ক্যাটেগরি ড্রপডাউন লোড করা (ক্যাটেগরি সিলেক্ট করার পর)
         protected void ddlItemCategory_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ddlSubCategory.Items.Clear();
+            ddlSubCategory.Items.Insert(0, new ListItem("--Select Sub Category--", "0"));
+
+            int categoryId = 0;
+            int.TryParse(ddlItemCategory.SelectedValue, out categoryId);
+            if (categoryId <= 0) return;
+
             try
             {
-                int catId = Convert.ToInt32(ddlItemCategory.SelectedValue);
+                con = conn.openConnection();
+                string sql = "SELECT SubCategoryID, SubCategoryName FROM ta_SubCategory WHERE Status = 'Active' AND CategoryID = @CategoryID ORDER BY SubCategoryName ASC";
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@CategoryID", categoryId);
 
-                // নিজস্ব using ব্লক ব্যবহার করার ফলে ডেটাবেস রিডার বা কমান্ড স্বয়ংক্রিয়ভাবে ক্লোজ হয়ে যাবে
-                using (SqlConnection localCon = conn.openConnection())
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                if (dt.Rows.Count > 0)
                 {
-                    using (SqlCommand localCmd = new SqlCommand("SELECT SubCategoryID, SubCategoryName FROM ta_SubCategory WHERE CategoryID = @CatID AND Status = 'Active'", localCon))
-                    {
-                        localCmd.Parameters.AddWithValue("@CatID", catId);
-                        using (SqlDataAdapter da = new SqlDataAdapter(localCmd))
-                        {
-                            DataTable dt = new DataTable();
-                            da.Fill(dt);
-
-                            ddlSubCategory.DataSource = dt;
-                            ddlSubCategory.DataTextField = "SubCategoryName";
-                            ddlSubCategory.DataValueField = "SubCategoryID";
-                            ddlSubCategory.DataBind();
-                            ddlSubCategory.Items.Insert(0, new ListItem("--Select Sub Category--", "0"));
-                        }
-                    }
+                    ddlSubCategory.DataSource = dt;
+                    ddlSubCategory.DataTextField = "SubCategoryName";
+                    ddlSubCategory.DataValueField = "SubCategoryID";
+                    ddlSubCategory.DataBind();
+                    ddlSubCategory.Items.Insert(0, new ListItem("--Select Sub Category--", "0"));
                 }
             }
             catch (Exception ex)
             {
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
             }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
         }
 
-        private void LoadItemNameInformation()
+        // ৩. ইউনিট ড্রপডাউন লোড করা (স্ট্যাটিক লিস্ট — Unit master table থাকলে DB থেকে বাইন্ড করুন)
+        private void LoadUnitDropdown()
+        {
+            ddlUnit.Items.Clear();
+            ddlUnit.Items.Add(new ListItem("--Select Unit--", "0"));
+            ddlUnit.Items.Add(new ListItem("Pcs", "Pcs"));
+            ddlUnit.Items.Add(new ListItem("Kg", "Kg"));
+            ddlUnit.Items.Add(new ListItem("Meter", "Meter"));
+            ddlUnit.Items.Add(new ListItem("Yard", "Yard"));
+            ddlUnit.Items.Add(new ListItem("Dozen", "Dozen"));
+            ddlUnit.Items.Add(new ListItem("Box", "Box"));
+            ddlUnit.Items.Add(new ListItem("Set", "Set"));
+        }
+
+        // ৪. আইটেম লিস্ট গ্রিডভিউতে লোড করা
+        private void LoadItemList()
         {
             try
             {
                 con = conn.openConnection();
-                string query = @"SELECT i.ItemID, c.CategoryName, s.SubCategoryName, i.ItemName, i.Unit, i.Status 
-                                 FROM ta_ItemName i
-                                 INNER JOIN ta_ItemCategory c ON i.CategoryID = c.CategoryID
-                                 INNER JOIN ta_SubCategory s ON i.SubCategoryID = s.SubCategoryID
-                                 ORDER BY i.ItemName ASC";
-                SqlDataAdapter da = new SqlDataAdapter(query, con);
+                string sql = @"SELECT i.ItemID, c.CategoryName, s.SubCategoryName, i.ItemName, i.Unit, i.Status
+                                FROM ta_ItemName i
+                                LEFT JOIN ta_ItemCategory c ON i.CategoryID = c.CategoryID
+                                LEFT JOIN ta_SubCategory s ON i.SubCategoryID = s.SubCategoryID
+                                ORDER BY i.ItemID DESC";
+                SqlDataAdapter da = new SqlDataAdapter(sql, con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
+
                 gvItemName.DataSource = dt;
                 gvItemName.DataBind();
-                con.Close();
             }
             catch (Exception ex)
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "\\'") + "');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
             }
             finally
             {
@@ -139,55 +132,60 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             }
         }
 
-        private void clearform()
+        // ৫. ফরম খালি করা
+        private void ClearForm()
         {
-            txtItemID.Text = txtItemName.Text = string.Empty;
+            txtItemID.Text = string.Empty;
+            txtItemName.Text = string.Empty;
             ddlItemCategory.SelectedValue = "0";
             ddlSubCategory.Items.Clear();
             ddlSubCategory.Items.Insert(0, new ListItem("--Select Sub Category--", "0"));
-            ddlUnit.SelectedValue = "Pcs";
+            ddlItemsType.SelectedValue = "0";
+            ddlUnit.SelectedValue = "0";
             ddlStatus.SelectedValue = "Active";
+            gvItemName.SelectedIndex = -1;
         }
 
+        // ৬. গ্রিডভিউ থেকে এডিট করার জন্য সিলেক্ট ইভেন্ট
         protected void gvItemName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            txtItemID.Text = gvItemName.SelectedRow.Cells[0].Text;
+            string itemId = gvItemName.SelectedRow.Cells[0].Text;
+
             try
             {
-                string sql = "Select * from ta_ItemName where ItemID = '" + txtItemID.Text + "'";
                 con = conn.openConnection();
-                cmd = new SqlCommand(sql, con);
+                string sql = "SELECT * FROM ta_ItemName WHERE ItemID = @ItemID";
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@ItemID", Convert.ToInt32(itemId));
 
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    if (reader.HasRows)
+                    if (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            string catId = reader["CategoryID"].ToString();
-                            string subCatId = reader["SubCategoryID"].ToString();
+                        txtItemID.Text = reader["ItemID"].ToString();
+                        string categoryId = reader["CategoryID"].ToString();
+                        string subCategoryId = reader["SubCategoryID"].ToString();
+                        txtItemName.Text = reader["ItemName"].ToString();
+                        string unit = reader["Unit"].ToString();
+                        string status = reader["Status"].ToString();
 
-                            txtItemName.Text = reader["ItemName"].ToString();
-                            ddlUnit.SelectedValue = reader["Unit"].ToString();
-                            ddlStatus.SelectedValue = reader["Status"].ToString();
+                        reader.Close(); // রিডার ক্লোজ করে ড্রপডাউন সেট করা হচ্ছে
 
-                            // রিডার বন্ধ করার আগেই কানেকশন বা রিডার নিয়ে যেন সমস্যা না হয়, 
-                            // তাই রিডার রিড করার পর ক্যাটেগরি ও সাব-ক্যাটেগরি ভ্যালু সেট করা হলো
-                            reader.Close(); // রিডারটি এখানে ক্লোজ করে দেওয়া হলো
+                        ddlItemCategory.SelectedValue = categoryId;
+                        con.Close();
 
-                            ddlItemCategory.SelectedValue = catId;
-                            ddlItemCategory_SelectedIndexChanged(sender, e); // সাব-ক্যাটেগরি ড্রপডাউন লোড হবে
-                            ddlSubCategory.SelectedValue = subCatId;        // সাব-ক্যাটেগরি সিলেক্ট হবে
+                        // ক্যাটেগরি সিলেক্ট হওয়ার পর সংশ্লিষ্ট সাব-ক্যাটেগরি লোড করা
+                        ddlItemCategory_SelectedIndexChanged(null, null);
+                        ddlSubCategory.SelectedValue = subCategoryId;
 
-                            break; // যেহেতু আইডি দিয়ে একটিই রেকর্ড আসবে, তাই লুপ ব্রেক করা ভালো
-                        }
+                        ddlUnit.SelectedValue = unit;
+                        ddlStatus.SelectedValue = status;
                     }
                     else
                     {
-                        clearform();
+                        ClearForm();
                     }
                 }
-                con.Close();
             }
             catch (Exception ex)
             {
@@ -195,58 +193,52 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             }
             finally
             {
-                if (con != null && con.State == System.Data.ConnectionState.Open)
-                {
-                    con.Close();
-                }
+                if (con != null && con.State == ConnectionState.Open) con.Close();
             }
         }
 
+        // ৭. রিফ্রেশ / ক্যান্সেল বাটন
         protected void btnRefresh_Click(object sender, EventArgs e)
         {
-            clearform();
+            ClearForm();
+            LoadItemList();
         }
 
+        // ৮. সেভ / আপডেট বাটন
         protected void btnSave_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(txtItemName.Text.Trim()) || ddlItemCategory.SelectedValue == "0")
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please select Category and enter Item Name.');", true);
+                return;
+            }
+
             try
             {
                 con = conn.openConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_ta_InsertUpdate_ItemName", con))
+                using (SqlCommand cmd = new SqlCommand("techdefendersbd.sp_ta_InsertUpdate_ItemName", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
+
                     int itemId = 0;
-                    if (!string.IsNullOrEmpty(txtItemID.Text.Trim()))
-                    {
-                        int.TryParse(txtItemID.Text.Trim(), out itemId);
-                    }
+                    int.TryParse(txtItemID.Text.Trim(), out itemId);
 
                     cmd.Parameters.AddWithValue("@ItemID", itemId == 0 ? (object)DBNull.Value : itemId);
                     cmd.Parameters.AddWithValue("@CategoryID", Convert.ToInt32(ddlItemCategory.SelectedValue));
                     cmd.Parameters.AddWithValue("@SubCategoryID", Convert.ToInt32(ddlSubCategory.SelectedValue));
-                    cmd.Parameters.AddWithValue("@ItemName", string.IsNullOrEmpty(txtItemName.Text.Trim()) ? (object)DBNull.Value : txtItemName.Text.Trim());
-                    cmd.Parameters.AddWithValue("@Unit", ddlUnit.SelectedValue);
+                    cmd.Parameters.AddWithValue("@ItemName", txtItemName.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Unit", ddlUnit.SelectedValue == "0" ? (object)DBNull.Value : ddlUnit.SelectedValue);
                     cmd.Parameters.AddWithValue("@Status", ddlStatus.SelectedValue);
 
-                    using (SqlDataReader rdr = cmd.ExecuteReader())
-                    {
-                        if (rdr.Read())
-                        {
-                            string actionResult = rdr["ActionType"].ToString();
-                            string newId = rdr["ResultID"].ToString();
+                    cmd.ExecuteNonQuery();
 
-                            if (actionResult == "Inserted")
-                            {
-                                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Item Name Saved Successfully! ID: " + newId + "');", true);
-                            }
-                            else if (actionResult == "Updated")
-                            {
-                                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Item Name Updated Successfully!');", true);
-                            }
-                        }
-                    }
-                    clearform();
+                    if (itemId == 0)
+                        ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Item Saved Successfully!');", true);
+                    else
+                        ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Item Updated Successfully!');", true);
                 }
+
+                ClearForm();
             }
             catch (Exception ex)
             {
@@ -256,7 +248,8 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             {
                 if (con != null && con.State == ConnectionState.Open) con.Close();
             }
-            LoadItemNameInformation();
+
+            LoadItemList();
         }
     }
 }

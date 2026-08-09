@@ -17,20 +17,19 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         {
             if (!IsPostBack)
             {
-                LoadRawMaterialInformation();
+                LoadUnitInformation();
             }
         }
 
-        private void LoadRawMaterialInformation()
+        // Unit লিস্ট গ্রিডভিউতে লোড করা (আগে ভুলবশত Raw Material ডেটা লোড হচ্ছিল)
+        private void LoadUnitInformation()
         {
             try
             {
                 con = conn.openConnection();
-                // UnitSetup টেবিলের সাথে JOIN করে UnitName নিয়ে আসা হচ্ছে
-                string query = @"SELECT r.*, u.UnitName 
-                         FROM ta_RawMaterial r 
-                         LEFT JOIN tbl_UnitSetup u ON r.Unit = u.UnitID 
-                         ORDER BY r.RawMaterialName ASC";
+                string query = @"SELECT UnitID, UnitName, ShortCode, Status 
+                                  FROM tbl_UnitSetup 
+                                  ORDER BY UnitName ASC";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
@@ -60,9 +59,11 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             txtShortCode.Text = string.Empty;
             ddlStatus.SelectedValue = "Active";
             btnSave.Text = "Save";
+            gvRawMaterial.SelectedIndex = -1;
         }
 
-        protected void gvUnit_SelectedIndexChanged(object sender, EventArgs e)
+        // NOTE: renamed to match the markup's OnSelectedIndexChanged="gvRawMaterial_SelectedIndexChanged"
+        protected void gvRawMaterial_SelectedIndexChanged(object sender, EventArgs e)
         {
             string unitId = gvRawMaterial.SelectedDataKey.Value.ToString();
             txtUnitID.Text = unitId;
@@ -114,6 +115,12 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(txtUnitName.Text.Trim()))
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please enter Unit Name.');", true);
+                return;
+            }
+
             try
             {
                 con = conn.openConnection();
@@ -153,6 +160,8 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             {
                 if (con != null && con.State == ConnectionState.Open) con.Close();
             }
+
+            LoadUnitInformation();
         }
     }
 }

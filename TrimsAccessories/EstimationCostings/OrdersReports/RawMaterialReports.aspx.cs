@@ -3,7 +3,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
-using System.Web.UI.WebControls; // GridViewRow এর জন্য এটি প্রয়োজন
+using System.Web.UI.WebControls;
 
 namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
 {
@@ -12,8 +12,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
         SqlConnection con;
         DatabaseConnectionMerchandising conn = new DatabaseConnectionMerchandising();
 
-        // Grand Total হিসাব করার জন্য গ্লোবাল ভেরিয়েবল
-        decimal grandTotalCost = 0;
+        // Raw Material লিস্টের TotalCost যোগফল (তথ্য যাচাইয়ের জন্য; মূল Grand Total WorkOrder_Master থেকে আসে)
+        decimal materialsTotalCost = 0;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -39,39 +39,47 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
             {
                 con = conn.openConnection();
 
-                // আইটেম অনুযায়ী গ্রুপ বা সাজানোর জন্য কুয়েরির শেষে ORDER BY যোগ করা হয়েছে
                 string query = @"SELECT 
-                                    tbl_MaterialRequirement.WorkOrderID, 
-                                    tbl_WorkOrderReceive.WORcvDate, 
-                                    tbl_WorkOrderReceive.DeliveryDate, 
-                                    dbo.Items_Information.ItemsName, 
-                                    ta_RawMaterial.RawMaterialName, 
-                                    tbl_MaterialRequirement.ReqQty, 
-                                    tbl_UnitSetup.UnitName, 
-                                    tbl_MaterialRequirement.UnitPrice, 
-                                    tbl_MaterialRequirement.Currency, 
-                                    tbl_MaterialRequirement.Loss, 
-                                    tbl_MaterialRequirement.TotalCost, 
-                                    tbl_MaterialRequirement.Remarks, 
-                                    vw_Branch_Information.Branch_Name, 
-                                    vw_Branch_Information.Phone_No, 
-                                    vw_Branch_Information.Web, 
-                                    vw_Branch_Information.Address, 
-                                    vw_Branch_Information.Branch_Logo, 
-                                    tbl_WorkOrderReceive.WORcvNo
-                                FROM tbl_MaterialRequirement 
-                                INNER JOIN tbl_WorkOrderReceive 
-                                    ON tbl_MaterialRequirement.WorkOrderID = tbl_WorkOrderReceive.WORcvID 
-                                INNER JOIN dbo.Items_Information 
-                                    ON tbl_MaterialRequirement.ItemID = dbo.Items_Information.ItemsID 
+                                    WorkOrder_Master.WorkOrderID,
+                                    WorkOrder_Master.WorkOrderNo,
+                                    WorkOrder_Master.WoDate,
+                                    WorkOrder_Master.DeliveryDate,
+                                    WorkOrder_Master.Buyer,
+                                    WorkOrder_Master.Style,
+                                    WorkOrder_Master.OrderNo,
+                                    WorkOrder_Master.ItemName,
+                                    WorkOrder_Master.QuotationNo,
+                                    WorkOrder_Master.SubTotalAmount,
+                                    WorkOrder_Master.TransportCost,
+                                    WorkOrder_Master.VatPercent,
+                                    WorkOrder_Master.GrandTotalAmount,
+                                    tbl_MaterialRequirement.RawMaterialName,
+                                    tbl_MaterialRequirement.ReqQty,
+                                    tbl_MaterialRequirement.UnitPrice,
+                                    tbl_MaterialRequirement.Currency,
+                                    tbl_MaterialRequirement.Loss,
+                                    tbl_MaterialRequirement.TotalCost,
+                                    tbl_MaterialRequirement.Remarks,
+                                    tbl_UnitSetup.UnitName,
+                                    vw_Branch_Information.Branch_Name,
+                                    vw_Branch_Information.Phone_No,
+                                    vw_Branch_Information.Web,
+                                    vw_Branch_Information.E_Mail,
+                                    vw_Branch_Information.Address,
+                                    vw_Branch_Information.Branch_Logo
+                                FROM WorkOrder_Master
+                                INNER JOIN tbl_MaterialRequirement 
+                                    ON WorkOrder_Master.WorkOrderID = tbl_MaterialRequirement.WorkOrderID
                                 INNER JOIN ta_RawMaterial 
-                                    ON tbl_MaterialRequirement.RawMaterialID = ta_RawMaterial.RawMaterialID 
+                                    ON tbl_MaterialRequirement.RawMaterialID = ta_RawMaterial.RawMaterialID
+                                INNER JOIN ta_ItemName 
+                                    ON WorkOrder_Master.ItemID = ta_ItemName.ItemID
                                 INNER JOIN vw_Branch_Information 
-                                    ON tbl_WorkOrderReceive.ReceiveBranchID = vw_Branch_Information.Branch_ID 
+                                    ON WorkOrder_Master.ReceivingBranch = vw_Branch_Information.Branch_ID
                                 INNER JOIN tbl_UnitSetup 
                                     ON ta_RawMaterial.Unit = tbl_UnitSetup.UnitID
-                                WHERE tbl_WorkOrderReceive.WORcvID = @WorkOrderID
-                                ORDER BY dbo.Items_Information.ItemsName"; // আইটেম অনুযায়ী সাজানো
+                                WHERE WorkOrder_Master.WorkOrderID = @WorkOrderID
+                                ORDER BY tbl_MaterialRequirement.RawMaterialName";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -85,19 +93,35 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
                     {
                         DataRow row = dt.Rows[0];
 
+                        // ---- কোম্পানি / ব্রাঞ্চ তথ্য ----
                         lblBranchName.Text = row["Branch_Name"].ToString();
                         lblAddress.Text = row["Address"].ToString();
                         lblPhone.Text = row["Phone_No"].ToString();
                         lblWeb.Text = row["Web"].ToString();
 
-                        lblWorkOrderNo.Text = row["WORcvID"].ToString();
+                        // ---- Work Order হেডার তথ্য ----
+                        lblWorkOrderNo.Text = row["WorkOrderNo"] != DBNull.Value
+                            ? row["WorkOrderNo"].ToString()
+                            : row["WorkOrderID"].ToString();
 
-                        if (row["WORcvDate"] != DBNull.Value)
-                            lblWORcvDate.Text = Convert.ToDateTime(row["WORcvDate"]).ToString("dd-MMM-yyyy");
+                        if (row["WoDate"] != DBNull.Value)
+                            lblWORcvDate.Text = Convert.ToDateTime(row["WoDate"]).ToString("dd-MMM-yyyy");
 
                         if (row["DeliveryDate"] != DBNull.Value)
                             lblDeliveryDate.Text = Convert.ToDateTime(row["DeliveryDate"]).ToString("dd-MMM-yyyy");
 
+                        lblBuyer.Text = row["Buyer"] != DBNull.Value ? row["Buyer"].ToString() : "-";
+                        lblStyle.Text = row["Style"] != DBNull.Value ? row["Style"].ToString() : "-";
+                        lblOrderNo.Text = row["OrderNo"] != DBNull.Value ? row["OrderNo"].ToString() : "-";
+                        lblItemName.Text = row["ItemName"] != DBNull.Value ? row["ItemName"].ToString() : "-";
+
+                        // ---- কস্ট সামারি (WorkOrder_Master থেকে সরাসরি, নির্ভুল হিসাব) ----
+                        lblSubTotal.Text = Convert.ToDecimal(row["SubTotalAmount"]).ToString("N2");
+                        lblTransportCost.Text = Convert.ToDecimal(row["TransportCost"]).ToString("N2");
+                        lblVatPercent.Text = Convert.ToDecimal(row["VatPercent"]).ToString("0.00") + " %";
+                        lblGrandTotal.Text = Convert.ToDecimal(row["GrandTotalAmount"]).ToString("N2");
+
+                        // ---- Serial No যোগ করা ----
                         if (!dt.Columns.Contains("SlNo"))
                         {
                             dt.Columns.Add("SlNo", typeof(int));
@@ -128,35 +152,24 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
             }
         }
 
-        // গ্রিডভিউতে ডেটা রো বাইন্ড হওয়ার সময় TotalCost যোগ করার লজিক
+        // Raw Material গ্রিডের ফুটারে TotalCost এর যোগফল (মিলিয়ে দেখার জন্য, WorkOrder_Master.SubTotalAmount এর পাশাপাশি)
         protected void gvRawMaterialReport_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
-                // TotalCost কলামের ডেটা যোগ করা (আপনার গ্রিডভিউতে কলামের ইন্ডেক্স বা নাম অনুযায়ী মিলবে)
                 decimal totalCost = 0;
-                // ধরে নিচ্ছি TotalCost ডেটাতাবিলের 'TotalCost' ফিল্ড থেকে আসছে
                 if (DataBinder.Eval(e.Row.DataItem, "TotalCost") != DBNull.Value)
                 {
                     decimal.TryParse(DataBinder.Eval(e.Row.DataItem, "TotalCost").ToString(), out totalCost);
-                    grandTotalCost += totalCost;
+                    materialsTotalCost += totalCost;
                 }
             }
             else if (e.Row.RowType == DataControlRowType.Footer)
             {
-                // ফুটার রো-তে Grand Total প্রিন্ট করা
-                // লজিক: গ্রিডভিউ এর ফুটারের নির্দিষ্ট লেবেল বা সেল এ বসাতে পারেন
-                Label lblGrandTotal = (Label)e.Row.FindControl("lblGrandTotal");
-                if (lblGrandTotal != null)
+                Label lblMaterialsTotal = (Label)e.Row.FindControl("lblMaterialsTotal");
+                if (lblMaterialsTotal != null)
                 {
-                    lblGrandTotal.Text = grandTotalCost.ToString("N2"); // দশমিকের পর দুই ঘর দেখানোর জন্য
-                }
-                else
-                {
-                    // যদি ফুটার টেমপ্লেটে লেবেল না থাকে সরাসরি সেলে প্রিন্ট করবে
-                    e.Row.Cells[0].Text = "<b>Grand Total:</b>";
-                    // TotalCost এর কলাম পজিশন অনুযায়ী সেল ইন্ডেক্স বসাতে হবে (যেমন: ১১ নাম্বার কলাম হতে পারে)
-                    // নিরাপত্তার জন্য আপনি ASPX পেজে ফুটার টেমপ্লেট ব্যবহার করা ভালো।
+                    lblMaterialsTotal.Text = materialsTotalCost.ToString("N2");
                 }
             }
         }
