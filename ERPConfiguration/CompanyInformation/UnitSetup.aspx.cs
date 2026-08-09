@@ -163,5 +163,56 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
 
             LoadUnitInformation();
         }
+
+        protected void txtUnitName_TextChanged(object sender, EventArgs e)
+        {
+            string unitName = txtUnitName.Text.Trim().ToUpper();
+            txtUnitName.Text = unitName;
+            txtShortCode.Text = unitName;
+        }
+        // Unit লিস্ট গ্রিডভিউতে লোড করা (সার্চ প্যারামিটার সহ)
+        private void LoadUnitInformation(string searchKeyword = "")
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = @"SELECT UnitID, UnitName, ShortCode, Status 
+                                  FROM tbl_UnitSetup 
+                                  WHERE (@Search = '' OR UnitName LIKE '%' + @Search + '%' OR ShortCode LIKE '%' + @Search + '%')
+                                  ORDER BY UnitName ASC";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Search", searchKeyword);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvRawMaterial.DataSource = dt;
+                gvRawMaterial.DataBind();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
+                    "alert('" + ex.Message.Replace("'", "\\'") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            LoadUnitInformation(txtSearch.Text.Trim());
+        }
+
+        protected void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            LoadUnitInformation(txtSearch.Text.Trim());
+        }
     }
 }

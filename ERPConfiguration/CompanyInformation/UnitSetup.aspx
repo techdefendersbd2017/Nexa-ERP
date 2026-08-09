@@ -77,25 +77,34 @@
                             </div>
                         </div>
 
-                        <!-- ডান সাইড: গ্রিড ভিউ / টেবিল -->
                         <div class="col-md-7 ps-md-4 mt-4 mt-md-0">
-                            <h6 class="text-primary fw-bold mb-3">Unit List</h6>
-                                <div class="table-responsive">
-                                    <asp:GridView ID="gvRawMaterial" runat="server" CssClass="table table-bordered table-striped table-hover align-middle" AutoGenerateColumns="False" EmptyDataText="No units found." OnSelectedIndexChanged="gvRawMaterial_SelectedIndexChanged" DataKeyNames="UnitID">
-                                        <Columns>
-                                            <asp:BoundField DataField="UnitID" HeaderText="ID"/>
-                                            <asp:BoundField DataField="UnitName" HeaderText="Unit Name" />
-                                            <asp:BoundField DataField="ShortCode" HeaderText="Short Code" />
-                                            <asp:BoundField DataField="Status" HeaderText="Status" />
+                            <!-- হেডার এবং সার্চ বক্সের জন্য ফ্লেক্স লেআউট -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-primary fw-bold m-0">Unit List</h6>
         
-                                            <asp:TemplateField HeaderText="Action">
-                                                <ItemTemplate>
-                                                    <asp:Button ID="btnEdit" runat="server" CssClass="btn btn-sm btn-primary" Text="Edit" CommandName="Select" />
-                                                </ItemTemplate>
-                                            </asp:TemplateField>
-                                        </Columns>
-                                    </asp:GridView>
+                                <!-- সার্চ বক্স -->
+                                <div class="input-group input-group-sm w-50">
+                                    <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control" placeholder="Search units..." AutoPostBack="true" OnTextChanged="txtSearch_TextChanged"></asp:TextBox>
+                                    <asp:Button ID="btnSearch" runat="server" CssClass="btn btn-outline-primary" Text="Search" OnClick="btnSearch_Click" />
                                 </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <asp:GridView ID="gvRawMaterial" runat="server" CssClass="table table-bordered table-striped table-hover align-middle" AutoGenerateColumns="False" EmptyDataText="No units found." OnSelectedIndexChanged="gvRawMaterial_SelectedIndexChanged" DataKeyNames="UnitID">
+                                    <Columns>
+                                        <asp:BoundField DataField="UnitID" HeaderText="ID"/>
+                                        <asp:BoundField DataField="UnitName" HeaderText="Unit Name" />
+                                        <asp:BoundField DataField="ShortCode" HeaderText="Short Code" />
+                                        <asp:BoundField DataField="Status" HeaderText="Status" />
+
+                                        <asp:TemplateField HeaderText="Action">
+                                            <ItemTemplate>
+                                                <asp:Button ID="btnEdit" runat="server" CssClass="btn btn-sm btn-primary" Text="Edit" CommandName="Select" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                    </Columns>
+                                </asp:GridView>
+                            </div>
                         </div>
                     </div>
                 </div>

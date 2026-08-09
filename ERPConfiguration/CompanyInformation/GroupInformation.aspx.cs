@@ -42,11 +42,11 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             try
             {
                 con = conn.openConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_GroupInformation_Insert", con)) 
+                using (SqlCommand cmd = new SqlCommand("sp_GroupInformation_Insert", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@Group_ID", SqlDbType.Int).Value = Convert.ToInt32(txtGroupID.Text);
-                    cmd.Parameters.Add("@Group_Name", SqlDbType.NVarChar, 100).Value = txtGroupName.Text.Trim();
+                    cmd.Parameters.Add("@Group_Name", SqlDbType.NVarChar, 150).Value = txtGroup.Text.Trim();
                     cmd.Parameters.Add("@Prifix", SqlDbType.NVarChar, 20).Value = txtPrefix.Text.Trim();
                     cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar, 100).Value = txtEmail.Text.Trim();
                     cmd.Parameters.Add("@Phone_No", SqlDbType.NVarChar, 20).Value = txtPhone.Text.Trim();
@@ -65,6 +65,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message + "');", true);
             }
             LoadGroupInformation();
+            ClearForm();
         }
 
         void LoadGroupInformation()
@@ -103,7 +104,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                         if (reader.Read())
                         {
                             txtGroupID.Text = reader["Group_ID"].ToString();
-                            txtGroupName.Text = reader["Group_Name"].ToString();
+                            txtGroup.Text = reader["Group_Name"].ToString();
                             txtPrefix.Text = reader["Prifix"].ToString();
                             txtEmail.Text = reader["E_Mail"].ToString();
                             txtPhone.Text = reader["Phone_No"].ToString();
@@ -128,7 +129,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
 
         private void ClearForm()
         {
-            txtGroupName.Text = string.Empty;
+            txtGroup.Text = string.Empty;
             txtPrefix.Text = string.Empty;
             txtEmail.Text = string.Empty;
             txtPhone.Text = string.Empty;

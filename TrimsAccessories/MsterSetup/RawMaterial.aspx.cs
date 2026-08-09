@@ -60,7 +60,10 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             try
             {
                 con = conn.openConnection();
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM ta_RawMaterial Order by RawMaterialName asc", con);
+                SqlDataAdapter da = new SqlDataAdapter(@"SELECT ta_RawMaterial.RawMaterialID, ta_RawMaterial.MaterialCode, ta_RawMaterial.RawMaterialName, tbl_UnitSetup.UnitID, 
+                tbl_UnitSetup.UnitName, ta_RawMaterial.UnitPrice, ta_RawMaterial.Currency, ta_RawMaterial.Status, ta_RawMaterial.CreatedDate, ta_RawMaterial.ItemCategory, 
+                ta_RawMaterial.Length, ta_RawMaterial.Width, ta_RawMaterial.Thickness, ta_RawMaterial.DimensionUnit, ta_RawMaterial.Density, ta_RawMaterial.Concentration, 
+                ta_RawMaterial.PhValue FROM ta_RawMaterial INNER JOIN tbl_UnitSetup ON ta_RawMaterial.Unit = tbl_UnitSetup.UnitID Order by RawMaterialName asc", con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 gvRawMaterial.DataSource = dt;

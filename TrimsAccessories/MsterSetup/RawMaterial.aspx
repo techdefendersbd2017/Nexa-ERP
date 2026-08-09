@@ -4,9 +4,36 @@
 <head runat="server">
     <title>Raw Material Setup</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <style>
         body { background-color: #f8f9fa; font-size: 14px; }
         .card-header-custom { background-color: #1f4e78; color: white; font-weight: bold; }
+
+        /* Select2 - rounded, clean look for the search box on every dropdown */
+        .select2-container--bootstrap-5 .select2-selection {
+            border-radius: 8px !important;
+            border: 1px solid #ced4da !important;
+        }
+        .select2-container--bootstrap-5 .select2-selection:focus,
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection {
+            border-color: #86b7fe !important;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15) !important;
+        }
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border-radius: 8px !important;
+            border: 1px solid #ced4da !important;
+            overflow: hidden;
+        }
+        .select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
+            border-radius: 6px !important;
+            border: 1px solid #ced4da !important;
+            padding: 6px 10px !important;
+        }
+        .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
+            background-color: #1f4e78 !important;
+        }
     </style>
     <script type="text/javascript">
         // পেজ লোড হওয়ার পর সেভ করা scroll position এ ফিরে যাওয়া
@@ -22,7 +49,32 @@
             document.getElementById('<%= hfScrollPosition.ClientID %>').value =
                 (window.pageYOffset || document.documentElement.scrollTop);
         }
-    </script>    
+    </script>
+    <!-- jQuery (Select2 এর জন্য প্রয়োজন) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // প্রতিটি ড্রপডাউনে সার্চ বক্স যুক্ত করা হলো (placeholder: Search)
+            $('.search-dropdown').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: "Search"
+            });
+
+            // ড্রপডাউনে ক্লিক করলে সাথে সাথে সার্চ বক্সে কার্সর/ফোকাস চলে যাবে
+            $('.search-dropdown').on('select2:open', function () {
+                setTimeout(function () {
+                    var searchField = document.querySelector('.select2-container--open .select2-search__field');
+                    if (searchField) {
+                        searchField.focus();
+                    }
+                }, 0);
+            });
+        });
+    </script>
 </head>
 <body>
     <form id="form1" runat="server">
@@ -41,7 +93,7 @@
                             
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Raw Material ID</label>
-                                <asp:TextBox ID="txtRawMaterialId" runat="server" CssClass="form-control" placeholder="Enter Raw Material ID"></asp:TextBox>
+                                <asp:TextBox ID="txtRawMaterialId" runat="server" CssClass="form-control" placeholder="Enter Raw Material ID" ReadOnly="True"></asp:TextBox>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Material Code</label>
@@ -55,7 +107,7 @@
                             <!-- আইটেম টাইপ সিলেকশন (General বনাম Liquid) -->
                             <div class="mb-3">
                                 <label class="form-label fw-bold text-danger">Item Type (Is Liquid?)</label>
-                                <asp:DropDownList ID="ddlItemCategory" runat="server" CssClass="form-select border-primary" AutoPostBack="true" OnSelectedIndexChanged="ddlItemCategory_SelectedIndexChanged">
+                                <asp:DropDownList ID="ddlItemCategory" runat="server" CssClass="form-select border-primary search-dropdown" AutoPostBack="true" OnSelectedIndexChanged="ddlItemCategory_SelectedIndexChanged">
                                     <asp:ListItem Text="General / Solid Item (Accessories, etc.)" Value="General" Selected="True" />
                                     <asp:ListItem Text="Liquid Item (Dyes, Chemicals, etc.)" Value="Liquid" />
                                 </asp:DropDownList>
@@ -83,11 +135,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold small">Dimension Unit</label>
-                                        <asp:DropDownList ID="ddlDimensionUnit" runat="server" CssClass="form-select form-select-sm">
-                                            <asp:ListItem Text="Inch" Value="Inch" />
-                                            <asp:ListItem Text="CM" Value="CM" />
-                                            <asp:ListItem Text="MM" Value="MM" />
-                                            <asp:ListItem Text="GSM" Value="GSM" />
+                                        <asp:DropDownList ID="ddlDimensionUnit" runat="server" CssClass="form-select form-select-sm search-dropdown">
                                         </asp:DropDownList>
                                     </div>
                                 </div>
@@ -116,8 +164,11 @@
 
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Base Unit</label>
-                                <asp:DropDownList ID="ddlUnit" runat="server" CssClass="form-select">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Unit</label>
+                                <asp:DropDownList ID="ddlUnit" runat="server" CssClass="form-select search-dropdown">
                                 </asp:DropDownList>
+                            </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Standard Unit Price</label>
@@ -125,14 +176,14 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Currency</label>
-                                <asp:DropDownList ID="ddlCurrency" runat="server" CssClass="form-select">
+                                <asp:DropDownList ID="ddlCurrency" runat="server" CssClass="form-select search-dropdown">
                                     <asp:ListItem Text="BDT" Value="BDT" Selected="True"></asp:ListItem>
                                     <asp:ListItem Text="USD" Value="USD"></asp:ListItem>
                                 </asp:DropDownList>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Status</label>
-                                <asp:DropDownList ID="ddlStatus" runat="server" CssClass="form-select">
+                                <asp:DropDownList ID="ddlStatus" runat="server" CssClass="form-select search-dropdown">
                                     <asp:ListItem Text="Active" Value="Active" Selected="True"></asp:ListItem>
                                     <asp:ListItem Text="Inactive" Value="Inactive"></asp:ListItem>
                                 </asp:DropDownList>
@@ -151,7 +202,7 @@
                                     <Columns>
                                         <asp:BoundField DataField="RawMaterialId" HeaderText="ID"/>
                                         <asp:BoundField DataField="RawMaterialName" HeaderText="Raw Material Name" />
-                                        <asp:BoundField DataField="Unit" HeaderText="Unit" />
+                                        <asp:BoundField DataField="UnitName" HeaderText="Unit" />
                                         <asp:BoundField DataField="UnitPrice" HeaderText="Unit Price" />
                                         <asp:BoundField DataField="Currency" HeaderText="Currency" />
                                         <asp:BoundField DataField="Status" HeaderText="Status" />
