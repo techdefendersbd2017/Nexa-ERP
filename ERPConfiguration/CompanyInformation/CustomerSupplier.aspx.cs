@@ -35,8 +35,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                                      ELSE 'Unknown' 
                                  END AS PartyType, 
                                  PartyName, Phone, Status 
-                                 FROM tbl_CustomerSupplier 
-                                 ORDER BY PartyName ASC";
+                                 FROM tbl_CustomerSupplier where PartyType='"+ddlPartyType.SelectedValue+"' ORDER BY PartyName ASC";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
@@ -169,6 +168,11 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             {
                 if (con != null && con.State == ConnectionState.Open) con.Close();
             }
+        }
+
+        protected void ddlPartyType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadPartyInformation();
         }
     }
 }

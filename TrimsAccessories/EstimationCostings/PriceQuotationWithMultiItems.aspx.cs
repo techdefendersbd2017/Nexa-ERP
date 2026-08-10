@@ -156,7 +156,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             try
             {
                 con = conn.openConnection();
-                string query = "SELECT * FROM tbl_CustomerSupplier WHERE Status='Active' ORDER BY PartyName ASC";
+                string query = "SELECT * FROM tbl_CustomerSupplier WHERE Status='Active'  and PartyType='1' ORDER BY PartyName ASC";
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -165,7 +165,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 ddlSearchCustomer.DataTextField = "PartyName";
                 ddlSearchCustomer.DataValueField = "PartyID";
                 ddlSearchCustomer.DataBind();
-                ddlSearchCustomer.Items.Insert(0, new ListItem("--All Customer--", "0"));
+                ddlSearchCustomer.Items.Insert(0, new ListItem("--Select Customer--", "0"));
                 con.Close();
             }
             catch (Exception ex)
@@ -183,7 +183,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             try
             {
                 con = conn.openConnection();
-                string query = "SELECT * FROM tbl_CustomerSupplier WHERE Status='Active' ORDER BY PartyName ASC";
+                string query = "SELECT * FROM tbl_CustomerSupplier WHERE Status='Active'  and PartyType='1' ORDER BY PartyName ASC";
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -877,12 +877,12 @@ WHERE m.QuotationID = @QuotationID";
         private void ClearMaterialEntryInputs()
         {
             if (ddlRawMaterial.Items.Count > 0) ddlRawMaterial.SelectedIndex = 0;
-            txtReqQty.Text = "1";
+            txtReqQty.Text = "0";
             if (ddlDetailUnit.Items.Count > 0) ddlDetailUnit.SelectedIndex = 0;
-            txtUnitPrice.Text = "1";
+            txtUnitPrice.Text = "0";
             if (ddlCurrency.Items.Count > 0) ddlCurrency.SelectedIndex = 0;
-            txtLoss.Text = "5";
-            txtTotalCostInput.Text = "1.05";
+            txtLoss.Text = "0";
+            txtTotalCostInput.Text = "0.00";
         }
         protected void btnAdd_Click(object sender, EventArgs e)
         {
