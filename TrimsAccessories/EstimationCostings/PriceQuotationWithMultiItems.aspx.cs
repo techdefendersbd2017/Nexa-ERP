@@ -21,6 +21,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 LoadCustomer();
                 LoadItemCategory();
                 LoadddlSearchCustomer();
+                LoadReceiveBranch();
 
                 txtCreateDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
                 ViewState["QuotationID"] = "0";
@@ -37,6 +38,36 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         //   ItemsTable   -> one row per Item added in "Item List" grid (gvItemList)
         //   DetailsTable -> one row per Raw Material, linked back to its Item via ItemSlNo
         // ==========================================
+
+        private void LoadReceiveBranch()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = @"SELECT Branch_ID, Branch_Name 
+                          FROM [nexamar].[techdefendersbd].[vw_Branch_Information] 
+                          WHERE Is_Active = 1 
+                          ORDER BY Branch_Name ASC";
+                SqlDataAdapter da = new SqlDataAdapter(query, con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                ddlReceiveBranch.DataSource = dt;
+                ddlReceiveBranch.DataTextField = "Branch_Name";
+                ddlReceiveBranch.DataValueField = "Branch_ID";
+                ddlReceiveBranch.DataBind();
+                ddlReceiveBranch.Items.Insert(0, new ListItem("--Select Receive Branch--", "0"));
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
+        }
         private DataTable CurrentItemsTable
         {
             get
@@ -81,6 +112,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             DataTable dt = new DataTable();
             dt.Columns.Add("ItemSlNo", typeof(int));
             dt.Columns.Add("CategoryID", typeof(int));
+            dt.Columns.Add("DbQuotationID", typeof(int));
             dt.Columns.Add("ItemCategory", typeof(string));
             dt.Columns.Add("SubCategoryID", typeof(int));
             dt.Columns.Add("SubCategory", typeof(string));
@@ -304,7 +336,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 con = conn.openConnection();
                 string query = @"SELECT ta_ItemName.ItemID, tbl_UnitSetup.UnitID, tbl_UnitSetup.UnitName, tbl_UnitSetup.Status
-                        FROM ta_ItemName INNER JOIN tbl_UnitSetup ON ta_ItemName.Unit = tbl_UnitSetup.UnitID 
+                        FROM ta_ItemName INNER JOIN tbl_UnitSetup ON ta_ItemName.Unit = tbl_UnitSetup.UnitName
                         WHERE tbl_UnitSetup.Status='Active' AND ta_ItemName.ItemID = @ItemID
                         ORDER BY tbl_UnitSetup.UnitName ASC";
 
@@ -459,6 +491,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             lblSelectedItemName.Text = "-- No item selected --";
 
             if (ddlCustomer.Items.Count > 0) ddlCustomer.SelectedIndex = 0;
+            if (ddlReceiveBranch.Items.Count > 0) ddlReceiveBranch.SelectedIndex = 0;
             if (ddlStatus.Items.Count > 0) ddlStatus.SelectedIndex = 0;
 
             InitialiseItemsTable();
@@ -582,27 +615,62 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             try
             {
                 con = conn.openConnection();
-                string query = @"SELECT 
-    m.QuotationID, m.QuotationCode, m.CreateDate, m.CustomerID, 
-    m.CategoryID, c.CategoryName, m.SubCategoryID, s.SubCategoryName,
-    m.ItemID, n.ItemName, m.QuotationName, m.SameAs, 
-    m.Qty, m.ItemUnit, m.Status, m.OthersCost, m.GTotalCost, 
-    m.CreatedBy, m.CreatedAt, m.UpdatedBy, m.UpdatedAt
-FROM tbl_PriceQuotationMaster AS m
-LEFT JOIN ta_ItemCategory AS c ON m.CategoryID = c.CategoryID
-LEFT JOIN ta_SubCategory AS s ON m.SubCategoryID = s.SubCategoryID
-LEFT JOIN ta_ItemName AS n ON m.ItemID = n.ItemID
-WHERE m.QuotationID = @QuotationID";
+
+                // Step 1: এই QuotationID থেকে আসল QuotationCode বের করা।
+                // কারণ, একই Quotation-এর একাধিক Item আলাদা আলাদা QuotationID
+                // নিয়ে একই QuotationCode শেয়ার করে (legacy schema)।
+                string codeQuery = "SELECT QuotationCode FROM tbl_PriceQuotationMaster WHERE QuotationID = @QuotationID";
+                string quotationCode = null;
+                using (SqlCommand cmdCode = new SqlCommand(codeQuery, con))
+                {
+                    cmdCode.Parameters.AddWithValue("@QuotationID", quotationID);
+                    object result = cmdCode.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                        quotationCode = result.ToString();
+                }
+
+                if (string.IsNullOrEmpty(quotationCode))
+                {
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Quotation not found!');", true);
+                    return;
+                }
+
+                // Step 2: একই QuotationCode-এর সবগুলো Item রো লোড করা।
+                //
+                // *** FIX ***
+                // আগে CategoryID/SubCategoryID/ItemID/Qty/ItemUnit এই কলামগুলো
+                // Master টেবিল (m) থেকে আনা হতো, যেখানে শুধু প্রথম Item-এর তথ্য
+                // সেভ থাকে (btnSave_Click দ্রষ্টব্য: firstItem[...] Master-এ যায়)।
+                // ফলে একাধিক Item থাকলে প্রতিটা Item-রো-তে এই কলামগুলোর মান
+                // একই (প্রথম Item-এরটাই) রিপিট হতো, শুধু ItemName আলাদা আসতো
+                // (কারণ সেটা n.ItemName দিয়ে প্রতি Item-ভিত্তিক জয়েন হতো)।
+                // এখন এই কলামগুলো Item-লেভেল টেবিল tbl_PriceQuotationItems (i)
+                // থেকে আনা হচ্ছে — প্রতিটা Item তার নিজের সঠিক ডেটা পাবে।
+                // এছাড়া UnitID আগে হার্ডকোড ০ ছিল, এখন সঠিকভাবে সেট হচ্ছে,
+                // এবং Unit-এর Display Name-ও tbl_UnitSetup জয়েন করে আনা হচ্ছে।
+                string query = @"SELECT   m.QuotationID, m.QuotationCode, m.CreateDate, m.CustomerID, m.ReceiveBranchID,
+                                          i.ItemSlNo, i.CategoryID, c.CategoryName, i.SubCategoryID, s.SubCategoryName,
+                                          i.ItemID, n.ItemName, i.Qty, i.ItemUnit AS UnitID, u.UnitName,
+                                          m.QuotationName, m.SameAs, m.Status, m.OthersCost, m.GTotalCost,
+                                          m.CreatedBy, m.CreatedAt, m.UpdatedBy, m.UpdatedAt
+                                 FROM     tbl_PriceQuotationMaster m
+                                 INNER JOIN tbl_PriceQuotationItems i ON m.QuotationID = i.QuotationID
+                                 INNER JOIN ta_ItemName n ON i.ItemID = n.ItemID
+                                 LEFT OUTER JOIN ta_ItemCategory c ON i.CategoryID = c.CategoryID
+                                 LEFT OUTER JOIN ta_SubCategory s ON i.SubCategoryID = s.SubCategoryID
+                                 LEFT OUTER JOIN tbl_UnitSetup u ON i.ItemUnit = u.UnitID
+                                 WHERE    m.QuotationCode = @QuotationCode
+                                 ORDER BY m.QuotationID ASC, i.ItemSlNo ASC";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@QuotationID", quotationID);
+                    cmd.Parameters.AddWithValue("@QuotationCode", quotationCode);
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         bool isFirstRow = true;
                         InitialiseItemsTable();
                         DataTable itemsDt = CurrentItemsTable;
-                        int slNo = 1;
+                        int maxSlNo = 0;
                         while (reader.Read())
                         {
                             if (isFirstRow)
@@ -614,27 +682,45 @@ WHERE m.QuotationID = @QuotationID";
                                 txtOthersCost.Text = reader["OthersCost"].ToString();
                                 txtGTotalCost.Text = reader["GTotalCost"].ToString();
                                 SetSelectedValueSafe(ddlCustomer, reader["CustomerID"].ToString());
+                                SetSelectedValueSafe(ddlReceiveBranch, reader["ReceiveBranchID"].ToString());
                                 SetSelectedValueSafe(ddlStatus, reader["Status"].ToString());
+
+                                // Save/Update-এর জন্য মূল ID (ক্লিক করা ID-ই রাখা হচ্ছে,
+                                // এটাই btnSave_Click-এ existingId হিসেবে ব্যবহার হবে)
+                                ViewState["QuotationID"] = quotationID;
+                                Costing_No.Value = quotationID;
+
                                 isFirstRow = false;
                             }
+
+                            // *** FIX: ItemSlNo এখন সরাসরি DB থেকে আসছে (i.ItemSlNo),
+                            // যেটা পরে Details লোড করার সময় সঠিক ম্যাপিং-এর জন্য
+                            // ব্যবহার করা হবে।
+                            int itemSlNo = reader["ItemSlNo"] == DBNull.Value ? 0 : Convert.ToInt32(reader["ItemSlNo"]);
+                            if (itemSlNo <= 0) continue; // malformed row হলে স্কিপ
+
                             DataRow itemRow = itemsDt.NewRow();
-                            itemRow["ItemSlNo"] = slNo;
+                            itemRow["ItemSlNo"] = itemSlNo;
+                            itemRow["DbQuotationID"] = Convert.ToInt32(reader["QuotationID"]); // ← এই Item DB-তে কোন রো-তে আছে
                             itemRow["CategoryID"] = reader["CategoryID"] == DBNull.Value ? 0 : Convert.ToInt32(reader["CategoryID"]);
                             itemRow["SubCategoryID"] = reader["SubCategoryID"] == DBNull.Value ? 0 : Convert.ToInt32(reader["SubCategoryID"]);
                             itemRow["ItemID"] = reader["ItemID"] == DBNull.Value ? 0 : Convert.ToInt32(reader["ItemID"]);
                             itemRow["Qty"] = reader["Qty"] == DBNull.Value ? 0 : Convert.ToDecimal(reader["Qty"]);
-                            itemRow["Unit"] = reader["ItemUnit"].ToString();
-                            itemRow["UnitID"] = 0;
-                            itemRow["ItemTotalCost"] = 0m; // recalculated after details load
+                            itemRow["UnitID"] = reader["UnitID"] == DBNull.Value ? 0 : Convert.ToInt32(reader["UnitID"]);
+                            itemRow["Unit"] = reader["UnitName"] == DBNull.Value ? "" : reader["UnitName"].ToString();
+                            itemRow["ItemTotalCost"] = 0m; // details লোড হওয়ার পর recalculate হবে
                             itemRow["ItemCategory"] = reader["CategoryName"] == DBNull.Value ? "" : reader["CategoryName"].ToString();
                             itemRow["SubCategory"] = reader["SubCategoryName"] == DBNull.Value ? "" : reader["SubCategoryName"].ToString();
                             itemRow["ItemName"] = reader["ItemName"] == DBNull.Value ? "" : reader["ItemName"].ToString();
                             itemsDt.Rows.Add(itemRow);
-                            slNo++;
+
+                            if (itemSlNo > maxSlNo) maxSlNo = itemSlNo;
                         }
                         CurrentItemsTable = itemsDt;
-                        NextItemSlNo = slNo;
-                        SelectedItemSlNo = 1;
+                        NextItemSlNo = maxSlNo + 1;
+                        // *** FIX: প্রথম Item-এর প্রকৃত ItemSlNo select করা হচ্ছে,
+                        // আগে সবসময় হার্ডকোড 1 বসানো হতো যেটা ভুল Item সিলেক্ট করতে পারতো।
+                        SelectedItemSlNo = itemsDt.Rows.Count > 0 ? Convert.ToInt32(itemsDt.Rows[0]["ItemSlNo"]) : 0;
                     }
                 }
                 con.Close();
@@ -655,8 +741,23 @@ WHERE m.QuotationID = @QuotationID";
             {
                 InitialiseDetailsTable();
                 DataTable dt = CurrentDetailsTable;
+
+                // LoadQuotationDataForEdit আগেই কল হয়ে CurrentItemsTable পপুলেট করা
+                // থাকে (RowCommand হ্যান্ডলার ও btnCopy_Click দুই জায়গাতেই এই ক্রম
+                // মেনে চলা হয়), তাই এখানে সেই টেবিল থেকে ItemID -> ItemSlNo ম্যাপ
+                // করা যাবে।
+                DataTable itemsDt = CurrentItemsTable;
+
                 con = conn.openConnection();
-                string query = @"SELECT RawMaterialID, RawMaterialName, ReqQty, Unit, UnitPrice, Currency, Loss, TotalCost, Remarks FROM tbl_PriceQuotationDetails WHERE QuotationID = @QuotationID ORDER BY DetailID";
+
+                // *** FIX: ItemID কলাম যোগ করা হয়েছে সিলেক্ট লিস্টে। এটা ছাড়া
+                // প্রতিটা raw material কোন Item-এর সেটা বোঝার কোনো উপায় ছিল না,
+                // তাই সব ডিটেইলস জোর করে ItemSlNo = 1-এ বসিয়ে দেওয়া হতো
+                // (একাধিক Item থাকলে ২য়/৩য় Item-এর ম্যাটেরিয়াল ভুলভাবে ১ম
+                // Item-এর নিচে দেখাতো)।
+                string query = @"SELECT RawMaterialID, RawMaterialName, ReqQty, Unit, UnitPrice, Currency, Loss, TotalCost, Remarks, ItemID 
+FROM tbl_PriceQuotationDetails 
+WHERE QuotationID = @QuotationID ORDER BY DetailID";
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@QuotationID", quotationID);
@@ -665,9 +766,21 @@ WHERE m.QuotationID = @QuotationID";
                         int slNo = 1;
                         while (reader.Read())
                         {
+                            int detailItemId = reader["ItemID"] == DBNull.Value ? 0 : Convert.ToInt32(reader["ItemID"]);
+
+                            // এই raw material যেই Item-এর, তার ItemSlNo বের করা হচ্ছে
+                            // ItemID মিলিয়ে। কোনো ম্যাচ না পেলে (নিরাপত্তার জন্য)
+                            // প্রথম Item-এ ফলব্যাক করা হচ্ছে।
+                            int mappedItemSlNo = itemsDt.Rows.Count > 0 ? Convert.ToInt32(itemsDt.Rows[0]["ItemSlNo"]) : 1;
+                            DataRow[] matchedItems = itemsDt.Select("ItemID = " + detailItemId);
+                            if (matchedItems.Length > 0)
+                            {
+                                mappedItemSlNo = Convert.ToInt32(matchedItems[0]["ItemSlNo"]);
+                            }
+
                             DataRow dr = dt.NewRow();
                             dr["SlNo"] = slNo++;
-                            dr["ItemSlNo"] = 1; // all legacy details attach to the single reconstructed item
+                            dr["ItemSlNo"] = mappedItemSlNo;
                             dr["RawMaterialID"] = reader["RawMaterialID"] == DBNull.Value ? 0 : Convert.ToInt32(reader["RawMaterialID"]);
                             dr["RawMaterialName"] = reader["RawMaterialName"].ToString();
                             dr["ReqQty"] = Convert.ToDecimal(reader["ReqQty"]);
@@ -684,7 +797,14 @@ WHERE m.QuotationID = @QuotationID";
                 }
                 con.Close();
                 CurrentDetailsTable = dt;
-                RecalculateItemTotal(1);
+
+                // *** FIX: প্রতিটা Item-এর জন্য আলাদাভাবে total recalculate করা হচ্ছে,
+                // আগে শুধু Item #1-এর জন্যই recalc হতো।
+                foreach (DataRow itemRow in itemsDt.Rows)
+                {
+                    RecalculateItemTotal(Convert.ToInt32(itemRow["ItemSlNo"]));
+                }
+
                 BindItemList();
                 BindDetailsForSelectedItem();
                 RecalculateGrandTotal();
@@ -1059,6 +1179,11 @@ WHERE m.QuotationID = @QuotationID";
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please select a Customer!');", true);
                 return;
             }
+            if (ddlReceiveBranch.SelectedValue == "0")
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please select a Receive Branch!');", true);
+                return;
+            }
             if (string.IsNullOrEmpty(txtQuotationName.Text.Trim()))
             {
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please enter the Quotation Name!');", true);
@@ -1113,6 +1238,7 @@ WHERE m.QuotationID = @QuotationID";
                     cmdMaster.Parameters.Add("@QuotationCode", SqlDbType.VarChar, 50).Value = txtQuotationCode.Text.Trim();
                     cmdMaster.Parameters.Add("@CreateDate", SqlDbType.Date).Value = Convert.ToDateTime(txtCreateDate.Text);
                     cmdMaster.Parameters.Add("@CustomerID", SqlDbType.Int).Value = ddlCustomer.SelectedValue;
+                    cmdMaster.Parameters.Add("@ReceiveBranchID", SqlDbType.Int).Value = ddlReceiveBranch.SelectedValue;
                     cmdMaster.Parameters.Add("@CategoryID", SqlDbType.Int).Value = firstItem["CategoryID"];
                     cmdMaster.Parameters.Add("@SubCategoryID", SqlDbType.Int).Value = firstItem["SubCategoryID"];
                     cmdMaster.Parameters.Add("@ItemID", SqlDbType.Int).Value = firstItem["ItemID"];
@@ -1174,7 +1300,7 @@ WHERE m.QuotationID = @QuotationID";
                             cmdDetail.Parameters.Add("@ItemID", SqlDbType.Int).Value = itemId;
                             string remarks = row["Remarks"] == null || row["Remarks"] == DBNull.Value ? "" : row["Remarks"].ToString();
                             if (remarks == "-") remarks = "";
-                            cmdDetail.Parameters.Add("@Remarks", SqlDbType.VarChar, 250).Value = string.IsNullOrEmpty(remarks) ? (object)DBNull.Value : remarks;SqlParameter outParam = cmdDetail.Parameters.Add("@QuotationID", SqlDbType.Int);
+                            cmdDetail.Parameters.Add("@Remarks", SqlDbType.VarChar, 250).Value = string.IsNullOrEmpty(remarks) ? (object)DBNull.Value : remarks; SqlParameter outParam = cmdDetail.Parameters.Add("@QuotationID", SqlDbType.Int);
                             outParam.Direction = ParameterDirection.Output;
                             cmdDetail.ExecuteNonQuery();
                         }

@@ -192,18 +192,25 @@
                             <legend class="float-none w-auto px-3 fs-6 fw-bold text-primary">Master Info</legend>
 
                             <div class="row g-3">
-                                <div class="col-md-4">
+                            <div class="row g-3">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Customer</label>
                                     <asp:DropDownList ID="ddlCustomer" runat="server" CssClass="form-select form-select-sm searchable-dropdown" data-placeholder="--Select Customer--">
                                         <asp:ListItem Text="--Select Customer--" Value="0" />
                                         <asp:ListItem Text="RS Packaging" Value="RS Packaging" />
                                     </asp:DropDownList>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Receive Branch</label>
+                                    <asp:DropDownList ID="ddlReceiveBranch" runat="server" CssClass="form-select form-select-sm searchable-dropdown" data-placeholder="--Select Receive Branch--">
+                                        <asp:ListItem Text="--Select Receive Branch--" Value="0" />
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Quotation Code</label>
                                     <asp:TextBox ID="txtQuotationCode" runat="server" CssClass="form-control form-control-sm" Text="QT-0002"></asp:TextBox>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold">Create Date</label>
                                     <asp:TextBox ID="txtCreateDate" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
                                 </div>

@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexa_ERP.TrimsAccessories.EstimationCostings
+namespace Nexa_ERP.Approval.TrimsAccessoriesApprovl
 {
 
 
-    public partial class PriceQuotationPrint
+    public partial class PriceQuotationApproval
     {
 
         /// <summary>
@@ -24,147 +24,156 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// lblBranchName control.
+        /// btnTabGeneral control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblBranchName;
+        protected global::System.Web.UI.WebControls.LinkButton btnTabGeneral;
 
         /// <summary>
-        /// lblAddress control.
+        /// btnTabItemDetails control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblAddress;
+        protected global::System.Web.UI.WebControls.LinkButton btnTabItemDetails;
 
         /// <summary>
-        /// Label1 control.
+        /// btnTabCosting control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label1;
+        protected global::System.Web.UI.WebControls.LinkButton btnTabCosting;
 
         /// <summary>
-        /// lblPhone control.
+        /// btnTabApproval control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblPhone;
+        protected global::System.Web.UI.WebControls.LinkButton btnTabApproval;
 
         /// <summary>
-        /// Label2 control.
+        /// btnTabHistory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label2;
+        protected global::System.Web.UI.WebControls.LinkButton btnTabHistory;
 
         /// <summary>
-        /// lblEmail control.
+        /// MainMultiView control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblEmail;
+        protected global::System.Web.UI.WebControls.MultiView MainMultiView;
 
         /// <summary>
-        /// lblQuotationCode control.
+        /// ViewGeneral control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblQuotationCode;
+        protected global::System.Web.UI.WebControls.View ViewGeneral;
 
         /// <summary>
-        /// lblCreateDate control.
+        /// txtCustomer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCreateDate;
+        protected global::System.Web.UI.WebControls.TextBox txtCustomer;
 
         /// <summary>
-        /// lblCustomer control.
+        /// txtDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCustomer;
+        protected global::System.Web.UI.WebControls.TextBox txtDate;
 
         /// <summary>
-        /// lblStatus control.
+        /// txtSeason control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblStatus;
+        protected global::System.Web.UI.WebControls.TextBox txtSeason;
 
         /// <summary>
-        /// lblQuotationName control.
+        /// ViewItemDetails control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblQuotationName;
+        protected global::System.Web.UI.WebControls.View ViewItemDetails;
 
         /// <summary>
-        /// gvPrintDetails control.
+        /// ViewCosting control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvPrintDetails;
+        protected global::System.Web.UI.WebControls.View ViewCosting;
 
         /// <summary>
-        /// lblTotalCostSum control.
+        /// ViewApproval control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalCostSum;
+        protected global::System.Web.UI.WebControls.View ViewApproval;
 
         /// <summary>
-        /// lblOthersCost control.
+        /// pnlApprovalActions control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblOthersCost;
+        protected global::System.Web.UI.WebControls.Panel pnlApprovalActions;
 
         /// <summary>
-        /// lblGTotalCost control.
+        /// pnlReadOnlyNotice control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblGTotalCost;
+        protected global::System.Web.UI.WebControls.Panel pnlReadOnlyNotice;
 
         /// <summary>
-        /// lblDeveloperInfo control.
+        /// ViewHistory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblDeveloperInfo;
+        protected global::System.Web.UI.WebControls.View ViewHistory;
+
+        /// <summary>
+        /// btnConfirmApprove control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnConfirmApprove;
     }
 }

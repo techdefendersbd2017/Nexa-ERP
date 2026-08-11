@@ -1,11 +1,11 @@
 ﻿using Nexa_ERP.Connection;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.IO;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Xml.Linq;
 
 namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 {
@@ -30,6 +30,53 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
                 LoadMaster(quotationId);
                 LoadDetails(quotationId);
+                LoadBranchInformation(quotationId);
+                SetDeveloperAndFooterInfo();
+            }
+        }
+
+        private void SetDeveloperAndFooterInfo()
+        {
+            if (lblDeveloperInfo != null)
+            {
+                lblDeveloperInfo.Text = "Developed & Maintained by: Nexa ERP System | Powered by Tech Defenders BD";
+            }
+        }
+
+        private void LoadBranchInformation(int quotationId)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = @"SELECT tbl_PriceQuotationMaster.QuotationID, vw_Branch_Information.Branch_Name, vw_Branch_Information.Prifix, vw_Branch_Information.E_Mail, vw_Branch_Information.Phone_No, vw_Branch_Information.Web, 
+                                        vw_Branch_Information.Address, vw_Branch_Information.Branch_Logo
+                                 FROM tbl_PriceQuotationMaster 
+                                 INNER JOIN vw_Branch_Information ON tbl_PriceQuotationMaster.ReceiveBranchID = vw_Branch_Information.Branch_ID
+                                 WHERE tbl_PriceQuotationMaster.QuotationID = @QuotationID";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@QuotationID", quotationId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            lblBranchName.Text = reader["Branch_Name"].ToString();
+                            lblAddress.Text = reader["Address"].ToString();
+                            lblPhone.Text = reader["Phone_No"].ToString();
+                            lblEmail.Text = reader["E_Mail"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Response.Write("Error loading branch info: " + ex.Message);
+                Response.End();
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
             }
         }
 
@@ -39,15 +86,15 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 con = conn.openConnection();
                 string query = @"SELECT m.QuotationCode,
-                                         CONVERT(VARCHAR(10), m.CreateDate, 105) AS CreateDate,
-                                         c.PartyName AS Customer,
-                                         m.QuotationName,
-                                         m.OthersCost,
-                                         m.GTotalCost,
-                                         CASE WHEN m.Status = 1 THEN 'Active' ELSE 'Inactive' END AS Status
-                                  FROM tbl_PriceQuotationMaster m
-                                  LEFT JOIN tbl_CustomerSupplier c ON m.CustomerID = c.PartyID
-                                  WHERE m.QuotationID = @QuotationID";
+                                        CONVERT(VARCHAR(10), m.CreateDate, 105) AS CreateDate,
+                                        c.PartyName AS Customer,
+                                        m.QuotationName,
+                                        m.OthersCost,
+                                        m.GTotalCost,
+                                        CASE WHEN m.Status = 1 THEN 'Active' ELSE 'Inactive' END AS Status
+                                 FROM tbl_PriceQuotationMaster m
+                                 LEFT JOIN tbl_CustomerSupplier c ON m.CustomerID = c.PartyID
+                                 WHERE m.QuotationID = @QuotationID";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -68,17 +115,12 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             lblOthersCost.Text = othersCost.ToString("0.00");
                             lblGTotalCost.Text = gTotal.ToString("0.00");
                         }
-                        else
-                        {
-                            Response.Write("Quotation not found.");
-                            Response.End();
-                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Response.Write("Error loading quotation: " + ex.Message);
+                Response.Write("Error loading master: " + ex.Message);
                 Response.End();
             }
             finally
@@ -87,27 +129,21 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             }
         }
 
-        // ==========================================================
-        // পরিবর্তন: Remarks থেকে item name পার্স করার বদলে,
-        // tbl_PriceQuotationDetails.ItemID কে ta_ItemName.ItemID এর
-        // সাথে জয়েন করে সরাসরি Item Name আনা হচ্ছে এবং সেই অনুযায়ী
-        // group + sum করা হচ্ছে
-        // ==========================================================
         private void LoadDetails(int quotationId)
         {
             try
             {
                 con = conn.openConnection();
 
-                string query = @"
-            SELECT ROW_NUMBER() OVER (ORDER BY ISNULL(i.ItemName, 'N/A')) AS SlNo,
-                   ISNULL(i.ItemName, 'N/A') AS ItemName,
-                   SUM(d.TotalCost) AS ItemTotalCost
-            FROM tbl_PriceQuotationDetails d
-            LEFT JOIN ta_ItemName i ON d.ItemID = i.ItemID
-            WHERE d.QuotationID = @QuotationID
-            GROUP BY ISNULL(i.ItemName, 'N/A')
-            ORDER BY ISNULL(i.ItemName, 'N/A')";
+                // Item-wise aggregated query
+                string query = @"SELECT ROW_NUMBER() OVER(ORDER BY ta_ItemName.ItemName) AS SlNo, 
+                                        ta_ItemName.ItemName, 
+                                        SUM(tbl_PriceQuotationDetails.TotalCost) AS ItemTotalCost
+                                 FROM tbl_PriceQuotationDetails 
+                                 INNER JOIN ta_ItemName ON tbl_PriceQuotationDetails.ItemID = ta_ItemName.ItemID 
+                                 WHERE QuotationID = @QuotationID
+                                 GROUP BY ta_ItemName.ItemName
+                                 ORDER BY ta_ItemName.ItemName";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -129,17 +165,13 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             }
             catch (Exception ex)
             {
-                Response.Write("Error loading item details: " + ex.Message);
+                Response.Write("Error loading details: " + ex.Message);
                 Response.End();
             }
             finally
             {
                 if (con != null && con.State == ConnectionState.Open) con.Close();
             }
-        }
-        protected void btnDownloadPdf_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

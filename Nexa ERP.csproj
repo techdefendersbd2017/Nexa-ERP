@@ -193,6 +193,7 @@
     <Content Include="AccountsModule\MasterData\PaymentMode.aspx" />
     <Content Include="Approval\HRM\Leave\LeaveApproved.aspx" />
     <Content Include="Approval\HRM\Payroll\DeductionEarningApproval.aspx" />
+    <Content Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx" />
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx" />
@@ -260,6 +261,7 @@
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ProductDepartmentInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\YarnCountInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx" />
+    <Content Include="MerchandisingMarketing\OrderInformation\POEntryInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInfo.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx" />
@@ -372,6 +374,13 @@
     </Compile>
     <Compile Include="Approval\HRM\Payroll\DeductionEarningApproval.aspx.designer.cs">
       <DependentUpon>DeductionEarningApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx.cs">
+      <DependentUpon>PriceQuotationApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx.designer.cs">
+      <DependentUpon>PriceQuotationApproval.aspx</DependentUpon>
     </Compile>
     <Compile Include="Connection\DatabaseConectionAccounts.cs" />
     <Compile Include="Connection\DatabaseConnectionMerchandising.cs" />
@@ -817,6 +826,13 @@
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx.designer.cs">
       <DependentUpon>CreateStyleBuyerWise.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\POEntryInformation.aspx.cs">
+      <DependentUpon>POEntryInformation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\OrderInformation\POEntryInformation.aspx.designer.cs">
+      <DependentUpon>POEntryInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx.cs">
       <DependentUpon>PORegistration.aspx</DependentUpon>
