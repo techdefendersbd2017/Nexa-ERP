@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -131,7 +132,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             try
             {
                 con = conn.openConnection();
-                string query = "SELECT CategoryID, CategoryName FROM ta_ItemCategory ORDER BY CategoryName";
+                string query = "SELECT * FROM ta_ItemName ORDER BY ItemName";
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
@@ -139,8 +140,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     da.Fill(dt);
 
                     ddlItemNameDetails.DataSource = dt;
-                    ddlItemNameDetails.DataTextField = "CategoryName";
-                    ddlItemNameDetails.DataValueField = "CategoryID";
+                    ddlItemNameDetails.DataTextField = "ItemName";
+                    ddlItemNameDetails.DataValueField = "ItemID";
                     ddlItemNameDetails.DataBind();
 
                     ddlItemNameDetails.Items.Insert(0, new ListItem("--Select Items Name--", "0"));
@@ -294,6 +295,139 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         #endregion
 
+        #region ---------- Autocomplete Suggestion WebMethods (Buyer / Style / Order No) ----------
+        // NOTE: These MUST be public static and decorated with [WebMethod] so that
+        // jQuery can call them directly as ASP.NET PageMethods (POST to
+        // WorkOrderReceive.aspx/GetBuyerSuggestions etc). ScriptManager1 on the .aspx
+        // page must have EnablePageMethods="true" for this to work.
+
+        [WebMethod]
+        public static List<string> GetBuyerSuggestions(string prefixText)
+        {
+            List<string> result = new List<string>();
+            if (string.IsNullOrWhiteSpace(prefixText)) return result;
+
+            DatabaseConnectionMerchandising connHelper = new DatabaseConnectionMerchandising();
+            SqlConnection localCon = null;
+            try
+            {
+                localCon = connHelper.openConnection();
+                // vw_BuyerInformation : BuyerName column, only active buyers
+                string query = @"SELECT DISTINCT TOP 10 BuyerName 
+                                  FROM vw_BuyerInformation 
+                                  WHERE BuyerName LIKE @Prefix + '%' 
+                                    AND IsActive = 1
+                                  ORDER BY BuyerName";
+                using (SqlCommand cmd = new SqlCommand(query, localCon))
+                {
+                    cmd.Parameters.AddWithValue("@Prefix", prefixText.Trim());
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader["BuyerName"] != DBNull.Value)
+                                result.Add(reader["BuyerName"].ToString());
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Fail silently for autocomplete - just return empty list
+            }
+            finally
+            {
+                if (localCon != null && localCon.State == ConnectionState.Open)
+                    localCon.Close();
+            }
+            return result;
+        }
+
+        [WebMethod]
+        public static List<string> GetStyleSuggestions(string prefixText)
+        {
+            List<string> result = new List<string>();
+            if (string.IsNullOrWhiteSpace(prefixText)) return result;
+
+            DatabaseConnectionMerchandising connHelper = new DatabaseConnectionMerchandising();
+            SqlConnection localCon = null;
+            try
+            {
+                localCon = connHelper.openConnection();
+                // Style_Master : StyleName column, only active styles
+                string query = @"SELECT DISTINCT TOP 10 StyleName 
+                                  FROM Style_Master 
+                                  WHERE StyleName LIKE @Prefix + '%' 
+                                    AND IsActive = 1
+                                  ORDER BY StyleName";
+                using (SqlCommand cmd = new SqlCommand(query, localCon))
+                {
+                    cmd.Parameters.AddWithValue("@Prefix", prefixText.Trim());
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader["StyleName"] != DBNull.Value)
+                                result.Add(reader["StyleName"].ToString());
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Fail silently for autocomplete - just return empty list
+            }
+            finally
+            {
+                if (localCon != null && localCon.State == ConnectionState.Open)
+                    localCon.Close();
+            }
+            return result;
+        }
+
+        [WebMethod]
+        public static List<string> GetOrderSuggestions(string prefixText)
+        {
+            List<string> result = new List<string>();
+            if (string.IsNullOrWhiteSpace(prefixText)) return result;
+
+            DatabaseConnectionMerchandising connHelper = new DatabaseConnectionMerchandising();
+            SqlConnection localCon = null;
+            try
+            {
+                localCon = connHelper.openConnection();
+                // tbl_POEntryInformation : PONumber column (used as "Order No")
+                string query = @"SELECT DISTINCT TOP 10 PONumber 
+                                  FROM tbl_POEntryInformation 
+                                  WHERE PONumber LIKE @Prefix + '%'
+                                  ORDER BY PONumber";
+                using (SqlCommand cmd = new SqlCommand(query, localCon))
+                {
+                    cmd.Parameters.AddWithValue("@Prefix", prefixText.Trim());
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader["PONumber"] != DBNull.Value)
+                                result.Add(reader["PONumber"].ToString());
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Fail silently for autocomplete - just return empty list
+            }
+            finally
+            {
+                if (localCon != null && localCon.State == ConnectionState.Open)
+                    localCon.Close();
+            }
+            return result;
+        }
+
+        #endregion
+
         #region ---------- List Panel Row Commands (Edit, Delete, Report) ----------
 
         protected void gvWorkOrderReceive_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -324,13 +458,17 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     ShowMessage("Delete Error: " + ex.Message, "warning");
                 }
             }
-            else if (e.CommandName == "ReportView" )
+            else if (e.CommandName == "ReportView")
             {
-                Response.Redirect($"~/TrimsAccessories/EstimationCostings/OrdersReports/ReceivedOrdersReports.aspx?WORcvID={arg}");
+                string url = ResolveUrl($"~/TrimsAccessories/EstimationCostings/OrdersReports/ReceivedOrdersReports.aspx?WORcvID={arg}");
+                string script = $"window.open('{url}', '_blank');";
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenReport", script, true);
             }
             else if (e.CommandName == "RawMatrialView")
             {
-                Response.Redirect($"~/TrimsAccessories/EstimationCostings/OrdersReports/RawMaterialReports.aspx?WORcvID={arg}");
+                string url = ResolveUrl($"~/TrimsAccessories/EstimationCostings/OrdersReports/RawMaterialReports.aspx?WORcvID={arg}");
+                string script = $"window.open('{url}', '_blank');";
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenRawMaterialReport", script, true);
             }
         }
         private void LoadWorkOrderForEdit(string workOrderNo)
@@ -518,6 +656,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 case "SelectColor":
                     SelectedColorSlNo = colorSlNo;
                     lblSelectedColorName.Text = color.ColorName;
+                    // ★ FIX (Issue 1): কালার সিলেক্ট করার পর ইনপুট রো ক্লিয়ার করার সাথে সাথে
+                    // এই কালারের Rate টা txtRateUnit-এ বসিয়ে দেওয়া হচ্ছে (ClearSizeInputRow দেখুন)
                     ClearSizeInputRow();
                     BindColorList();
                     BindSizeDetails();
@@ -602,7 +742,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             decimal.TryParse(txtExtraPercent.Text, out decimal extraPercent);
 
             decimal totalReqQty = reqQty + (reqQty * (extraPercent / 100m));
-            decimal totalAmount = reqQty * rateUnit;
+            decimal totalAmount = totalReqQty * rateUnit;
 
             int nextSlNo = color.SizeDetails.Any() ? color.SizeDetails.Max(s => s.SlNo) + 1 : 1;
 
@@ -685,27 +825,9 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     GridViewRow row = ((Control)e.CommandSource).NamingContainer as GridViewRow;
                     if (row != null)
                     {
-                        TextBox txtM = (TextBox)row.FindControl("txtMeasurement");
-                        TextBox txtQ = (TextBox)row.FindControl("txtReqQty");
-                        TextBox txtU = (TextBox)row.FindControl("txtUnit");
-                        TextBox txtR = (TextBox)row.FindControl("txtRateUnit");
-                        TextBox txtE = (TextBox)row.FindControl("txtExtraPercent");
-                        TextBox txtRem = (TextBox)row.FindControl("txtRemarks");
-
-                        decimal.TryParse(txtQ?.Text, out decimal uReqQty);
-                        decimal.TryParse(txtR?.Text, out decimal uRateUnit);
-                        decimal.TryParse(txtE?.Text, out decimal uExtraPercent);
-
-                        size.Measurement = txtM?.Text.Trim();
-                        size.ReqQty = uReqQty;
-                        size.Unit = txtU?.Text.Trim();
-                        size.RateUnit = uRateUnit;
-                        size.ExtraPercent = uExtraPercent;
-                        size.TotalReqQty = uReqQty + (uReqQty * (uExtraPercent / 100m));
-                        size.TotalAmount = size.TotalReqQty * uRateUnit;
-                        size.Remarks = txtRem?.Text.Trim();
-
+                        ApplySizeRowEdits(row, size);
                         RecalculateColorTotals(color);
+
                         BindSizeDetails();
                         BindColorList();
                         RecalculateGrandTotal();
@@ -713,6 +835,76 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     break;
             }
 
+            ShowFormPanel();
+        }
+
+        // ★ NEW (Issue 2): "Update" বাটন এবং grid-এর AutoPostBack টেক্সটবক্স —
+        // উভয় জায়গা থেকেই GridViewRow পড়ে SizeDetail-এ মান বসানোর কমন লজিক
+        private void ApplySizeRowEdits(GridViewRow row, SizeDetail size)
+        {
+            TextBox txtM = (TextBox)row.FindControl("txtMeasurement");
+            TextBox txtQ = (TextBox)row.FindControl("txtReqQty");
+            TextBox txtU = (TextBox)row.FindControl("txtUnit");
+            TextBox txtR = (TextBox)row.FindControl("txtRateUnit");
+            TextBox txtE = (TextBox)row.FindControl("txtExtraPercent");
+            TextBox txtRem = (TextBox)row.FindControl("txtRemarks");
+
+            decimal.TryParse(txtQ?.Text, out decimal uReqQty);
+            decimal.TryParse(txtR?.Text, out decimal uRateUnit);
+            decimal.TryParse(txtE?.Text, out decimal uExtraPercent);
+
+            size.Measurement = txtM?.Text.Trim();
+            size.ReqQty = uReqQty;
+            size.Unit = txtU?.Text.Trim();
+            size.RateUnit = uRateUnit;
+            size.ExtraPercent = uExtraPercent;
+            size.TotalReqQty = uReqQty + (uReqQty * (uExtraPercent / 100m));
+            size.TotalAmount = size.TotalReqQty * uRateUnit;
+            size.Remarks = txtRem?.Text.Trim();
+        }
+
+        // ★ NEW (Issue 2): gvSizeDetails-এর ReqQty/RateUnit/ExtraPercent টেক্সটবক্সে
+        // AutoPostBack="true" + OnTextChanged বসানো আছে (aspx দেখুন)। ফিল্ড থেকে
+        // ফোকাস সরালেই (blur) এটা ফায়ার হয়ে সার্ভার-সাইড টোটাল রিক্যালকুলেট করে —
+        // ফলে This Color's Total, Sub Total ও Grand Total সাথে সাথে আপডেট হয়ে যায়,
+        // আলাদা করে "Update" বাটনে ক্লিক করা লাগে না।
+        protected void txtSizeGridField_TextChanged(object sender, EventArgs e)
+        {
+            var color = GetSelectedColor();
+            if (color == null)
+            {
+                ShowFormPanel();
+                return;
+            }
+
+            TextBox tb = sender as TextBox;
+            if (tb == null)
+            {
+                ShowFormPanel();
+                return;
+            }
+
+            GridViewRow row = tb.NamingContainer as GridViewRow;
+            if (row == null || row.RowIndex < 0)
+            {
+                ShowFormPanel();
+                return;
+            }
+
+            int slNo = Convert.ToInt32(gvSizeDetails.DataKeys[row.RowIndex].Value);
+            var size = color.SizeDetails.FirstOrDefault(s => s.SlNo == slNo);
+            if (size == null)
+            {
+                ShowFormPanel();
+                return;
+            }
+
+            ApplySizeRowEdits(row, size);
+            RecalculateColorTotals(color);
+
+            BindSizeDetails();
+            BindColorList();
+            RecalculateGrandTotal();
             ShowFormPanel();
         }
 
@@ -731,7 +923,14 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             txtMeasurement.Text = string.Empty;
             txtReqQty.Text = "0";
             ddlUnit.SelectedIndex = 0;
-            txtRateUnit.Text = "0";
+
+            // ★ FIX (Issue 1): সিলেক্টেড কালারের Rate থাকলে সেটা Rate/Unit ইনপুটে বসিয়ে দিন,
+            // যাতে Add / Add All Size করার সময় কালারের রেটটাই সাইজ গ্রিডে চলে যায়
+            var color = GetSelectedColor();
+            txtRateUnit.Text = (color != null && !string.IsNullOrWhiteSpace(color.ColorRate))
+                ? color.ColorRate
+                : "0";
+
             txtExtraPercent.Text = "0";
             txtTotalReqQtyInput.Text = "0.00";
             txtTotalAmountInput.Text = "0.00";
@@ -970,6 +1169,9 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 return;
             }
 
+            // ★ FIX (Issue 1): কালারের Rate টা এখানে "Add All Size" এর সময় প্রতিটা সাইজ রো-তে বসানো হবে
+            decimal.TryParse(color.ColorRate, out decimal colorRateVal);
+
             try
             {
                 con = conn.openConnection();
@@ -1002,7 +1204,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             Measurement = string.Empty,
                             ReqQty = 0,
                             Unit = ddlUnit.SelectedValue,
-                            RateUnit = 0,
+                            RateUnit = colorRateVal,   // ★ FIX: 0 এর বদলে কালারের Rate ব্যবহার করা হচ্ছে
                             ExtraPercent = 0,
                             TotalReqQty = 0,
                             TotalAmount = 0,

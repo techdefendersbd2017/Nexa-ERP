@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexa_ERP.Inventory
+namespace Nexa_ERP.ERPConfiguration.CompanyInformation
 {
 
 
-    public partial class StoreRequisition
+    public partial class MachineMaster
     {
 
         /// <summary>
@@ -24,103 +24,148 @@ namespace Nexa_ERP.Inventory
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// ScriptManager1 control.
+        /// btnSave control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.ScriptManager ScriptManager1;
+        protected global::System.Web.UI.WebControls.Button btnSave;
 
         /// <summary>
-        /// upMain control.
+        /// btnClear control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel upMain;
+        protected global::System.Web.UI.WebControls.Button btnClear;
 
         /// <summary>
-        /// ValidationSummary1 control.
+        /// txtMachineID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.ValidationSummary ValidationSummary1;
+        protected global::System.Web.UI.WebControls.TextBox txtMachineID;
 
         /// <summary>
-        /// litDraftCount control.
+        /// txtMachineName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litDraftCount;
+        protected global::System.Web.UI.WebControls.TextBox txtMachineName;
 
         /// <summary>
-        /// litPendingCount control.
+        /// ddlMachineType control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litPendingCount;
+        protected global::System.Web.UI.WebControls.DropDownList ddlMachineType;
 
         /// <summary>
-        /// litApprovedCount control.
+        /// ddlMachineCategory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litApprovedCount;
+        protected global::System.Web.UI.WebControls.DropDownList ddlMachineCategory;
 
         /// <summary>
-        /// litReadyCount control.
+        /// ddlMachineBrand control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litReadyCount;
+        protected global::System.Web.UI.WebControls.DropDownList ddlMachineBrand;
 
         /// <summary>
-        /// litIssuedCount control.
+        /// txtModelNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litIssuedCount;
+        protected global::System.Web.UI.WebControls.TextBox txtModelNo;
 
         /// <summary>
-        /// litCompletedCount control.
+        /// txtSerialNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litCompletedCount;
+        protected global::System.Web.UI.WebControls.TextBox txtSerialNo;
 
         /// <summary>
-        /// litTotalValue control.
+        /// txtMachineSpeed control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litTotalValue;
+        protected global::System.Web.UI.WebControls.TextBox txtMachineSpeed;
 
         /// <summary>
-        /// hdnReqCategory control.
+        /// txtVendorName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hdnReqCategory;
+        protected global::System.Web.UI.WebControls.TextBox txtVendorName;
+
+        /// <summary>
+        /// txtVendorContact control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtVendorContact;
+
+        /// <summary>
+        /// fileMachinePhoto control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fileMachinePhoto;
+
+        /// <summary>
+        /// imgPreview control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgPreview;
+
+        /// <summary>
+        /// txtMachineSpec control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtMachineSpec;
+
+        /// <summary>
+        /// txtMachineDesc control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtMachineDesc;
 
         /// <summary>
         /// ddlCompany control.
@@ -132,31 +177,40 @@ namespace Nexa_ERP.Inventory
         protected global::System.Web.UI.WebControls.DropDownList ddlCompany;
 
         /// <summary>
-        /// rfvCompany control.
+        /// ddlFactory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvCompany;
+        protected global::System.Web.UI.WebControls.DropDownList ddlFactory;
 
         /// <summary>
-        /// ddlBranch control.
+        /// ddlDepartment control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlBranch;
+        protected global::System.Web.UI.WebControls.DropDownList ddlDepartment;
 
         /// <summary>
-        /// ddlBuilding control.
+        /// ddlSection control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlBuilding;
+        protected global::System.Web.UI.WebControls.DropDownList ddlSection;
+
+        /// <summary>
+        /// ddlLine control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlLine;
 
         /// <summary>
         /// ddlFloor control.
@@ -168,183 +222,84 @@ namespace Nexa_ERP.Inventory
         protected global::System.Web.UI.WebControls.DropDownList ddlFloor;
 
         /// <summary>
-        /// ddlCostCenter control.
+        /// txtMachineLocation control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlCostCenter;
+        protected global::System.Web.UI.WebControls.TextBox txtMachineLocation;
 
         /// <summary>
-        /// ddlIssuingStore control.
+        /// ddlRespDept control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlIssuingStore;
+        protected global::System.Web.UI.WebControls.DropDownList ddlRespDept;
 
         /// <summary>
-        /// ddlReceivingStore control.
+        /// ddlMachineStatus control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlReceivingStore;
+        protected global::System.Web.UI.WebControls.DropDownList ddlMachineStatus;
 
         /// <summary>
-        /// txtReqNo control.
+        /// ddlMachineCondition control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtReqNo;
+        protected global::System.Web.UI.WebControls.DropDownList ddlMachineCondition;
 
         /// <summary>
-        /// txtRequiredDate control.
+        /// txtInstallationDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRequiredDate;
+        protected global::System.Web.UI.WebControls.TextBox txtInstallationDate;
 
         /// <summary>
-        /// rfvRequiredDate control.
+        /// txtPurchaseDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvRequiredDate;
+        protected global::System.Web.UI.WebControls.TextBox txtPurchaseDate;
 
         /// <summary>
-        /// ddlCustomer control.
+        /// txtWarrantyExpiryDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlCustomer;
+        protected global::System.Web.UI.WebControls.TextBox txtWarrantyExpiryDate;
 
         /// <summary>
-        /// ddlWOReceiveRef control.
+        /// txtLastMaintenanceDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlWOReceiveRef;
+        protected global::System.Web.UI.WebControls.TextBox txtLastMaintenanceDate;
 
         /// <summary>
-        /// ddlWorkOrder control.
+        /// txtNextMaintenanceDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlWorkOrder;
-
-        /// <summary>
-        /// ddlItems control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlItems;
-
-        /// <summary>
-        /// txtOrderQty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtOrderQty;
-
-        /// <summary>
-        /// hdnGridData control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hdnGridData;
-
-        /// <summary>
-        /// txtRemarks control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRemarks;
-
-        /// <summary>
-        /// litCreatedBy control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litCreatedBy;
-
-        /// <summary>
-        /// litCreatedDate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litCreatedDate;
-
-        /// <summary>
-        /// lblStatus control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblStatus;
-
-        /// <summary>
-        /// btnSaveDraft control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSaveDraft;
-
-        /// <summary>
-        /// btnConfirm control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnConfirm;
-
-        /// <summary>
-        /// btnPrint control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnPrint;
-
-        /// <summary>
-        /// btnCancel control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCancel;
+        protected global::System.Web.UI.WebControls.TextBox txtNextMaintenanceDate;
     }
 }

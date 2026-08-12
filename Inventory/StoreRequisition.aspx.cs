@@ -21,7 +21,6 @@ namespace Nexa_ERP.Inventory
                 Load_Group_Information();
                 Load_BuildingInformation();
                 Load_Customer();
-                Load_Buyer();
 
             }
         }
@@ -41,6 +40,80 @@ namespace Nexa_ERP.Inventory
                     ddlCompany.DataValueField = "Group_ID";
                     ddlCompany.DataBind();
                     ddlCompany.Items.Insert(0, new ListItem("--Select Company--", "0"));
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+        }
+        private void Load_WorkOrderNo()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = "SELECT * FROM WorkOrder_Master where CustomerName='" + ddlCustomer.SelectedValue + "' ORDER BY WorkOrderNo";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    ddlWorkOrder.DataSource = dt;
+                    ddlWorkOrder.DataTextField = "WorkOrderNo";
+                    ddlWorkOrder.DataValueField = "WorkOrderNo";
+                    ddlWorkOrder.DataBind();
+                    ddlWorkOrder.Items.Insert(0, new ListItem("--Select WO Receive Ref No--", "0"));
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+        }
+        private void Load_ItemsByWO()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = @"SELECT  WorkOrder_Master.WorkOrderNo, ta_ItemName.ItemID, ta_ItemName.ItemName
+                                FROM  WorkOrder_Master INNER JOIN ta_ItemName ON WorkOrder_Master.ItemID = ta_ItemName.ItemID 
+                                where WorkOrder_Master.WorkOrderNo='" + ddlWorkOrder.SelectedItem.Text + "' ORDER BY ItemName";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    ddlItems.DataSource = dt;
+                    ddlItems.DataTextField = "ItemName";
+                    ddlItems.DataValueField = "ItemID";
+                    ddlItems.DataBind();
+                    ddlItems.Items.Insert(0, new ListItem("--Select WO Receive Ref No--", "0"));
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+        }
+        private void Load_WOReceiveRefNo()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = "SELECT * FROM WorkOrder_Master where CustomerName='"+ddlCustomer.SelectedValue+ "' ORDER BY WoRefNoDetails";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    ddlWOReceiveRef.DataSource = dt;
+                    ddlWOReceiveRef.DataTextField = "WoRefNoDetails";
+                    ddlWOReceiveRef.DataValueField = "WoRefNoDetails";
+                    ddlWOReceiveRef.DataBind();
+                    ddlWOReceiveRef.Items.Insert(0, new ListItem("--Select WO Receive Ref No--", "0"));
                 }
                 con.Close();
             }
@@ -237,30 +310,6 @@ namespace Nexa_ERP.Inventory
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
             }
         }
-        private void Load_Buyer()
-        {
-            try
-            {
-                con = conn.openConnection();
-                string query = "SELECT * FROM vw_BuyerInformation ORDER BY BuyerName";
-                using (SqlCommand cmd = new SqlCommand(query, con))
-                {
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    ddlBuyer.DataSource = dt;
-                    ddlBuyer.DataTextField = "BuyerName";
-                    ddlBuyer.DataValueField = "BuyerID";
-                    ddlBuyer.DataBind();
-                    ddlBuyer.Items.Insert(0, new ListItem("--Select Buyer--", "0"));
-                }
-                con.Close();
-            }
-            catch (Exception ex)
-            {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
-            }
-        }
         private void SetDefaultValues()
         {
             txtRequiredDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
@@ -287,7 +336,8 @@ namespace Nexa_ERP.Inventory
 
         protected void ddlCustomer_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            Load_WorkOrderNo();
+            Load_WOReceiveRefNo();
         }
 
         protected void btnSaveDraft_Click(object sender, EventArgs e)
@@ -323,6 +373,47 @@ namespace Nexa_ERP.Inventory
             Load_IssuingStore();
             Load_ReceivingStore();
             Load_CostCenter();
+        }
+
+        protected void ddlWorkOrder_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Load_ItemsByWO();
+        }
+
+        protected void ddlItems_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = @"SELECT POId, BuyerID, StyleId, PONumber, OrderQty, ShipmentDate  FROM tbl_POEntryInformation 
+                                  WHERE POId = @POId";
+                using (SqlCommand cmdEdit = new SqlCommand(query, con))
+                {
+                    using (SqlDataReader reader = cmdEdit.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            txtOrderQty.Text = reader["PONumber"].ToString();
+                        }
+                        else
+                        {
+                            txtOrderQty.Text = string.Empty;
+                        }
+                    }
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Error loading PO: " + ex.Message.Replace("'", "\\'") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
+            }
         }
     }
 }

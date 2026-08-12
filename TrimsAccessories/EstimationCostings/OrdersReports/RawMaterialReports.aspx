@@ -3,6 +3,25 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Raw Material Requirement Report</title>
+    
+    <!-- html2pdf CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+// PDF Download Function
+function downloadPDF() {
+    const element = document.getElementById('reportContent');
+    const options = {
+        margin: 5,
+        filename: 'RawMaterial_Requirement_Report.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+    html2pdf().from(element).set(options).save();
+        }
+    </script>
+
     <style>
         * { box-sizing: border-box; }
 
@@ -124,12 +143,6 @@
             background: #eef3fa !important;
             color: #1e3a5f !important;
         }
-        .materials-total-label {
-            text-align: right;
-            font-weight: 700;
-            background: #eef3fa !important;
-            color: #1e3a5f !important;
-        }
 
         /* Cost Summary Box */
         .summary-wrap {
@@ -185,6 +198,12 @@
         .print-toolbar {
             text-align: center;
             margin-bottom: 20px;
+            background: #f1f2f6;
+            padding: 12px;
+            border-radius: 6px;
+            max-width: 1050px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .print-toolbar button {
             padding: 9px 22px;
@@ -195,6 +214,7 @@
             border-radius: 4px;
             background: #1e3a5f;
             color: #fff;
+            font-weight: 600;
         }
         .print-toolbar button:last-child {
             background: #6b7280;
@@ -213,13 +233,14 @@
 <body>
     <form id="form1" runat="server">
 
-        <!-- Print & Close Controls -->
+        <!-- Print & Download Controls -->
         <div class="print-toolbar">
             <button type="button" onclick="window.print();">🖨 Print Report</button>
+            <button type="button" onclick="downloadPDF();">📥 Download PDF</button>
             <button type="button" onclick="window.close();">Close</button>
         </div>
 
-        <div class="report-container">
+        <div class="report-container" id="reportContent">
 
             <!-- Company Dynamic Header -->
             <div class="company-header">
@@ -283,10 +304,9 @@
                     </asp:TemplateField>
                     <asp:BoundField DataField="Remarks" HeaderText="Remarks" />
                 </Columns>
-                <FooterStyle CssClass="footer-total" />
             </asp:GridView>
 
-            <!-- Cost Summary (from WorkOrder_Master - authoritative figures) -->
+            <!-- Cost Summary -->
             <div class="summary-wrap">
                 <div class="summary-box">
                     <div class="row">

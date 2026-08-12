@@ -123,6 +123,15 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.TextBox txtBuyer;
 
         /// <summary>
+        /// lstBuyerSuggest control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl lstBuyerSuggest;
+
+        /// <summary>
         /// txtStyle control.
         /// </summary>
         /// <remarks>
@@ -132,6 +141,15 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.TextBox txtStyle;
 
         /// <summary>
+        /// lstStyleSuggest control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl lstStyleSuggest;
+
+        /// <summary>
         /// txtOrderNo control.
         /// </summary>
         /// <remarks>
@@ -139,6 +157,15 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtOrderNo;
+
+        /// <summary>
+        /// lstOrderSuggest control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl lstOrderSuggest;
 
         /// <summary>
         /// txtWoNoDetails control.

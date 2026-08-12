@@ -139,6 +139,54 @@
         .form-tab-content.active {
             display: block;
         }
+
+        /* ================= AUTOCOMPLETE SUGGESTION DROPDOWN ================= */
+        /* Buyer / Style / Order No textbox-এর জন্য custom autocomplete (jQuery UI ছাড়াই,
+           Bootstrap 5 এর সাথে visually মিলে যায়) */
+        .ac-wrapper {
+            position: relative;
+        }
+        .ac-suggestion-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 2000;
+            background: #fff;
+            border: 1px solid #86b7fe;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            max-height: 220px;
+            overflow-y: auto;
+            display: none;
+        }
+        .ac-suggestion-list.show {
+            display: block;
+        }
+        .ac-suggestion-item {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: #212529;
+        }
+        .ac-suggestion-item:hover,
+        .ac-suggestion-item.active {
+            background-color: #1f4e78;
+            color: #fff;
+        }
+        .ac-suggestion-empty {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* Active color row highlight (used by gvColorList_RowDataBound) */
+        .active-color-row {
+            background-color: #d1e7ff !important;
+        }
     </style>
 
     <script type="text/javascript">
@@ -223,16 +271,19 @@
             document.getElementById('<%= txtTotalAmountInput.ClientID %>').value = totalAmount.toFixed(2);
         }
 
-        // Initialize Select2 + restore UI state on first load
+        // Initialize Select2 + Autocomplete + restore UI state on first load
         $(document).ready(function () {
             initializeSelect2();
+            initializeAutocompleteFields();
             restoreUIState();
         });
 
-        // Initialize Select2 + restore UI state for normal load AND UpdatePanel partial postbacks
-        // (pageLoad is invoked by Microsoft Ajax after EVERY postback when a ScriptManager is present)
+        // Initialize Select2 + Autocomplete + restore UI state for normal load AND
+        // UpdatePanel partial postbacks (pageLoad is invoked by Microsoft Ajax after
+        // EVERY postback when a ScriptManager is present)
         function pageLoad(sender, args) {
             initializeSelect2();
+            initializeAutocompleteFields();
             restoreUIState();
         }
 
@@ -272,17 +323,141 @@
             // Total Amount = Total Req. Qty * RateUnit
             var totalAmount = totalReqQty * rateUnit;
 
-            // ফলাফল লেবেলে বসানো (ডেসিমেল পয়েন্ট ২ ঘর পর্যন্ত ফিক্সড রাখা)
-            lblTotalReqQty.innerText = totalReqQty.toFixed(2);
-            lblTotalAmount.innerText = totalAmount.toFixed(2);
+            // ফলাফল লেবেলে বসানো (ডেসিমেল পয়েন্ট ২ ঘর পর্যন্ত ফিক্সড রাখা) — এটা শুধু
+            // তাৎক্ষণিক ভিজ্যুয়াল প্রিভিউ; আসল সোর্স অফ ট্রুথ হলো সার্ভার-সাইড ক্যালকুলেশন
+            // যেটা AutoPostBack (blur/TextChanged) এর মাধ্যমে txtSizeGridField_TextChanged এ হয়
+            if (lblTotalReqQty) lblTotalReqQty.innerText = totalReqQty.toFixed(2);
+            if (lblTotalAmount) lblTotalAmount.innerText = totalAmount.toFixed(2);
+        }
+
+        // =====================================================================
+        // AUTOCOMPLETE (Buyer / Style / Order No) — calls ASP.NET PageMethods
+        // (WebMethods defined in code-behind: GetBuyerSuggestions, GetStyleSuggestions,
+        // GetOrderSuggestions). Requires ScriptManager1 EnablePageMethods="true".
+        // =====================================================================
+        var _acDebounceTimer = null;
+
+        function initializeAutocompleteFields() {
+            bindAutocomplete('<%= txtBuyer.ClientID %>', '<%= lstBuyerSuggest.ClientID %>', 'GetBuyerSuggestions');
+            bindAutocomplete('<%= txtStyle.ClientID %>', '<%= lstStyleSuggest.ClientID %>', 'GetStyleSuggestions');
+            bindAutocomplete('<%= txtOrderNo.ClientID %>', '<%= lstOrderSuggest.ClientID %>', 'GetOrderSuggestions');
+        }
+
+        function bindAutocomplete(inputId, listId, webMethodName) {
+            var $input = $('#' + inputId);
+            var $list = $('#' + listId);
+
+            if ($input.length === 0 || $list.length === 0) return;
+
+            // একবার binding হয়ে গেলে দ্বিতীয়বার bind না হয়, তাই একটা data flag ব্যবহার করছি
+            if ($input.data('ac-bound')) return;
+            $input.data('ac-bound', true);
+
+            $input.on('keyup', function (e) {
+                // navigation keys (up/down/enter/escape) skip করে বাকি সব keystroke এ suggest করবে
+                if ([13, 27, 38, 40].indexOf(e.keyCode) !== -1) return;
+
+                var term = $input.val().trim();
+
+                if (_acDebounceTimer) clearTimeout(_acDebounceTimer);
+
+                if (term.length < 1) {
+                    $list.removeClass('show').empty();
+                    return;
+                }
+
+                _acDebounceTimer = setTimeout(function () {
+                    fetchSuggestions(webMethodName, term, $list, $input);
+                }, 250); // 250ms debounce — প্রতিটা কি-স্ট্রোকে সাথে সাথে সার্ভারে হিট করবে না
+            });
+
+            // Up/Down/Enter navigation
+            $input.on('keydown', function (e) {
+                var $items = $list.find('.ac-suggestion-item');
+                if ($items.length === 0) return;
+
+                var $active = $list.find('.ac-suggestion-item.active');
+                var idx = $items.index($active);
+
+                if (e.keyCode === 40) { // Down
+                    e.preventDefault();
+                    idx = (idx + 1) % $items.length;
+                    $items.removeClass('active');
+                    $items.eq(idx).addClass('active');
+                } else if (e.keyCode === 38) { // Up
+                    e.preventDefault();
+                    idx = (idx <= 0) ? $items.length - 1 : idx - 1;
+                    $items.removeClass('active');
+                    $items.eq(idx).addClass('active');
+                } else if (e.keyCode === 13) { // Enter
+                    if ($active.length) {
+                        e.preventDefault();
+                        $input.val($active.text());
+                        $list.removeClass('show').empty();
+                    }
+                } else if (e.keyCode === 27) { // Escape
+                    $list.removeClass('show').empty();
+                }
+            });
+
+            // বাইরে ক্লিক করলে suggestion বন্ধ হয়ে যাবে
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest($input.parent()).length) {
+                    $list.removeClass('show').empty();
+                }
+            });
+
+            // Input থেকে focus চলে গেলেও একটু delay দিয়ে বন্ধ করা (item click কাজ করার জন্য)
+            $input.on('blur', function () {
+                setTimeout(function () { $list.removeClass('show').empty(); }, 150);
+            });
+        }
+
+        function fetchSuggestions(webMethodName, term, $list, $input) {
+            $.ajax({
+                type: "POST",
+                url: "WorkOrderReceive.aspx/" + webMethodName,
+                data: JSON.stringify({ prefixText: term }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    renderSuggestions(response.d, $list, $input);
+                },
+                error: function () {
+                    $list.removeClass('show').empty();
+                }
+            });
+        }
+
+        function renderSuggestions(items, $list, $input) {
+            $list.empty();
+
+            if (!items || items.length === 0) {
+                $list.removeClass('show');
+                return;
+            }
+
+            items.forEach(function (val) {
+                var $li = $('<li>').addClass('ac-suggestion-item').text(val);
+                $li.on('mousedown', function (e) {
+                    // mousedown ব্যবহার করা হয়েছে (click নয়), কারণ blur event mousedown এর
+                    // আগেই ফায়ার হতে পারে — এতে click select কাজ করবে নিশ্চিতভাবে
+                    e.preventDefault();
+                    $input.val(val);
+                    $list.removeClass('show').empty();
+                });
+                $list.append($li);
+            });
+
+            $list.addClass('show');
         }
     </script>
 
 </head>
 <body>
     <form id="form1" runat="server">
-        <!-- ScriptManager for UpdatePanel -->
-        <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+        <!-- ScriptManager for UpdatePanel + PageMethods (autocomplete এর জন্য EnablePageMethods="true" আবশ্যক) -->
+        <asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></asp:ScriptManager>
 
         <div class="container my-4">
 
@@ -402,17 +577,32 @@
                                                     <asp:ListItem Text="--Select Receiving Branch--" Value="0" />
                                                 </asp:DropDownList>
                                             </div>
+
+                                            <!-- ★★★ AUTOCOMPLETE: Buyer -->
                                             <div class="col-md-3">
                                                 <label class="form-label fw-bold">Customer Buyer</label>
-                                                <asp:TextBox ID="txtBuyer" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Buyer Name"></asp:TextBox>
+                                                <div class="ac-wrapper">
+                                                    <asp:TextBox ID="txtBuyer" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Buyer Name" autocomplete="off"></asp:TextBox>
+                                                    <ul id="lstBuyerSuggest" runat="server" class="ac-suggestion-list"></ul>
+                                                </div>
                                             </div>
+
+                                            <!-- ★★★ AUTOCOMPLETE: Style -->
                                             <div class="col-md-3">
                                                 <label class="form-label fw-bold">Style</label>
-                                                <asp:TextBox ID="txtStyle" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Style No/Name"></asp:TextBox>
+                                                <div class="ac-wrapper">
+                                                    <asp:TextBox ID="txtStyle" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Style No/Name" autocomplete="off"></asp:TextBox>
+                                                    <ul id="lstStyleSuggest" runat="server" class="ac-suggestion-list"></ul>
+                                                </div>
                                             </div>
+
+                                            <!-- ★★★ AUTOCOMPLETE: Order No -->
                                             <div class="col-md-3">
                                                 <label class="form-label fw-bold">Order</label>
-                                                <asp:TextBox ID="txtOrderNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Order No"></asp:TextBox>
+                                                <div class="ac-wrapper">
+                                                    <asp:TextBox ID="txtOrderNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Order No" autocomplete="off"></asp:TextBox>
+                                                    <ul id="lstOrderSuggest" runat="server" class="ac-suggestion-list"></ul>
+                                                </div>
                                             </div>
 
                                             <div class="col-md-3">
@@ -578,10 +768,11 @@
                                                             <asp:TextBox ID="txtMeasurement" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("Measurement") %>'></asp:TextBox>
                                                         </ItemTemplate>
                                                     </asp:TemplateField>
-
                                                     <asp:TemplateField HeaderText="Required Qty">
                                                         <ItemTemplate>
-                                                            <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("ReqQty") %>' onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
+                                                            <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm text-center"
+                                                                Text='<%# Eval("ReqQty") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
+                                                                onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
                                                         </ItemTemplate>
                                                     </asp:TemplateField>
 
@@ -593,13 +784,17 @@
 
                                                     <asp:TemplateField HeaderText="Rate/Unit">
                                                         <ItemTemplate>
-                                                            <asp:TextBox ID="txtRateUnit" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("RateUnit") %>' onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
+                                                            <asp:TextBox ID="txtRateUnit" runat="server" CssClass="form-control form-control-sm text-center"
+                                                                Text='<%# Eval("RateUnit") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
+                                                                onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
                                                         </ItemTemplate>
                                                     </asp:TemplateField>
 
                                                     <asp:TemplateField HeaderText="Extra %">
                                                         <ItemTemplate>
-                                                            <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("ExtraPercent") %>' onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
+                                                            <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm text-center"
+                                                                Text='<%# Eval("ExtraPercent") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
+                                                                onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
                                                         </ItemTemplate>
                                                     </asp:TemplateField>
 

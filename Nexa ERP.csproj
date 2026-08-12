@@ -200,6 +200,7 @@
     <Content Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx" />
+    <Content Include="ERPConfiguration\CompanyInformation\MachineMaster.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\FormEntry.aspx" />
@@ -308,6 +309,7 @@
     <Content Include="TrimsAccessories\MsterSetup\SizeCreate.aspx" />
     <Content Include="TrimsAccessories\MsterSetup\SubCategory.aspx" />
     <Content Include="TrimsAccessories\SheetNesting.aspx" />
+    <Content Include="TrimsAccessories\TrimsProduction\DailyProductionTarget.aspx" />
     <Content Include="Web.config" />
     <Content Include="Welcome.aspx" />
   </ItemGroup>
@@ -427,6 +429,13 @@
     </Compile>
     <Compile Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx.designer.cs">
       <DependentUpon>GroupInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\MachineMaster.aspx.cs">
+      <DependentUpon>MachineMaster.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\CompanyInformation\MachineMaster.aspx.designer.cs">
+      <DependentUpon>MachineMaster.aspx</DependentUpon>
     </Compile>
     <Compile Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx.cs">
       <DependentUpon>ProductionBuilding.aspx</DependentUpon>
@@ -1156,6 +1165,13 @@
     </Compile>
     <Compile Include="TrimsAccessories\SheetNesting.aspx.designer.cs">
       <DependentUpon>SheetNesting.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TrimsAccessories\TrimsProduction\DailyProductionTarget.aspx.cs">
+      <DependentUpon>DailyProductionTarget.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\TrimsProduction\DailyProductionTarget.aspx.designer.cs">
+      <DependentUpon>DailyProductionTarget.aspx</DependentUpon>
     </Compile>
     <Compile Include="Welcome.aspx.cs">
       <DependentUpon>Welcome.aspx</DependentUpon>
