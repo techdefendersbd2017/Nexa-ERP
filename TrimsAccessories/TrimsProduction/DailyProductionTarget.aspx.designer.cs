@@ -24,13 +24,13 @@ namespace Nexa_ERP.TrimsAccessories.TrimsProduction
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// btnSaveTarget control.
+        /// btnView control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSaveTarget;
+        protected global::System.Web.UI.WebControls.Button btnView;
 
         /// <summary>
         /// btnCalculate control.
@@ -42,6 +42,42 @@ namespace Nexa_ERP.TrimsAccessories.TrimsProduction
         protected global::System.Web.UI.WebControls.Button btnCalculate;
 
         /// <summary>
+        /// btnAddItem control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnAddItem;
+
+        /// <summary>
+        /// btnSaveTarget control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSaveTarget;
+
+        /// <summary>
+        /// btnUpdateTarget control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnUpdateTarget;
+
+        /// <summary>
+        /// btnCancelEdit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnCancelEdit;
+
+        /// <summary>
         /// btnClear control.
         /// </summary>
         /// <remarks>
@@ -49,6 +85,24 @@ namespace Nexa_ERP.TrimsAccessories.TrimsProduction
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnClear;
+
+        /// <summary>
+        /// pnlEditBanner control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlEditBanner;
+
+        /// <summary>
+        /// lblEditBanner control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblEditBanner;
 
         /// <summary>
         /// txtTargetDate control.
@@ -96,22 +150,22 @@ namespace Nexa_ERP.TrimsAccessories.TrimsProduction
         protected global::System.Web.UI.WebControls.DropDownList ddlLine;
 
         /// <summary>
-        /// ddlBuyer control.
+        /// ddlCustomer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlBuyer;
+        protected global::System.Web.UI.WebControls.DropDownList ddlCustomer;
 
         /// <summary>
-        /// ddlStyle control.
+        /// ddlWONo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlStyle;
+        protected global::System.Web.UI.WebControls.DropDownList ddlWONo;
 
         /// <summary>
         /// ddlItemName control.
@@ -121,6 +175,51 @@ namespace Nexa_ERP.TrimsAccessories.TrimsProduction
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlItemName;
+
+        /// <summary>
+        /// txtOrderQty control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtOrderQty;
+
+        /// <summary>
+        /// txtProductionCompleteQty control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtProductionCompleteQty;
+
+        /// <summary>
+        /// txtProductionDueQty control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtProductionDueQty;
+
+        /// <summary>
+        /// pnlExistingEntries control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlExistingEntries;
+
+        /// <summary>
+        /// gvExistingEntries control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvExistingEntries;
 
         /// <summary>
         /// txtOperator control.
@@ -220,6 +319,24 @@ namespace Nexa_ERP.TrimsAccessories.TrimsProduction
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView gvHourlyTarget;
+
+        /// <summary>
+        /// lblPendingCount control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblPendingCount;
+
+        /// <summary>
+        /// gvPendingItems control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvPendingItems;
 
         /// <summary>
         /// txtTargetRemarks control.

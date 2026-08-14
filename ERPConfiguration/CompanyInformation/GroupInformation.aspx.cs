@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 
 namespace Nexa_ERP.ERPConfiguration.CompanyInformation
 {
@@ -10,11 +11,9 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
     {
         SqlConnection con;
         Database_Connection conn = new Database_Connection();
-        SqlCommand cmd;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-
             if (!IsPostBack)
             {
                 string user = Request.QueryString["user"];
@@ -41,18 +40,38 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         {
             try
             {
+                byte[] logoBytes = null;
+
+                if (fuLogo.HasFile)
+                {
+                    int fileSize = fuLogo.PostedFile.ContentLength;
+                    logoBytes = new byte[fileSize];
+                    fuLogo.PostedFile.InputStream.Read(logoBytes, 0, fileSize);
+                }
+
                 con = conn.openConnection();
                 using (SqlCommand cmd = new SqlCommand("sp_GroupInformation_Insert", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@Group_ID", SqlDbType.Int).Value = Convert.ToInt32(txtGroupID.Text);
                     cmd.Parameters.Add("@Group_Name", SqlDbType.NVarChar, 150).Value = txtGroup.Text.Trim();
-                    cmd.Parameters.Add("@Prifix", SqlDbType.NVarChar, 20).Value = txtPrefix.Text.Trim();
-                    cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar, 100).Value = txtEmail.Text.Trim();
-                    cmd.Parameters.Add("@Phone_No", SqlDbType.NVarChar, 20).Value = txtPhone.Text.Trim();
-                    cmd.Parameters.Add("@Web", SqlDbType.NVarChar, 100).Value = txtWeb.Text.Trim();
-                    cmd.Parameters.Add("@Address", SqlDbType.NVarChar, 250).Value = txtAddress.Text.Trim();
-                    cmd.Parameters.Add("@is_active", SqlDbType.Bit).Value = chkIsActive.Checked;
+                    cmd.Parameters.Add("@Prifix", SqlDbType.NVarChar, 50).Value = txtPrefix.Text.Trim();
+                    cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar, 150).Value = txtEmail.Text.Trim();
+                    cmd.Parameters.Add("@Phone_No", SqlDbType.NVarChar, 50).Value = txtPhone.Text.Trim();
+                    cmd.Parameters.Add("@Web", SqlDbType.NVarChar, 150).Value = txtWeb.Text.Trim();
+                    cmd.Parameters.Add("@Address", SqlDbType.NVarChar, 300).Value = txtAddress.Text.Trim();
+                    cmd.Parameters.Add("@Is_Active", SqlDbType.Bit).Value = chkIsActive.Checked;
+
+                    SqlParameter paramLogo = new SqlParameter("@Logo", SqlDbType.VarBinary, -1);
+                    if (logoBytes != null)
+                    {
+                        paramLogo.Value = logoBytes;
+                    }
+                    else
+                    {
+                        paramLogo.Value = DBNull.Value;
+                    }
+                    cmd.Parameters.Add(paramLogo);
 
                     cmd.ExecuteNonQuery();
 
@@ -72,14 +91,13 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         {
             con = conn.openConnection();
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Group_Information ", con);
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Group_Information", con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 gvGroup.DataSource = dt;
                 gvGroup.DataBind();
             }
             con.Close();
-
         }
 
         protected void gvGroup_SelectedIndexChanged(object sender, EventArgs e)
@@ -111,6 +129,17 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                             txtWeb.Text = reader["Web"].ToString();
                             txtAddress.Text = reader["Address"].ToString();
                             chkIsActive.Checked = Convert.ToBoolean(reader["Is_Active"]);
+
+                            if (reader["Logo"] != DBNull.Value)
+                            {
+                                byte[] bytes = (byte[])reader["Logo"];
+                                string base64String = Convert.ToBase64String(bytes);
+                                imgLogoPreview.ImageUrl = "data:image/png;base64," + base64String;
+                            }
+                            else
+                            {
+                                imgLogoPreview.ImageUrl = "~/Images/no-image.png";
+                            }
                         }
                     }
                 }
@@ -135,7 +164,8 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             txtPhone.Text = string.Empty;
             txtWeb.Text = string.Empty;
             txtAddress.Text = string.Empty;
-            chkIsActive.Checked = false;
+            chkIsActive.Checked = true;
+            imgLogoPreview.ImageUrl = "~/Images/no-image.png";
             LoadNextGroupID();
         }
     }

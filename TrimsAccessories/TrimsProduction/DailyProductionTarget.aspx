@@ -34,13 +34,30 @@
                                 <h2 class="h4 mb-1 text-primary"><i class="fa-solid fa-bullseye me-2"></i> Daily Production Target</h2>
                                 <p class="text-muted mb-0 small">Set, distribute and monitor daily production targets by line/section efficiently.</p>
                             </div>
-                            <div class="d-flex gap-2">
-                                <asp:Button ID="btnSaveTarget" runat="server" Text="Save Target" CssClass="btn btn-success px-4" OnClick="btnSaveTarget_Click" />
+                            <div class="d-flex gap-2 flex-wrap">
+                                <asp:Button ID="btnView" runat="server" Text="View Report" CssClass="btn btn-outline-primary px-3" CausesValidation="false" OnClick="btnView_Click" />
                                 <asp:Button ID="btnCalculate" runat="server" Text="Calculate SMV/Capacity" CssClass="btn btn-outline-primary px-3" OnClick="btnCalculate_Click" CausesValidation="false" />
+                                <asp:Button ID="btnAddItem" runat="server" Text="+ Add Item to List" CssClass="btn btn-primary px-3" OnClick="btnAddItem_Click" CausesValidation="false" />
+                                <asp:Button ID="btnSaveTarget" runat="server" Text="Save All Targets" CssClass="btn btn-success px-4" OnClick="btnSaveTarget_Click" CausesValidation="false" />
+
+                                <!-- Edit-mode only buttons: hidden by default, shown by SetEditModeUI() -->
+                                <asp:Button ID="btnUpdateTarget" runat="server" Text="Update Entry" CssClass="btn btn-warning px-4" OnClick="btnUpdateTarget_Click" CausesValidation="false" Visible="false" />
+                                <asp:Button ID="btnCancelEdit" runat="server" Text="Cancel Edit" CssClass="btn btn-outline-secondary px-3" OnClick="btnCancelEdit_Click" CausesValidation="false" Visible="false" />
+
                                 <asp:Button ID="btnClear" runat="server" Text="Clear" CssClass="btn btn-secondary px-3" OnClick="btnClear_Click" CausesValidation="false" />
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Edit-mode banner -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <asp:Panel ID="pnlEditBanner" runat="server" CssClass="alert alert-warning d-flex align-items-center gap-2 mb-0" Visible="false">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <asp:Label ID="lblEditBanner" runat="server" CssClass="fw-semibold"></asp:Label>
+                    </asp:Panel>
                 </div>
             </div>
 
@@ -51,53 +68,107 @@
                 </div>
                 <div class="card-body bg-white">
                     <div class="row g-3">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold small">Target Date</label>
-                            <asp:TextBox ID="txtTargetDate" runat="server" CssClass="form-control" TextMode="Date"></asp:TextBox>
+                            <asp:TextBox ID="txtTargetDate" runat="server" CssClass="form-control" TextMode="Date" AutoPostBack="true" OnTextChanged="txtTargetDate_TextChanged"></asp:TextBox>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold small">Company</label>
                             <asp:DropDownList ID="ddlCompany" AutoPostBack="true" runat="server" CssClass="form-select" OnSelectedIndexChanged="ddlCompany_SelectedIndexChanged">
                                 <asp:ListItem Text="-- Select Company --" Value="" />
                             </asp:DropDownList>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold small">Building</label>
                             <asp:DropDownList ID="ddlBuilding" AutoPostBack="true" runat="server" CssClass="form-select" OnSelectedIndexChanged="ddlBuilding_SelectedIndexChanged">
                                 <asp:ListItem Text="-- Select Building --" Value="" />
                             </asp:DropDownList>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold small">Floor</label>
                             <asp:DropDownList ID="ddlFloor" AutoPostBack="true" runat="server" CssClass="form-select">
                                 <asp:ListItem Text="-- Select Floor --" Value="" />
                             </asp:DropDownList>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold small">Production Line</label>
-                            <asp:DropDownList ID="ddlLine" AutoPostBack="true" runat="server" CssClass="form-select">
+                            <asp:DropDownList ID="ddlLine" AutoPostBack="true" runat="server" CssClass="form-select" OnSelectedIndexChanged="ddlLine_SelectedIndexChanged">
                                 <asp:ListItem Text="-- Select Line --" Value="" />
                             </asp:DropDownList>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold small">Buyer Name</label>
-                            <asp:DropDownList ID="ddlBuyer" runat="server" AutoPostBack="true" CssClass="form-select" OnSelectedIndexChanged="ddlBuyer_SelectedIndexChanged">
-                                <asp:ListItem Text="-- Select Buyer --" Value="" />
+                        </div>                        
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold small">Customer</label>
+                            <asp:DropDownList ID="ddlCustomer" runat="server" AutoPostBack="true" CssClass="form-select" OnSelectedIndexChanged="ddlBuyer_SelectedIndexChanged">
+                                <asp:ListItem Text="-- Select Customer --" Value="" />
                             </asp:DropDownList>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold small">Style / Order No</label>
-                            <asp:DropDownList ID="ddlStyle" runat="server" AutoPostBack="true" CssClass="form-select">
-                                <asp:ListItem Text="-- Select Style --" Value="" />
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold small">Work Order No</label>
+                            <asp:DropDownList ID="ddlWONo" runat="server" AutoPostBack="true" CssClass="form-select" OnSelectedIndexChanged="ddlWONo_SelectedIndexChanged">
+                                <asp:ListItem Text="-- Select Work Order --" Value="" />
                             </asp:DropDownList>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold small">Item / Product Name</label>
-                            <asp:DropDownList ID="ddlItemName" runat="server"  CssClass="form-select">
+                            <asp:DropDownList ID="ddlItemName" runat="server"  CssClass="form-select" AutoPostBack="true" OnSelectedIndexChanged="ddlItemName_SelectedIndexChanged">
                                 <asp:ListItem Text="-- Select Item --" Value="" />
                             </asp:DropDownList>
                         </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold small">Order Quantity</label>                            
+                            <asp:TextBox ID="txtOrderQty" runat="server" CssClass="form-control form-control-sm" TextMode="Number" Text="0" Placeholder="e.g., 10" ReadOnly="True"></asp:TextBox>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold small">Production Complete Qty</label>                            
+                            <asp:TextBox ID="txtProductionCompleteQty" runat="server" CssClass="form-control form-control-sm" TextMode="Number" Text="0" Placeholder="e.g., 10" ReadOnly="True"></asp:TextBox>
+                        </div>                        
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold small">Production Due Qty</label>                            
+                            <asp:TextBox ID="txtProductionDueQty" runat="server" CssClass="form-control form-control-sm" TextMode="Number" Text="0" Placeholder="e.g., 10" ReadOnly="True"></asp:TextBox>
+                        </div>
                     </div>
+                </div>
+            </div>
+            <!-- Existing Entries for Selected Date & Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <asp:Panel ID="pnlExistingEntries" runat="server" Visible="false">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-warning-subtle fw-bold">
+                                <i class="fa-solid fa-clock-rotate-left me-1"></i> Previous entry for this date and section
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <asp:GridView ID="gvExistingEntries" runat="server" CssClass="table table-sm table-bordered align-middle mb-0" AutoGenerateColumns="false" OnRowCommand="gvExistingEntries_RowCommand">
+                                        <Columns>
+                                            <asp:BoundField DataField="TargetID" HeaderText="ID" ItemStyle-Width="5%" />
+                                            <asp:BoundField DataField="ItemName" HeaderText="Item" />
+                                            <asp:BoundField DataField="Operator" HeaderText="Operator" />
+                                            <asp:BoundField DataField="Helper" HeaderText="Helper" />
+                                            <asp:BoundField DataField="WorkingHours" HeaderText="Working Hrs" />
+                                            <asp:BoundField DataField="PerHourTarget" HeaderText="Per Hr Target" />
+                                            <asp:BoundField DataField="TotalTargetQty" HeaderText="Total Qty" />
+                                            <asp:TemplateField HeaderText="Action" ItemStyle-Width="10%">
+                                                <ItemTemplate>
+                                                    <asp:LinkButton ID="lnkEditEntry" runat="server" CssClass="btn btn-sm btn-outline-primary me-1"
+                                                        CommandName="EditEntry" CommandArgument='<%# Eval("TargetID") %>'
+                                                        ToolTip="Edit this entry" CausesValidation="false">
+                                                        <i class="fa-solid fa-pen"></i>
+                                                    </asp:LinkButton>
+                                                    <asp:LinkButton ID="lnkDeleteEntry" runat="server" CssClass="btn btn-sm btn-outline-danger"
+                                                        CommandName="DeleteEntry" CommandArgument='<%# Eval("TargetID") %>'
+                                                        OnClientClick="return confirm('Are you sure you want to permanently delete this entry?');"
+                                                        ToolTip="Delete this entry" CausesValidation="false">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </asp:LinkButton>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+                                        </Columns>
+                                    </asp:GridView>
+                                </div>
+                            </div>
+                        </div>
+                    </asp:Panel>
                 </div>
             </div>
 
@@ -210,7 +281,39 @@
                     </div>
                 </div>
             </div>
-
+            <!-- Pending Items (Add করা Item গুলো, Save All চাপার আগ পর্যন্ত এখানে জমা থাকবে) -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="fa-solid fa-list-check me-1"></i> Pending Items </span>
+                    <span class="badge bg-light text-dark">Total: <asp:Label ID="lblPendingCount" runat="server" Text="0" /></span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <asp:GridView ID="gvPendingItems" runat="server" CssClass="table table-sm table-bordered align-middle mb-0"
+                            AutoGenerateColumns="false" OnRowCommand="gvPendingItems_RowCommand"
+                            EmptyDataText="No items have been added yet. Please fill in the form and click Add Item to List.">
+                            <Columns>
+                                <asp:BoundField DataField="ItemName" HeaderText="Item" />
+                                <asp:BoundField DataField="Operator" HeaderText="Operator" />
+                                <asp:BoundField DataField="Helper" HeaderText="Helper" />
+                                <asp:BoundField DataField="WorkingHours" HeaderText="Working Hrs" />
+                                <asp:BoundField DataField="PerHourTarget" HeaderText="Per Hr Target" />
+                                <asp:BoundField DataField="TotalTargetQty" HeaderText="Total Qty" />
+                                <asp:TemplateField HeaderText="Action" ItemStyle-Width="8%">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="lnkRemove" runat="server" CssClass="btn btn-sm btn-outline-danger"
+                                            CommandName="RemovePending" CommandArgument='<%# Eval("SL") %>'
+                                            OnClientClick="return confirm('Are you sure you want to remove this item from the list?');"
+                                            CausesValidation="false">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                            </Columns>
+                        </asp:GridView>
+                    </div>
+                </div>
+            </div>
             <!-- Additional Remarks -->
             <div class="card shadow-sm border-0">
                 <div class="card-body">

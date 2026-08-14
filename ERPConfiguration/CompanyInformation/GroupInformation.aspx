@@ -6,90 +6,34 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-
     <style>
         body { background-color: #f8f9fa; font-size: 14px; }
         .card-header-custom { background-color: #1f4e78; color: white; font-weight: bold; }
         .wrap-cell { word-break: break-all; max-width: 200px; }
-
-        /* Select2 - rounded, clean look */
-        .select2-container--bootstrap-5 .select2-selection {
-            border-radius: 8px !important;
-            border: 1px solid #ced4da !important;
-        }
-        .select2-container--bootstrap-5 .select2-selection:focus,
-        .select2-container--bootstrap-5.select2-container--focus .select2-selection {
-            border-color: #86b7fe !important;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15) !important;
-        }
-        .select2-container--bootstrap-5 .select2-dropdown {
-            border-radius: 8px !important;
-            border: 1px solid #ced4da !important;
-            overflow: hidden;
-        }
-        .select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
-            border-radius: 6px !important;
-            border: 1px solid #ced4da !important;
-            padding: 6px 10px !important;
-        }
-        .select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
-            background-color: #1f4e78 !important;
-        }
+        .logo-preview { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #ced4da; }
     </style>
 
     <script type="text/javascript">
-        // পেজ লোড হওয়ার পর সেভ করা scroll position এ ফিরে যাওয়া
         window.onload = function () {
-    var hf = document.getElementById('<%= hfScrollPosition.ClientID %>');
-    if (hf && hf.value && parseInt(hf.value) > 0) {
-        window.scrollTo(0, parseInt(hf.value));
-    }
-};
+            var hf = document.getElementById('<%= hfScrollPosition.ClientID %>');
+            if (hf && hf.value && parseInt(hf.value) > 0) {
+                window.scrollTo(0, parseInt(hf.value));
+            }
+        };
 
-// বাটনে ক্লিক করার মুহূর্তে বর্তমান scroll position hidden field এ সেভ করা
-function saveScrollPos() {
+        function saveScrollPos() {
             document.getElementById('<%= hfScrollPosition.ClientID %>').value =
                 (window.pageYOffset || document.documentElement.scrollTop);
         }
     </script>
-
-    <!-- jQuery & Select2 JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            $('.search-dropdown').select2({
-                theme: 'bootstrap-5',
-                width: '100%',
-                placeholder: "Search"
-            });
-
-            $('.search-dropdown').on('select2:open', function () {
-                setTimeout(function () {
-                    var searchField = document.querySelector('.select2-container--open .select2-search__field');
-                    if (searchField) {
-                        searchField.focus();
-                    }
-                }, 0);
-            });
-        });
-    </script>
 </head>
 <body>
     <form id="form1" runat="server">
-        
         <asp:ScriptManager ID="ScriptManager1" runat="server" />
         <asp:HiddenField ID="hfUserId" runat="server" />
         <asp:HiddenField ID="hfScrollPosition" runat="server" Value="0" />
 
         <div class="container-fluid my-4 px-4">
-            
-            <!-- Page Heading -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-diagram-3-fill fs-3 text-primary"></i>
@@ -110,7 +54,6 @@ function saveScrollPos() {
 
                 <div class="card-body">
                     <div class="row">
-
                         <!-- বাম সাইড: ইনপুট ফর্ম -->
                         <div class="col-md-5 border-end pe-md-4">
                             <h6 class="text-primary fw-bold mb-3">Add / Update Group Details</h6>
@@ -135,34 +78,28 @@ function saveScrollPos() {
                                 <asp:TextBox ID="txtPrefix" runat="server" CssClass="form-control" MaxLength="50" placeholder="Enter Prefix" />
                             </div>
 
+                            <!-- লোগো আপলোড ও প্রিভিউ -->
+                            <div class="mb-3">
+                                <asp:Label runat="server" AssociatedControlID="fuLogo" Text="Company Logo (Binary)" CssClass="form-label fw-bold small" />
+                                <div class="d-flex align-items-center gap-3">
+                                    <asp:FileUpload ID="fuLogo" runat="server" CssClass="form-control" />
+                                    <asp:Image ID="imgLogoPreview" runat="server" CssClass="logo-preview" ImageUrl="~/Images/no-image.png" />
+                                </div>
+                            </div>
+
                             <div class="mb-3">
                                 <asp:Label runat="server" AssociatedControlID="txtEmail" Text="E-Mail" CssClass="form-label fw-bold small" />
                                 <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" MaxLength="150" TextMode="Email" placeholder="example@domain.com" />
-                                <asp:RegularExpressionValidator ID="revEmail" runat="server"
-                                    ControlToValidate="txtEmail" Display="Dynamic" CssClass="text-danger small"
-                                    ErrorMessage="Enter a valid email address."
-                                    ValidationExpression="^[^@\s]+@[^@\s]+\.[^@\s]+$"
-                                    ValidationGroup="GroupInfo" />
                             </div>
 
                             <div class="mb-3">
                                 <asp:Label runat="server" AssociatedControlID="txtPhone" Text="Phone No" CssClass="form-label fw-bold small" />
                                 <asp:TextBox ID="txtPhone" runat="server" CssClass="form-control" MaxLength="50" placeholder="Enter Phone No" />
-                                <asp:RegularExpressionValidator ID="revPhone" runat="server"
-                                    ControlToValidate="txtPhone" Display="Dynamic" CssClass="text-danger small"
-                                    ErrorMessage="Enter a valid phone number."
-                                    ValidationExpression="^[0-9+\-\s()]{6,20}$"
-                                    ValidationGroup="GroupInfo" />
                             </div>
 
                             <div class="mb-3">
                                 <asp:Label runat="server" AssociatedControlID="txtWeb" Text="Web" CssClass="form-label fw-bold small" />
                                 <asp:TextBox ID="txtWeb" runat="server" CssClass="form-control" MaxLength="150" placeholder="https://example.com" />
-                                <asp:RegularExpressionValidator ID="revWeb" runat="server"
-                                    ControlToValidate="txtWeb" Display="Dynamic" CssClass="text-danger small"
-                                    ErrorMessage="Enter a valid website URL."
-                                    ValidationExpression="^(https?:\/\/)?([\w\-]+\.)+[\w\-]{2,}(\/\S*)?$"
-                                    ValidationGroup="GroupInfo" />
                             </div>
 
                             <div class="mb-3">
@@ -198,6 +135,13 @@ function saveScrollPos() {
 
                                     <Columns>
                                         <asp:BoundField DataField="Group_ID" HeaderText="ID" />
+                                        <asp:TemplateField HeaderText="Logo">
+                                            <ItemTemplate>
+                                                <asp:Image ID="imgGridLogo" runat="server" 
+                                                    ImageUrl='<%# Eval("Logo") != DBNull.Value ? "data:image/png;base64," + Convert.ToBase64String((byte[])Eval("Logo")) : "~/Images/no-image.png" %>' 
+                                                    Width="40" Height="40" CssClass="rounded object-fit-cover border" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
                                         <asp:BoundField DataField="Group_Name" HeaderText="Group Name" />
                                         <asp:BoundField DataField="Prifix" HeaderText="Prefix" />
                                         <asp:BoundField DataField="E_Mail" HeaderText="E-Mail" />
@@ -210,15 +154,12 @@ function saveScrollPos() {
                                             </ItemTemplate>
                                         </asp:TemplateField>
                                     </Columns>
-
                                 </asp:GridView>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-
         </div>
     </form>
 </body>

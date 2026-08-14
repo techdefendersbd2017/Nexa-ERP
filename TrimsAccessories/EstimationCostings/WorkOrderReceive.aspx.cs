@@ -43,6 +43,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             public decimal TotalReqQty { get; set; }
             public decimal TotalAmount { get; set; }
             public string Remarks { get; set; }
+            public int ItemID { get; set; }
         }
 
         #endregion
@@ -553,7 +554,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 }
 
                 string sizeQuery = @"SELECT SlNo, ColorSlNo, Size, Measurement, ReqQty, Unit, RateUnit, 
-                                             ExtraPercent, TotalReqQty, TotalAmount, Remarks 
+                                             ExtraPercent, TotalReqQty, TotalAmount, Remarks, ItemID 
                                       FROM WorkOrder_Size_Details 
                                       WHERE WorkOrderNo = @WorkOrderNo 
                                       ORDER BY ColorSlNo, SlNo";
@@ -579,7 +580,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                                 ExtraPercent = Convert.ToDecimal(reader["ExtraPercent"]),
                                 TotalReqQty = Convert.ToDecimal(reader["TotalReqQty"]),
                                 TotalAmount = Convert.ToDecimal(reader["TotalAmount"]),
-                                Remarks = reader["Remarks"]?.ToString()
+                                Remarks = reader["Remarks"]?.ToString(),
+                                ItemID = reader["ItemID"] != DBNull.Value ? Convert.ToInt32(reader["ItemID"]) : 0
                             });
                         }
                     }
@@ -746,6 +748,9 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
             int nextSlNo = color.SizeDetails.Any() ? color.SizeDetails.Max(s => s.SlNo) + 1 : 1;
 
+            // ★★★ NEW: হেডারে সিলেক্ট করা Item ID প্রতিটা সাইজ রো-তে বসানো হচ্ছে
+            int.TryParse(ddlItemNameDetails.SelectedValue, out int selectedItemID);
+
             color.SizeDetails.Add(new SizeDetail
             {
                 SlNo = nextSlNo,
@@ -757,7 +762,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 ExtraPercent = extraPercent,
                 TotalReqQty = totalReqQty,
                 TotalAmount = totalAmount,
-                Remarks = txtSizeRemarks.Text.Trim()
+                Remarks = txtSizeRemarks.Text.Trim(),
+                ItemID = selectedItemID          // ★★★ NEW
             });
 
             RecalculateColorTotals(color);
@@ -991,8 +997,28 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 return;
             }
 
+            // ★★★ NEW: Item Name বাধ্যতামূলক ভ্যালিডেশন — নাহলে ItemID = 0 হয়ে সেভ হয়ে যাবে
+            if (ddlItemNameDetails.SelectedValue == "0")
+            {
+                ShowMessage("Please select an Item Name before saving.", "warning");
+                ShowFormPanel();
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(txtWoRef.Text)) txtWoRef.Text = GenerateNextWorkOrderRef();
             RecalculateGrandTotal();
+
+            // ★★★ FIXED: Save করার ঠিক আগে সব সাইজ রো-এর ItemID কে বর্তমান dropdown ভ্যালু
+            // দিয়ে sync করা হচ্ছে। এতে ইউজার আগে সাইজ যোগ করে পরে Item সিলেক্ট করলেও
+            // (বা Item পরিবর্তন করলেও) ItemID = 0 হয়ে সেভ হওয়ার সমস্যাটা আর থাকবে না।
+            int.TryParse(ddlItemNameDetails.SelectedValue, out int currentItemID);
+            foreach (var col in ColorList)
+            {
+                foreach (var sz in col.SizeDetails)
+                {
+                    sz.ItemID = currentItemID;
+                }
+            }
 
             // ★★★ FIXED: ColorRate কলাম যোগ করা হয়েছে
             DataTable dtColors = new DataTable();
@@ -1004,8 +1030,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             dtColors.Columns.Add("ColorTotalAmount", typeof(decimal));
 
             DataTable dtSizes = new DataTable();
-            dtSizes.Columns.Add("SlNo", typeof(int));
-            dtSizes.Columns.Add("ColorSlNo", typeof(int));
+            dtSizes.Columns.Add("ColorSlNo", typeof(int));   // ★★★ FIXED: SlNo বাদ দেওয়া হয়েছে — SizeTableType-এ এই কলাম নেই (11 কলাম প্রয়োজন)
             dtSizes.Columns.Add("Size", typeof(string));
             dtSizes.Columns.Add("Measurement", typeof(string));
             dtSizes.Columns.Add("ReqQty", typeof(decimal));
@@ -1015,6 +1040,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             dtSizes.Columns.Add("TotalReqQty", typeof(decimal));
             dtSizes.Columns.Add("TotalAmount", typeof(decimal));
             dtSizes.Columns.Add("Remarks", typeof(string));
+            dtSizes.Columns.Add("ItemID", typeof(int));   // ★★★ NEW — SizeTableType-এর শেষে যোগ করা হয়েছিল, তাই এখানেও শেষে
 
             foreach (var col in ColorList)
             {
@@ -1022,7 +1048,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 dtColors.Rows.Add(col.ColorSlNo, col.ColorName, colorRateVal, col.ColorRemarks, col.TotalReqQty, col.ColorTotalAmount);
                 foreach (var sz in col.SizeDetails)
                 {
-                    dtSizes.Rows.Add(sz.SlNo, col.ColorSlNo, sz.Size, sz.Measurement, sz.ReqQty, sz.Unit, sz.RateUnit, sz.ExtraPercent, sz.TotalReqQty, sz.TotalAmount, sz.Remarks);
+                    dtSizes.Rows.Add(col.ColorSlNo, sz.Size, sz.Measurement, sz.ReqQty, sz.Unit, sz.RateUnit,
+                                      sz.ExtraPercent, sz.TotalReqQty, sz.TotalAmount, sz.Remarks, sz.ItemID);   // ★★★ FIXED: SlNo বাদ, ItemID যোগ — মোট ১১ কলাম
                 }
             }
 
@@ -1169,17 +1196,19 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 return;
             }
 
-            // ★ FIX (Issue 1): কালারের Rate টা এখানে "Add All Size" এর সময় প্রতিটা সাইজ রো-তে বসানো হবে
             decimal.TryParse(color.ColorRate, out decimal colorRateVal);
+
+            // ★★★ NEW
+            int.TryParse(ddlItemNameDetails.SelectedValue, out int selectedItemID);
 
             try
             {
                 con = conn.openConnection();
                 string query = @"SELECT s.SizeID, s.SizeName AS Size
-                          FROM Sizes s 
-                          INNER JOIN SizeGroups g ON s.GroupID = g.GroupID 
-                          WHERE s.GroupID = @GroupID
-                          ORDER BY s.SizeID ASC";
+                  FROM Sizes s 
+                  INNER JOIN SizeGroups g ON s.GroupID = g.GroupID 
+                  WHERE s.GroupID = @GroupID
+                  ORDER BY s.SizeID ASC";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -1204,11 +1233,12 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             Measurement = string.Empty,
                             ReqQty = 0,
                             Unit = ddlUnit.SelectedValue,
-                            RateUnit = colorRateVal,   // ★ FIX: 0 এর বদলে কালারের Rate ব্যবহার করা হচ্ছে
+                            RateUnit = colorRateVal,
                             ExtraPercent = 0,
                             TotalReqQty = 0,
                             TotalAmount = 0,
-                            Remarks = string.Empty
+                            Remarks = string.Empty,
+                            ItemID = selectedItemID   // ★★★ NEW
                         });
                     }
 

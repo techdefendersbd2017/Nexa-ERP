@@ -100,7 +100,11 @@ namespace Nexa_ERP.ERPConfiguration
                     using (SqlCommand cmd = new SqlCommand("sp_User_Information_Save", con))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@user_id", SqlDbType.Int).Value = txtuserid.Text;
+
+                        // user_id: খালি হলে 0 (নতুন ইউজার হিসেবে ধরা হবে, প্রসিডিউরে সেই অনুযায়ী insert লজিক থাকতে হবে)
+                        int userId = string.IsNullOrWhiteSpace(txtuserid.Text) ? 0 : Convert.ToInt32(txtuserid.Text);
+
+                        cmd.Parameters.Add("@user_id", SqlDbType.Int).Value = userId;
                         cmd.Parameters.Add("@username", SqlDbType.NVarChar).Value = txtUsername.Text;
                         cmd.Parameters.Add("@email", SqlDbType.NVarChar).Value = txtEmail.Text;
                         cmd.Parameters.Add("@password_hash", SqlDbType.NVarChar).Value = txtPassword.Text;
@@ -108,7 +112,10 @@ namespace Nexa_ERP.ERPConfiguration
                         cmd.Parameters.Add("@phone", SqlDbType.NVarChar).Value = txtPhone.Text;
                         cmd.Parameters.Add("@user_type", SqlDbType.NVarChar).Value = ddlUserType.Text;
                         cmd.Parameters.Add("@is_active", SqlDbType.Bit).Value = chkIsActive.Checked;
-                        cmd.Parameters.Add("@created_by", SqlDbType.Int).Value = txtuserid.Text;
+
+                        // created_by: লগইন করা ইউজারের আসল আইডি বসানো উচিত (এখন যেটা আছে সেটাও ভুল লজিক্যালি)
+                        cmd.Parameters.Add("@created_by", SqlDbType.Int).Value = userId;
+
                         cmd.ExecuteNonQuery();
                         ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
                     }
@@ -117,7 +124,7 @@ namespace Nexa_ERP.ERPConfiguration
             }
             catch (Exception ex)
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message + "');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
             }
             ClearFild();
             gridviewdataload();
