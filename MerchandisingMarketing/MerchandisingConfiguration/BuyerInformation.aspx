@@ -107,7 +107,7 @@
                         </div>
                         <div class="grid-wrapper">
                             <asp:GridView ID="gvBuyer" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="False" DataKeyNames="BuyerID"
-                                Width="100%">
+                                Width="100%" OnSelectedIndexChanged="gvBuyer_SelectedIndexChanged">
                                 <Columns>
                                     <asp:CommandField ShowSelectButton="True" SelectText="Select"> <ItemStyle Width="80px" /> </asp:CommandField>
                                     <asp:BoundField DataField="BuyerID" HeaderText="ID" />

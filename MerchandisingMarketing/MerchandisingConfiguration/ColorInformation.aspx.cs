@@ -1,13 +1,7 @@
 ﻿using Nexa_ERP.Connection;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
-using System.Drawing.Printing;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -16,161 +10,174 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
     public partial class ColorInformation : System.Web.UI.Page
     {
         SqlConnection con;
-        DatabaseConnectionMerchandising conn = new DatabaseConnectionMerchandising();
-        //SqlCommand cmd;
-
-        private int CurrentPage
-        {
-            get { return ViewState["CurrentPage"] != null ? (int)ViewState["CurrentPage"] : 1; }
-            set { ViewState["CurrentPage"] = value; }
-        }
-        private int PageSize
-        {
-            get { return int.Parse(ddlPageSize.SelectedValue); }
-        }
-        private int TotalRecords
-        {
-            get { return ViewState["TotalRecords"] != null ? (int)ViewState["TotalRecords"] : 0; }
-            set { ViewState["TotalRecords"] = value; }
-        }
-
+        Database_Connection conn = new Database_Connection();
+        SqlCommand cmd;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            //if (!IsPostBack)
-            //{
-            //    string user = Request.QueryString["user"];
-            //    //if (!string.IsNullOrEmpty(user))
-            //    //{
-            //    //    Label1.Text = "Welcome, " + user;
-            //    //}
-            //    BindColorTypes();
-            //    LoadColorMasterInformation(); 
-            //    LoadNextColorID();
-            //}
+            if (!IsPostBack)
+            {
+                LoadNextColorCode();
+                LoadColorInformation();
+            }
         }
 
-        void LoadNextColorID()
-        {
-            con = conn.openConnection();
-            {
-                SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(ColorID),0)+1 FROM ColorMaster", con);
-                txtColorCode.Text = cmd.ExecuteScalar().ToString();
-            }
-            con.Close();
-        }
-        private void BindColorTypes()
+        // অটো কালার কোড জেনারেট করার জন্য
+        void LoadNextColorCode()
         {
             try
             {
                 con = conn.openConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_ColorType_GetAll", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    DataTable dt = new DataTable();
-                    dt.Load(cmd.ExecuteReader());
-                    ddlColorType.DataSource = dt;
-                    ddlColorType.DataTextField = "ColorTypeName";
-                    ddlColorType.DataValueField = "ColorTypeID";
-                    ddlColorType.DataBind();
-                    ddlColorType.Items.Insert(0, new ListItem("--Select Type--", ""));
-                }
+                SqlCommand cmd = new SqlCommand("SELECT 'COL-' + RIGHT('0000' + CAST(ISNULL(MAX(ColorID), 0) + 1 AS VARCHAR(5)), 4) FROM ColorInformation", con);
+                object result = cmd.ExecuteScalar();
+                txtColorCode.Text = result != null ? result.ToString() : "COL-0001";
                 con.Close();
             }
             catch (Exception ex)
             {
-                Response.Write("Error: " + ex.Message);
+                if (con.State == ConnectionState.Open) con.Close();
+                txtColorCode.Text = "COL-0001";
             }
         }
-        private void LoadColorMasterInformation()
+
+        // গ্রিডভিউ ডেটা লোড
+        private void LoadColorInformation()
         {
             try
             {
                 con = conn.openConnection();
-                using (SqlCommand cmd = new SqlCommand("sp_ColorMaster_GetAll", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@PageNumber", CurrentPage);
-                    cmd.Parameters.AddWithValue("@PageSize", PageSize);
-                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                    {
-                        DataSet ds = new DataSet();
-                        da.Fill(ds);
-
-                        gvColorList.DataSource = ds.Tables[0];
-                        gvColorList.DataBind();
-
-                        if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
-                            TotalRecords = Convert.ToInt32(ds.Tables[1].Rows[0]["TotalCount"]);
-                    }
-                }
+                SqlDataAdapter da = new SqlDataAdapter("SELECT ColorID, ColorCode, 'Standard' AS ColorType, ColorName, CASE WHEN IsActive = 1 then 'Yes' ELSE 'No' END AS IsActive FROM ColorInformation ORDER BY ColorID DESC", con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvColorList.DataSource = dt;
+                gvColorList.DataBind();
                 con.Close();
             }
             catch (Exception ex)
             {
-                Response.Write("Error: " + ex.Message);
+                if (con.State == ConnectionState.Open) con.Close();
+                lblMessage.Text = "Error: " + ex.Message;
+                lblMessage.ForeColor = System.Drawing.Color.Red;
             }
         }
 
-
+        // Save & Update Button Click
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            con=conn.openConnection();
+            if (string.IsNullOrEmpty(txtColorName.Text.Trim()))
             {
-                using (SqlCommand cmd = new SqlCommand("sp_ColorMaster_Update", con))
+                lblMessage.Text = "Please enter color name!";
+                lblMessage.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            try
+            {
+                con = conn.openConnection();
+                using (SqlCommand cmd = new SqlCommand("sp_SaveUpdateColorInformation", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@ColorID", txtColorCode.Text);
-                    cmd.Parameters.AddWithValue("@ColorTypeID", int.Parse(ddlColorType.SelectedValue));
-                    cmd.Parameters.AddWithValue("@ColorName", txtColorName.Text.Trim());
-                    cmd.Parameters.AddWithValue("@IsActive", chkIsActive.Checked ? 1 : 0);
-                    SqlParameter pMsg = new SqlParameter("@Message", SqlDbType.NVarChar, 200) { Direction = ParameterDirection.Output };
-                    cmd.Parameters.Add(pMsg);
+
+                    int colorId = !string.IsNullOrEmpty(hfColorID.Value) ? Convert.ToInt32(hfColorID.Value) : 0;
+
+                    cmd.Parameters.Add("@ColorID", SqlDbType.Int).Value = colorId == 0 ? (object)DBNull.Value : colorId;
+                    cmd.Parameters.Add("@ColorCode", SqlDbType.VarChar).Value = txtColorCode.Text.Trim();
+                    cmd.Parameters.Add("@ColorName", SqlDbType.VarChar).Value = txtColorName.Text.Trim();
+                    cmd.Parameters.Add("@PantenName", SqlDbType.VarChar).Value = txtPantenName.Text.Trim();
+                    cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = chkIsActive.Checked;
+
                     cmd.ExecuteNonQuery();
 
+                    lblMessage.Text = colorId == 0 ? "Saved Successfully!" : "Updated Successfully!";
+                    lblMessage.ForeColor = System.Drawing.Color.Green;
                 }
+                con.Close();
+
+                ClearForm();
+                LoadNextColorCode();
+                LoadColorInformation();
             }
-            con.Close();
+            catch (Exception ex)
+            {
+                if (con.State == ConnectionState.Open) con.Close();
+                lblMessage.Text = "Error: " + ex.Message;
+                lblMessage.ForeColor = System.Drawing.Color.Red;
+            }
         }
 
-        protected void btnReset_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        protected void btnAddType_Click(object sender, EventArgs e)
-        {
-
-        }
-
+        // GridView Row Command (Edit & Delete)
         protected void gvColorList_RowCommand(object sender, GridViewCommandEventArgs e)
         {
+            try
+            {
+                int colorId = Convert.ToInt32(e.CommandArgument);
 
+                if (e.CommandName == "EditRow")
+                {
+                    hfColorID.Value = colorId.ToString();
+                    con = conn.openConnection();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM ColorInformation WHERE ColorID = @ColorID", con);
+                    cmd.Parameters.AddWithValue("@ColorID", colorId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            txtColorCode.Text = reader["ColorCode"].ToString();
+                            txtColorName.Text = reader["ColorName"].ToString();
+                            txtPantenName.Text = reader["PantenName"].ToString();
+                            chkIsActive.Checked = reader["IsActive"] != DBNull.Value && Convert.ToBoolean(reader["IsActive"]);
+                        }
+                    }
+                    con.Close();
+                    btnSave.Text = "Update";
+                }
+                else if (e.CommandName == "DeleteRow")
+                {
+                    con = conn.openConnection();
+                    SqlCommand cmd = new SqlCommand("DELETE FROM ColorInformation WHERE ColorID = @ColorID", con);
+                    cmd.Parameters.AddWithValue("@ColorID", colorId);
+                    cmd.ExecuteNonQuery();
+                    con.Close();
+
+                    lblMessage.Text = "Deleted Successfully!";
+                    lblMessage.ForeColor = System.Drawing.Color.Red;
+
+                    ClearForm();
+                    LoadNextColorCode();
+                    LoadColorInformation();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (con.State == ConnectionState.Open) con.Close();
+                lblMessage.Text = "Error: " + ex.Message;
+                lblMessage.ForeColor = System.Drawing.Color.Red;
+            }
         }
 
-        protected void lbFirst_Click(object sender, EventArgs e)
+        // Reset Button Click
+        protected void btnReset_Click(object sender, EventArgs e)
         {
-
+            ClearForm();
+            LoadNextColorCode();
         }
 
-        protected void lbPrev_Click(object sender, EventArgs e)
+        private void ClearForm()
         {
-
+            txtColorName.Text = string.Empty;
+            txtPantenName.Text = string.Empty;
+            chkIsActive.Checked = true;
+            hfColorID.Value = "0";
+            btnSave.Text = "Save";
+            lblMessage.Text = string.Empty;
         }
 
-        protected void lbNext_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        protected void lbLast_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        protected void ddlPageSize_Changed(object sender, EventArgs e)
-        {
-
-        }
+        // Pager Events (যদি পেজিনেশন ব্যবহার করতে চান)
+        protected void lbFirst_Click(object sender, EventArgs e) { }
+        protected void lbPrev_Click(object sender, EventArgs e) { }
+        protected void lbNext_Click(object sender, EventArgs e) { }
+        protected void lbLast_Click(object sender, EventArgs e) { }
+        protected void ddlPageSize_Changed(object sender, EventArgs e) { LoadColorInformation(); }
     }
 }

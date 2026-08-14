@@ -1,4 +1,5 @@
-﻿using Nexa_ERP.Connection;
+﻿using CrystalDecisions.Shared;
+using Nexa_ERP.Connection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -47,7 +48,7 @@ namespace Nexa_ERP.ERPConfiguration
         {
             con = conn.openConnection();
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Form_Information where Module_ID='" + ddlmodule.SelectedValue + "' and Menu_ID='" + ddlMenu.SelectedValue + "'", con);
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Form_Information where Module_ID='" + ddlmodule.SelectedValue + "' and Menu_ID='" + ddlMenu.SelectedValue + "' order By SortingNo Asc", con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 gvModule.DataSource = dt;
@@ -142,7 +143,8 @@ namespace Nexa_ERP.ERPConfiguration
                         cmd.Parameters.Add("@Form_Url", SqlDbType.VarChar).Value = txturl.Text;
                         cmd.Parameters.Add("@Icon_Class", SqlDbType.VarChar).Value = txtCss.Text;
                         cmd.Parameters.Add("@WorkingStage", SqlDbType.VarChar).Value = ddlWorkingStage.Text;
-                        cmd.Parameters.Add("@WorkUnder", SqlDbType.VarChar).Value = ddlUIDesigner.Text;
+                        cmd.Parameters.Add("@WorkUnder", SqlDbType.VarChar).Value = ddlUIDesigner.Text; 
+                        cmd.Parameters.Add("@SortingNo", SqlDbType.VarChar).Value = txtSortingNo.Text;
                         cmd.ExecuteNonQuery();
                         ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
                     }
@@ -179,6 +181,7 @@ namespace Nexa_ERP.ERPConfiguration
                         txtFormdiscription.Text = reader[4].ToString();
                         txturl.Text = reader[6].ToString();
                         txtCss.Text = reader[7].ToString();
+                        txtSortingNo.Text = reader[10].ToString();
                         chkIsActive.Checked = reader[5] != DBNull.Value && Convert.ToBoolean(reader[5]); // ✅ CheckBox
                     }
                 }

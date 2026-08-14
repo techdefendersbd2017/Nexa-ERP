@@ -24,13 +24,13 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// Label1 control.
+        /// ScriptManager1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label1;
+        protected global::System.Web.UI.ScriptManager ScriptManager1;
 
         /// <summary>
         /// hfUserId control.
@@ -42,6 +42,24 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         protected global::System.Web.UI.WebControls.HiddenField hfUserId;
 
         /// <summary>
+        /// hfScrollPosition control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfScrollPosition;
+
+        /// <summary>
+        /// Label1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label1;
+
+        /// <summary>
         /// txtGroupID control.
         /// </summary>
         /// <remarks>
@@ -51,13 +69,22 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         protected global::System.Web.UI.WebControls.TextBox txtGroupID;
 
         /// <summary>
-        /// txtGroupName control.
+        /// txtGroup control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtGroupName;
+        protected global::System.Web.UI.WebControls.TextBox txtGroup;
+
+        /// <summary>
+        /// rfvGroup control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvGroup;
 
         /// <summary>
         /// txtPrefix control.
@@ -67,6 +94,24 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtPrefix;
+
+        /// <summary>
+        /// fuLogo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fuLogo;
+
+        /// <summary>
+        /// imgLogoPreview control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgLogoPreview;
 
         /// <summary>
         /// txtEmail control.

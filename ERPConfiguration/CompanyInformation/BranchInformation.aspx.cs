@@ -1,12 +1,7 @@
 ﻿using Nexa_ERP.Connection;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -16,7 +11,6 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
     {
         SqlConnection con;
         Database_Connection conn = new Database_Connection();
-        SqlCommand cmd;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -27,40 +21,42 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                 {
                     Label1.Text = "Welcome, " + user;
                 }
-                GroupInformationLoad();
                 LoadNextBranchID();
+                GroupInformationLoad();
                 LoadBranchInformation();
             }
         }
+
         void LoadNextBranchID()
         {
-            con = conn.openConnection();
+            try
             {
-                SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(Branch_ID ),0)+1 FROM Branch_Information", con);
+                con = conn.openConnection();
+                SqlCommand cmd = new SqlCommand("SELECT ISNULL(MAX(Branch_ID),0)+1 FROM Branch_Information", con);
                 txtBranchID.Text = cmd.ExecuteScalar().ToString();
+                con.Close();
             }
-            con.Close();
+            catch { }
         }
+
         private void GroupInformationLoad()
         {
             try
             {
                 con = conn.openConnection();
+                string query = "SELECT Group_ID, Group_Name FROM Group_Information WHERE Is_Active=1";
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    string query = "SELECT * FROM Group_Information where Is_Active=1";
-                    using (SqlCommand cmd = new SqlCommand(query, con))
-                    {
-                        SqlDataAdapter da = new SqlDataAdapter(cmd);
-                        DataSet ds = new DataSet();
-                        da.Fill(ds);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
 
-                        ddlGroup.DataSource = ds.Tables[0];
-                        ddlGroup.DataTextField = "Group_Name";
-                        ddlGroup.DataValueField = "Group_ID";
-                        ddlGroup.DataBind();
+                    ddlGroup.DataSource = dt;
+                    ddlGroup.DataTextField = "Group_Name";
+                    ddlGroup.DataValueField = "Group_ID";
+                    ddlGroup.DataBind();
 
-                        ddlGroup.Items.Insert(0, new ListItem("--Select--", "0"));
-                    }
+                    ddlGroup.Items.Insert(0, new ListItem("--Select Group--", "0"));
                 }
                 con.Close();
             }
@@ -74,74 +70,42 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         {
             try
             {
-                con = conn.openConnection();
+                byte[] logoBytes = null;
+                if (fuBranchLogo.HasFile)
                 {
-                    using (SqlCommand cmd = new SqlCommand("sp_BranchInformationInsertUpdate", con))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@Branch_ID", SqlDbType.Int).Value = txtBranchID.Text;
-                        cmd.Parameters.Add("@Group_ID", SqlDbType.NVarChar).Value = ddlGroup.SelectedValue;
-                        cmd.Parameters.Add("@Branch_Name", SqlDbType.NVarChar).Value = txtBranch.Text;
-                        cmd.Parameters.Add("@Prifix", SqlDbType.NVarChar).Value = txtPrefix.Text;
-                        cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar).Value = txtEmail.Text;
-                        cmd.Parameters.Add("@Phone_No", SqlDbType.NVarChar).Value = txtPhone.Text;
-                        cmd.Parameters.Add("@Web", SqlDbType.NVarChar).Value = txtWeb.Text;
-                        cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = txtAddress.Text;
-                        cmd.Parameters.Add("@is_active", SqlDbType.Bit).Value = chkIsActive.Checked;
-                        cmd.ExecuteNonQuery();
-                        ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
-                    }
+                    int fileSize = fuBranchLogo.PostedFile.ContentLength;
+                    logoBytes = new byte[fileSize];
+                    fuBranchLogo.PostedFile.InputStream.Read(logoBytes, 0, fileSize);
                 }
-                con.Close();
-            }
-            catch (Exception ex)
-            {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message + "');", true);
-            }
-            LoadBranchInformation();
-        }
-        private void LoadBranchInformation()
-        {
-            con = conn.openConnection();
-            {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Branch_Information", con);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                gvBranch.DataSource = dt;
-                gvBranch.DataBind();
-            }
-            con.Close();
-        }
 
-        protected void gvBranch_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            txtBranchID.Text = gvBranch.SelectedRow.Cells[1].Text;
-            try
-            {
-                string sql = "Select * from Branch_Information where Branch_ID ='" + txtBranchID.Text + "'";
                 con = conn.openConnection();
-                cmd = new SqlCommand(sql, con);
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.HasRows)
+                using (SqlCommand cmd = new SqlCommand("sp_BranchInformation", con))
                 {
-                    while (reader.Read())
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@Branch_ID", SqlDbType.Int).Value = Convert.ToInt32(txtBranchID.Text);
+                    cmd.Parameters.Add("@Group_ID", SqlDbType.Int).Value = Convert.ToInt32(ddlGroup.SelectedValue);
+                    cmd.Parameters.Add("@Branch_Name", SqlDbType.NVarChar).Value = txtBranch.Text.Trim();
+                    cmd.Parameters.Add("@Prifix", SqlDbType.NVarChar).Value = txtPrefix.Text.Trim();
+                    cmd.Parameters.Add("@E_Mail", SqlDbType.NVarChar).Value = txtEmail.Text.Trim();
+                    cmd.Parameters.Add("@Phone_No", SqlDbType.NVarChar).Value = txtPhone.Text.Trim();
+                    cmd.Parameters.Add("@Web", SqlDbType.NVarChar).Value = txtWeb.Text.Trim();
+                    cmd.Parameters.Add("@Address", SqlDbType.NVarChar).Value = txtAddress.Text.Trim();
+                    cmd.Parameters.Add("@Is_Active", SqlDbType.Bit).Value = chkIsActive.Checked;
+
+                    SqlParameter paramLogo = new SqlParameter("@Branch_Logo", SqlDbType.VarBinary, -1);
+                    if (logoBytes != null)
                     {
-                        txtBranchID.Text = reader[0].ToString();
-                        ddlGroup.SelectedValue = reader[1].ToString();
-                        txtBranch.Text = reader[2].ToString();
-                        txtPrefix.Text = reader[3].ToString();
-                        txtEmail.Text = reader[4].ToString();
-                        txtPhone.Text = reader[5].ToString();
-                        txtWeb.Text = reader[6].ToString();
-                        txtAddress.Text = reader[7].ToString();
-                        chkIsActive.Checked = reader[8] != DBNull.Value && Convert.ToBoolean(reader[8]); // ✅ CheckBox
+                        paramLogo.Value = logoBytes;
                     }
-                }
-                else
-                {
-                    txtBranchID.Text = txtBranch.Text = txtPrefix.Text = txtEmail.Text = string.Empty;
-                    txtPhone.Text = txtWeb.Text = txtAddress.Text = string.Empty;
-                    chkIsActive.Checked = false;
+                    else
+                    {
+                        paramLogo.Value = DBNull.Value;
+                    }
+                    cmd.Parameters.Add(paramLogo);
+
+                    cmd.ExecuteNonQuery();
+
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
                 }
                 con.Close();
             }
@@ -149,6 +113,94 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             {
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
             }
+
+            LoadBranchInformation();
+            ClearForm();
+        }
+
+        private void LoadBranchInformation()
+        {
+            try
+            {
+                con = conn.openConnection();
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Branch_Information", con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvBranch.DataSource = dt;
+                gvBranch.DataBind();
+                con.Close();
+            }
+            catch { }
+        }
+
+        protected void gvBranch_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (gvBranch.SelectedDataKey == null ||
+                !int.TryParse(gvBranch.SelectedDataKey.Value?.ToString(), out int branchId))
+            {
+                return;
+            }
+
+            try
+            {
+                string sql = "SELECT * FROM Branch_Information WHERE Branch_ID = @BranchID";
+                con = conn.openConnection();
+                using (SqlCommand cmd = new SqlCommand(sql, con))
+                {
+                    cmd.Parameters.Add("@BranchID", SqlDbType.Int).Value = branchId;
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            txtBranchID.Text = reader["Branch_ID"].ToString();
+                            ddlGroup.SelectedValue = reader["Group_ID"].ToString();
+                            txtBranch.Text = reader["Branch_Name"].ToString();
+                            txtPrefix.Text = reader["Prifix"].ToString();
+                            txtEmail.Text = reader["E_Mail"].ToString();
+                            txtPhone.Text = reader["Phone_No"].ToString();
+                            txtWeb.Text = reader["Web"].ToString();
+                            txtAddress.Text = reader["Address"].ToString();
+                            chkIsActive.Checked = reader["Is_Active"] != DBNull.Value && Convert.ToBoolean(reader["Is_Active"]);
+
+                            // Handle Logo Preview
+                            if (reader["Branch_Logo"] != DBNull.Value)
+                            {
+                                byte[] bytes = (byte[])reader["Branch_Logo"];
+                                string base64String = Convert.ToBase64String(bytes);
+                                imgLogoPreview.ImageUrl = "data:image/png;base64," + base64String;
+                            }
+                            else
+                            {
+                                imgLogoPreview.ImageUrl = "~/Images/no-image.png";
+                            }
+                        }
+                    }
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+        }
+
+        protected void btnClear_Click(object sender, EventArgs e)
+        {
+            ClearForm();
+        }
+
+        private void ClearForm()
+        {
+            txtBranch.Text = string.Empty;
+            txtPrefix.Text = string.Empty;
+            txtEmail.Text = string.Empty;
+            txtPhone.Text = string.Empty;
+            txtWeb.Text = string.Empty;
+            txtAddress.Text = string.Empty;
+            chkIsActive.Checked = true;
+            ddlGroup.SelectedIndex = 0;
+            imgLogoPreview.ImageUrl = "~/Images/no-image.png";
+            LoadNextBranchID();
         }
     }
 }

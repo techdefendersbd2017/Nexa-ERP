@@ -144,6 +144,7 @@ namespace Nexa_ERP.ERPConfiguration.UserAuthorization
                 ScriptManager.RegisterStartupScript(this, this.GetType(),
                     "alert", "alert('Save Successfully!');", true);
             }
+            con.Close();
 
         }
     }

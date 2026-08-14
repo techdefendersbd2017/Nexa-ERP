@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -13,40 +14,37 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
     public partial class BuyerInformation : System.Web.UI.Page
     {
         SqlConnection con;
-        DatabaseConnectionMerchandising conn = new DatabaseConnectionMerchandising();
+        Database_Connection conn = new Database_Connection();
         SqlCommand cmd;
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                string user = Request.QueryString["user"];
-                CountryInformationLoad();
+                LoadCountries();
                 LoadBuyerInformation();
             }
-
         }
 
-        private void CountryInformationLoad()
+        // 1. Country DropDown List Load
+        private void LoadCountries()
         {
             try
             {
                 con = conn.openConnection();
+                string query = "SELECT CountryID, CountryName FROM CountryInformation ORDER BY CountryName";
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    string query = "SELECT * FROM CountryMaster";
-                    using (SqlCommand cmd = new SqlCommand(query, con))
-                    {
-                        SqlDataAdapter da = new SqlDataAdapter(cmd);
-                        DataSet ds = new DataSet();
-                        da.Fill(ds);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
 
-                        ddlCountry.DataSource = ds.Tables[0];
-                        ddlCountry.DataTextField = "CountryName";
-                        ddlCountry.DataValueField = "CountryID";
-                        ddlCountry.DataBind();
+                    ddlCountry.DataSource = dt;
+                    ddlCountry.DataTextField = "CountryName";
+                    ddlCountry.DataValueField = "CountryID";
+                    ddlCountry.DataBind();
 
-                        ddlCountry.Items.Insert(0, new ListItem("--Select--", "0"));
-                    }
+                    ddlCountry.Items.Insert(0, new ListItem("--Select Country--", "0"));
                 }
                 con.Close();
             }
@@ -55,180 +53,151 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
                 Response.Write("Error: " + ex.Message);
             }
         }
+
+        // 2. GridView Data Load & Search
         private void LoadBuyerInformation()
         {
-            con = conn.openConnection();
+            try
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM BuyerInformation Order By BuyerName asc", con);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                gvBuyer.DataSource = dt;
-                gvBuyer.DataBind();
+                con = conn.openConnection();
+                string query = "SELECT BuyerID, BuyerCode, BuyerName FROM BuyerInformation WHERE 1=1";
+
+                if (!string.IsNullOrEmpty(txtSearchBuyer.Text.Trim()))
+                {
+                    query += " AND BuyerName LIKE @BuyerName";
+                }
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    if (!string.IsNullOrEmpty(txtSearchBuyer.Text.Trim()))
+                    {
+                        cmd.Parameters.AddWithValue("@BuyerName", "%" + txtSearchBuyer.Text.Trim() + "%");
+                    }
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvBuyer.DataSource = dt;
+                    gvBuyer.DataBind();
+                }
+                con.Close();
             }
-            con.Close();
+            catch (Exception ex)
+            {
+                Response.Write("Error: " + ex.Message);
+            }
         }
 
-        protected void LinkButton1_Click(object sender, EventArgs e)
-        {
-            //try
-            //{
-            //    con = conn.openConnection();
-
-            //    using (SqlCommand cmd = new SqlCommand("sp_InsertUpdate_Buyer", con))
-            //    {
-            //        cmd.CommandType = CommandType.StoredProcedure;
-
-            //        cmd.Parameters.AddWithValue("@BuyerID", string.IsNullOrEmpty(txtBuyerID.Text) ? 0 : Convert.ToInt64(txtBuyerID.Text));
-            //        cmd.Parameters.AddWithValue("@BuyingHouseID", ddlBuyingHouseName.SelectedValue);
-            //        cmd.Parameters.AddWithValue("@BuyerName", txtBuyerName.Text.Trim());
-            //        cmd.Parameters.AddWithValue("@Prefix", txtPrefix.Text.Trim());
-            //        cmd.Parameters.AddWithValue("@BuyerTypeID", ddlBuyerType.SelectedValue);
-            //        cmd.Parameters.AddWithValue("@CountryID", ddlCountryName.SelectedValue);
-            //        cmd.Parameters.AddWithValue("@ContactPerson", txtContractPerson.Text.Trim());
-            //        cmd.Parameters.AddWithValue("@Phone", txtPhone.Text.Trim());
-            //        cmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim());
-            //        cmd.Parameters.AddWithValue("@Address", txtAddress.Text.Trim());
-            //        cmd.Parameters.AddWithValue("@LocalAddress", txtAddressLocal.Text.Trim());
-            //        cmd.Parameters.AddWithValue("@IsActive", chkIsActive.Checked);
-            //        cmd.Parameters.AddWithValue("@SamaeAddress", CheckBox1.Checked);
-            //        cmd.ExecuteNonQuery();
-
-            //        ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
-            //            "alert('Saved Successfully!');", true);
-            //    }
-
-            //    con.Close();
-            //}
-            //catch (Exception ex)
-            //{
-            //    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
-            //        "alert('" + ex.Message.Replace("'", "") + "');", true);
-            //}
-            //LoadBuyerInformation();
-        }
-
-        protected void CheckBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            //if (CheckBox1.Checked == true)
-            //{
-            //    txtAddressLocal.Text = txtAddress.Text;
-            //    txtAddressLocal.ReadOnly = true;
-            //}
-            //else
-            //{
-            //    txtAddressLocal.ReadOnly = false;
-            //}
-        }
-
-        protected void ddlBuyingHouseName_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //LoadBuyerInformation();
-        }
-
-        protected void gvBuyerInformation_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //txtBuyerID.Text = gvBuyerInformation.SelectedRow.Cells[1].Text;
-            //try
-            //{
-            //    string sql = "Select * from BuyerInformation where BuyerID ='" + txtBuyerID.Text + "'";
-            //    con = conn.openConnection();
-            //    cmd = new SqlCommand(sql, con);
-            //    SqlDataReader reader = cmd.ExecuteReader();
-            //    if (reader.HasRows)
-            //    {
-            //        while (reader.Read())
-            //        {
-            //            txtBuyerID.Text = reader[0].ToString();
-            //            ddlBuyingHouseName.SelectedValue = reader[1].ToString();
-            //            txtBuyerName.Text = reader[2].ToString();
-            //            txtPrefix.Text = reader[3].ToString();
-            //            ddlBuyerType.SelectedValue = reader[4].ToString();
-            //            ddlCountryName.SelectedValue = reader[5].ToString();
-            //            txtContractPerson.Text = reader[6].ToString();
-            //            txtPhone.Text = reader[7].ToString();
-            //            txtEmail.Text = reader[8].ToString();
-            //            txtAddress.Text = reader[9].ToString();
-            //            txtAddressLocal.Text = reader[10].ToString();
-            //            chkIsActive.Checked = reader[11] != DBNull.Value && Convert.ToBoolean(reader[11]); // ✅ CheckBox
-            //            CheckBox1.Checked = reader[14] != DBNull.Value && Convert.ToBoolean(reader[14]); // ✅ CheckBox
-            //        }
-            //    }
-            //    else
-            //    {
-            //        txtBuyerID.Text = txtBuyerName.Text = txtPrefix.Text = txtContractPerson.Text = string.Empty;
-            //        txtPhone.Text = txtAddress.Text = txtAddressLocal.Text = string.Empty;
-            //        CheckBox1.Checked = false;
-            //        chkIsActive.Checked = false;
-            //    }
-            //    con.Close();
-            //}
-            //catch (Exception ex)
-            //{
-            //    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
-            //}
-
-            //if (CheckBox1.Checked == true)
-            //{
-            //    txtAddressLocal.ReadOnly = true;
-            //}
-        }
-
-        protected void Button1_Click(object sender, EventArgs e)
-        {
-            //txtBuyerID.Text = txtBuyerName.Text = txtPrefix.Text = txtContractPerson.Text = string.Empty;
-            //txtPhone.Text = txtAddress.Text = txtAddressLocal.Text = string.Empty;
-            //CheckBox1.Checked = false;
-            //chkIsActive.Checked = false;
-            //BuyingAgentTypeInformationLoad();
-            //CountryInformationLoad();
-            //LoadBuyerType();
-
-        }
-
+        // 3. Save / Update Button Click Event (Using Stored Procedure)
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            //con = conn.openConnection();
-            //{
-            //    try
-            //    {
-            //        using (SqlCommand cmd = new SqlCommand("sp_SaveBuyer", con))
-            //        {
-            //            cmd.CommandType = CommandType.StoredProcedure;
-            //            cmd.Parameters.AddWithValue("@BuyerID", txtBuyerID.Text.Trim());
-            //            cmd.Parameters.AddWithValue("@BuyerCode", txtBuyerCode.Text.Trim());
-            //            cmd.Parameters.AddWithValue("@BuyerName", txtBuyerName.Text.Trim());
-            //            cmd.Parameters.AddWithValue("@DisplayName", txtDisplayName.Text.Trim());
-            //            cmd.Parameters.AddWithValue("@Currency", txtCurrency.Text.Trim());
-            //            cmd.Parameters.AddWithValue("@ContactNo", txtContact.Text.Trim());
-            //            cmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim());
-            //            cmd.Parameters.AddWithValue("@CountryID", ddlCountry.SelectedValue);
-            //            cmd.Parameters.AddWithValue("@Address", txtAddress.Text.Trim());
-            //            cmd.ExecuteNonQuery();
-            //            ClearFields();
-            //            ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('তথ্যটি সফলভাবে সংরক্ষিত হয়েছে!');", true);
-            //        }
-            //    }
-            //    catch (SqlException ex)
-            //    {
-            //        // ৫. ডুপ্লিকেট বা ডাটাবেস এরর হ্যান্ডলিং
-            //        ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Error: " + ex.Message.Replace("'", "") + "');", true);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('An unexpected error occurred: " + ex.Message.Replace("'", "") + "');", true);
-            //    }
-            //}
+            try
+            {
+                con = conn.openConnection();
+                using (SqlCommand cmd = new SqlCommand("sp_SaveUpdateBuyerInformation", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // ViewState ব্যবহার করে চেক করা হচ্ছে এটি Insert নাকি Update
+                    int buyerId = ViewState["BuyerID"] != null ? Convert.ToInt32(ViewState["BuyerID"]) : 0;
+
+                    cmd.Parameters.Add("@BuyerID", SqlDbType.Int).Value = buyerId == 0 ? (object)DBNull.Value : buyerId;
+                    cmd.Parameters.Add("@BuyerCode", SqlDbType.VarChar).Value = txtBuyerCode.Text.Trim();
+                    cmd.Parameters.Add("@BuyerName", SqlDbType.VarChar).Value = txtBuyerName.Text.Trim();
+                    cmd.Parameters.Add("@DisplayName", SqlDbType.VarChar).Value = txtDisplayName.Text.Trim();
+                    cmd.Parameters.Add("@Currency", SqlDbType.VarChar).Value = txtCurrency.Text.Trim();
+                    cmd.Parameters.Add("@ContactNo", SqlDbType.VarChar).Value = txtContact.Text.Trim();
+                    cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = txtEmail.Text.Trim();
+                    cmd.Parameters.Add("@CountryID", SqlDbType.Int).Value = Convert.ToInt32(ddlCountry.SelectedValue);
+                    cmd.Parameters.Add("@Address", SqlDbType.VarChar).Value = txtAddress.Text.Trim();
+                    cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = chkActive.Checked;
+                    cmd.Parameters.Add("@IsLocal", SqlDbType.Bit).Value = chkLocal.Checked;
+
+                    cmd.ExecuteNonQuery();
+
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
+                }
+                con.Close();
+
+                ClearForm();
+                LoadBuyerInformation();
+            }
+            catch (Exception ex)
+            {
+                if (con.State == ConnectionState.Open) con.Close();
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
         }
-        private void ClearFields()
+
+        // 4. GridView Selection for Editing / Loading Data
+        protected void gvBuyer_SelectedIndexChanged(object sender, EventArgs e)
         {
-            txtBuyerCode.Text = "";
-            txtBuyerName.Text = "";
-            txtDisplayName.Text = "";
-            txtCurrency.Text = "";
-            txtContact.Text = "";
-            txtEmail.Text = "";
-            txtAddress.Text = "";
+            try
+            {
+                string buyerId = gvBuyer.SelectedRow.Cells[1].Text;
+                ViewState["BuyerID"] = buyerId;
+
+                string sql = "SELECT * FROM BuyerInformation WHERE BuyerID = @BuyerID";
+                con = conn.openConnection();
+                cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@BuyerID", buyerId);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ViewState["BuyerID"] = reader["BuyerID"].ToString();
+                        txtBuyerCode.Text = reader["BuyerCode"].ToString();
+                        txtBuyerName.Text = reader["BuyerName"].ToString();
+                        txtDisplayName.Text = reader["DisplayName"].ToString();
+                        txtCurrency.Text = reader["Currency"].ToString();
+                        txtContact.Text = reader["ContactNo"].ToString();
+                        txtEmail.Text = reader["Email"].ToString();
+                        ddlCountry.SelectedValue = reader["CountryID"] != DBNull.Value ? reader["CountryID"].ToString() : "0";
+                        txtAddress.Text = reader["Address"].ToString();
+                        chkActive.Checked = reader["IsActive"] != DBNull.Value && Convert.ToBoolean(reader["IsActive"]);
+                        chkLocal.Checked = reader["IsLocal"] != DBNull.Value && Convert.ToBoolean(reader["IsLocal"]);
+                    }
+                }
+                else
+                {
+                    ClearForm();
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                if (con.State == ConnectionState.Open) con.Close();
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+        }
+
+        // 5. Clear Form Method
+        private void ClearForm()
+        {
+            txtBuyerCode.Text = string.Empty;
+            txtBuyerName.Text = string.Empty;
+            txtDisplayName.Text = string.Empty;
+            txtCurrency.Text = string.Empty;
+            txtContact.Text = string.Empty;
+            txtEmail.Text = string.Empty;
             ddlCountry.SelectedIndex = 0;
+            txtAddress.Text = string.Empty;
+            chkActive.Checked = false;
+            chkLocal.Checked = false;
+            ViewState["BuyerID"] = null;
+        }
+
+        protected void btnClear_Click(object sender, EventArgs e)
+        {
+            ClearForm();
+        }
+
+        // 6. Search Button Event
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            LoadBuyerInformation();
         }
     }
 }
