@@ -301,7 +301,6 @@
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\RawMaterialReports.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReports.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\PriceQuotationWithMultiItems.aspx" />
-    <Content Include="TrimsAccessories\EstimationCostings\WorkOrderReceive.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx" />
     <Content Include="TrimsAccessories\MsterSetup\ItemCategory.aspx" />
     <Content Include="TrimsAccessories\MsterSetup\ItemName.aspx" />
@@ -1113,13 +1112,6 @@
     </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\PriceQuotationWithMultiItems.aspx.designer.cs">
       <DependentUpon>PriceQuotationWithMultiItems.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="TrimsAccessories\EstimationCostings\WorkOrderReceive.aspx.cs">
-      <DependentUpon>WorkOrderReceive.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="TrimsAccessories\EstimationCostings\WorkOrderReceive.aspx.designer.cs">
-      <DependentUpon>WorkOrderReceive.aspx</DependentUpon>
     </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx.cs">
       <DependentUpon>WorkOrderReceived.aspx</DependentUpon>
