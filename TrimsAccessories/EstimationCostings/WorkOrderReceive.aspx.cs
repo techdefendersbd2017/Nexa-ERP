@@ -237,30 +237,30 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         private void LoadColorNameDropdown()
         {
-            Database_Connection maincon = new Database_Connection();
-            try
-            {
-                con = maincon.openConnection();
-                string query = "SELECT ColorID, ColorName FROM ColorInformation ORDER BY ColorName";
-                using (SqlCommand cmd = new SqlCommand(query, con))
-                {
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
+            //Database_Connection maincon = new Database_Connection();
+            //try
+            //{
+            //    con = maincon.openConnection();
+            //    string query = "SELECT ColorID, ColorName FROM ColorInformation ORDER BY ColorName";
+            //    using (SqlCommand cmd = new SqlCommand(query, con))
+            //    {
+            //        SqlDataAdapter da = new SqlDataAdapter(cmd);
+            //        DataTable dt = new DataTable();
+            //        da.Fill(dt);
 
-                    ddlColorName.DataSource = dt;
-                    ddlColorName.DataTextField = "ColorName";
-                    ddlColorName.DataValueField = "ColorID";
-                    ddlColorName.DataBind();
+            //        ddlColorName.DataSource = dt;
+            //        ddlColorName.DataTextField = "ColorName";
+            //        ddlColorName.DataValueField = "ColorID";
+            //        ddlColorName.DataBind();
 
-                    ddlColorName.Items.Insert(0, new ListItem("--Select Color Name--", "0"));
-                }
-                con.Close();
-            }
-            catch (Exception ex)
-            {
-                ShowMessage("Error: " + ex.Message, "warning");
-            }
+            //        ddlColorName.Items.Insert(0, new ListItem("--Select Color Name--", "0"));
+            //    }
+            //    con.Close();
+            //}
+            //catch (Exception ex)
+            //{
+            //    ShowMessage("Error: " + ex.Message, "warning");
+            //}
         }
         private void BindWorkOrderList()
         {
@@ -609,33 +609,33 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         protected void btnAddColor_Click(object sender, EventArgs e)
         {
-            if (ddlColorName.SelectedValue == "0")
-            {
-                ShowMessage("Please select a Color Name before adding.", "warning");
-                ShowFormPanel();
-                return;
-            }
+            //if (ddlColorName.SelectedValue == "0")
+            //{
+            //    ShowMessage("Please select a Color Name before adding.", "warning");
+            //    ShowFormPanel();
+            //    return;
+            //}
 
-            var list = ColorList;
-            int nextSlNo = list.Any() ? list.Max(c => c.ColorSlNo) + 1 : 1;
+            //var list = ColorList;
+            //int nextSlNo = list.Any() ? list.Max(c => c.ColorSlNo) + 1 : 1;
 
-            list.Add(new ColorItem
-            {
-                ColorSlNo = nextSlNo,
-                ColorName = ddlColorName.SelectedItem.Text,
-                ColorRate = txtRate.Text.Trim(),
-                ColorRemarks = txtColorRemarks.Text.Trim(),
-                TotalReqQty = 0,
-                ColorTotalAmount = 0,
-                SizeDetails = new List<SizeDetail>()
-            });
+            //list.Add(new ColorItem
+            //{
+            //    ColorSlNo = nextSlNo,
+            //    ColorName = ddlColorName.SelectedItem.Text,
+            //    ColorRate = txtRate.Text.Trim(),
+            //    ColorRemarks = txtColorRemarks.Text.Trim(),
+            //    TotalReqQty = 0,
+            //    ColorTotalAmount = 0,
+            //    SizeDetails = new List<SizeDetail>()
+            //});
 
-            ColorList = list;
-            ddlColorName.SelectedIndex = 0;
-            txtColorRemarks.Text = string.Empty;
+            //ColorList = list;
+            //ddlColorName.SelectedIndex = 0;
+            //txtColorRemarks.Text = string.Empty;
 
-            BindColorList();
-            ShowFormPanel();
+            //BindColorList();
+            //ShowFormPanel();
         }
 
         protected void gvColorList_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -665,24 +665,24 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     BindSizeDetails();
                     break;
 
-                case "EditColor":
-                    ddlColorName.ClearSelection();
-                    var item = ddlColorName.Items.FindByText(color.ColorName);
-                    if (item != null) item.Selected = true;
-                    txtRate.Text = color.ColorRate;
-                    txtColorRemarks.Text = color.ColorRemarks;
+                //case "EditColor":
+                //    ddlColorName.ClearSelection();
+                //    var item = ddlColorName.Items.FindByText(color.ColorName);
+                //    if (item != null) item.Selected = true;
+                //    txtRate.Text = color.ColorRate;
+                //    txtColorRemarks.Text = color.ColorRemarks;
 
-                    ColorList.Remove(color);
+                //    ColorList.Remove(color);
 
-                    if (SelectedColorSlNo == colorSlNo)
-                    {
-                        SelectedColorSlNo = 0;
-                        lblSelectedColorName.Text = "-- No color selected --";
-                        BindSizeDetails();
-                    }
+                //    if (SelectedColorSlNo == colorSlNo)
+                //    {
+                //        SelectedColorSlNo = 0;
+                //        lblSelectedColorName.Text = "-- No color selected --";
+                //        BindSizeDetails();
+                //    }
 
-                    BindColorList();
-                    break;
+                //    BindColorList();
+                //    break;
 
                 case "DeleteColor":
                     ColorList.Remove(color);
@@ -714,8 +714,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         private void BindColorList()
         {
-            gvColorList.DataSource = ColorList;
-            gvColorList.DataBind();
+            //gvColorList.DataSource = ColorList;
+            //gvColorList.DataBind();
         }
 
         #endregion

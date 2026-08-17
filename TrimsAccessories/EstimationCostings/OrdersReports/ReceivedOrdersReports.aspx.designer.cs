@@ -24,6 +24,15 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
+        /// imgBranchLogo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgBranchLogo;
+
+        /// <summary>
         /// lblBranchName control.
         /// </summary>
         /// <remarks>
@@ -78,13 +87,31 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
         protected global::System.Web.UI.WebControls.Label lblBranchEmail;
 
         /// <summary>
-        /// lblWONo control.
+        /// Label3 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblWONo;
+        protected global::System.Web.UI.WebControls.Label Label3;
+
+        /// <summary>
+        /// lblBranchWeb control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblBranchWeb;
+
+        /// <summary>
+        /// lblWORcvNo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblWORcvNo;
 
         /// <summary>
         /// lblPartyName control.
@@ -96,15 +123,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
         protected global::System.Web.UI.WebControls.Label lblPartyName;
 
         /// <summary>
-        /// lblOrderNo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblOrderNo;
-
-        /// <summary>
         /// lblWORcvDate control.
         /// </summary>
         /// <remarks>
@@ -114,22 +132,13 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
         protected global::System.Web.UI.WebControls.Label lblWORcvDate;
 
         /// <summary>
-        /// lblBuyer control.
+        /// lblRefWorkOrderNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblBuyer;
-
-        /// <summary>
-        /// lblContactPerson control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblContactPerson;
+        protected global::System.Web.UI.WebControls.Label lblRefWorkOrderNo;
 
         /// <summary>
         /// lblDeliveryDate control.
@@ -141,40 +150,22 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings.OrdersReports
         protected global::System.Web.UI.WebControls.Label lblDeliveryDate;
 
         /// <summary>
-        /// lblStyle control.
+        /// rptGroupedOrders control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblStyle;
+        protected global::System.Web.UI.WebControls.Repeater rptGroupedOrders;
 
         /// <summary>
-        /// lblCustomerPhone control.
+        /// lblGrandTotalReqQty control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCustomerPhone;
-
-        /// <summary>
-        /// gvOrderDetails control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvOrderDetails;
-
-        /// <summary>
-        /// lblGrandTotal control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblGrandTotal;
+        protected global::System.Web.UI.WebControls.Label lblGrandTotalReqQty;
 
         /// <summary>
         /// lblDeveloperInfo control.
