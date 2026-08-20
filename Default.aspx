@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head runat="server">
-    <title>Nexa Garments ERP | Sign in to your workspace</title>
+    <title>Nexa ERP | Sign in to your workspace</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -254,7 +254,7 @@
                 <div class="brand-top">
                     <div class="brand-mark">
                         <div class="logo-box">N</div>
-                        <div class="brand-name">Nexa<span>Garments ERP</span></div>
+                        <div class="brand-name">Nexa<span>ERP</span></div>
                     </div>
 
                     <div class="status-pill"><span class="dot"></span> All floors &amp; sections online</div>

@@ -44,7 +44,14 @@
 
                         <!-- ডান সাইড: গ্রিড ভিউ -->
                         <div class="col-md-7 ps-md-4 mt-4 mt-md-0">
-                            <h6 class="text-primary fw-bold mb-3">Category List</h6>
+                            <!-- হেডিং এবং সার্চ বক্সের জন্য ফ্লেক্স লেআউট -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-primary fw-bold mb-0">Category List</h6>
+                                <div class="input-group" style="width: 280px;">
+                                    <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control form-control-sm" placeholder="Search by Category Name..." OnTextChanged="txtSearch_TextChanged"></asp:TextBox>
+                                </div>
+                            </div>
+
                             <div class="table-responsive">
                                 <asp:GridView ID="gvCategory" runat="server" CssClass="table table-bordered table-striped table-hover align-middle" AutoGenerateColumns="False" EmptyDataText="No categories found." OnSelectedIndexChanged="gvCategory_SelectedIndexChanged">
                                     <Columns>

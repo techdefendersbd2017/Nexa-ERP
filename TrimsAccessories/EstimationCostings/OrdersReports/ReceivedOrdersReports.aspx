@@ -47,8 +47,8 @@
                 '.info-table td { padding: 6px 10px; vertical-align: top; font-size: 12px; color: #000000; }' +
                 '.info-label { font-weight: bold; width: 130px; color: #000000; }' +
                 '.group-header { background: #e2e8f0; font-weight: bold; padding: 6px 8px; margin-top: 10px; font-size: 12px; border: 1px solid #cbd5e1; color: #000000; }' +
-                'table.detail-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }' +
-                'table.detail-table th, table.detail-table td { border: 1px solid #dcdde1; padding: 5px 8px; font-size: 11px; }' +
+                'table.detail-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }' +
+                'table.detail-table th, table.detail-table td { border: 1px solid #dcdde1; padding: 5px 8px; font-size: 11px; overflow: hidden; word-wrap: break-word; }' +
                 'table.detail-table td { color: #000000; }' +
                 'table.detail-table th { background: #34495e; color: #ffffff; text-align: center; font-weight: 600; }' +
                 '.num { text-align: right; }' +
@@ -101,7 +101,6 @@
             border-radius: 4px;
         }
         
-        /* Company Header Layout: Logo on absolute left, Text centered */
         .company-header {
             position: relative;
             border-bottom: 2px solid #2980b9;
@@ -180,16 +179,21 @@
             border-bottom: none;
             color: #000000;
         }
+        
+        /* ফিক্সড টেবিল লেআউট যাতে সব টেবিলের কলাম সাইজ সমান থাকে */
         table.detail-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 10px;
+            table-layout: fixed;
         }
         table.detail-table th,
         table.detail-table td {
             border: 1px solid #dcdde1;
             padding: 5px 8px;
             font-size: 11px;
+            overflow: hidden;
+            word-wrap: break-word;
         }
         table.detail-table td {
             color: #000000;
@@ -343,17 +347,17 @@
                     <asp:GridView ID="gvGroupDetails" runat="server" AutoGenerateColumns="False" CssClass="detail-table" 
                         GridLines="None" OnRowDataBound="gvGroupDetails_RowDataBound">
                         <Columns>
-                            <asp:BoundField DataField="RowNo" HeaderText="SL No" ItemStyle-CssClass="center" />
-                            <asp:BoundField DataField="ItemName" HeaderText="Item Name" />
-                            <asp:BoundField DataField="ItemDescription" HeaderText="Item Description" />
-                            <asp:BoundField DataField="ColorName" HeaderText="Color Name" ItemStyle-CssClass="center" />
-                            <asp:BoundField DataField="Size" HeaderText="Size" ItemStyle-CssClass="center" />
-                            <asp:BoundField DataField="Measurement" HeaderText="Measurement" ItemStyle-CssClass="center" />
-                            <asp:BoundField DataField="ReqQty" HeaderText="Req Qty" DataFormatString="{0:N2}" ItemStyle-CssClass="num" />
-                            <asp:BoundField DataField="Unit" HeaderText="Unit" ItemStyle-CssClass="center" />
-                            <asp:BoundField DataField="ExtraPercent" HeaderText="Extra %" DataFormatString="{0:N2}" ItemStyle-CssClass="center" />
-                            <asp:BoundField DataField="TotalReqQty" HeaderText="Total Req Qty" DataFormatString="{0:N2}" ItemStyle-CssClass="num" />
-                            <asp:BoundField DataField="Remarks" HeaderText="Remarks" />
+                            <asp:BoundField DataField="RowNo" HeaderText="SL No" ItemStyle-Width="5%" ItemStyle-CssClass="center" />
+                            <asp:BoundField DataField="ItemName" HeaderText="Item Name" ItemStyle-Width="12%" />
+                            <asp:BoundField DataField="ItemDescription" HeaderText="Item Description" ItemStyle-Width="17%" />
+                            <asp:BoundField DataField="ColorName" HeaderText="Color Name" ItemStyle-Width="9%" ItemStyle-CssClass="center" />
+                            <asp:BoundField DataField="Size" HeaderText="Size" ItemStyle-Width="7%" ItemStyle-CssClass="center" />
+                            <asp:BoundField DataField="Measurement" HeaderText="Measurement" ItemStyle-Width="10%" ItemStyle-CssClass="center" />
+                            <asp:BoundField DataField="ReqQty" HeaderText="Req Qty" DataFormatString="{0:N2}" ItemStyle-Width="9%" ItemStyle-CssClass="num" />
+                            <asp:BoundField DataField="Unit" HeaderText="Unit" ItemStyle-Width="6%" ItemStyle-CssClass="center" />
+                            <asp:BoundField DataField="ExtraPercent" HeaderText="Extra %" DataFormatString="{0:N2}" ItemStyle-Width="7%" ItemStyle-CssClass="center" />
+                            <asp:BoundField DataField="TotalReqQty" HeaderText="Total Req Qty" DataFormatString="{0:N2}" ItemStyle-Width="10%" ItemStyle-CssClass="num" />
+                            <asp:BoundField DataField="Remarks" HeaderText="Remarks" ItemStyle-Width="8%" />
                         </Columns>
                     </asp:GridView>
                 </ItemTemplate>

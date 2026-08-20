@@ -26,12 +26,12 @@
                                 <asp:TextBox ID="txtSubCategoryId" runat="server" CssClass="form-control" placeholder="Sub Category ID Auto Generated" ReadOnly="true"></asp:TextBox>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Sub Category Name</label>
-                                <asp:TextBox ID="txtSubCategoryName" runat="server" CssClass="form-control" placeholder="Enter Sub Category Name"></asp:TextBox>
+                                <label class="form-label fw-bold">Item Category</label>
+                                <asp:DropDownList ID="ddlItemCategory" runat="server" AutoPostBack="true" CssClass="form-select" OnSelectedIndexChanged="ddlItemCategory_SelectedIndexChanged"></asp:DropDownList>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Item Category</label>
-                                <asp:DropDownList ID="ddlItemCategory" runat="server" CssClass="form-select"></asp:DropDownList>
+                                <label class="form-label fw-bold">Sub Category Name</label>
+                                <asp:TextBox ID="txtSubCategoryName" runat="server" CssClass="form-control" placeholder="Enter Sub Category Name"></asp:TextBox>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Status</label>
@@ -48,7 +48,14 @@
 
                         <!-- ডান সাইড: গ্রিড ভিউ -->
                         <div class="col-md-7 ps-md-4 mt-4 mt-md-0">
-                            <h6 class="text-primary fw-bold mb-3">Sub Category List</h6>
+                            <!-- হেডিং এবং সার্চ বক্সের জন্য ফ্লেক্স লেআউট -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-primary fw-bold mb-0">Sub Category List</h6>
+                                <div class="input-group" style="width: 280px;">
+                                    <asp:TextBox ID="txtSearch" runat="server" AutoPostBack="true" CssClass="form-control form-control-sm" placeholder="Search by Sub Category Name..." OnTextChanged="txtSearch_TextChanged"></asp:TextBox>
+                                </div>
+                            </div>
+
                             <div class="table-responsive">
                                 <asp:GridView ID="gvSubCategory" runat="server" CssClass="table table-bordered table-striped table-hover align-middle" AutoGenerateColumns="False" EmptyDataText="No sub categories found." OnSelectedIndexChanged="gvSubCategory_SelectedIndexChanged">
                                     <Columns>

@@ -153,5 +153,33 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
                 }
             }
         }
+
+        protected void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                con = conn.openConnection();
+                {
+                    SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM ta_ItemCategory WHERE CategoryName LIKE '%" + txtSearch.Text.Trim() + "%' ORDER BY CategoryName ASC", con);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvCategory.DataSource = dt;
+                    gvCategory.DataBind();
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
+                    "alert('" + ex.Message.Replace("'", "\\'") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
+            }
+        }
     }
 }

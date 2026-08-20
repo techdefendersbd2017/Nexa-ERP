@@ -11,7 +11,7 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
 {
 
 
-    public partial class SubCategory
+    public partial class ItemName
     {
 
         /// <summary>
@@ -24,22 +24,13 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// txtSubCategoryId control.
+        /// txtItemID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSubCategoryId;
-
-        /// <summary>
-        /// txtSubCategoryName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSubCategoryName;
+        protected global::System.Web.UI.WebControls.TextBox txtItemID;
 
         /// <summary>
         /// ddlItemCategory control.
@@ -49,6 +40,42 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlItemCategory;
+
+        /// <summary>
+        /// ddlSubCategory control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlSubCategory;
+
+        /// <summary>
+        /// txtItemName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtItemName;
+
+        /// <summary>
+        /// ddlItemsType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlItemsType;
+
+        /// <summary>
+        /// ddlUnit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlUnit;
 
         /// <summary>
         /// ddlStatus control.
@@ -78,12 +105,21 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
         protected global::System.Web.UI.WebControls.Button btnCancel;
 
         /// <summary>
-        /// gvSubCategory control.
+        /// txtSearch control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvSubCategory;
+        protected global::System.Web.UI.WebControls.TextBox txtSearch;
+
+        /// <summary>
+        /// gvItemName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvItemName;
     }
 }

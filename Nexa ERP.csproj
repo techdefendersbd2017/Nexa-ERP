@@ -196,13 +196,13 @@
     <Content Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx" />
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx" />
+    <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx" />
+    <Content Include="MasterConfiguration\OrganizationMaster\FloorInformation.aspx" />
+    <Content Include="MasterConfiguration\OrganizationMaster\GroupInformation.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\MachineMaster.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx" />
+    <Content Include="MasterConfiguration\OrganizationMaster\ProductionBuilding.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\UnitSetup.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\FormEntry.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\MenuEntry.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\ModuleInformation.aspx" />
@@ -255,19 +255,21 @@
     <Content Include="Inventory\InventoryConfiguration\CostCenter.aspx" />
     <Content Include="Inventory\InventoryConfiguration\CrateStore.aspx" />
     <Content Include="Inventory\StoreRequisition.aspx" />
-    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx" />
+    <Content Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
-    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\ColorInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ProductDepartmentInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\YarnCountInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx" />
-    <Content Include="MerchandisingMarketing\OrderInformation\POEntryInformation.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\POEntryInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInfo.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx" />
-    <Content Include="MerchandisingMarketing\OrderInformation\StyleName.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\StyleName.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx" />
+    <Content Include="Planning\ProductionPlanning.aspx" />
     <Content Include="Production\Cutting\cuttingContrastFabricsEntry.aspx" />
     <Content Include="Production\Cutting\cuttingNumberWiseRecutEntry.aspx" />
     <Content Include="Production\Cutting\cuttingReject.aspx" />
@@ -293,6 +295,7 @@
     <Content Include="Production\Finishing\ShipmentChallanAndGatePass.aspx" />
     <Content Include="Production\Finishing\shortShipmentReason.aspx" />
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
+    <Content Include="Shipment\DeliveryChallanAndBill.aspx" />
     <Content Include="Test.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\MaterialRequirementByWorkOrder.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\BookingInformation.aspx" />
@@ -300,14 +303,15 @@
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\PriceQuotationPrintItemsWise.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\RawMaterialReports.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReports.aspx" />
+    <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReportsWithAmount.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\PriceQuotationWithMultiItems.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\ItemCategory.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\ItemName.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\ModelSetup.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\RawMaterial.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\SizeCreate.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\SubCategory.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\ItemCategory.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\ItemName.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\ModelSetup.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\RawMaterial.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\SizeCreate.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\SubCategory.aspx" />
     <Content Include="TrimsAccessories\SheetNesting.aspx" />
     <Content Include="TrimsAccessories\TrimsProduction\DailyProductionAchievement.aspx" />
     <Content Include="TrimsAccessories\TrimsProduction\DailyProductionTarget.aspx" />
@@ -405,11 +409,11 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx.cs">
       <DependentUpon>BranchInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx.designer.cs">
       <DependentUpon>BranchInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx.cs">
@@ -419,18 +423,18 @@
     <Compile Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx.designer.cs">
       <DependentUpon>CustomerSupplier.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\FloorInformation.aspx.cs">
       <DependentUpon>FloorInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\FloorInformation.aspx.designer.cs">
       <DependentUpon>FloorInformation.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\GroupInformation.aspx.cs">
       <DependentUpon>GroupInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\GroupInformation.aspx.designer.cs">
       <DependentUpon>GroupInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="ERPConfiguration\CompanyInformation\MachineMaster.aspx.cs">
@@ -440,18 +444,18 @@
     <Compile Include="ERPConfiguration\CompanyInformation\MachineMaster.aspx.designer.cs">
       <DependentUpon>MachineMaster.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\ProductionBuilding.aspx.cs">
       <DependentUpon>ProductionBuilding.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\ProductionBuilding.aspx.designer.cs">
       <DependentUpon>ProductionBuilding.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\UnitSetup.aspx.cs">
       <DependentUpon>UnitSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\UnitSetup.aspx.designer.cs">
       <DependentUpon>UnitSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="ERPConfiguration\UserAuthorization\FormEntry.aspx.cs">
@@ -790,12 +794,19 @@
     <Compile Include="Inventory\StoreRequisition.aspx.designer.cs">
       <DependentUpon>StoreRequisition.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx.cs">
       <DependentUpon>BuyerInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx.designer.cs">
       <DependentUpon>BuyerInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx.cs">
+      <DependentUpon>CurrencySetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx.designer.cs">
+      <DependentUpon>CurrencySetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx.cs">
       <DependentUpon>BuyingHouseAgent.aspx</DependentUpon>
@@ -804,11 +815,11 @@
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx.designer.cs">
       <DependentUpon>BuyingHouseAgent.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ColorInformation.aspx.cs">
       <DependentUpon>ColorInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ColorInformation.aspx.designer.cs">
       <DependentUpon>ColorInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx.cs">
@@ -839,11 +850,11 @@
     <Compile Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx.designer.cs">
       <DependentUpon>CreateStyleBuyerWise.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\OrderInformation\POEntryInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\POEntryInformation.aspx.cs">
       <DependentUpon>POEntryInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\OrderInformation\POEntryInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\POEntryInformation.aspx.designer.cs">
       <DependentUpon>POEntryInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx.cs">
@@ -867,11 +878,11 @@
     <Compile Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx.designer.cs">
       <DependentUpon>StyleInformation.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\OrderInformation\StyleName.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\StyleName.aspx.cs">
       <DependentUpon>StyleName.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\OrderInformation\StyleName.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\StyleName.aspx.designer.cs">
       <DependentUpon>StyleName.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx.cs">
@@ -880,6 +891,13 @@
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx.designer.cs">
       <DependentUpon>StyleRegistrationSystem.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Planning\ProductionPlanning.aspx.cs">
+      <DependentUpon>ProductionPlanning.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Planning\ProductionPlanning.aspx.designer.cs">
+      <DependentUpon>ProductionPlanning.aspx</DependentUpon>
     </Compile>
     <Compile Include="Production\Cutting\cuttingContrastFabricsEntry.aspx.cs">
       <DependentUpon>cuttingContrastFabricsEntry.aspx</DependentUpon>
@@ -1057,6 +1075,13 @@
       <DependentUpon>shortShipmentReasonStatusReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shipment\DeliveryChallanAndBill.aspx.cs">
+      <DependentUpon>DeliveryChallanAndBill.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\DeliveryChallanAndBill.aspx.designer.cs">
+      <DependentUpon>DeliveryChallanAndBill.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Test.aspx.cs">
       <DependentUpon>Test.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1106,6 +1131,13 @@
     <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReports.aspx.designer.cs">
       <DependentUpon>ReceivedOrdersReports.aspx</DependentUpon>
     </Compile>
+    <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReportsWithAmount.aspx.cs">
+      <DependentUpon>ReceivedOrdersReportsWithAmount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReportsWithAmount.aspx.designer.cs">
+      <DependentUpon>ReceivedOrdersReportsWithAmount.aspx</DependentUpon>
+    </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\PriceQuotationWithMultiItems.aspx.cs">
       <DependentUpon>PriceQuotationWithMultiItems.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1120,46 +1152,46 @@
     <Compile Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx.designer.cs">
       <DependentUpon>WorkOrderReceived.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ItemCategory.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemCategory.aspx.cs">
       <DependentUpon>ItemCategory.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ItemCategory.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemCategory.aspx.designer.cs">
       <DependentUpon>ItemCategory.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ItemName.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemName.aspx.cs">
       <DependentUpon>ItemName.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ItemName.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemName.aspx.designer.cs">
       <DependentUpon>ItemName.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ModelSetup.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ModelSetup.aspx.cs">
       <DependentUpon>ModelSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ModelSetup.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ModelSetup.aspx.designer.cs">
       <DependentUpon>ModelSetup.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\RawMaterial.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\RawMaterial.aspx.cs">
       <DependentUpon>RawMaterial.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\RawMaterial.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\RawMaterial.aspx.designer.cs">
       <DependentUpon>RawMaterial.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\SizeCreate.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\SizeCreate.aspx.cs">
       <DependentUpon>SizeCreate.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\SizeCreate.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\SizeCreate.aspx.designer.cs">
       <DependentUpon>SizeCreate.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\SubCategory.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\SubCategory.aspx.cs">
       <DependentUpon>SubCategory.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\SubCategory.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\SubCategory.aspx.designer.cs">
       <DependentUpon>SubCategory.aspx</DependentUpon>
     </Compile>
     <Compile Include="TrimsAccessories\SheetNesting.aspx.cs">

@@ -179,5 +179,26 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
         protected void lbNext_Click(object sender, EventArgs e) { }
         protected void lbLast_Click(object sender, EventArgs e) { }
         protected void ddlPageSize_Changed(object sender, EventArgs e) { LoadColorInformation(); }
+
+        protected void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                con = conn.openConnection();
+                SqlDataAdapter da = new SqlDataAdapter("SELECT ColorID, ColorCode, 'Standard' AS ColorType, ColorName, CASE WHEN IsActive = 1 then 'Yes' ELSE 'No' END AS IsActive FROM ColorInformation where ColorName LIKE @SearchTerm ORDER BY ColorID DESC", con);
+                da.SelectCommand.Parameters.AddWithValue("@SearchTerm", "%" + txtSearch.Text + "%");
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvColorList.DataSource = dt;
+                gvColorList.DataBind();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                if (con.State == ConnectionState.Open) con.Close();
+                lblMessage.Text = "Error: " + ex.Message;
+                lblMessage.ForeColor = System.Drawing.Color.Red;
+            }
+        }
     }
 }

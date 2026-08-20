@@ -62,8 +62,7 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
                 con = conn.openConnection();
                 string query = @"SELECT s.SubCategoryID, c.CategoryName, s.SubCategoryName, s.Status 
                                  FROM ta_SubCategory s 
-                                 INNER JOIN ta_ItemCategory c ON s.CategoryID = c.CategoryID 
-                                 ORDER BY s.SubCategoryName ASC";
+                                 INNER JOIN ta_ItemCategory c ON s.CategoryID = c.CategoryID  where c.CategoryName='" + ddlItemCategory.SelectedItem.Text + "' ORDER BY s.SubCategoryName ASC";
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -176,6 +175,39 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             catch (Exception ex)
             {
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Error: " + ex.Message.Replace("'", "\\'") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        protected void ddlItemCategory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadSubCategoryInformation();
+        }
+
+        protected void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = @"SELECT s.SubCategoryID, c.CategoryName, s.SubCategoryName, s.Status 
+                                 FROM ta_SubCategory s 
+                                 INNER JOIN ta_ItemCategory c ON s.CategoryID = c.CategoryID  where s.SubCategoryName LIKE '%" + txtSearch.Text.Trim() + "%' ORDER BY s.SubCategoryName ASC";
+                SqlDataAdapter da = new SqlDataAdapter(query, con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                gvSubCategory.DataSource = dt;
+                gvSubCategory.DataBind();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "\\'") + "');", true);
             }
             finally
             {
