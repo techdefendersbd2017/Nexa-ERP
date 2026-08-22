@@ -42,9 +42,13 @@
 </head>
 <body>
     <form id="form1" runat="server">
-        <!-- পুরো উইডথ নেওয়ার জন্য container-fluid ব্যবহার করা হলো -->
+        <!-- পুরো উইডথ নেওয়ার জন্য container-fluid ব্যবহার করা হলো -->
         <div class="container-fluid px-4 my-4">
             <asp:HiddenField ID="hdnChallanHeaderID" runat="server" Value="0" />
+
+            <!-- বর্তমানে কোন প্যানেল (pnlList / pnlForm) অ্যাক্টিভ তা ট্র্যাক করার জন্য -->
+            <asp:HiddenField ID="hdnActivePanel" runat="server" Value="pnlList" />
+
             <!-- ================= 1. LIST PANEL ================= -->
             <div id="pnlList" class="panel active">
                 <div class="list-toolbar">
@@ -66,8 +70,10 @@
             <ItemTemplate>
                 <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn btn-sm btn-outline-success"
                     CommandName="EditChallan" CommandArgument='<%# Eval("DeliveryChallanHeaderID") %>' />
-                <asp:Button ID="btnBill" runat="server" Text="Print View Bill" CssClass="btn btn-sm btn-outline-success" />
-                <asp:Button ID="btnChallan" runat="server" Text="Print View Challan" CssClass="btn btn-sm btn-outline-success" />
+                <asp:Button ID="btnChallan" runat="server" Text="Print View Challan" CssClass="btn btn-sm btn-outline-success"
+                    CommandName="ReportView" CommandArgument='<%# Eval("DeliveryChallanHeaderID") %>' />
+                <asp:Button ID="btnBill" runat="server" Text="Print View Bill" CssClass="btn btn-sm btn-outline-success"
+                    CommandName="ReportViewWithAmount" CommandArgument='<%# Eval("DeliveryChallanHeaderID") %>' />
             </ItemTemplate>
         </asp:TemplateField>
     </Columns>
@@ -76,7 +82,7 @@
             </div>
 
             <!-- ================= 2. FORM PANEL ================= -->
-            <div id="pnlForm" class="panel">
+            <div id="pnlForm" class="panel active">
                 <div class="card shadow-sm">
                     <div class="card-header card-header-custom py-2 d-flex justify-content-between align-items-center">
                         <span>Delivery Challan & Commercial Bill Entry</span>
@@ -147,7 +153,7 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Bill / Invoice No.[Auto]</label>
-                                    <asp:TextBox ID="txtInvoiceNo" runat="server" CssClass="form-control form-control-sm" Text="INV-2026-0003" ReadOnly="true" />
+                                    <asp:TextBox ID="txtInvoiceNo" runat="server" CssClass="form-control form-control-sm" Text="INV-2026-0001" ReadOnly="true" />
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Bill Date</label>
@@ -229,12 +235,14 @@
                                         <asp:TemplateField HeaderText="Order Qty & Unit">
                                             <ItemTemplate>
                                                 <asp:Label ID="lblWOQty" runat="server" Text='<%# Eval("WOQty") %>'></asp:Label>
+                                                <asp:Label ID="lblWOQtyUnit" runat="server" Text='<%# Eval("WOQtyUnit") %>'></asp:Label>
                                             </ItemTemplate>
                                         </asp:TemplateField>
 
                                         <asp:TemplateField HeaderText="Ready Qty & Unit" ItemStyle-Width="110px">
                                             <ItemTemplate>
-                                                <asp:Label ID="lblReadyQty" runat="server" Text='<%# Eval("ReadyQty") %>'></asp:Label>                                                
+                                                <asp:Label ID="lblReadyQty" runat="server" Text='<%# Eval("ReadyQty") %>'></asp:Label>
+                                                <asp:Label ID="lblReadyQtyUnit" runat="server" Text='<%# Eval("ReadyQtyUnit") %>'></asp:Label>
                                             </ItemTemplate>
                                         </asp:TemplateField>
 
@@ -247,13 +255,8 @@
 
                                         <asp:TemplateField HeaderText="Rate/Unit ($)" ItemStyle-Width="110px">
                                             <ItemTemplate>
-                                                <asp:Label ID="lblUnitRate" runat="server" Text='<%# Eval("UnitRate") %>'></asp:Label>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>
-
-                                        <asp:TemplateField HeaderText="Rate Unit">
-                                            <ItemTemplate>
-                                                <asp:Label ID="lblRateUnit" runat="server" Text='<%# Eval("RateUnit") %>'></asp:Label>
+                                                <asp:Label ID="lblUnitRate" runat="server" Text='<%# Eval("RateUnit") %>'></asp:Label>
+                                                <asp:Label ID="lblRateUnit" runat="server" Text='<%# Eval("RateUnitName") %>'></asp:Label>
                                             </ItemTemplate>
                                         </asp:TemplateField>
 
@@ -315,6 +318,9 @@
         function showPanel(panelId) {
             $('.panel').removeClass('active');
             $('#' + panelId).addClass('active');
+            // ★ NEW: বর্তমান অ্যাক্টিভ প্যানেল হিডেন ফিল্ডে সেভ রাখা হচ্ছে,
+            // যাতে যেকোনো পোস্টব্যাক (dropdown change ইত্যাদি) এর পরও সার্ভার-সাইড থেকে সঠিক প্যানেল দেখানো যায়
+            $('#<%= hdnActivePanel.ClientID %>').val(panelId);
         }
 
         $(document).ready(function () {
@@ -332,13 +338,13 @@
 
             // ASP.NET GridView এর প্রতিটি রো (Row) লুপ করা
             $('#<%= gvDeliveryItems.ClientID %> tr').each(function () {
-            // হেডার রো বাদ দেওয়ার জন্য
+            // হেডার রো বাদ দেওয়ার জন্য
             if ($(this).find('th').length > 0) return;
 
             // Delivery Qty (Textbox)
             let qty = parseFloat($(this).find('.row-qty').val()) || 0;
 
-            // Unit Rate (Label থেকে ভ্যালু নেওয়া)
+            // Unit Rate (Label থেকে ভ্যালু নেওয়া)
             let rateText = $(this).find('[id*="lblUnitRate"]').text();
             let rate = parseFloat(rateText) || 0;
 

@@ -647,7 +647,7 @@
             </div>
 
             <!-- ================= 2. FORM PANEL ================= -->
-            <div id="pnlForm" class="panel active">
+            <div id="pnlForm" class="panel">
                 <div class="card shadow-sm">
                     <div class="card-header card-header-custom text-center py-2 d-flex justify-content-between align-items-center">
                         <span>Work Order Input Form (ERP Module)</span>
