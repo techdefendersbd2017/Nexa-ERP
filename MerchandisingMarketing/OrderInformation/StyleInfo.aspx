@@ -1,6 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="StyleInfo.aspx.cs" Inherits="Nexa_ERP.MerchandisingMarketing.OrderInformation.StyleInfo" %>
 
-
 <!DOCTYPE html>
 <!DOCTYPE html>
 <html>

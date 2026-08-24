@@ -18,15 +18,15 @@ namespace Nexa_ERP.MerchandisingMarketing.MerchandisingConfiguration
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                string user = Request.QueryString["user"];
-                if (!string.IsNullOrEmpty(user))
-                {
-                    Label1.Text = "Welcome, " + user;
-                }
-                LoadgvDepartmentInformation();
-            }
+            //if (!IsPostBack)
+            //{
+            //    string user = Request.QueryString["user"];
+            //    if (!string.IsNullOrEmpty(user))
+            //    {
+            //        Label1.Text = "Welcome, " + user;
+            //    }
+            //    LoadgvDepartmentInformation();
+            //}
         }
 
         private void LoadgvDepartmentInformation()
