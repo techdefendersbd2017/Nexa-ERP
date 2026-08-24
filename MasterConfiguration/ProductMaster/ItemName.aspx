@@ -27,12 +27,11 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Item Category</label>
-                                <asp:DropDownList ID="ddlItemCategory" runat="server" AutoPostBack="true" CssClass="form-select" OnSelectedIndexChanged="ddlItemCategory_SelectedIndexChanged"></asp:DropDownList>
+                                <asp:DropDownList ID="ddlItemCategory" runat="server" AutoPostBack="true" CssClass="form-select form-select-sm searchable-dropdown" OnSelectedIndexChanged="ddlItemCategory_SelectedIndexChanged"></asp:DropDownList>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Sub Category</label>
-
-                                <asp:DropDownList ID="ddlSubCategory" runat="server" CssClass="form-select">                                    
+                                <asp:DropDownList ID="ddlSubCategory" runat="server" AutoPostBack="true" CssClass="form-select form-select-sm searchable-dropdown" OnSelectedIndexChanged="ddlSubCategory_SelectedIndexChanged">                                    
                                     <asp:ListItem Text="--Select Sub Category--" Value="0" Selected="True"></asp:ListItem>
                                 </asp:DropDownList>
                             </div>
@@ -68,7 +67,14 @@
 
                         <!-- ডান সাইড: গ্রিড ভিউ -->
                         <div class="col-md-7 ps-md-4 mt-4 mt-md-0">
-                            <h6 class="text-primary fw-bold mb-3">Item List</h6>
+                            <!-- হেডিং এবং সার্চ বক্সের জন্য ফ্লেক্স লেআউট -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-primary fw-bold mb-0">Item List</h6>
+                                <div class="input-group" style="width: 280px; margin-left: 40px;">
+                                    <asp:TextBox ID="txtSearch" runat="server" AutoPostBack="true" CssClass="form-control form-control-sm" placeholder="Search by Item Name..." OnTextChanged="txtSearch_TextChanged"></asp:TextBox>
+                                </div>
+                            </div>
+
                             <div class="table-responsive">
                                 <asp:GridView ID="gvItemName" runat="server" CssClass="table table-bordered table-striped table-hover align-middle" AutoGenerateColumns="False" EmptyDataText="No items found." OnSelectedIndexChanged="gvItemName_SelectedIndexChanged">
                                     <Columns>

@@ -317,7 +317,6 @@
 
     /* Tablet & Mobile */
     @media (max-width: 991.98px) {
-
         .main-container {
             height: auto;
             padding: 14px;
@@ -413,7 +412,7 @@
 
                         <div class="col-md-6">
                             <label>Panton Name</label>
-                            <asp:TextBox ID="txtPantenName" runat="server" CssClass="form-control" placeholder="Color Name" MaxLength="100" />
+                            <asp:TextBox ID="txtPantenName" runat="server" CssClass="form-control" placeholder="Panton Name" MaxLength="100" />
                         </div>
 
                         <div class="col-md-6">
@@ -450,9 +449,15 @@
             <ContentTemplate>
             <div class="card shadow right-panel">
 
-                <div class="card-header bg-success text-white">
-                    <i class="bi bi-list-check"></i>
-                    <h4 class="mb-0">Color List</h4>
+                <!-- হেডার এবং সার্চ বক্স যুক্ত করা হয়েছে -->
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-list-check"></i>
+                        <h4 class="mb-0">Color List</h4>
+                    </div>
+                    <div class="input-group" style="width: 250px;">
+                        <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control form-control-sm" placeholder="Search Color Name..." OnTextChanged="txtSearch_TextChanged" AutoPostBack="true"></asp:TextBox>
+                    </div>
                 </div>
 
                 <div class="grid-wrapper">

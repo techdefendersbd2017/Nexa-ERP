@@ -11,7 +11,7 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
 {
 
 
-    public partial class ItemCategory
+    public partial class SubCategory
     {
 
         /// <summary>
@@ -24,22 +24,31 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// txtCategoryId control.
+        /// txtSubCategoryId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCategoryId;
+        protected global::System.Web.UI.WebControls.TextBox txtSubCategoryId;
 
         /// <summary>
-        /// txtCategoryName control.
+        /// ddlItemCategory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCategoryName;
+        protected global::System.Web.UI.WebControls.DropDownList ddlItemCategory;
+
+        /// <summary>
+        /// txtSubCategoryName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtSubCategoryName;
 
         /// <summary>
         /// ddlStatus control.
@@ -69,12 +78,21 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
         protected global::System.Web.UI.WebControls.Button btnCancel;
 
         /// <summary>
-        /// gvCategory control.
+        /// txtSearch control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvCategory;
+        protected global::System.Web.UI.WebControls.TextBox txtSearch;
+
+        /// <summary>
+        /// gvSubCategory control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvSubCategory;
     }
 }

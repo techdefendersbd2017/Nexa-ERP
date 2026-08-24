@@ -188,8 +188,6 @@
         }
 
         /* ================= AUTOCOMPLETE SUGGESTION DROPDOWN ================= */
-        /* Buyer / Style / Order No textbox-এর জন্য custom autocomplete (jQuery UI ছাড়াই,
-           Bootstrap 5 এর সাথে visually মিলে যায়) */
         .ac-wrapper {
             position: relative;
         }
@@ -230,7 +228,6 @@
             color: #999;
         }
 
-        /* Active color row highlight (used by gvColorList_RowDataBound) */
         .active-color-row {
             background-color: #d1e7ff !important;
         }
@@ -242,7 +239,7 @@
             margin-top: 8px;
         }
 
-        /* ================= REFRESH ICON BUTTON (shared: Customer / Item / Color) ================= */
+        /* ================= REFRESH ICON BUTTON ================= */
         .refresh-icon-btn {
             width: 34px;
             min-width: 34px;
@@ -253,7 +250,7 @@
             color: #1f4e78 !important;
             border: 1px solid #cfe0f0 !important;
             transition: all 0.2s ease-in-out;
-            flex-shrink: 0; /* [FIX] বাটন যেন কখনো সংকুচিত না হয় */
+            flex-shrink: 0;
         }
         .refresh-icon-btn:hover {
             background-color: #1f4e78 !important;
@@ -261,7 +258,6 @@
             transform: rotate(90deg);
         }
 
-        /* [FIX] flex row-এ select2 কে সংকুচিত হতে দেওয়া, রিফ্রেশ বাটনের উপর overlap বন্ধ */
         .entry-row .d-flex,
         .col-md-3 > .d-flex {
             flex-wrap: nowrap;
@@ -272,7 +268,7 @@
             flex: 1 1 auto;
         }
 
-        /* ================= VARIANT ENTRY - REDESIGN (single flowing row, no split boxes) ================= */
+        /* ================= VARIANT ENTRY - REDESIGN ================= */
         .entry-row {
             background: linear-gradient(180deg, #f7fafd 0%, #eef3f9 100%);
             border: 1px solid #dbe6f2;
@@ -291,12 +287,10 @@
             border-color: #1f4e78;
             box-shadow: 0 0 0 0.15rem rgba(31, 78, 120, 0.15);
         }
-        /* subtle vertical separators between logical field groups on wide screens */
         .entry-divider {
             border-left: 1px dashed #c7d6e5;
             padding-left: 14px !important;
         }
-        /* [FIX] breakpoint 767.98px -> 991.98px, নতুন col-lg-1 breakpoint এর সাথে মিলিয়ে */
         @media (max-width: 991.98px) {
             .entry-divider {
                 border-left: none;
@@ -342,7 +336,6 @@
             margin: 4px 0 10px 0;
         }
 
-        /* [FIX] খুব ছোট স্ক্রিনে (ফোন) কন্টেইনার/এন্ট্রি-রো প্যাডিং কমানো, যাতে ফিল্ডগুলো বেশি জায়গা পায় */
         @media (max-width: 575.98px) {
             .container {
                 padding-left: 10px;
@@ -353,10 +346,6 @@
             }
         }
 
-        /* ================= [FIX] Item Rate → Add বাটন পর্যন্ত অংশটা CSS Grid দিয়ে re-build =================
-           কারণ: Bootstrap-এর col-lg-1 (8.33%) খুবই সরু, ফলে "TOTAL REQ. QTY", "TOTAL AMOUNT" এর মতো
-           লেবেল wrap করে পাশের কলামের উপর গিয়ে overlap করছিল। CSS Grid প্রতিটা row-এর height
-           নিজে থেকেই সবচেয়ে লম্বা আইটেম অনুযায়ী রিজার্ভ করে রাখে — তাই কোনোভাবেই overlap হতে পারে না। */
         .variant-fields-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
@@ -365,7 +354,7 @@
         }
         .variant-fields-grid .vf-item .form-label {
             display: block;
-            min-height: 2.3em; /* ছোট/লম্বা লেবেল যাই হোক, input বক্সগুলো একই লাইনে বসবে */
+            min-height: 2.3em;
         }
         .variant-fields-grid .vf-add {
             display: flex;
@@ -376,7 +365,7 @@
                 grid-template-columns: repeat(2, 1fr);
             }
             .variant-fields-grid .vf-add {
-                grid-column: 1 / -1; /* ফোনে Add বাটন পুরো width জুড়ে */
+                grid-column: 1 / -1;
             }
         }
     </style>
@@ -398,10 +387,6 @@
             try { sessionStorage.setItem('wo_panel', panelId); } catch (e) { }
         }
 
-        // =====================================================================
-        // RESTORE UI STATE (panel + scroll position) after ANY postback
-        // (both full postback and UpdatePanel async postback)
-        // =====================================================================
         function restoreUIState() {
             try {
                 var panel = sessionStorage.getItem('wo_panel') || 'pnlList';
@@ -417,7 +402,6 @@
             } catch (e) { }
         }
 
-        // Continuously (debounced) remember the current scroll position
         var _woScrollSaveTimer = null;
         window.addEventListener('scroll', function () {
             if (_woScrollSaveTimer) { clearTimeout(_woScrollSaveTimer); }
@@ -426,8 +410,6 @@
             }, 150);
         });
 
-        // ★★★ CHANGED: আলাদা "Rate/Unit" ফিল্ড বাদ দেওয়া হয়েছে — এখন "Item Rate" (txtRate)
-        // থেকেই ক্লায়েন্ট-সাইড প্রিভিউ ক্যালকুলেশন হবে।
         function calculateRowTotal() {
             var reqQty = parseFloat(document.getElementById('<%= txtReqQty.ClientID %>').value) || 0;
             var rateUnit = parseFloat(document.getElementById('<%= txtRate.ClientID %>').value) || 0;
@@ -440,16 +422,12 @@
             document.getElementById('<%= txtTotalAmountInput.ClientID %>').value = totalAmount.toFixed(2);
         }
 
-        // Initialize Select2 + Autocomplete + restore UI state on first load
         $(document).ready(function () {
             initializeSelect2();
             initializeAutocompleteFields();
             restoreUIState();
         });
 
-        // Initialize Select2 + Autocomplete + restore UI state for normal load AND
-        // UpdatePanel partial postbacks (pageLoad is invoked by Microsoft Ajax after
-        // EVERY postback when a ScriptManager is present)
         function pageLoad(sender, args) {
             initializeSelect2();
             initializeAutocompleteFields();
@@ -469,10 +447,8 @@
             });
         }
         function calculateRow(inputElement) {
-            // বর্তমান রো (Row) টি খুঁজে বের করা
             var row = inputElement.closest('tr');
 
-            // কন্ট্রোলগুলোর আইডি বা ক্লাস থেকে ইনপুট এবং লেবেলগুলো শনাক্ত করা
             var txtReqQty = row.querySelector("[id*='txtReqQty']");
             var txtRateUnit = row.querySelector("[id*='txtRateUnit']");
             var txtExtraPercent = row.querySelector("[id*='txtExtraPercent']");
@@ -480,29 +456,19 @@
             var lblTotalReqQty = row.querySelector("[id*='lblTotalReqQty']");
             var lblTotalAmount = row.querySelector("[id*='lblTotalAmount']");
 
-            // মানগুলো সংখ্যায় রূপান্তর করা (খালি থাকলে ০ ধরে নেওয়া)
             var reqQty = parseFloat(txtReqQty.value) || 0;
             var rateUnit = parseFloat(txtRateUnit.value) || 0;
             var extraPercent = parseFloat(txtExtraPercent.value) || 0;
 
-            // ক্যালকুলেশন: 
-            // Total Req. Qty = ReqQty + (ReqQty * ExtraPercent / 100)
             var totalReqQty = reqQty + (reqQty * extraPercent / 100);
-
-            // Total Amount = Total Req. Qty * RateUnit
             var totalAmount = totalReqQty * rateUnit;
 
-            // ফলাফল লেবেলে বসানো (ডেসিমেল পয়েন্ট ২ ঘর পর্যন্ত ফিক্সড রাখা) — এটা শুধু
-            // তাৎক্ষণিক ভিজ্যুয়াল প্রিভিউ; আসল সোর্স অফ ট্রুথ হলো সার্ভার-সাইড ক্যালকুলেশন
-            // যেটা AutoPostBack (blur/TextChanged) এর মাধ্যমে txtSizeGridField_TextChanged এ হয়
             if (lblTotalReqQty) lblTotalReqQty.innerText = totalReqQty.toFixed(2);
             if (lblTotalAmount) lblTotalAmount.innerText = totalAmount.toFixed(2);
         }
 
         // =====================================================================
-        // AUTOCOMPLETE (Buyer / Style / Order No) — calls ASP.NET PageMethods
-        // (WebMethods defined in code-behind: GetBuyerSuggestions, GetStyleSuggestions,
-        // GetOrderSuggestions). Requires ScriptManager1 EnablePageMethods="true".
+        // AUTOCOMPLETE (Buyer / Style / Order No)
         // =====================================================================
         var _acDebounceTimer = null;
 
@@ -518,12 +484,10 @@
 
             if ($input.length === 0 || $list.length === 0) return;
 
-            // একবার binding হয়ে গেলে দ্বিতীয়বার bind না হয়, তাই একটা data flag ব্যবহার করছি
             if ($input.data('ac-bound')) return;
             $input.data('ac-bound', true);
 
             $input.on('keyup', function (e) {
-                // navigation keys (up/down/enter/escape) skip করে বাকি সব keystroke এ suggest করবে
                 if ([13, 27, 38, 40].indexOf(e.keyCode) !== -1) return;
 
                 var term = $input.val().trim();
@@ -537,10 +501,9 @@
 
                 _acDebounceTimer = setTimeout(function () {
                     fetchSuggestions(webMethodName, term, $list, $input);
-                }, 250); // 250ms debounce — প্রতিটা কি-স্ট্রোকে সাথে সাথে সার্ভারে হিট করবে না
+                }, 250);
             });
 
-            // Up/Down/Enter navigation
             $input.on('keydown', function (e) {
                 var $items = $list.find('.ac-suggestion-item');
                 if ($items.length === 0) return;
@@ -548,35 +511,33 @@
                 var $active = $list.find('.ac-suggestion-item.active');
                 var idx = $items.index($active);
 
-                if (e.keyCode === 40) { // Down
+                if (e.keyCode === 40) {
                     e.preventDefault();
                     idx = (idx + 1) % $items.length;
                     $items.removeClass('active');
                     $items.eq(idx).addClass('active');
-                } else if (e.keyCode === 38) { // Up
+                } else if (e.keyCode === 38) {
                     e.preventDefault();
                     idx = (idx <= 0) ? $items.length - 1 : idx - 1;
                     $items.removeClass('active');
                     $items.eq(idx).addClass('active');
-                } else if (e.keyCode === 13) { // Enter
+                } else if (e.keyCode === 13) {
                     if ($active.length) {
                         e.preventDefault();
                         $input.val($active.text());
                         $list.removeClass('show').empty();
                     }
-                } else if (e.keyCode === 27) { // Escape
+                } else if (e.keyCode === 27) {
                     $list.removeClass('show').empty();
                 }
             });
 
-            // বাইরে ক্লিক করলে suggestion বন্ধ হয়ে যাবে
             $(document).on('click', function (e) {
                 if (!$(e.target).closest($input.parent()).length) {
                     $list.removeClass('show').empty();
                 }
             });
 
-            // Input থেকে focus চলে গেলেও একটু delay দিয়ে বন্ধ করা (item click কাজ করার জন্য)
             $input.on('blur', function () {
                 setTimeout(function () { $list.removeClass('show').empty(); }, 150);
             });
@@ -585,7 +546,7 @@
         function fetchSuggestions(webMethodName, term, $list, $input) {
             $.ajax({
                 type: "POST",
-                url: "WorkOrderReceive.aspx/" + webMethodName,
+                url: "WorkOrderReceived.aspx/" + webMethodName,   // ★ FIX: আগে "WorkOrderReceive.aspx/" ছিল (নামের "d" মিসিং ছিল) — এই typo-এর কারণেই suggestion আসছিল না
                 data: JSON.stringify({ prefixText: term }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
@@ -609,8 +570,6 @@
             items.forEach(function (val) {
                 var $li = $('<li>').addClass('ac-suggestion-item').text(val);
                 $li.on('mousedown', function (e) {
-                    // mousedown ব্যবহার করা হয়েছে (click নয়), কারণ blur event mousedown এর
-                    // আগেই ফায়ার হতে পারে — এতে click select কাজ করবে নিশ্চিতভাবে
                     e.preventDefault();
                     $input.val(val);
                     $list.removeClass('show').empty();
@@ -621,11 +580,13 @@
             $list.addClass('show');
         }
     </script>
+    <%-- ★ FIX: এখানে আগে একটা দ্বিতীয় (duplicate) <script> ব্লক ছিল যেখানে renderSuggestions()
+         ফাংশনটা আবার ডিফাইন করা হচ্ছিল এবং উপরের সঠিক ফাংশনকে override করে ফেলছিল।
+         সেটা এবং তার সাথে যুক্ত অব্যবহৃত .suggestion-box CSS মুছে দেওয়া হয়েছে। --%>
 
 </head>
 <body>
     <form id="form1" runat="server">
-        <!-- ScriptManager for UpdatePanel + PageMethods (autocomplete এর জন্য EnablePageMethods="true" আবশ্যক) -->
         <asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></asp:ScriptManager>
 
         <div class="container my-4">
@@ -672,6 +633,9 @@
                                     <asp:LinkButton ID="lnkPrintView" runat="server" Text="WO Report" CommandName="ReportView" CommandArgument='<%# Eval("WORcvID") %>'
                                         Style="background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid #a5d6a7;" />
 
+                                    <asp:LinkButton ID="lnkPrintViewWithAmount" runat="server" Text="WO Report with Amount" CommandName="ReportViewWithAmount" CommandArgument='<%# Eval("WORcvID") %>'
+                                        Style="background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid #a5d6a7;" />
+
                                     <asp:LinkButton ID="lnkRawMatrial" runat="server" Text="Raw Material Report" CommandName="RawMatrialView" CommandArgument='<%# Eval("WORcvID") %>'
                                         Style="background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid #a5d6a7;" />
                                 </div>
@@ -691,7 +655,6 @@
                     </div>
                     <div class="card-body p-4">
 
-                        <!-- UpdatePanel for Partial Postbacks -->
                         <asp:UpdatePanel ID="updFormContent" runat="server">
                             <ContentTemplate>
 
@@ -735,9 +698,7 @@
                                     </div>
                                 </fieldset>
 
-                                <!-- ============ SECTION 2: WO DETAILS HEADER (Branch, Ref No, Quotation, Description) ============ -->
-                                <!-- ★★★ CHANGED: Customer Buyer / Style / Order এই তিনটা ফিল্ড এখান থেকে সরিয়ে
-                                     নিচের "Item, Color & Size-wise Variant Entry" সেকশনে নেওয়া হয়েছে। -->
+                                <!-- ============ SECTION 2: WO DETAILS HEADER ============ -->
                                 <fieldset class="section-box">
                                     <legend>WO Details Header (Branch, Ref No. &amp; Quotation)</legend>
                                     <div class="row g-3">
@@ -762,26 +723,33 @@
                                 <fieldset class="section-box">
                                     <legend>Item, Color &amp; Size-wise Variant Entry</legend>
 
-                                    <!-- Entry Row 1: Buyer / Style / Order / Item / Color / Rate / Size / Qty / Unit / Extra% / Totals / Measurement / Remarks / Add -->
+                                    <!-- Entry Row 1 -->
                                     <div class="row g-2 align-items-end entry-row">
                                         <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Customer Buyer</label>
+                                            <label class="form-label small fw-bold">Job No</label>
                                             <div class="ac-wrapper">
-                                                <asp:TextBox ID="txtBuyer" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Buyer Name" autocomplete="off"></asp:TextBox>
+                                                <asp:TextBox ID="txtJobNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Job No" autocomplete="off"></asp:TextBox>
+                                                <ul id="Ul1" runat="server" class="ac-suggestion-list"></ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small fw-bold">Buyer</label>
+                                            <div class="ac-wrapper">
+                                                <asp:TextBox ID="txtBuyer" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Buyer Name" autocomplete="off" OnTextChanged="txtBuyer_TextChanged"></asp:TextBox>
                                                 <ul id="lstBuyerSuggest" runat="server" class="ac-suggestion-list"></ul>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold">Style</label>
                                             <div class="ac-wrapper">
-                                                <asp:TextBox ID="txtStyle" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Style No/Name" autocomplete="off"></asp:TextBox>
+                                                <asp:TextBox ID="txtStyle" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Style No/Name" autocomplete="off" OnTextChanged="txtStyle_TextChanged"></asp:TextBox>
                                                 <ul id="lstStyleSuggest" runat="server" class="ac-suggestion-list"></ul>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Order</label>
+                                            <label class="form-label small fw-bold">Order/PO No</label>
                                             <div class="ac-wrapper">
-                                                <asp:TextBox ID="txtOrderNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Order No" autocomplete="off"></asp:TextBox>
+                                                <asp:TextBox ID="txtOrderNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Order /PO No" autocomplete="off" OnTextChanged="txtOrderNo_TextChanged"></asp:TextBox>
                                                 <ul id="lstOrderSuggest" runat="server" class="ac-suggestion-list"></ul>
                                             </div>
                                         </div>
@@ -832,6 +800,26 @@
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold">Item Rate</label>
                                             <asp:TextBox ID="txtRate" runat="server" CssClass="form-control form-control-sm" placeholder="Item Rate" onkeyup="calculateRowTotal()"></asp:TextBox>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <asp:UpdatePanel ID="UpdatePanel3" runat="server">
+                                                <ContentTemplate>
+                                                    <label class="form-label small fw-bold">Rate Currency</label>
+                                                    <div class="d-flex">
+                                                        <asp:DropDownList ID="ddlRateUnit" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
+                                                            <asp:ListItem Text="--Select Unit--" Value="0" />
+                                                        </asp:DropDownList>
+
+                                                        <!-- ★ FIX: এখন সঠিক হ্যান্ডলার LinkButton2_Click (আগে ভুল করে LinkButton1_Click কল হতো) -->
+                                                        <asp:LinkButton ID="LinkButton2" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh Rate Unit" OnClick="LinkButton2_Click">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                                            </svg>
+                                                        </asp:LinkButton>
+                                                    </div>
+                                                </ContentTemplate>
+                                            </asp:UpdatePanel>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold">Size</label>
@@ -925,6 +913,12 @@
                                                         <asp:TextBox ID="txtRateUnit" runat="server" CssClass="form-control form-control-sm text-center"
                                                             Text='<%# Eval("RateUnit") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
                                                             onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+
+                                                <asp:TemplateField HeaderText="Rate Unit">
+                                                    <ItemTemplate>
+                                                        <asp:Label ID="lblRateUnitName" runat="server" Text='<%# Eval("RateUnitName") %>'></asp:Label>
                                                     </ItemTemplate>
                                                 </asp:TemplateField>
 

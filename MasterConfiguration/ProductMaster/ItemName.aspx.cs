@@ -113,8 +113,7 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
                 string sql = @"SELECT i.ItemID, c.CategoryName, s.SubCategoryName, i.ItemName, i.Unit, i.Status
                                 FROM ta_ItemName i
                                 LEFT JOIN ta_ItemCategory c ON i.CategoryID = c.CategoryID
-                                LEFT JOIN ta_SubCategory s ON i.SubCategoryID = s.SubCategoryID
-                                ORDER BY i.ItemID DESC";
+                                LEFT JOIN ta_SubCategory s ON i.SubCategoryID = s.SubCategoryID Where s.SubCategoryName = '" + ddlSubCategory.SelectedItem.Text + "' ORDER BY i.ItemID DESC";
                 SqlDataAdapter da = new SqlDataAdapter(sql, con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -250,6 +249,37 @@ namespace Nexa_ERP.TrimsAccessories.MsterSetup
             }
 
             LoadItemList();
+        }
+
+        protected void ddlSubCategory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadItemList();
+        }
+
+        protected void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string sql = @"SELECT i.ItemID, c.CategoryName, s.SubCategoryName, i.ItemName, i.Unit, i.Status
+                                FROM ta_ItemName i
+                                LEFT JOIN ta_ItemCategory c ON i.CategoryID = c.CategoryID
+                                LEFT JOIN ta_SubCategory s ON i.SubCategoryID = s.SubCategoryID Where i.ItemName LIKE '%" + txtSearch.Text.Trim() + "%' ORDER BY i.ItemID DESC";
+                SqlDataAdapter da = new SqlDataAdapter(sql, con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                gvItemName.DataSource = dt;
+                gvItemName.DataBind();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
         }
     }
 }

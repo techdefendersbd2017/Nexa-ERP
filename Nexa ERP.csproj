@@ -46,7 +46,8 @@
       <HintPath>packages\CrystalReports.AxShockwaveFlashObjects.13.0.4003\lib\net40\AxShockwaveFlashObjects.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
-      <HintPath>packages\BouncyCastle.Cryptography.2.6.2\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
+      <HintPath>packages\BouncyCastle.Cryptography.2.7.0\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="CRVsPackageLib, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
       <HintPath>packages\CrystalReports.13.0.5.891\lib\net40\CRVsPackageLib.dll</HintPath>
@@ -84,51 +85,70 @@
     <Reference Include="FlashControlV71, Version=1.0.3187.32366, Culture=neutral, PublicKeyToken=692fbea5521e1304">
       <HintPath>packages\CrystalReports.13.0.5.891\lib\net40\FlashControlV71.dll</HintPath>
     </Reference>
-    <Reference Include="itextsharp, Version=5.5.13.6, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
-      <HintPath>packages\iTextSharp.5.5.13.6\lib\net461\itextsharp.dll</HintPath>
+    <Reference Include="itextsharp, Version=5.5.13.5, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>packages\Portable.itextsharp.5.5.13.5\lib\netstandard2.0\itextsharp.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=3.3.0.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>packages\log4net.3.3.0\lib\net462\log4net.dll</HintPath>
+    <Reference Include="itextsharp.xmlworker, Version=5.5.13.5, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>packages\Portable.itextsharp.xmlworker.5.5.13.5\lib\netstandard2.0\itextsharp.xmlworker.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=3.4.0.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>packages\log4net.3.4.0\lib\net462\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="MicroKnights.Log4NetAdoNetAppender, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\MicroKnights.Log4NetAdoNetAppender.2.2.0\lib\netstandard2.0\MicroKnights.Log4NetAdoNetAppender.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNetCore.Http.Abstractions, Version=2.0.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.AspNetCore.Http.Abstractions.2.0.3\lib\netstandard2.0\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+    <Reference Include="Microsoft.AspNetCore.Http.Abstractions, Version=2.3.12.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNetCore.Http.Abstractions.2.3.12\lib\netstandard2.0\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AspNetCore.Http.Features, Version=2.0.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.AspNetCore.Http.Features.2.0.3\lib\netstandard2.0\Microsoft.AspNetCore.Http.Features.dll</HintPath>
+    <Reference Include="Microsoft.AspNetCore.Http.Features, Version=5.0.17.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNetCore.Http.Features.5.0.17\lib\net461\Microsoft.AspNetCore.Http.Features.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=10.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.10.0.3\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=10.0.0.11, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.10.0.11\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.Cryptography, Version=10.0.0.11, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.Cryptography.10.0.11\lib\net462\Microsoft.Bcl.Cryptography.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\lib\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Extensions.Configuration, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.Configuration.10.0.3\lib\net462\Microsoft.Extensions.Configuration.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Configuration, Version=10.0.0.11, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Configuration.10.0.11\lib\net462\Microsoft.Extensions.Configuration.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.Configuration.Abstractions.10.0.3\lib\net462\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=10.0.0.11, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Configuration.Abstractions.10.0.11\lib\net462\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Configuration.FileExtensions, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.Configuration.FileExtensions.10.0.3\lib\net462\Microsoft.Extensions.Configuration.FileExtensions.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Configuration.FileExtensions, Version=10.0.0.11, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Configuration.FileExtensions.10.0.11\lib\net462\Microsoft.Extensions.Configuration.FileExtensions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Configuration.Json, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.Configuration.Json.10.0.3\lib\net462\Microsoft.Extensions.Configuration.Json.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Configuration.Json, Version=10.0.0.11, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Configuration.Json.10.0.11\lib\net462\Microsoft.Extensions.Configuration.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.FileProviders.Abstractions, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.FileProviders.Abstractions.10.0.3\lib\net462\Microsoft.Extensions.FileProviders.Abstractions.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.FileProviders.Abstractions, Version=10.0.0.11, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.FileProviders.Abstractions.10.0.11\lib\net462\Microsoft.Extensions.FileProviders.Abstractions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.FileProviders.Physical, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.FileProviders.Physical.10.0.3\lib\net462\Microsoft.Extensions.FileProviders.Physical.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.FileProviders.Physical, Version=10.0.0.11, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.FileProviders.Physical.10.0.11\lib\net462\Microsoft.Extensions.FileProviders.Physical.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.FileSystemGlobbing, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.FileSystemGlobbing.10.0.3\lib\net462\Microsoft.Extensions.FileSystemGlobbing.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.FileSystemGlobbing, Version=10.0.0.11, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.FileSystemGlobbing.10.0.11\lib\net462\Microsoft.Extensions.FileSystemGlobbing.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.Primitives, Version=10.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Extensions.Primitives.10.0.3\lib\net462\Microsoft.Extensions.Primitives.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=10.0.0.11, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Extensions.Primitives.10.0.11\lib\net462\Microsoft.Extensions.Primitives.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -143,8 +163,17 @@
     <Reference Include="System.Data.SqlClient, Version=4.6.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Data.SqlClient.4.9.1\lib\net462\System.Data.SqlClient.dll</HintPath>
     </Reference>
-    <Reference Include="System.IO.Pipelines, Version=10.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.IO.Pipelines.10.0.3\lib\net462\System.IO.Pipelines.dll</HintPath>
+    <Reference Include="System.Drawing.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Drawing.Common.10.0.11\lib\net462\System.Drawing.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Formats.Asn1, Version=10.0.0.11, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Formats.Asn1.10.0.11\lib\net462\System.Formats.Asn1.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Pipelines, Version=10.0.0.11, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.IO.Pipelines.10.0.11\lib\net462\System.IO.Pipelines.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
@@ -156,11 +185,18 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
-    <Reference Include="System.Text.Encodings.Web, Version=10.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Text.Encodings.Web.10.0.3\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.Cryptography.Xml, Version=10.0.0.11, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Security.Cryptography.Xml.10.0.11\lib\net462\System.Security.Cryptography.Xml.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="System.Text.Json, Version=10.0.0.3, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Text.Json.10.0.3\lib\net462\System.Text.Json.dll</HintPath>
+    <Reference Include="System.Text.Encodings.Web, Version=10.0.0.11, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Encodings.Web.10.0.11\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=10.0.0.11, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Json.10.0.11\lib\net462\System.Text.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Threading.Tasks.Extensions.4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
@@ -196,13 +232,13 @@
     <Content Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx" />
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx" />
+    <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\CustomerSupplier.aspx" />
+    <Content Include="MasterConfiguration\OrganizationMaster\FloorInformation.aspx" />
+    <Content Include="MasterConfiguration\OrganizationMaster\GroupInformation.aspx" />
     <Content Include="ERPConfiguration\CompanyInformation\MachineMaster.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx" />
-    <Content Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx" />
+    <Content Include="MasterConfiguration\OrganizationMaster\ProductionBuilding.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\UnitSetup.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\FormEntry.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\MenuEntry.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\ModuleInformation.aspx" />
@@ -255,19 +291,21 @@
     <Content Include="Inventory\InventoryConfiguration\CostCenter.aspx" />
     <Content Include="Inventory\InventoryConfiguration\CrateStore.aspx" />
     <Content Include="Inventory\StoreRequisition.aspx" />
-    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx" />
+    <Content Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
-    <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\ColorInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ProductDepartmentInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\YarnCountInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx" />
-    <Content Include="MerchandisingMarketing\OrderInformation\POEntryInformation.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\POEntryInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInfo.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx" />
-    <Content Include="MerchandisingMarketing\OrderInformation\StyleName.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\StyleName.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx" />
+    <Content Include="Planning\ProductionPlanning.aspx" />
     <Content Include="Production\Cutting\cuttingContrastFabricsEntry.aspx" />
     <Content Include="Production\Cutting\cuttingNumberWiseRecutEntry.aspx" />
     <Content Include="Production\Cutting\cuttingReject.aspx" />
@@ -293,6 +331,10 @@
     <Content Include="Production\Finishing\ShipmentChallanAndGatePass.aspx" />
     <Content Include="Production\Finishing\shortShipmentReason.aspx" />
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
+    <Content Include="Shipment\DeliveryChallanAndBill.aspx" />
+    <Content Include="Shipment\ShipmentReports\DeliveryChallan.aspx" />
+    <Content Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx" />
+    <Content Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx" />
     <Content Include="Test.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\MaterialRequirementByWorkOrder.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\BookingInformation.aspx" />
@@ -300,14 +342,15 @@
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\PriceQuotationPrintItemsWise.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\RawMaterialReports.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReports.aspx" />
+    <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReportsWithAmount.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\PriceQuotationWithMultiItems.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\ItemCategory.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\ItemName.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\ModelSetup.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\RawMaterial.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\SizeCreate.aspx" />
-    <Content Include="TrimsAccessories\MsterSetup\SubCategory.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\ItemCategory.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\ItemName.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\ModelSetup.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\RawMaterial.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\SizeCreate.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\SubCategory.aspx" />
     <Content Include="TrimsAccessories\SheetNesting.aspx" />
     <Content Include="TrimsAccessories\TrimsProduction\DailyProductionAchievement.aspx" />
     <Content Include="TrimsAccessories\TrimsProduction\DailyProductionTarget.aspx" />
@@ -405,32 +448,32 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx.cs">
       <DependentUpon>BranchInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\BranchInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx.designer.cs">
       <DependentUpon>BranchInformation.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\CustomerSupplier.aspx.cs">
       <DependentUpon>CustomerSupplier.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\CustomerSupplier.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\CustomerSupplier.aspx.designer.cs">
       <DependentUpon>CustomerSupplier.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\FloorInformation.aspx.cs">
       <DependentUpon>FloorInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\FloorInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\FloorInformation.aspx.designer.cs">
       <DependentUpon>FloorInformation.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\GroupInformation.aspx.cs">
       <DependentUpon>GroupInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\GroupInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\GroupInformation.aspx.designer.cs">
       <DependentUpon>GroupInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="ERPConfiguration\CompanyInformation\MachineMaster.aspx.cs">
@@ -440,18 +483,18 @@
     <Compile Include="ERPConfiguration\CompanyInformation\MachineMaster.aspx.designer.cs">
       <DependentUpon>MachineMaster.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\ProductionBuilding.aspx.cs">
       <DependentUpon>ProductionBuilding.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\ProductionBuilding.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\OrganizationMaster\ProductionBuilding.aspx.designer.cs">
       <DependentUpon>ProductionBuilding.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\UnitSetup.aspx.cs">
       <DependentUpon>UnitSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ERPConfiguration\CompanyInformation\UnitSetup.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\UnitSetup.aspx.designer.cs">
       <DependentUpon>UnitSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="ERPConfiguration\UserAuthorization\FormEntry.aspx.cs">
@@ -790,12 +833,19 @@
     <Compile Include="Inventory\StoreRequisition.aspx.designer.cs">
       <DependentUpon>StoreRequisition.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx.cs">
       <DependentUpon>BuyerInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyerInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx.designer.cs">
       <DependentUpon>BuyerInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx.cs">
+      <DependentUpon>CurrencySetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx.designer.cs">
+      <DependentUpon>CurrencySetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx.cs">
       <DependentUpon>BuyingHouseAgent.aspx</DependentUpon>
@@ -804,11 +854,11 @@
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx.designer.cs">
       <DependentUpon>BuyingHouseAgent.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ColorInformation.aspx.cs">
       <DependentUpon>ColorInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ColorInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ColorInformation.aspx.designer.cs">
       <DependentUpon>ColorInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx.cs">
@@ -839,11 +889,11 @@
     <Compile Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx.designer.cs">
       <DependentUpon>CreateStyleBuyerWise.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\OrderInformation\POEntryInformation.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\POEntryInformation.aspx.cs">
       <DependentUpon>POEntryInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\OrderInformation\POEntryInformation.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\POEntryInformation.aspx.designer.cs">
       <DependentUpon>POEntryInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx.cs">
@@ -867,11 +917,11 @@
     <Compile Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx.designer.cs">
       <DependentUpon>StyleInformation.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\OrderInformation\StyleName.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\StyleName.aspx.cs">
       <DependentUpon>StyleName.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\OrderInformation\StyleName.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\StyleName.aspx.designer.cs">
       <DependentUpon>StyleName.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx.cs">
@@ -880,6 +930,13 @@
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx.designer.cs">
       <DependentUpon>StyleRegistrationSystem.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Planning\ProductionPlanning.aspx.cs">
+      <DependentUpon>ProductionPlanning.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Planning\ProductionPlanning.aspx.designer.cs">
+      <DependentUpon>ProductionPlanning.aspx</DependentUpon>
     </Compile>
     <Compile Include="Production\Cutting\cuttingContrastFabricsEntry.aspx.cs">
       <DependentUpon>cuttingContrastFabricsEntry.aspx</DependentUpon>
@@ -1057,6 +1114,34 @@
       <DependentUpon>shortShipmentReasonStatusReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shipment\DeliveryChallanAndBill.aspx.cs">
+      <DependentUpon>DeliveryChallanAndBill.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\DeliveryChallanAndBill.aspx.designer.cs">
+      <DependentUpon>DeliveryChallanAndBill.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\DeliveryChallan.aspx.cs">
+      <DependentUpon>DeliveryChallan.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\DeliveryChallan.aspx.designer.cs">
+      <DependentUpon>DeliveryChallan.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx.cs">
+      <DependentUpon>DeliveryChallanWiseBill.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx.designer.cs">
+      <DependentUpon>DeliveryChallanWiseBill.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx.cs">
+      <DependentUpon>eSDeliveryChallanGetpass.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx.designer.cs">
+      <DependentUpon>eSDeliveryChallanGetpass.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Test.aspx.cs">
       <DependentUpon>Test.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1106,6 +1191,13 @@
     <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReports.aspx.designer.cs">
       <DependentUpon>ReceivedOrdersReports.aspx</DependentUpon>
     </Compile>
+    <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReportsWithAmount.aspx.cs">
+      <DependentUpon>ReceivedOrdersReportsWithAmount.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TrimsAccessories\EstimationCostings\OrdersReports\ReceivedOrdersReportsWithAmount.aspx.designer.cs">
+      <DependentUpon>ReceivedOrdersReportsWithAmount.aspx</DependentUpon>
+    </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\PriceQuotationWithMultiItems.aspx.cs">
       <DependentUpon>PriceQuotationWithMultiItems.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1120,46 +1212,46 @@
     <Compile Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx.designer.cs">
       <DependentUpon>WorkOrderReceived.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ItemCategory.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemCategory.aspx.cs">
       <DependentUpon>ItemCategory.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ItemCategory.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemCategory.aspx.designer.cs">
       <DependentUpon>ItemCategory.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ItemName.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemName.aspx.cs">
       <DependentUpon>ItemName.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ItemName.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemName.aspx.designer.cs">
       <DependentUpon>ItemName.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ModelSetup.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ModelSetup.aspx.cs">
       <DependentUpon>ModelSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\ModelSetup.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ModelSetup.aspx.designer.cs">
       <DependentUpon>ModelSetup.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\RawMaterial.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\RawMaterial.aspx.cs">
       <DependentUpon>RawMaterial.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\RawMaterial.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\RawMaterial.aspx.designer.cs">
       <DependentUpon>RawMaterial.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\SizeCreate.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\SizeCreate.aspx.cs">
       <DependentUpon>SizeCreate.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\SizeCreate.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\SizeCreate.aspx.designer.cs">
       <DependentUpon>SizeCreate.aspx</DependentUpon>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\SubCategory.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\SubCategory.aspx.cs">
       <DependentUpon>SubCategory.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="TrimsAccessories\MsterSetup\SubCategory.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\SubCategory.aspx.designer.cs">
       <DependentUpon>SubCategory.aspx</DependentUpon>
     </Compile>
     <Compile Include="TrimsAccessories\SheetNesting.aspx.cs">

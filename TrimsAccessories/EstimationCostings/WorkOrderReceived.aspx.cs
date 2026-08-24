@@ -22,13 +22,12 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         public class SizeDetail
         {
             public int SlNo { get; set; }
-            public int ItemID { get; set; }   // শুধু UI-তে ddlUnit লোড করার জন্য ব্যবহৃত, DB-তে সেভ হয় না (নতুন WorkOrderDetails টেবিলে ItemID কলাম নেই, শুধু ItemName আছে)
+            public int ItemID { get; set; }
             public string ItemName { get; set; }
+            public string JobNo { get; set; }
             public string Buyer { get; set; }
             public string Style { get; set; }
             public string PO { get; set; }
-            // ★★★ NEW: নতুন WorkOrderDetails টেবিলে প্রতি-লাইন-আইটেম ItemDescription কলাম আছে।
-            // হেডারের "Items Description" (TextBox1) থেকে Add করার সময় এখানে কপি হয়।
             public string ItemDescription { get; set; }
             public int ColorID { get; set; }
             public string ColorName { get; set; }
@@ -37,6 +36,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             public decimal ReqQty { get; set; }
             public string Unit { get; set; }
             public decimal RateUnit { get; set; }
+            public string RateUnitName { get; set; }   // ★ NEW: Rate যে ইউনিটে দেওয়া হয়েছে (Per PCS/Dozen/KG ইত্যাদি)
             public decimal ExtraPercent { get; set; }
             public decimal TotalReqQty { get; set; }
             public decimal TotalAmount { get; set; }
@@ -66,9 +66,11 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         {
             if (!IsPostBack)
             {
+                string user = Request.QueryString["user"];
                 LoadColorNameDropdown();
                 LoadPartyName();
                 LoadReceivingBranch();
+                LoadRateUnit(); // ★ NEW
 
                 Session["WO_SizeList"] = new List<SizeDetail>();
                 hdnWorkOrderNo.Value = string.Empty;
@@ -83,7 +85,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             }
         }
 
-        // ★★★ CHANGED: WorkOrder_Master -> techdefendersbd.WorkOrderHeader, WorkOrderNo -> WORcvNo
         private string GenerateNextWorkOrderRef()
         {
             string prefix = "WO-" + DateTime.Today.Year + "-";
@@ -113,15 +114,18 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             return prefix + nextNumber.ToString("D4");
         }
 
+        // ★ FIX: parameterized query — SQL Injection ঝুঁকি দূর করা হয়েছে
         private void LoadUnit()
         {
             try
             {
                 con = conn.openConnection();
                 string query = @"SELECT ta_ItemName.ItemID, tbl_UnitSetup.UnitID, tbl_UnitSetup.UnitName
-                    FROM ta_ItemName INNER JOIN tbl_UnitSetup ON ta_ItemName.Unit = tbl_UnitSetup.UnitName Where ta_ItemName.ItemID='" + ddlItemNameDetails.SelectedValue + "'";
+                    FROM ta_ItemName INNER JOIN tbl_UnitSetup ON ta_ItemName.Unit = tbl_UnitSetup.UnitName 
+                    WHERE ta_ItemName.ItemID = @ItemID";
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
+                    cmd.Parameters.AddWithValue("@ItemID", ddlItemNameDetails.SelectedValue);
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
@@ -130,6 +134,37 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     ddlUnit.DataTextField = "UnitName";
                     ddlUnit.DataValueField = "UnitID";
                     ddlUnit.DataBind();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Error: " + ex.Message, "warning");
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
+        }
+
+        // ★ NEW: Rate Unit dropdown লোড করার মেথড (item-নির্ভর না, পুরো ইউনিট লিস্ট)
+        private void LoadRateUnit()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = "SELECT * FROM CurrencyMaster ORDER BY CurrencyCode";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    ddlRateUnit.DataSource = dt;
+                    ddlRateUnit.DataTextField = "CurrencyCode";
+                    ddlRateUnit.DataValueField = "CurrencyID";
+                    ddlRateUnit.DataBind();
+
+                    ddlRateUnit.Items.Insert(0, new ListItem("--Select Currency--", "0"));
                 }
             }
             catch (Exception ex)
@@ -292,9 +327,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             }
         }
 
-        // ★★★ CHANGED: WorkOrder_Master -> techdefendersbd.WorkOrderHeader, নতুন কলাম নাম সরাসরি
-        // WORcvID/WORcvNo/WORcvDate/DeliveryDate/GrandTotal — টেবিলে আগে থেকেই এই নামে আছে, তাই
-        // আর কোনো AS alias দরকার নেই। শুধু active (IsActive=1) রেকর্ড দেখানো হচ্ছে।
         private void BindWorkOrderList()
         {
             try
@@ -333,9 +365,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         #endregion
 
-        #region ---------- Autocomplete Suggestion WebMethods (Buyer / Style / Order No) ----------
-        // অপরিবর্তিত — এগুলো একটা আলাদা লুকআপ ভিউ/টেবিল থেকে সাজেশন আনে, WorkOrderHeader/
-        // WorkOrderDetails এর সাথে সরাসরি সম্পর্কিত না।
+        #region ---------- Autocomplete Suggestion WebMethods ----------
 
         [WebMethod]
         public static List<string> GetBuyerSuggestions(string prefixText)
@@ -349,7 +379,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 localCon = connHelper.openConnection();
                 string query = @"SELECT DISTINCT TOP 10 BuyerName 
-                                  FROM vw_BuyerInformation 
+                                  FROM techdefendersbd.vw_BuyerInformation 
                                   WHERE BuyerName LIKE @Prefix + '%' 
                                     AND IsActive = 1
                                   ORDER BY BuyerName";
@@ -387,7 +417,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 localCon = connHelper.openConnection();
                 string query = @"SELECT DISTINCT TOP 10 StyleName 
-                                  FROM Style_Master 
+                                  FROM techdefendersbd.Style_Master 
                                   WHERE StyleName LIKE @Prefix + '%' 
                                     AND IsActive = 1
                                   ORDER BY StyleName";
@@ -425,7 +455,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 localCon = connHelper.openConnection();
                 string query = @"SELECT DISTINCT TOP 10 PONumber 
-                                  FROM tbl_POEntryInformation 
+                                  FROM techdefendersbd.tbl_POEntryInformation 
                                   WHERE PONumber LIKE @Prefix + '%'
                                   ORDER BY PONumber";
                 using (SqlCommand cmd = new SqlCommand(query, localCon))
@@ -452,7 +482,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         #endregion
 
-        #region ---------- List Panel Row Commands (Edit, Delete, Report) ----------
+        #region ---------- List Panel Row Commands ----------
 
         protected void gvWorkOrderReceive_RowCommand(object sender, GridViewCommandEventArgs e)
         {
@@ -465,10 +495,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             }
             else if (e.CommandName == "DeleteRow")
             {
-                // ★★★ CHANGED: Physical DELETE এর বদলে soft-delete (IsActive = 0)।
-                // WorkOrderDetails টেবিল অক্ষত থাকে (হিস্টোরি/রিপোর্টিং এর জন্য সংরক্ষিত থাকে),
-                // এবং BindWorkOrderList() যেহেতু WHERE IsActive = 1 ফিল্টার করে, তাই তালিকা
-                // থেকে সাথে সাথে হাইড হয়ে যাবে।
                 try
                 {
                     con = conn.openConnection();
@@ -496,6 +522,12 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 string script = $"window.open('{url}', '_blank');";
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenReport", script, true);
             }
+            else if (e.CommandName == "ReportViewWithAmount")
+            {
+                string url = ResolveUrl($"~/TrimsAccessories/EstimationCostings/OrdersReports/ReceivedOrdersReportsWithAmount.aspx?WORcvID={arg}");
+                string script = $"window.open('{url}', '_blank');";
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenReport", script, true);
+            }
             else if (e.CommandName == "RawMatrialView")
             {
                 string url = ResolveUrl($"~/TrimsAccessories/EstimationCostings/OrdersReports/RawMaterialReports.aspx?WORcvID={arg}");
@@ -504,12 +536,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             }
         }
 
-        // ★★★ CHANGED (schema rewrite): নতুন স্কিমায় Color আলাদা টেবিলে নেই — ColorName সরাসরি
-        // WorkOrderDetails-এ flat কলাম হিসেবে থাকে, তাই আগের ColorSlNo lookup query পুরোপুরি
-        // বাদ দেওয়া হয়েছে। এবং ItemID কলামও নেই, তাই Item ম্যাচ হচ্ছে ItemName (Text) দিয়ে।
-        // Buyer/Style/PO/ItemDescription এখন প্রতি-ডিটেইল-রো থেকে সরাসরি পড়া হচ্ছে এবং প্রথম
-        // রো এর মান দিয়ে হেডার-লেভেল ইনপুট বক্সগুলো (txtBuyer/txtStyle/txtOrderNo/TextBox1)
-        // প্রি-ফিল করা হচ্ছে যাতে এডিট করার সময় ইউজার সেগুলো দেখতে পায়।
         private void LoadWorkOrderForEdit(string workOrderNo)
         {
             try
@@ -561,10 +587,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 }
 
                 var newSizeList = new List<SizeDetail>();
-                // NOTE: এখানে ORDER BY (SELECT NULL) ব্যবহার করা হয়েছে যাতে আপনার Details
-                // টেবিলের প্রকৃত Identity/PK কলামের নাম যাই হোক না কেন কোনো এরর না দেয়।
-                // যদি টেবিলে যেমন WorkOrderDetailsID (identity) থাকে, সেটার নাম বসিয়ে
-                // "ORDER BY WorkOrderDetailsID" করে দিলে ইনসার্শন-অর্ডার অনুযায়ী সাজানো থাকবে।
                 string detailsQuery = @"SELECT * FROM techdefendersbd.WorkOrderDetails 
                                          WHERE WORcvID = @WORcvID 
                                          ORDER BY (SELECT NULL)";
@@ -584,6 +606,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                                 SlNo = slNo++,
                                 ItemID = matchedItem != null ? Convert.ToInt32(matchedItem.Value) : 0,
                                 ItemName = itemName,
+                                JobNo = reader["JobNo"] != DBNull.Value ? reader["JobNo"].ToString() : string.Empty,               // ★ NEW
                                 Buyer = reader["Buyer"]?.ToString(),
                                 Style = reader["Style"]?.ToString(),
                                 PO = reader["PO"]?.ToString(),
@@ -595,6 +618,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                                 ReqQty = Convert.ToDecimal(reader["ReqQty"]),
                                 Unit = reader["Unit"]?.ToString(),
                                 RateUnit = Convert.ToDecimal(reader["RateUnit"]),
+                                RateUnitName = reader["RateUnitName"] != DBNull.Value ? reader["RateUnitName"].ToString() : string.Empty, // ★ NEW
                                 ExtraPercent = Convert.ToDecimal(reader["ExtraPercent"]),
                                 TotalReqQty = Convert.ToDecimal(reader["TotalReqQty"]),
                                 TotalAmount = Convert.ToDecimal(reader["TotalAmount"]),
@@ -606,13 +630,21 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
                 SizeList = newSizeList;
 
-                // হেডার-লেভেল ইনপুট বক্সে প্রথম ডিটেইল-রো এর Buyer/Style/PO/Description প্রি-ফিল
                 if (newSizeList.Count > 0)
                 {
+                    txtJobNo.Text = newSizeList[0].JobNo;   // ★ NEW
                     txtBuyer.Text = newSizeList[0].Buyer;
                     txtStyle.Text = newSizeList[0].Style;
                     txtOrderNo.Text = newSizeList[0].PO;
                     TextBox1.Text = newSizeList[0].ItemDescription;
+
+                    // ★ NEW: Rate Unit dropdown প্রি-সিলেক্ট (নাম মিলিয়ে, যেহেতু ID সেভ নেই)
+                    if (!string.IsNullOrEmpty(newSizeList[0].RateUnitName))
+                    {
+                        ListItem matchedRateUnit = ddlRateUnit.Items.FindByText(newSizeList[0].RateUnitName);
+                        if (matchedRateUnit != null)
+                            ddlRateUnit.SelectedValue = matchedRateUnit.Value;
+                    }
                 }
 
                 BindSizeDetails();
@@ -630,7 +662,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         #endregion
 
-        #region ---------- Size-wise Variant Entry (Item + Color(Optional) + Size in one row) ----------
+        #region ---------- Size-wise Variant Entry ----------
 
         protected void btnAddSize_Click(object sender, EventArgs e)
         {
@@ -661,22 +693,29 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     : string.Empty;
                 if (selectedColorID <= 0) selectedColorID = 0;
 
+                // ★ NEW: Rate Unit নাম সংগ্রহ
+                string selectedRateUnitName = (ddlRateUnit.SelectedValue != "0" && ddlRateUnit.SelectedItem != null)
+                    ? ddlRateUnit.SelectedItem.Text
+                    : string.Empty;
+
                 list.Add(new SizeDetail
                 {
                     SlNo = nextSlNo,
                     ItemID = selectedItemID,
+                    JobNo = txtJobNo.Text.Trim(),
                     Buyer = txtBuyer.Text.Trim(),
                     Style = txtStyle.Text.Trim(),
                     PO = txtOrderNo.Text.Trim(),
-                    ItemDescription = TextBox1.Text.Trim(), // ★★★ NEW
+                    ItemDescription = TextBox1.Text.Trim(),
                     ItemName = ddlItemNameDetails.SelectedItem?.Text ?? string.Empty,
                     ColorID = selectedColorID,
                     ColorName = selectedColorName,
                     Size = txtSize.Text.Trim(),
                     Measurement = txtMeasurement.Text.Trim(),
                     ReqQty = reqQty,
-                    Unit = ddlUnit.SelectedValue,
+                    Unit = ddlUnit.SelectedItem?.Text ?? string.Empty,   // ★ FIX: SelectedValue (ID) না, Text (Name)
                     RateUnit = rateUnit,
+                    RateUnitName = selectedRateUnitName,                 // ★ NEW
                     ExtraPercent = extraPercent,
                     TotalReqQty = totalReqQty,
                     TotalAmount = totalAmount,
@@ -722,10 +761,18 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 : string.Empty;
             if (selectedColorID <= 0) selectedColorID = 0;
 
+            string selectedUnitName = ddlUnit.SelectedItem?.Text ?? string.Empty;   // ★ FIX
+
+            // ★ NEW: Rate Unit নাম সংগ্রহ
+            string selectedRateUnitName = (ddlRateUnit.SelectedValue != "0" && ddlRateUnit.SelectedItem != null)
+                ? ddlRateUnit.SelectedItem.Text
+                : string.Empty;
+
             string buyer = txtBuyer.Text.Trim();
             string style = txtStyle.Text.Trim();
             string po = txtOrderNo.Text.Trim();
-            string itemDescription = TextBox1.Text.Trim(); // ★★★ NEW
+            string itemDescription = TextBox1.Text.Trim();
+            string jobNo = txtJobNo.Text.Trim();
 
             try
             {
@@ -760,6 +807,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             SlNo = nextSlNo++,
                             ItemID = selectedItemID,
                             ItemName = selectedItemName,
+                            JobNo = jobNo,
                             Buyer = buyer,
                             Style = style,
                             PO = po,
@@ -769,8 +817,9 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             Size = sizeName,
                             Measurement = string.Empty,
                             ReqQty = RequiresQtyVal,
-                            Unit = ddlUnit.SelectedValue,
+                            Unit = selectedUnitName,          // ★ FIX: আগে ddlUnit.SelectedValue (ID) ছিল
                             RateUnit = rateVal,
+                            RateUnitName = selectedRateUnitName,   // ★ NEW
                             ExtraPercent = 0,
                             TotalReqQty = 0,
                             TotalAmount = 0,
@@ -822,6 +871,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     else
                         DropDownList1.SelectedIndex = 0;
 
+                    txtJobNo.Text = size.JobNo;
                     txtBuyer.Text = size.Buyer;
                     txtStyle.Text = size.Style;
                     txtOrderNo.Text = size.PO;
@@ -830,8 +880,19 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     txtSize.Text = size.Size;
                     txtMeasurement.Text = size.Measurement;
                     txtReqQty.Text = size.ReqQty.ToString("0.##");
-                    ddlUnit.SelectedValue = size.Unit;
+
+                    ListItem matchedUnit = ddlUnit.Items.FindByText(size.Unit);   // ★ FIX: এখন Unit Name দিয়ে মিলাচ্ছে
+                    if (matchedUnit != null)
+                        ddlUnit.SelectedValue = matchedUnit.Value;
+
                     txtRate.Text = size.RateUnit.ToString("0.##");
+
+                    // ★ NEW: Rate Unit dropdown প্রি-সিলেক্ট
+                    ListItem matchedRateUnit = !string.IsNullOrEmpty(size.RateUnitName)
+                        ? ddlRateUnit.Items.FindByText(size.RateUnitName)
+                        : null;
+                    ddlRateUnit.SelectedValue = matchedRateUnit != null ? matchedRateUnit.Value : "0";
+
                     txtExtraPercent.Text = size.ExtraPercent.ToString("0.##");
                     txtTotalReqQtyInput.Text = size.TotalReqQty.ToString("0.00");
                     txtTotalAmountInput.Text = size.TotalAmount.ToString("0.00");
@@ -972,15 +1033,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         #region ---------- Bottom Action Buttons ----------
 
-        // ★★★ CHANGED: sp_SaveOrUpdateWorkOrder এর নতুন সংস্করণ কল করছে (দেখুন
-        // sp_SaveOrUpdateWorkOrder.sql), যেটা techdefendersbd.WorkOrderHeader ও
-        // techdefendersbd.WorkOrderDetails-এ Insert/Update করে। dtDetails-এ এখন
-        // "ItemDescription" কলাম যোগ হয়েছে, এবং Buyer/Style/PO/ItemDescription এর মান
-        // GridView সেলের টেক্সট স্ক্র্যাপ করার বদলে আগে SizeList (session state) থেকে
-        // নেওয়া হচ্ছে — কারণ ওই কলামগুলো গ্রিডে এডিটেবল কন্ট্রোল হিসেবে নেই।
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            // বেসিক ভ্যালিডেশন
             if (ddlCustomerName.SelectedValue == "0")
             {
                 ShowMessage("Please select a Customer Name.", "warning");
@@ -1026,19 +1080,21 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     cmd.Parameters.AddWithValue("@VatPercent", Convert.ToDecimal(string.IsNullOrEmpty(txtVatPercent.Text) ? "0" : txtVatPercent.Text));
                     cmd.Parameters.AddWithValue("@GrandTotal", Convert.ToDecimal(string.IsNullOrEmpty(txtGrandTotalAmount.Text) ? "0" : txtGrandTotalAmount.Text));
 
-                    // ----- Details TVP: dbo.WorkOrderDetailsType এর সাথে হুবহু কলাম মিলিয়ে -----
+                    // ----- Details TVP: dbo.WorkOrderDetailsType এর কলাম-অর্ডারের সাথে হুবহু মিলিয়ে -----
                     DataTable dtDetails = new DataTable();
+                    dtDetails.Columns.Add("JobNo", typeof(string));
                     dtDetails.Columns.Add("Buyer", typeof(string));
                     dtDetails.Columns.Add("Style", typeof(string));
                     dtDetails.Columns.Add("PO", typeof(string));
                     dtDetails.Columns.Add("ItemName", typeof(string));
-                    dtDetails.Columns.Add("ItemDescription", typeof(string)); // ★★★ NEW
+                    dtDetails.Columns.Add("ItemDescription", typeof(string));
                     dtDetails.Columns.Add("ColorName", typeof(string));
                     dtDetails.Columns.Add("Size", typeof(string));
                     dtDetails.Columns.Add("Measurement", typeof(string));
                     dtDetails.Columns.Add("ReqQty", typeof(decimal));
                     dtDetails.Columns.Add("Unit", typeof(string));
                     dtDetails.Columns.Add("RateUnit", typeof(decimal));
+                    dtDetails.Columns.Add("RateUnitName", typeof(string));   // ★ NEW
                     dtDetails.Columns.Add("ExtraPercent", typeof(decimal));
                     dtDetails.Columns.Add("TotalReqQty", typeof(decimal));
                     dtDetails.Columns.Add("TotalAmount", typeof(decimal));
@@ -1048,8 +1104,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     {
                         if (row.RowType != DataControlRowType.DataRow) continue;
 
-                        // এই রো-র SlNo দিয়ে SizeList (session) থেকে Buyer/Style/PO/ItemDescription
-                        // এর প্রকৃত মান বের করা হচ্ছে, কারণ গ্রিডে এগুলোর এডিটেবল কন্ট্রোল নেই।
                         int slNo = Convert.ToInt32(gvSizeDetails.DataKeys[row.RowIndex].Value);
                         var sizeItem = SizeList.FirstOrDefault(s => s.SlNo == slNo);
 
@@ -1063,6 +1117,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                         TextBox txtRemarks = (TextBox)row.FindControl("txtRemarks");
 
                         DataRow dr = dtDetails.NewRow();
+                        dr["JobNo"] = sizeItem?.JobNo ?? string.Empty;   // ★ FIX: আগে ভুল করে row.Cells[0] (SlNo) ব্যবহার হতো
                         dr["Buyer"] = sizeItem?.Buyer ?? row.Cells[2].Text.Trim();
                         dr["Style"] = sizeItem?.Style ?? row.Cells[3].Text.Trim();
                         dr["PO"] = sizeItem?.PO ?? row.Cells[4].Text.Trim();
@@ -1074,6 +1129,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                         dr["ReqQty"] = Convert.ToDecimal(string.IsNullOrEmpty(txtReqQty?.Text) ? "0" : txtReqQty.Text);
                         dr["Unit"] = txtUnit != null ? txtUnit.Text : "";
                         dr["RateUnit"] = Convert.ToDecimal(string.IsNullOrEmpty(txtRateUnit?.Text) ? "0" : txtRateUnit.Text);
+                        dr["RateUnitName"] = sizeItem?.RateUnitName ?? string.Empty;   // ★ NEW
                         dr["ExtraPercent"] = Convert.ToDecimal(string.IsNullOrEmpty(txtExtraPercent?.Text) ? "0" : txtExtraPercent.Text);
                         dr["TotalReqQty"] = Convert.ToDecimal(string.IsNullOrEmpty(lblTotalReqQty?.Text) ? "0" : lblTotalReqQty.Text);
                         dr["TotalAmount"] = Convert.ToDecimal(string.IsNullOrEmpty(lblTotalAmount?.Text) ? "0" : lblTotalAmount.Text);
@@ -1127,6 +1183,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             ddlCustomerName.SelectedIndex = 0;
             txtWoDate.Text = DateTime.Today.ToString("yyyy-MM-dd");
             txtDeliveryDate.Text = string.Empty;
+            txtJobNo.Text = string.Empty;     // ★ NEW
             txtBuyer.Text = string.Empty;
             txtStyle.Text = string.Empty;
             txtOrderNo.Text = string.Empty;
@@ -1134,6 +1191,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             ddlItemNameDetails.SelectedIndex = 0;
             DropDownList1.SelectedIndex = 0;
             ddlReceivingBranch.SelectedIndex = 0;
+            ddlRateUnit.SelectedIndex = 0;    // ★ NEW
             txtQuotationNo.Text = string.Empty;
             TextBox1.Text = string.Empty;
             txtTransportCost.Text = "0.00";
@@ -1161,6 +1219,12 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             LoadColorNameDropdown();
         }
 
+        // ★ NEW: Rate Unit dropdown-এর জন্য আলাদা, সঠিক রিফ্রেশ হ্যান্ডলার
+        protected void LinkButton2_Click(object sender, EventArgs e)
+        {
+            LoadRateUnit();
+        }
+
         protected void Button1_Click(object sender, EventArgs e)
         {
             LoadItemsName();
@@ -1172,6 +1236,21 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         }
 
         protected void btnRefreshCustomer_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void txtBuyer_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void txtStyle_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void txtOrderNo_TextChanged(object sender, EventArgs e)
         {
 
         }
