@@ -334,6 +334,7 @@
     <Content Include="Shipment\DeliveryChallanAndBill.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallan.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx" />
+    <Content Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx" />
     <Content Include="Test.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\MaterialRequirementByWorkOrder.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\BookingInformation.aspx" />
@@ -1133,6 +1134,13 @@
     </Compile>
     <Compile Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx.designer.cs">
       <DependentUpon>DeliveryChallanWiseBill.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx.cs">
+      <DependentUpon>eSDeliveryChallanGetpass.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx.designer.cs">
+      <DependentUpon>eSDeliveryChallanGetpass.aspx</DependentUpon>
     </Compile>
     <Compile Include="Test.aspx.cs">
       <DependentUpon>Test.aspx</DependentUpon>

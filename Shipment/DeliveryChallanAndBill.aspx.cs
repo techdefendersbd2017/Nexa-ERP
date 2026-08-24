@@ -103,7 +103,7 @@ namespace Nexa_ERP.Shipment
             }
             else if (e.CommandName == "ReportView")
             {
-                string url = ResolveUrl($"~/Shipment/ShipmentReports/DeliveryChallan.aspx?challanId={challanHeaderID}");
+                string url = ResolveUrl($"~/Shipment/ShipmentReports/eSDeliveryChallanGetpass.aspx?challanId={challanHeaderID}");
                 string script = $"window.open('{url}', '_blank');";
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "OpenReport", script, true);
             }
