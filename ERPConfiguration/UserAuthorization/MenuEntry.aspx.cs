@@ -44,7 +44,7 @@ namespace Nexa_ERP.ERPConfiguration
         {
             con = conn.openConnection();
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Menu_Information where Module_ID='"+ddlmodule.SelectedValue+"'", con);
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Menu_Information where Module_ID='"+ddlmodule.SelectedValue+ "' order By SortingNo Asc", con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 gvModule.DataSource = dt;
@@ -100,6 +100,7 @@ namespace Nexa_ERP.ERPConfiguration
                         txtMenudiscription.Text = reader[3].ToString();
                         txtCss.Text = reader[5].ToString();
                         chkIsActive.Checked = reader[4] != DBNull.Value && Convert.ToBoolean(reader[4]); // ✅ CheckBox
+                        txtSortingNo.Text = reader[6].ToString();
                     }
                 }
                 else
@@ -129,6 +130,7 @@ namespace Nexa_ERP.ERPConfiguration
                         cmd.Parameters.Add("@Menu_description", SqlDbType.VarChar).Value = txtMenudiscription.Text;
                         cmd.Parameters.Add("@is_active", SqlDbType.Bit).Value = chkIsActive.Checked;
                         cmd.Parameters.Add("@Icon_Class", SqlDbType.VarChar).Value = txtCss.Text;
+                        cmd.Parameters.Add("@SortingNo", SqlDbType.VarChar).Value = txtSortingNo.Text;
                         cmd.ExecuteNonQuery();
                         ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
                     }

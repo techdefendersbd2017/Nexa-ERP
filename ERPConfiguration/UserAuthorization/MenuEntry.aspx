@@ -52,6 +52,11 @@
                 </div>
 
                 <div class="col-md-6">
+                    <label>Sorting No</label>
+                    <asp:TextBox ID="txtSortingNo" runat="server" CssClass="form-control" />
+                </div>
+
+                <div class="col-md-6">
                     <label>Menu Description</label>
                     <asp:TextBox ID="txtMenudiscription" runat="server" CssClass="form-control" TextMode="MultiLine" />
                 </div>
@@ -79,6 +84,7 @@
 
                     <asp:BoundField DataField="Menu_ID" HeaderText="ID" />
                     <asp:BoundField DataField="Menu_Name" HeaderText="Menu Name" />
+                    <asp:BoundField DataField="SortingNo" HeaderText="Sorting No" />
                     <asp:BoundField DataField="Menu_description" HeaderText="Description" />
                     <asp:CheckBoxField DataField="is_active" HeaderText="Status" />
                 </Columns>

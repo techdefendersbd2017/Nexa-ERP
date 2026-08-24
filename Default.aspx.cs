@@ -15,7 +15,10 @@ namespace Nexa_ERP
     {
         SqlConnection con;
         Database_Connection conn = new Database_Connection();
-        //SqlCommand cmd;
+        SqlCommand cmd;
+
+        String User_ID;
+
         protected void Page_Load(object sender, EventArgs e)
         {
 
@@ -23,6 +26,25 @@ namespace Nexa_ERP
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
+            try
+            {
+                string sql = "Select * from User_Information where username='" + txtUser.Text + "' and password_hash='" + txtPass.Text + "'";
+                con = conn.openConnection();
+                cmd = new SqlCommand(sql, con);
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        User_ID = reader[0].ToString();
+                    }
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
             {
                 con = conn.openConnection();
                 SqlDataAdapter dt = new SqlDataAdapter("Select * from User_Information where username='" + txtUser.Text + "' And password_hash='" + txtPass.Text + "'", con);
@@ -32,6 +54,7 @@ namespace Nexa_ERP
                 {
                     Session["Username"] = txtUser.Text;
                     Session["Password"] = txtPass.Text;
+                    Session["User_ID"] = User_ID;
                     Response.Redirect("Deahboard.aspx");
                     ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Employee Information Saved Successfully!');", true);
                 }
@@ -41,6 +64,10 @@ namespace Nexa_ERP
                 }
                 con.Close();
             }
+
+
+
+
         }
     }
 }

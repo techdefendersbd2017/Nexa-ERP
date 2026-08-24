@@ -130,8 +130,12 @@
                                             <label class="font-semibold text-[0.85rem] text-[#374151] mb-1.5">Icon CSS Name</label>
                                             <asp:TextBox ID="txtCss" runat="server" 
                                                 CssClass="w-full bg-white border border-[#d7dce3] rounded-lg px-3 py-2 text-[0.92rem] outline-none focus:border-[#0d6efd] focus:ring-2 focus:ring-blue-100 transition-all shadow-sm" />
-                                        </div>
+                                        </div>                                        
 
+                                        <div class="flex flex-col">
+                                            <label>Sorting No</label>
+                                            <asp:TextBox ID="txtSortingNo" runat="server" CssClass="w-full bg-white border border-[#d7dce3] rounded-lg px-3 py-2 text-[0.92rem] outline-none focus:border-[#0d6efd] focus:ring-2 focus:ring-blue-100 transition-all shadow-sm" />
+                                        </div>
                                         <div class="flex flex-col">
                                             <label class="font-semibold text-[0.85rem] text-[#374151] mb-1.5">Working Stage</label>
                                             <asp:DropDownList ID="ddlWorkingStage" AutoPostBack="true" runat="server"
@@ -203,6 +207,7 @@
                                             </asp:CommandField>
                                             <asp:BoundField DataField="Form_ID" HeaderText="ID" />
                                             <asp:BoundField DataField="Form_Name" HeaderText="Menu Name" />
+                                            <asp:BoundField DataField="SortingNo" HeaderText="Sorting No" />
                                             <asp:BoundField DataField="Menu_description" HeaderText="Description" />
                                             <asp:CheckBoxField DataField="is_active" HeaderText="Status" />
                                         </Columns>
