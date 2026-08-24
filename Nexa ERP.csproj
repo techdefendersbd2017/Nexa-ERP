@@ -306,6 +306,7 @@
     <Content Include="MasterConfiguration\BuyerManagement\StyleName.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx" />
     <Content Include="Planning\ProductionPlanning.aspx" />
+    <Content Include="Procurement\purchaseRequisition.aspx" />
     <Content Include="Production\Cutting\cuttingContrastFabricsEntry.aspx" />
     <Content Include="Production\Cutting\cuttingNumberWiseRecutEntry.aspx" />
     <Content Include="Production\Cutting\cuttingReject.aspx" />
@@ -937,6 +938,13 @@
     </Compile>
     <Compile Include="Planning\ProductionPlanning.aspx.designer.cs">
       <DependentUpon>ProductionPlanning.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Procurement\purchaseRequisition.aspx.cs">
+      <DependentUpon>purchaseRequisition.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Procurement\purchaseRequisition.aspx.designer.cs">
+      <DependentUpon>purchaseRequisition.aspx</DependentUpon>
     </Compile>
     <Compile Include="Production\Cutting\cuttingContrastFabricsEntry.aspx.cs">
       <DependentUpon>cuttingContrastFabricsEntry.aspx</DependentUpon>
