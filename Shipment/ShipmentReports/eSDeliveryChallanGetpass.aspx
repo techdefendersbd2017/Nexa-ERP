@@ -249,30 +249,44 @@
         <div class="print-container">
 
             <!-- Header Section -->
-            <div class="doc-header">
-                <div class="doc-header-left">
-                    <asp:Image ID="imgCompanyLogo" runat="server" CssClass="doc-logo" ImageUrl="~/Images/logo.png" />
-                    <div>
-                        <div class="company-name">
-                            <asp:Label ID="lblCompanyName" runat="server" Text="Nexa ERP"></asp:Label>
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 20px; font-family: sans-serif;">
+    
+                <!-- প্রথম লাইন: অ্যাড্রেস এবং বারকোড পাশাপাশি থাকবে -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+        
+                    <!-- বাম পাশে লোগো এবং অ্যাড্রেস -->
+                    <div style="display: flex; gap: 15px; align-items: flex-start;">
+                        <asp:Image ID="imgCompanyLogo" runat="server" CssClass="doc-logo" ImageUrl="~/Images/logo.png" style="width: 70px; height: 70px; border: 1px solid #ccc; display: block;" />
+                        <div>
+                            <div style="font-size: 20px; font-weight: bold; color: #1a2b4c; margin-bottom: 5px; line-height: 1.2;">
+                                <asp:Label ID="lblCompanyName" runat="server" Text="eS Trims Limited"></asp:Label>
+                            </div>
+                            <div style="font-size: 13px; color: #555; line-height: 1.4;">
+                                <asp:Label ID="lblCompanyAddress" runat="server">Narayanganj, Bangladesh-1420</asp:Label>
+                                <br>
+                                <asp:Label ID="lblCompanyPhone" runat="server">01639572449</asp:Label>
+                                |&nbsp;
+                                <asp:Label ID="lblCompanyEmail" runat="server">info@estrims.com</asp:Label>
+                            </div>
                         </div>
-                        <div class="doc-title">Delivery Challan</div>
                     </div>
+
+                    <!-- ডান পাশে বারকোড (একদম ডান কোনায় থাকবে) -->
+                    <div style="border: 1px solid #ccc; padding: 10px 15px; font-size: 14px; text-align: center; border-radius: 4px;">
+                        <asp:Label ID="Label1" runat="server" Text="">Barcode</asp:Label>
+                    </div>
+        
                 </div>
-                <div class="doc-header-right">
-                    <div class="barcode-wrap">
-                        <svg id="barcodeChallan"></svg>
+
+                <!-- দ্বিতীয় লাইন: ডেলিভারি চালান একদম মাঝে এবং নিচে থাকবে -->
+                <div style="text-align: center; width: 100%; margin-bottom: 8px;">
+                    <div style="font-size: 28px; font-weight: bold; color: #1a2b4c; display: inline-block; text-decoration: underline;">
+                        Delivery Challan
                     </div>
                 </div>
             </div>
 
-            <div class="company-address-line text-center">
-                <asp:Label ID="lblCompanyAddress" runat="server"></asp:Label>
-                &nbsp;|&nbsp;
-                <asp:Label ID="lblCompanyPhone" runat="server"></asp:Label>
-                &nbsp;
-                <asp:Label ID="lblCompanyEmail" runat="server"></asp:Label>
-            </div>
+
 
             <!-- Bill To / Ship To -->
             <div class="row g-2 mb-1">
@@ -388,26 +402,39 @@
         <!-- ============================================================ -->
         <div class="print-container gate-pass-page">
 
-            <div class="doc-header" style="border-bottom: none; margin-bottom: 0;">
-                <div class="doc-header-left">
-                    <asp:Image ID="imgGpLogo" runat="server" CssClass="doc-logo" ImageUrl="~/Images/logo.png" />
+        <!-- পুরো হেডার এরিয়া -->
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 20px; font-family: sans-serif; margin-bottom: 20px;">
+    
+            <!-- প্রথম লাইন: অ্যাড্রেস এবং বারকোড পাশাপাশি থাকবে -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+        
+                <!-- বাম পাশে লোগো এবং অ্যাড্রেস -->
+                <div style="display: flex; gap: 15px; align-items: flex-start;">
+                    <asp:Image ID="imgGpLogo" runat="server" CssClass="doc-logo" ImageUrl="~/Images/logo.png" style="width: 70px; height: 70px; border: 1px solid #ccc; display: block;" />
                     <div>
-                        <div class="company-name">
+                        <div style="font-size: 20px; font-weight: bold; color: #1a2b4c; margin-bottom: 5px; line-height: 1.2;">
                             <asp:Label ID="lblGpCompanyName" runat="server" Text="Nexa ERP"></asp:Label>
                         </div>
-                        <small class="text-muted">
+                        <div style="font-size: 13px; color: #6c757d; line-height: 1.4;">
                             <asp:Label ID="lblGpCompanyAddress" runat="server"></asp:Label>
-                        </small>
+                        </div>
                     </div>
                 </div>
-                <div class="doc-header-right">
-                    <div class="barcode-wrap">
-                        <svg id="barcodeGatePass"></svg>
-                    </div>
+
+                <!-- ডান পাশে বারকোড (একদম ডান কোনায় থাকবে) -->
+                <div style="border: 1px solid #ccc; padding: 10px 15px; font-size: 14px; text-align: center; border-radius: 4px;">
+                    <asp:Label ID="Label2" runat="server" Text="">Barcode</asp:Label>
                 </div>
+        
             </div>
 
-            <div class="gate-pass-title">GATE PASS</div>
+            <!-- দ্বিতীয় লাইন: গেট পাস একদম মাঝে এবং নিচে থাকবে -->
+            <div style="text-align: center; width: 100%;">
+                <div style="font-size: 28px; font-weight: bold; color: #1a2b4c; display: inline-block; text-decoration: underline;">
+                    GATE PASS
+                </div>
+            </div>
+        </div>
 
             <table class="gate-pass-table">
                 <tr>
@@ -490,6 +517,8 @@
         </div>
     </form>
 
+
+    <!--java Script-->
     <script type="text/javascript">
         window.addEventListener('load', function () {
             try {
