@@ -232,6 +232,7 @@
     <Content Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx" />
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\CustomerSupplier.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\FloorInformation.aspx" />
@@ -448,6 +449,13 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx.cs">
+      <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx.designer.cs">
+      <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx.cs">
       <DependentUpon>BranchInformation.aspx</DependentUpon>
