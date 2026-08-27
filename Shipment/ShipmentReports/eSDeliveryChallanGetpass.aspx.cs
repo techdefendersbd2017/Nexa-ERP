@@ -76,16 +76,14 @@ namespace Nexa_ERP.Shipment.ShipmentReports
                 //    (আগের কুয়েরির কলামগুলোই রাখা হয়েছে যাতে এক্সিস্টিং ডেটাবেজে ভাঙে না)
                 // =====================================================================
                 string headerQuery = @"
-                    SELECT h.DeliveryChallanNumber, h.DeliveryChallanDate, h.WorkOrderReceiveID, h.VehicleTransportNumber,
-                    h.DriverNameAndPhone, h.DeliveryRemarks, p.PartyName AS CustomerName, p.Address AS CustomerAddress,
-                    b.Branch_Name AS BranchName, b.Web, b.Phone_No, b.E_Mail, b.Address, p.ContactPerson, p.Phone AS CustomerPhone,
-                    p.Email AS CustomerEmail, WorkOrderHeader.RefWorkOrderNo, WorkOrderHeader.WORcvNo,
-                    dbo.vw_User_Information_Top1000.full_name
-                    FROM dbo.DeliveryChallanHeader h INNER JOIN
-                    WorkOrderHeader ON h.WorkOrderReceiveID = WorkOrderHeader.WORcvID INNER JOIN
-                    dbo.vw_User_Information_Top1000 ON h.CreatedByUserID = dbo.vw_User_Information_Top1000.user_id LEFT OUTER JOIN
-                    tbl_CustomerSupplier p ON h.CustomerPartyID = p.PartyID LEFT OUTER JOIN
-                    vw_Branch_Information b ON h.ReceivingBranchID = b.Branch_ID
+                        SELECT        h.DeliveryChallanNumber, h.DeliveryChallanDate, h.WorkOrderReceiveID, h.VehicleTransportNumber, h.DriverNameAndPhone, h.DeliveryRemarks, p.PartyName AS CustomerName, p.Address AS CustomerAddress, 
+                        b.Branch_Name AS BranchName, b.Web, b.Phone_No, b.E_Mail, b.Address, p.ContactPerson, p.Phone AS CustomerPhone, p.Email AS CustomerEmail, WorkOrderHeader.RefWorkOrderNo, WorkOrderHeader.WORcvNo, 
+                        dbo.vw_User_Information_Top1000.full_name, b.Branch_Logo
+                        FROM            dbo.DeliveryChallanHeader h INNER JOIN
+                        WorkOrderHeader ON h.WorkOrderReceiveID = WorkOrderHeader.WORcvID INNER JOIN
+                        dbo.vw_User_Information_Top1000 ON h.CreatedByUserID = dbo.vw_User_Information_Top1000.user_id LEFT OUTER JOIN
+                        tbl_CustomerSupplier p ON h.CustomerPartyID = p.PartyID LEFT OUTER JOIN
+                        vw_Branch_Information b ON h.ReceivingBranchID = b.Branch_ID
                                     WHERE h.DeliveryChallanHeaderID = @ChallanHeaderID AND h.IsActive = 1";
 
                 // Gate Pass ও নতুন যোগ হওয়া ফিল্ডগুলোর জন্য লোকাল ভ্যারিয়েবল
@@ -108,6 +106,8 @@ namespace Nexa_ERP.Shipment.ShipmentReports
                         {
                             // ---------- Challan হেডার ----------
                             lblChallanNo.Text = SafeGetString(reader, "DeliveryChallanNumber");
+                            lblChallanNoDisplay.Text = lblChallanNo.Text;
+                            lblChallan.Text = SafeGetString(reader, "DeliveryChallanNumber");
                             lblCustomerName.Text = SafeGetString(reader, "CustomerName");
                             lblCompanyName.Text = SafeGetString(reader, "BranchName");
                             lblCompanyAddress.Text = SafeGetString(reader, "Address");
@@ -126,6 +126,37 @@ namespace Nexa_ERP.Shipment.ShipmentReports
                             }
 
                             lblWoNo.Text = SafeGetString(reader, "RefWorkOrderNo");
+
+                            try
+                            {
+                                int logoOrdinal = reader.GetOrdinal("Branch_Logo");
+                                if (!reader.IsDBNull(logoOrdinal))
+                                {
+                                    object logoValue = reader.GetValue(logoOrdinal);
+                                    string logoUrl = null;
+
+                                    if (logoValue is byte[] logoBytes && logoBytes.Length > 0)
+                                    {
+                                        // varbinary/image টাইপ হলে -> base64 data URI
+                                        logoUrl = "data:image/png;base64," + Convert.ToBase64String(logoBytes);
+                                    }
+                                    else if (logoValue is string logoPath && !string.IsNullOrWhiteSpace(logoPath))
+                                    {
+                                        // string টাইপ হলে -> সরাসরি path/URL হিসেবে ব্যবহার
+                                        logoUrl = logoPath.StartsWith("~") ? ResolveUrl(logoPath) : logoPath;
+                                    }
+
+                                    if (!string.IsNullOrEmpty(logoUrl))
+                                    {
+                                        imgCompanyLogo.ImageUrl = logoUrl;
+                                        imgGpLogo.ImageUrl = logoUrl;
+                                    }
+                                }
+                            }
+                            catch (IndexOutOfRangeException)
+                            {
+                                // কলাম না পাওয়া গেলে ডিফল্ট ~/Images/logo.png-ই থেকে যাবে (markup-এ যা আছে)
+                            }
 
                             // ---------- নিচের ফিল্ডগুলো এই মুহূর্তে headerQuery-তে নেই ----------
                             // TODO: আপনার আসল টেবিল/কলামের নাম বসিয়ে headerQuery-তে যোগ করুন,
@@ -265,6 +296,8 @@ namespace Nexa_ERP.Shipment.ShipmentReports
                 string gatePassNo = "GPN-" + gpChallanNo;
 
                 lblGpNo.Text = gatePassNo;
+                lblGpNoDisplayH.Text = gatePassNo;
+                lblGpNoDisplay.Text = gatePassNo;
                 lblGpDate.Text = gpDate;
                 lblGpCompanyName.Text = gpCompanyName;
                 lblGpCompanyAddress.Text = gpCompanyAddress;

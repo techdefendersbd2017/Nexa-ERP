@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <%-- barcode generator --%>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/JsBarcode/3.11.5/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/JsBarcode/3.11.5/JsBarcode.all.min.js" onerror="window.__jsBarcodeLoadFailed = true;"></script>
 
     <style>
         body {
@@ -170,10 +170,12 @@
 
         /* ===================== Barcode ===================== */
         .barcode-wrap {
-            text-align: right;
+            text-align: center;
+            align-self: flex-start;
         }
 
         .barcode-wrap svg {
+            display: block;
             max-width: 260px;
         }
 
@@ -249,30 +251,43 @@
         <div class="print-container">
 
             <!-- Header Section -->
-            <div class="doc-header">
-                <div class="doc-header-left">
-                    <asp:Image ID="imgCompanyLogo" runat="server" CssClass="doc-logo" ImageUrl="~/Images/logo.png" />
-                    <div>
-                        <div class="company-name">
-                            <asp:Label ID="lblCompanyName" runat="server" Text="Nexa ERP"></asp:Label>
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 20px; font-family: sans-serif;">
+    
+                <!-- প্রথম লাইন: অ্যাড্রেস এবং বারকোড পাশাপাশি থাকবে -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+        
+                    <!-- বাম পাশে লোগো এবং অ্যাড্রেস -->
+                    <div style="display: flex; gap: 15px; align-items: flex-start;">
+                        <asp:Image ID="imgCompanyLogo" runat="server" CssClass="doc-logo" ImageUrl="~/Images/logo.png" AlternateText="Logo not found: check Images/logo.png on the server" style="width: 70px; height: 70px; border: 1px solid #ccc; display: block;" />
+                        <div>
+                            <div style="font-size: 20px; font-weight: bold; color: #1a2b4c; margin-bottom: 5px; line-height: 1.2;">
+                                <asp:Label ID="lblCompanyName" runat="server" Text="eS Trims Limited"></asp:Label>
+                            </div>
+                            <div style="font-size: 13px; color: #555; line-height: 1.4;">
+                                <asp:Label ID="lblCompanyAddress" runat="server">Narayanganj, Bangladesh-1420</asp:Label>
+                                <br>
+                                <asp:Label ID="lblCompanyPhone" runat="server">01639572449</asp:Label>
+                                |&nbsp;
+                                <asp:Label ID="lblCompanyEmail" runat="server">info@estrims.com</asp:Label>
+                            </div>
                         </div>
-                        <div class="doc-title">Delivery Challan</div>
                     </div>
-                </div>
-                <div class="doc-header-right">
+
                     <div class="barcode-wrap">
-                        <svg id="barcodeChallan"></svg>
+                        <h3><asp:Label ID="lblChallanNo" runat="server" Text="CLN-000444-2026" Font-Names="Code39AzaleaWide3"></asp:Label></h3>
+                        <h2><asp:Label ID="lblChallan" runat="server" Text="CLN-000444-2026"></asp:Label></h2>
                     </div>
+        
+                </div>
+
+                <div style="text-align: center; width: 100%; margin-bottom: 8px;">
+                    <div style="font-size: 28px; font-weight: bold; color: #1a2b4c; display: inline-block; text-decoration: underline;">
+                        Delivery Challan
+                                  </div>
                 </div>
             </div>
 
-            <div class="company-address-line text-center">
-                <asp:Label ID="lblCompanyAddress" runat="server"></asp:Label>
-                &nbsp;|&nbsp;
-                <asp:Label ID="lblCompanyPhone" runat="server"></asp:Label>
-                &nbsp;
-                <asp:Label ID="lblCompanyEmail" runat="server"></asp:Label>
-            </div>
+
 
             <!-- Bill To / Ship To -->
             <div class="row g-2 mb-1">
@@ -287,6 +302,12 @@
                         <div class="info-line"><b>Address:</b> <asp:Label ID="lblCustomerAddress" runat="server"></asp:Label></div>
                         <div class="info-line"><b>Contact Person:</b> <asp:Label ID="txtContactPerson" runat="server" Text="N/A"></asp:Label></div>
                     </div>
+                    <div class="info-box">
+                        <div class="info-line"><b>Delivery By:</b> <asp:Label ID="lblDeliveryBy" runat="server"></asp:Label></div>
+                        <div class="info-line"><b>Box:</b> <asp:Label ID="lblBoxCount" runat="server"></asp:Label></div>
+                        <div class="info-line"><b>Net Weight:</b> <asp:Label ID="lblNetWeight" runat="server"></asp:Label></div>
+                        <div class="info-line"><b>Gross Weight:</b> <asp:Label ID="lblGrossWeight" runat="server"></asp:Label></div>
+                    </div>
                 </div>
                 <div class="col-6">
                     <div class="info-box">
@@ -299,27 +320,13 @@
                     </div>
                     <div class="info-box">
                         <div class="info-title">Challan Reference</div>
-                        <div class="info-line"><b>Challan No:</b> <asp:Label ID="lblChallanNo" runat="server" Text="CLN-000444-2026"></asp:Label></div>
+                        <div class="info-line"><b>Challan No:</b> <asp:Label ID="lblChallanNoDisplay" runat="server" Text="CLN-000444-2026"></asp:Label></div>
                         <div class="info-line"><b>Date:</b> <asp:Label ID="lblChallanDate" runat="server"></asp:Label></div>
                         <div class="info-line"><b>Job Bag No:</b> <asp:Label ID="lblJobBagNo" runat="server"></asp:Label></div>
                         <div class="info-line"><b>Marketing:</b> <asp:Label ID="lblMarketing" runat="server"></asp:Label></div>
                         <div class="info-line"><b>CS Name:</b> <asp:Label ID="lblCsName" runat="server"></asp:Label></div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Delivery / Tracking -->
-            <div class="row g-2">
-                <div class="col-7">
-                    <div class="plain-box">
-                        <div class="info-line"><b>Delivery By:</b> <asp:Label ID="lblDeliveryBy" runat="server"></asp:Label></div>
-                        <div class="info-line"><b>Box:</b> <asp:Label ID="lblBoxCount" runat="server"></asp:Label></div>
-                        <div class="info-line"><b>Net Weight:</b> <asp:Label ID="lblNetWeight" runat="server"></asp:Label></div>
-                        <div class="info-line"><b>Gross Weight:</b> <asp:Label ID="lblGrossWeight" runat="server"></asp:Label></div>
-                    </div>
-                </div>
-                <div class="col-5">
-                    <div class="plain-box">
+                    <div class="info-box">
                         <div class="info-line"><b>Tracking No:</b> <asp:Label ID="lblTrackingNo" runat="server"></asp:Label></div>
                     </div>
                 </div>
@@ -388,31 +395,47 @@
         <!-- ============================================================ -->
         <div class="print-container gate-pass-page">
 
-            <div class="doc-header" style="border-bottom: none; margin-bottom: 0;">
-                <div class="doc-header-left">
-                    <asp:Image ID="imgGpLogo" runat="server" CssClass="doc-logo" ImageUrl="~/Images/logo.png" />
+        <!-- পুরো হেডার এরিয়া -->
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 20px; font-family: sans-serif; margin-bottom: 20px;">
+    
+            <!-- প্রথম লাইন: অ্যাড্রেস এবং বারকোড পাশাপাশি থাকবে -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+        
+                <!-- বাম পাশে লোগো এবং অ্যাড্রেস -->
+                <div style="display: flex; gap: 15px; align-items: flex-start;">
+                    <asp:Image ID="imgGpLogo" runat="server" CssClass="doc-logo" ImageUrl="~/Images/logo.png" AlternateText="Logo not found: check Images/logo.png on the server" style="width: 70px; height: 70px; border: 1px solid #ccc; display: block;" />
                     <div>
-                        <div class="company-name">
+                        <div style="font-size: 20px; font-weight: bold; color: #1a2b4c; margin-bottom: 5px; line-height: 1.2;">
                             <asp:Label ID="lblGpCompanyName" runat="server" Text="Nexa ERP"></asp:Label>
                         </div>
-                        <small class="text-muted">
+                        <div style="font-size: 13px; color: #6c757d; line-height: 1.4;">
                             <asp:Label ID="lblGpCompanyAddress" runat="server"></asp:Label>
-                        </small>
+                        </div>
                     </div>
                 </div>
-                <div class="doc-header-right">
+
+                <!-- ডান পাশে বারকোড (একদম ডান কোনায় থাকবে) -->
+
+                
                     <div class="barcode-wrap">
-                        <svg id="barcodeGatePass"></svg>
+                        <h4><asp:Label ID="lblGpNo" runat="server" Text="CLN-000444-2026" Font-Names="Code39AzaleaWide3"></asp:Label></h4>
+                        <h4><asp:Label ID="lblGpNoDisplayH" runat="server"></asp:Label></h4>
                     </div>
-                </div>
+        
             </div>
 
-            <div class="gate-pass-title">GATE PASS</div>
+            <!-- দ্বিতীয় লাইন: গেট পাস একদম মাঝে এবং নিচে থাকবে -->
+            <div style="text-align: center; width: 100%;">
+                <div style="font-size: 28px; font-weight: bold; color: #1a2b4c; display: inline-block; text-decoration: underline;">
+                    GATE PASS
+                </div>
+            </div>
+        </div>
 
             <table class="gate-pass-table">
                 <tr>
                     <td class="label-cell">Gate Pass No</td>
-                    <td><asp:Label ID="lblGpNo" runat="server"></asp:Label></td>
+                    <td><asp:Label ID="lblGpNoDisplay" runat="server"></asp:Label></td>
                     <td class="label-cell">Date</td>
                     <td><asp:Label ID="lblGpDate" runat="server"></asp:Label></td>
                 </tr>
@@ -490,10 +513,26 @@
         </div>
     </form>
 
+
+    <!--java Script-->
     <script type="text/javascript">
-        window.addEventListener('load', function () {
+        function showBarcodeProblem(svgId, message) {
+            var svg = document.getElementById(svgId);
+            if (!svg) return;
+            svg.outerHTML = '<div style="font-size:10px;color:#b91c1c;border:1px dashed #b91c1c;padding:4px 6px;max-width:220px;">' + message + '</div>';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.__jsBarcodeLoadFailed || typeof JsBarcode === 'undefined') {
+                var msg = 'Barcode library did not load from CDN (cdnjs.cloudflare.com). Likely no internet access or it is blocked on this server/network.';
+                console.error(msg);
+                showBarcodeProblem('barcodeChallan', msg);
+                showBarcodeProblem('barcodeGatePass', msg);
+                return;
+            }
+
             try {
-                var challanNo = document.getElementById('<%= lblChallanNo.ClientID %>').innerText.trim();
+                var challanNo = document.getElementById('<%= lblChallanNo.ClientID %>').textContent.trim();
                 if (challanNo) {
                     JsBarcode("#barcodeChallan", challanNo, {
                         format: "CODE128",
@@ -502,11 +541,16 @@
                         height: 40,
                         margin: 0
                     });
+                } else {
+                    showBarcodeProblem('barcodeChallan', 'Challan No is empty, so no barcode value to encode.');
                 }
-            } catch (e) { /* barcode value not ready */ }
+            } catch (e) {
+                console.error('Challan barcode error:', e);
+                showBarcodeProblem('barcodeChallan', 'Barcode error: ' + e.message);
+            }
 
             try {
-                var gpNo = document.getElementById('<%= lblGpNo.ClientID %>').innerText.trim();
+                var gpNo = document.getElementById('<%= lblGpNo.ClientID %>').textContent.trim();
                 if (gpNo) {
                     JsBarcode("#barcodeGatePass", gpNo, {
                         format: "CODE128",
@@ -515,8 +559,13 @@
                         height: 40,
                         margin: 0
                     });
+                } else {
+                    showBarcodeProblem('barcodeGatePass', 'Gate Pass No is empty, so no barcode value to encode.');
                 }
-            } catch (e) { /* barcode value not ready */ }
+            } catch (e) {
+                console.error('Gate pass barcode error:', e);
+                showBarcodeProblem('barcodeGatePass', 'Barcode error: ' + e.message);
+            }
         });
     </script>
 </body>
