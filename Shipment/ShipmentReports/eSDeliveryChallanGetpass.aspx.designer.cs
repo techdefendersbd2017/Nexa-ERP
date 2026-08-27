@@ -69,6 +69,24 @@ namespace Nexa_ERP.Shipment.ShipmentReports
         protected global::System.Web.UI.WebControls.Label lblCompanyEmail;
 
         /// <summary>
+        /// lblChallanNo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblChallanNo;
+
+        /// <summary>
+        /// lblChallan control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblChallan;
+
+        /// <summary>
         /// lblCustomerName control.
         /// </summary>
         /// <remarks>
@@ -103,6 +121,42 @@ namespace Nexa_ERP.Shipment.ShipmentReports
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label txtContactPerson;
+
+        /// <summary>
+        /// lblDeliveryBy control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblDeliveryBy;
+
+        /// <summary>
+        /// lblBoxCount control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblBoxCount;
+
+        /// <summary>
+        /// lblNetWeight control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblNetWeight;
+
+        /// <summary>
+        /// lblGrossWeight control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblGrossWeight;
 
         /// <summary>
         /// lblPoNo control.
@@ -150,13 +204,13 @@ namespace Nexa_ERP.Shipment.ShipmentReports
         protected global::System.Web.UI.WebControls.Label lblFscCoc;
 
         /// <summary>
-        /// lblChallanNo control.
+        /// lblChallanNoDisplay control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblChallanNo;
+        protected global::System.Web.UI.WebControls.Label lblChallanNoDisplay;
 
         /// <summary>
         /// lblChallanDate control.
@@ -193,42 +247,6 @@ namespace Nexa_ERP.Shipment.ShipmentReports
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblCsName;
-
-        /// <summary>
-        /// lblDeliveryBy control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblDeliveryBy;
-
-        /// <summary>
-        /// lblBoxCount control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblBoxCount;
-
-        /// <summary>
-        /// lblNetWeight control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblNetWeight;
-
-        /// <summary>
-        /// lblGrossWeight control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblGrossWeight;
 
         /// <summary>
         /// lblTrackingNo control.
@@ -301,6 +319,24 @@ namespace Nexa_ERP.Shipment.ShipmentReports
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblGpNo;
+
+        /// <summary>
+        /// lblGpNoDisplayH control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblGpNoDisplayH;
+
+        /// <summary>
+        /// lblGpNoDisplay control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblGpNoDisplay;
 
         /// <summary>
         /// lblGpDate control.
