@@ -335,7 +335,7 @@
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
     <Content Include="Shipment\DeliveryBill.aspx" />
     <Content Include="Shipment\DeliveryChallanAndBill.aspx" />
-    <Content Include="Shipment\ShipmentReports\BillInvoiceReport.aspx" />
+    <Content Include="Shipment\proformaInvoiceEntry.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallan.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx" />
     <Content Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx" />
@@ -1146,12 +1146,12 @@
     <Compile Include="Shipment\DeliveryChallanAndBill.aspx.designer.cs">
       <DependentUpon>DeliveryChallanAndBill.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Shipment\ShipmentReports\BillInvoiceReport.aspx.cs">
-      <DependentUpon>BillInvoiceReport.aspx</DependentUpon>
+    <Compile Include="Shipment\proformaInvoiceEntry.aspx.cs">
+      <DependentUpon>proformaInvoiceEntry.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Shipment\ShipmentReports\BillInvoiceReport.aspx.designer.cs">
-      <DependentUpon>BillInvoiceReport.aspx</DependentUpon>
+    <Compile Include="Shipment\proformaInvoiceEntry.aspx.designer.cs">
+      <DependentUpon>proformaInvoiceEntry.aspx</DependentUpon>
     </Compile>
     <Compile Include="Shipment\ShipmentReports\DeliveryChallan.aspx.cs">
       <DependentUpon>DeliveryChallan.aspx</DependentUpon>
