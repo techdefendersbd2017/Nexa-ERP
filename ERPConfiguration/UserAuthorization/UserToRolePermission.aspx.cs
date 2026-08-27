@@ -64,21 +64,21 @@ namespace Nexa_ERP.ERPConfiguration.UserAuthorization
             con = conn.openConnection();
 
             using (SqlCommand cmd = new SqlCommand(@"
-    SELECT 
-        u.user_id,
-        u.email,
-        u.full_name,
-        r.role_id,
-        r.role_name,
-        ISNULL(urp.Permission_Status, 0) AS Permission_Status
-    FROM User_Information u
-    LEFT JOIN UserToRolePermission urp 
-        ON u.user_id = urp.User_ID 
-        AND urp.Role_ID = @RoleID
-    LEFT JOIN roles r 
-        ON urp.Role_ID = r.role_id
-    ORDER BY u.full_name
-", con))
+                SELECT 
+                    u.user_id,
+                    u.email,
+                    u.full_name,
+                    r.role_id,
+                    r.role_name,
+                    ISNULL(urp.Permission_Status, 0) AS Permission_Status
+                FROM User_Information u
+                LEFT JOIN UserToRolePermission urp 
+                    ON u.user_id = urp.User_ID 
+                    AND urp.Role_ID = @RoleID
+                LEFT JOIN roles r 
+                    ON urp.Role_ID = r.role_id
+                ORDER BY u.full_name
+            ", con))
             {
                 cmd.Parameters.AddWithValue("@RoleID", ddlRole.SelectedValue);
 
@@ -117,13 +117,15 @@ namespace Nexa_ERP.ERPConfiguration.UserAuthorization
         protected void btnSave_Click(object sender, EventArgs e)
         {
             con = conn.openConnection();
+
+            foreach (GridViewRow row in gvModule.Rows)
             {
-                foreach (GridViewRow row in gvModule.Rows)
+                CheckBox chkView = (CheckBox)row.FindControl("chkAcction");
+
+                // শুধুমাত্র Checked থাকলে Save হবে
+                if (chkView != null && chkView.Checked)
                 {
                     int formId = Convert.ToInt32(gvModule.DataKeys[row.RowIndex].Value);
-
-                    CheckBox chkView = (CheckBox)row.FindControl("chkAcction");
-                    bool P_Action = chkView.Checked;
 
                     using (SqlCommand cmd = new SqlCommand("sp_UserToRolePermission_InsertUpdate", con))
                     {
@@ -131,14 +133,14 @@ namespace Nexa_ERP.ERPConfiguration.UserAuthorization
 
                         cmd.Parameters.Add("@Role_ID", SqlDbType.BigInt).Value = Convert.ToInt64(ddlRole.SelectedValue);
                         cmd.Parameters.Add("@User_ID", SqlDbType.BigInt).Value = formId;
-                        cmd.Parameters.Add("@Permission_Status", SqlDbType.Bit).Value = P_Action;
+                        cmd.Parameters.Add("@Permission_Status", SqlDbType.Bit).Value = true;
 
                         cmd.ExecuteNonQuery();
                     }
                 }
-
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
             }
+
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
         }
     }
 }
