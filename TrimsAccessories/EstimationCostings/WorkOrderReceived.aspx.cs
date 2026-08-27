@@ -753,6 +753,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
             decimal.TryParse(txtRate.Text, out decimal rateVal);
             decimal.TryParse(txtReqQty.Text, out decimal RequiresQtyVal);
+            decimal.TryParse(txtExtraPercent.Text, out decimal extraPercentVal); // ★ FIX: এন্ট্রি রো-এর Extra % এখন পড়া হচ্ছে
+
             int.TryParse(ddlItemNameDetails.SelectedValue, out int selectedItemID);
             int.TryParse(DropDownList1.SelectedValue, out int selectedColorID);
             string selectedItemName = ddlItemNameDetails.SelectedItem?.Text ?? string.Empty;
@@ -761,9 +763,9 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 : string.Empty;
             if (selectedColorID <= 0) selectedColorID = 0;
 
-            string selectedUnitName = ddlUnit.SelectedItem?.Text ?? string.Empty;   // ★ FIX
+            string selectedUnitName = ddlUnit.SelectedItem?.Text ?? string.Empty;
 
-            // ★ NEW: Rate Unit নাম সংগ্রহ
+            // ★ Rate Unit নাম সংগ্রহ
             string selectedRateUnitName = (ddlRateUnit.SelectedValue != "0" && ddlRateUnit.SelectedItem != null)
                 ? ddlRateUnit.SelectedItem.Text
                 : string.Empty;
@@ -778,10 +780,10 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 con = conn.openConnection();
                 string query = @"SELECT s.SizeID, s.SizeName AS Size
-                  FROM Sizes s 
-                  INNER JOIN SizeGroups g ON s.GroupID = g.GroupID 
-                  WHERE s.GroupID = @GroupID
-                  ORDER BY s.SizeID ASC";
+          FROM Sizes s 
+          INNER JOIN SizeGroups g ON s.GroupID = g.GroupID 
+          WHERE s.GroupID = @GroupID
+          ORDER BY s.SizeID ASC";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -792,6 +794,12 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
                     var list = SizeList;
                     int nextSlNo = list.Any() ? list.Max(s => s.SlNo) + 1 : 1;
+
+                    // ★ FIX: TotalReqQty ও TotalAmount আগে থেকেই ক্যালকুলেট করা হচ্ছে,
+                    // যাতে "Add All Size" দিয়ে অ্যাড করা রো-গুলোও সাথে সাথেই
+                    // Section 4 (Sub Total / Grand Total) সামারিতে সঠিকভাবে যোগ হয়।
+                    decimal totalReqQty = RequiresQtyVal + (RequiresQtyVal * (extraPercentVal / 100m));
+                    decimal totalAmount = totalReqQty * rateVal;
 
                     foreach (DataRow row in dt.Rows)
                     {
@@ -817,12 +825,12 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             Size = sizeName,
                             Measurement = string.Empty,
                             ReqQty = RequiresQtyVal,
-                            Unit = selectedUnitName,          // ★ FIX: আগে ddlUnit.SelectedValue (ID) ছিল
+                            Unit = selectedUnitName,
                             RateUnit = rateVal,
-                            RateUnitName = selectedRateUnitName,   // ★ NEW
-                            ExtraPercent = 0,
-                            TotalReqQty = 0,
-                            TotalAmount = 0,
+                            RateUnitName = selectedRateUnitName,
+                            ExtraPercent = extraPercentVal,        // ★ FIX: আগে হার্ডকোড 0 ছিল
+                            TotalReqQty = totalReqQty,             // ★ FIX: আগে হার্ডকোড 0 ছিল
+                            TotalAmount = totalAmount,             // ★ FIX: আগে হার্ডকোড 0 ছিল
                             Remarks = string.Empty
                         });
                     }

@@ -47,8 +47,8 @@ namespace Nexa_ERP.Shipment
             try
             {
                 con = conn.openConnection();
-                string query = @" SELECT SubmitedCommercialBillHeader.InvoiceNo, SubmitedCommercialBillHeader.BillDate, tbl_CustomerSupplier.PartyName, SubmitedCommercialBillHeader.GrandTotalAmount
-                        FROM SubmitedCommercialBillHeader INNER JOIN tbl_CustomerSupplier ON SubmitedCommercialBillHeader.CustomerPartyID = tbl_CustomerSupplier.PartyID";
+                string query = @" SELECT SubmitedCommercialBillHeader.InvoiceNo, SubmitedCommercialBillHeader.BillDate, tbl_CustomerSupplier.PartyName, SubmitedCommercialBillHeader.GrandTotalAmount, SubmitedCommercialBillHeader.CommercialBillHeaderID
+FROM SubmitedCommercialBillHeader INNER JOIN tbl_CustomerSupplier ON SubmitedCommercialBillHeader.CustomerPartyID = tbl_CustomerSupplier.PartyID";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -620,6 +620,9 @@ namespace Nexa_ERP.Shipment
             LoadChallanBillList();
         }
 
+        protected void gvChallanList_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
 
+        }
     }
 }
