@@ -13,10 +13,126 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" />
 
 
+    <style>
+        #Requisition {
+            display: none !important;
+        }
+
+            #Requisition.active {
+                display: block !important;
+            }
+
+        #Requisition-list {
+            display: block !important;
+        }
+
+            #Requisition-list.active {
+                display: none !important;
+            }
+    </style>
+
 </head>
 <body>
     <form id="form1" runat="server" class="min-h-screen p-2 mt-2">
-        <div class="max-w-[1320px] w-full m-auto rounded-lg border">
+
+
+        <%-- ========================= purachase requisition list open ============================ --%>
+        <div class="max-w-[1320px] w-full m-auto rounded-lg border" id="Requisition-list">
+
+            <div class="bg-[#255C8C] flex justify-between items-center rounded-t-lg px-4 py-2">
+                <div class="text-white">
+                    <p class="text-xl mb-1 font-medium">Purchase Requisition List</p>
+
+                </div>
+                <!-- Green Add New Button -->
+                <asp:LinkButton ID="lnkAddNew" runat="server" PostBackUrl="~/eSTrimCode/purchaseRequisition.aspx" CssClass="flex gap-1.5 items-center bg-[#16A34A] hover:bg-[#15803D] text-white transition-all duration-200 px-3 py-2 rounded cursor-pointer shadow-md font-medium text-sm no-underline justify-center ">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Add New</span>
+                </asp:LinkButton>
+            </div>
+
+            <div class="bg-[#ffffff] shadow-xl rounded-b-lg p-4">
+                <asp:HiddenField ID="HiddenField1" runat="server" />
+
+                <%-- main container --%>
+                <div class="bg-[#FBFCFE] w-full">
+
+                    <%-- left container --%>
+                    <fieldset class="grid grid-cols-12 gap-x-3 gap-y-2 border border-gray-400 rounded p-2">
+
+                        <div class="col-span-12 flex flex-col">
+
+                            <div class="grid grid-cols-3 gap-x-3 gap-y-2 w-full">
+
+                                <div class="flex flex-col gap-0.5 w-full">
+                                    <label class="text-sm font-medium">Company</label>
+                                    <asp:DropDownList ID="DropDownList1" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select Company--</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="flex flex-col gap-0.5 w-full">
+                                    <label class="text-sm font-medium">Requisition No</label>
+                                    <asp:TextBox ID="TextBox1" placeholder="e.g Requisition No" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition  duration-200 ease-in-out"></asp:TextBox>
+                                </div>
+                                <div class="flex flex-col gap-0.5 w-full">
+                                    <label class="text-sm font-medium">Requisition Status</label>
+                                    <asp:DropDownList ID="ddlRequisitionStatus" placeholder="e.g Requisition Status" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select Req. Status--</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="flex flex-col gap-0.5 w-full">
+                                    <label class="text-sm font-medium">From</label>
+                                    <asp:DropDownList ID="ddlFrom" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select Date From--</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="flex flex-col gap-0.5 w-full">
+                                    <label class="text-sm font-medium">To</label>
+                                    <asp:DropDownList ID="ddlTo" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select Date To--</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+                                <!-- Search Button -->
+                                <div class="flex items-end">
+                                    <asp:LinkButton ID="btnSearch" runat="server" CssClass="flex items-center gap-1.5 rounded bg-[#4F46E5] text-white px-4 py-1.5 shadow-sm hover:bg-[#4338CA] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                        <span>Search</span>
+                                    </asp:LinkButton>
+
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                </div>
+
+
+
+                <%-- ========== Requisition Details ============ --%>
+
+                <fieldset class="border border-gray-400 rounded p-2 mt-6">
+
+                    <div class="">
+                        <div class="border border-gray-400 bg-gray-300 rounded w-full h-full  overflow-y-auto overflow-x-auto pt-6">
+                            <asp:ListView ID="ListView1" runat="server"></asp:ListView>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <%-- ========================= purachase requisition list close============================ --%>
+
+
+
+
+
+
+
+        <%-- ========================= purachase requisition ============================ --%>
+
+        <div class="max-w-[1320px] w-full m-auto rounded-lg border" id="Requisition">
 
             <div class="bg-[#255C8C] flex justify-between items-center rounded-t-lg px-4 py-2">
                 <div class="text-white">
@@ -220,6 +336,51 @@
             </div>
         </div>
     </form>
+
+
+
+    <script>
+        const requisitionPage = document.getElementById('Requisition');
+        const addNewBtn = document.getElementById('lnkAddNew');
+        const requisitionListPage = document.getElementById('Requisition-list');
+        const backToListBtn = document.getElementById('lnkBackToList');
+
+
+        addNewBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            requisitionPage.classList.add('active');
+            requisitionListPage.classList.add('active');
+
+
+            sessionStorage.setItem('PI_Page', 'Requisition')
+        });
+
+
+        backToListBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            requisitionPage.classList.remove('active');
+            requisitionListPage.classList.remove('active');
+
+
+            sessionStorage.setItem('PI_Page', 'List');
+        });
+
+
+
+        if (sessionStorage.getItem('PI_Page') === 'Requisition') {
+
+            requisitionPage.classList.add('active');
+            requisitionListPage.classList.add('active');
+
+        } else {
+
+            requisitionPage.classList.remove('active');
+            requisitionListPage.classList.remove('active');
+
+        }
+    </script>
 </body>
 </html>
 
