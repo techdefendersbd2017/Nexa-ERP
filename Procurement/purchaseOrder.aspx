@@ -15,7 +15,7 @@
 
     <style>
         #Order {
-            /*            display: none !important;*/
+             display: none !important;
         }
 
             #Order.active {
