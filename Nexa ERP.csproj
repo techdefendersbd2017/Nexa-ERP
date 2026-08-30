@@ -335,6 +335,7 @@
     <Content Include="Production\Finishing\ShipmentChallanAndGatePass.aspx" />
     <Content Include="Production\Finishing\shortShipmentReason.aspx" />
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
+    <Content Include="Shipment\DeemedExportLC.aspx" />
     <Content Include="Shipment\CreateForProformaInvoiceEntry.aspx" />
     <Content Include="Shipment\DeliveryBill.aspx" />
     <Content Include="Shipment\DeliveryChallanAndBill.aspx" />
@@ -1150,6 +1151,12 @@
       <DependentUpon>shortShipmentReasonStatusReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shipment\DeemedExportLC.aspx.cs">
+      <DependentUpon>DeemedExportLC.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\DeemedExportLC.aspx.designer.cs">
+      <DependentUpon>DeemedExportLC.aspx</DependentUpon>
     <Compile Include="Shipment\CreateForProformaInvoiceEntry.aspx.cs">
       <DependentUpon>CreateForProformaInvoiceEntry.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
