@@ -1,7 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="proformaInvoiceEntry.aspx.cs" Inherits="Nexa_ERP.Shipment.proformaInvoiceEntry" %>
 
-
-
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
