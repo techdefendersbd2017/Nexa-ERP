@@ -888,14 +888,9 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     txtSize.Text = size.Size;
                     txtMeasurement.Text = size.Measurement;
                     txtReqQty.Text = size.ReqQty.ToString("0.##");
-
-                    ListItem matchedUnit = ddlUnit.Items.FindByText(size.Unit);   // ★ FIX: এখন Unit Name দিয়ে মিলাচ্ছে
-                    if (matchedUnit != null)
-                        ddlUnit.SelectedValue = matchedUnit.Value;
-
+                    ListItem matchedUnit = ddlUnit.Items.FindByText(size.Unit);   
+                    if (matchedUnit != null) ddlUnit.SelectedValue = matchedUnit.Value;
                     txtRate.Text = size.RateUnit.ToString("0.##");
-
-                    // ★ NEW: Rate Unit dropdown প্রি-সিলেক্ট
                     ListItem matchedRateUnit = !string.IsNullOrEmpty(size.RateUnitName)
                         ? ddlRateUnit.Items.FindByText(size.RateUnitName)
                         : null;
@@ -1057,7 +1052,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             }
             if (!SizeList.Any())
             {
-                ShowMessage("Please add at least one Item/Size row before saving.", "warning");
+                ShowMessage("Please add at least one Item Size row before saving.", "warning");
                 ShowFormPanel();
                 return;
             }
