@@ -48,13 +48,14 @@
                 </div>
                 <!-- Green Add New Button -->
                 <asp:LinkButton ID="lnkAddNew" runat="server" CssClass="flex gap-1.5 items-center bg-[#16A34A] hover:bg-[#15803D] text-white transition-all duration-200 px-3 py-2 rounded cursor-pointer shadow-md font-medium text-sm no-underline justify-center ">
-            <i class="fa-solid fa-plus text-xs"></i>
-            <span>Add New</span>
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Add New</span>
                 </asp:LinkButton>
             </div>
 
             <div class="bg-[#ffffff] shadow-xl rounded-b-lg p-4">
                 <asp:HiddenField ID="HiddenField1" runat="server" />
+
 
                 <%-- main container --%>
                 <div class="bg-[#FBFCFE] w-full">
@@ -351,6 +352,9 @@
 
             entryPage.classList.add('active');
             entryListPage.classList.add('active');
+
+
+            sessionStorage.setItem('PI_Page', 'Entry')
         });
 
 
@@ -359,7 +363,24 @@
 
             entryPage.classList.remove('active');
             entryListPage.classList.remove('active');
+
+
+            sessionStorage.setItem('PI_Page', 'List');
         });
+
+
+
+        if (sessionStorage.getItem('PI_Page') === 'Entry') {
+
+            entryPage.classList.add('active');
+            entryListPage.classList.add('active');
+
+        } else {
+
+            entryPage.classList.remove('active');
+            entryListPage.classList.remove('active');
+
+        }
     </script>
 </body>
 </html>
