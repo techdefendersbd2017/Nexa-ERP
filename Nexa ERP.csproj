@@ -307,7 +307,9 @@
     <Content Include="MasterConfiguration\BuyerManagement\StyleName.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx" />
     <Content Include="Planning\ProductionPlanning.aspx" />
+    <Content Include="Procurement\purchaseOrder.aspx" />
     <Content Include="Procurement\purchaseRequisition.aspx" />
+    <Content Include="Procurement\supplierRateEntry.aspx" />
     <Content Include="Production\Cutting\cuttingContrastFabricsEntry.aspx" />
     <Content Include="Production\Cutting\cuttingNumberWiseRecutEntry.aspx" />
     <Content Include="Production\Cutting\cuttingReject.aspx" />
@@ -334,9 +336,11 @@
     <Content Include="Production\Finishing\shortShipmentReason.aspx" />
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
     <Content Include="Shipment\DeemedExportLC.aspx" />
+    <Content Include="Shipment\CreateForProformaInvoiceEntry.aspx" />
     <Content Include="Shipment\DeliveryBill.aspx" />
     <Content Include="Shipment\DeliveryChallanAndBill.aspx" />
     <Content Include="Shipment\proformaInvoiceEntry.aspx" />
+    <Content Include="Shipment\ShipmentReports\BillInvoiceReport.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallan.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx" />
     <Content Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx" />
@@ -950,12 +954,26 @@
     <Compile Include="Planning\ProductionPlanning.aspx.designer.cs">
       <DependentUpon>ProductionPlanning.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Procurement\purchaseOrder.aspx.cs">
+      <DependentUpon>purchaseOrder.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Procurement\purchaseOrder.aspx.designer.cs">
+      <DependentUpon>purchaseOrder.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Procurement\purchaseRequisition.aspx.cs">
       <DependentUpon>purchaseRequisition.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Procurement\purchaseRequisition.aspx.designer.cs">
       <DependentUpon>purchaseRequisition.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Procurement\supplierRateEntry.aspx.cs">
+      <DependentUpon>supplierRateEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Procurement\supplierRateEntry.aspx.designer.cs">
+      <DependentUpon>supplierRateEntry.aspx</DependentUpon>
     </Compile>
     <Compile Include="Production\Cutting\cuttingContrastFabricsEntry.aspx.cs">
       <DependentUpon>cuttingContrastFabricsEntry.aspx</DependentUpon>
@@ -1139,6 +1157,12 @@
     </Compile>
     <Compile Include="Shipment\DeemedExportLC.aspx.designer.cs">
       <DependentUpon>DeemedExportLC.aspx</DependentUpon>
+    <Compile Include="Shipment\CreateForProformaInvoiceEntry.aspx.cs">
+      <DependentUpon>CreateForProformaInvoiceEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\CreateForProformaInvoiceEntry.aspx.designer.cs">
+      <DependentUpon>CreateForProformaInvoiceEntry.aspx</DependentUpon>
     </Compile>
     <Compile Include="Shipment\DeliveryBill.aspx.cs">
       <DependentUpon>DeliveryBill.aspx</DependentUpon>
@@ -1160,6 +1184,13 @@
     </Compile>
     <Compile Include="Shipment\proformaInvoiceEntry.aspx.designer.cs">
       <DependentUpon>proformaInvoiceEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\BillInvoiceReport.aspx.cs">
+      <DependentUpon>BillInvoiceReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\BillInvoiceReport.aspx.designer.cs">
+      <DependentUpon>BillInvoiceReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="Shipment\ShipmentReports\DeliveryChallan.aspx.cs">
       <DependentUpon>DeliveryChallan.aspx</DependentUpon>

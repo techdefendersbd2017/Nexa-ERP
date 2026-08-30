@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="purchaseRequisition.aspx.cs" Inherits="Nexa_ERP.Procurement.purchaseRequisition" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="purchaseOrder.aspx.cs" Inherits="Nexa_ERP.Procurement.purchaseOrder" %>
 
 
 
@@ -6,7 +6,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Purchase Requisition</title>
+    <title>Purchase Order List</title>
     <!-- tailwind css link -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- icon link -->
@@ -14,19 +14,19 @@
 
 
     <style>
-        #Requisition {
-            display: none !important;
+        #Order {
+             display: none !important;
         }
 
-            #Requisition.active {
+            #Order.active {
                 display: block !important;
             }
 
-        #Requisition-list {
+        #Order-list {
             display: block !important;
         }
 
-            #Requisition-list.active {
+            #Order-list.active {
                 display: none !important;
             }
     </style>
@@ -36,12 +36,13 @@
     <form id="form1" runat="server" class="min-h-screen p-2 mt-2">
 
 
-        <%-- ========================= purachase requisition list open ============================ --%>
-        <div class="max-w-[1320px] w-full m-auto rounded-lg border" id="Requisition-list">
+        <%-- ========================= purachase Order list open ============================ --%>
+
+        <div class="max-w-[1320px] w-full m-auto rounded-lg border" id="Order-list">
 
             <div class="bg-[#255C8C] flex justify-between items-center rounded-t-lg px-4 py-2">
                 <div class="text-white">
-                    <p class="text-xl mb-1 font-medium">Purchase Requisition List</p>
+                    <p class="text-xl mb-1 font-medium">Purchase Order List</p>
 
                 </div>
                 <!-- Green Add New Button -->
@@ -65,19 +66,21 @@
                             <div class="grid grid-cols-3 gap-x-3 gap-y-2 w-full">
 
                                 <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Company</label>
-                                    <asp:DropDownList ID="DropDownList1" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                        <asp:ListItem Value="" Selected="True">--Select Company--</asp:ListItem>
+                                    <label class="text-sm font-medium">Supplier</label>
+                                    <asp:DropDownList ID="ddlSupplier1" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select Supplier--</asp:ListItem>
                                     </asp:DropDownList>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Requisition No</label>
-                                    <asp:TextBox ID="TextBox1" placeholder="e.g Requisition No" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition  duration-200 ease-in-out"></asp:TextBox>
+                                    <label class="text-sm font-medium">PO No</label>
+                                    <asp:DropDownList ID="ddlPoNo" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Search Requisition No--</asp:ListItem>
+                                    </asp:DropDownList>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Requisition Status</label>
-                                    <asp:DropDownList ID="ddlRequisitionStatus" placeholder="e.g Requisition Status" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                        <asp:ListItem Value="" Selected="True">--Select Req. Status--</asp:ListItem>
+                                    <label class="text-sm font-medium">PO Status</label>
+                                    <asp:DropDownList ID="ddlPoStatus" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select Status--</asp:ListItem>
                                     </asp:DropDownList>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
@@ -122,7 +125,7 @@
             </div>
         </div>
 
-        <%-- ========================= purachase requisition list close============================ --%>
+        <%-- ========================= purachase order list close============================ --%>
 
 
 
@@ -130,13 +133,13 @@
 
 
 
-        <%-- ========================= purachase requisition ============================ --%>
+        <%-- ========================= purachase  order ============================ --%>
 
-        <div class="max-w-[1320px] w-full m-auto rounded-lg border" id="Requisition">
+        <div class="max-w-[1320px] w-full m-auto rounded-lg border" id="Order">
 
             <div class="bg-[#255C8C] flex justify-between items-center rounded-t-lg px-4 py-2">
                 <div class="text-white">
-                    <p class="text-xl mb-1 font-medium">Purchase Requisition</p>
+                    <p class="text-xl mb-1 font-medium">Purchase Order</p>
 
                 </div>
                 <asp:LinkButton ID="lnkBackToList" runat="server" PostBackUrl="~/eSTrimCode/purchaseRequisitionList.aspx" CssClass="flex gap-2 items-center bg-[#f0f0f0] hover:bg-[#cbd5e1] text-gray-700 transition-all duration-200 px-3 py-2 rounded cursor-pointer no-underline font-medium text-sm">
@@ -156,45 +159,41 @@
                     <fieldset class="grid grid-cols-12 gap-x-3 gap-y-2 border border-gray-400 rounded p-2">
                         <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Master Information</legend>
 
-                        <div class="col-span-12 flex flex-col">
+                        <div class="col-span-9 flex flex-col">
 
                             <div class="grid grid-cols-3 gap-x-3 gap-y-2 w-full">
 
                                 <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Company</label>
-                                    <asp:DropDownList ID="ddlCompany" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                        <asp:ListItem Value="" Selected="True">--Select Company--</asp:ListItem>
-                                    </asp:DropDownList>
-                                </div>
-                                <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Requisition Type</label>
-                                    <asp:TextBox ID="txtRequisitionType" placeholder="e.g Requisition Type" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                                </div>
-                                <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Requisition No</label>
-                                    <asp:TextBox ID="txtRequisionNo" placeholder="e.g Requisition No" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition  duration-200 ease-in-out"></asp:TextBox>
-                                </div>
-                                <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Requisition Date</label>
-                                    <asp:DropDownList ID="ddlRequisitionDate" placeholder="e.g Requisition Type" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                        <asp:ListItem Value="" Selected="True">--Select Req. Date--</asp:ListItem>
-                                    </asp:DropDownList>
-                                </div>
-                                <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Purchase Type</label>
-                                    <asp:TextBox ID="txtPurchaseType" placeholder="e.g Purchase Type" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtRequisitionType" placeholder="e.g General Purchase Requisition" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Receiving Store</label>
-                                    <asp:TextBox ID="txtReceivingStore" placeholder="e.g Receiving Store" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtReceivingStore" placeholder="e.g General Store" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition  duration-200 ease-in-out"></asp:TextBox>
+                                </div>
+                                <div class="flex flex-col gap-0.5 w-full">
+                                    <label class="text-sm font-medium">Supplier</label>
+                                    <asp:DropDownList ID="ddlSupplier" placeholder="e.g " runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select Supplier--</asp:ListItem>
+                                    </asp:DropDownList>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Priority Type</label>
                                     <asp:TextBox ID="txtPriorityType" placeholder="e.g Priority Type" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Requisition By</label>
-                                    <asp:TextBox ID="txtRequisionBy" placeholder="e.g Requisition By" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition  duration-200 ease-in-out"></asp:TextBox>
+                                    <label class="text-sm font-medium">PO No</label>
+                                    <asp:TextBox ID="txtPoNo" placeholder="e.g PO No" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                </div>
+                                <div class="flex flex-col gap-0.5 w-full">
+                                    <label class="text-sm font-medium">PO Date</label>
+                                    <asp:DropDownList ID="ddlPoDate" placeholder="e.g " runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select PO Date--</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="flex flex-col gap-0.5 w-full">
+                                    <label class="text-sm font-medium">Purchase Type</label>
+                                    <asp:TextBox ID="txtPurchaseType" placeholder="e.g Local/Import" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex gap-1 items-end">
                                     <div class="flex flex-col gap-0.5 w-full">
@@ -206,29 +205,52 @@
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Remarks</label>
-                                    <asp:TextBox ID="txtRemarks1" placeholder="e.g Remarks" runat="server" TextMode="MultiLine" Rows="2" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtRemarks1" placeholder="e.g Remarks" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
 
-                                <%-- ========  Grid ======== --%>
-
-                                <div class="col-span-2">
-                                    <div class="border border-gray-400 bg-gray-300 rounded w-full h-full  overflow-y-auto overflow-x-auto pt-6">
-                                        <asp:GridView ID="GridView22" runat="server"></asp:GridView>
-                                    </div>
-
-                                </div>
                             </div>
+                        </div>
+
+
+                        <%-- ======== search with  Grid ======== --%>
+
+                        <div class="col-span-3 space-y-1 pt-5 flex flex-col h-full">
+                            <div class="flex gap-0.5 items-end">
+                                <div class="flex flex-col gap-0.5 w-full">
+                                    <label class="text-sm font-medium"></label>
+                                    <asp:TextBox ID="txtSearch" placeholder="e.g Search Requisition" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                </div>
+                                <!-- Search Button -->
+                                <div class="flex items-end">
+                                    <asp:LinkButton ID="btnSearch12" runat="server" CssClass="flex items-center gap-1.5 rounded bg-[#4F46E5] text-white px-4 py-[7px] shadow-sm hover:bg-[#4338CA] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                                <span>Search</span>
+                                    </asp:LinkButton>
+                                </div>
+
+                            </div>
+                            <div class="border border-gray-400 bg-gray-300 rounded w-full flex-1  overflow-y-auto overflow-x-auto">
+                                <asp:ListView ID="ListView3" runat="server"></asp:ListView>
+                            </div>
+                            <!-- Load Button -->
+                            <div class="flex items-end justify-end w-full">
+                                <asp:LinkButton ID="btnLoad" runat="server" CssClass="flex items-center gap-1.5 rounded bg-[#4F46E5] text-white px-4 py-1.5 shadow-sm hover:bg-[#4338CA] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center w-full">
+                                            <i class="fa-solid fa-rotate text-xs"></i>
+                                            <span>Load</span>
+                                        </asp:LinkButton>
+                            </div>
+
                         </div>
                     </fieldset>
 
                 </div>
 
-                <%-- ========== Requisition Details ============ --%>
+                <%-- ========== Purchase Order Details ============ --%>
 
                 <fieldset class="border border-gray-400 rounded p-2 mt-6">
-                    <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Requisition Details</legend>
+                    <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Purchase Order Details</legend>
 
-                    <div class="grid grid-cols-4 gap-x-3 gap-y-2">
+                    <%--<div class="grid grid-cols-4 gap-x-3 gap-y-2">
 
                         <div class="flex flex-col gap-0.5 w-full">
                             <label class="text-sm font-medium">Item Name</label>
@@ -274,16 +296,19 @@
                             </asp:LinkButton>
 
                         </div>
-                    </div>
+                    </div>--%>
 
+                    <div class="border border-gray-400 bg-gray-300 rounded w-full h-full overflow-y-auto overflow-x-auto pt-6">
+                        <asp:ListView ID="ListView4" runat="server"></asp:ListView>
+                    </div>
                 </fieldset>
 
 
 
-                <%-- ========== Requisition Information ============ --%>
+                <%-- ========== Purchase Order details ============ --%>
 
                 <fieldset class="border border-gray-400 rounded p-2 mt-6">
-                    <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Requisition Information</legend>
+                    <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Purchase Order Details</legend>
 
                     <div class="">
                         <div class="border border-gray-400 bg-gray-300 rounded w-full h-full  overflow-y-auto overflow-x-auto pt-6">
@@ -340,28 +365,28 @@
 
 
     <script>
-        const requisitionPage = document.getElementById('Requisition');
+        const OrderPage = document.getElementById('Order');
         const addNewBtn = document.getElementById('lnkAddNew');
-        const requisitionListPage = document.getElementById('Requisition-list');
+        const OrderListPage = document.getElementById('Order-list');
         const backToListBtn = document.getElementById('lnkBackToList');
 
 
         addNewBtn.addEventListener('click', function (e) {
             e.preventDefault();
 
-            requisitionPage.classList.add('active');
-            requisitionListPage.classList.add('active');
+            OrderPage.classList.add('active');
+            OrderListPage.classList.add('active');
 
 
-            sessionStorage.setItem('PI_Page', 'Requisition')
+            sessionStorage.setItem('PI_Page', 'Order')
         });
 
 
         backToListBtn.addEventListener('click', function (e) {
             e.preventDefault();
 
-            requisitionPage.classList.remove('active');
-            requisitionListPage.classList.remove('active');
+            OrderPage.classList.remove('active');
+            OrderListPage.classList.remove('active');
 
 
             sessionStorage.setItem('PI_Page', 'List');
@@ -369,18 +394,19 @@
 
 
 
-        if (sessionStorage.getItem('PI_Page') === 'Requisition') {
+        if (sessionStorage.getItem('PI_Page') === 'Order') {
 
-            requisitionPage.classList.add('active');
-            requisitionListPage.classList.add('active');
+            OrderPage.classList.add('active');
+            OrderListPage.classList.add('active');
 
         } else {
 
-            requisitionPage.classList.remove('active');
-            requisitionListPage.classList.remove('active');
+            OrderPage.classList.remove('active');
+            OrderListPage.classList.remove('active');
 
         }
     </script>
 </body>
 </html>
+
 

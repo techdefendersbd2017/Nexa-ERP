@@ -51,7 +51,7 @@ namespace Nexa_ERP.Shipment.ShipmentReports
                             CONVERT(VARCHAR(11), cbh.BillDate, 106) AS BillDate,
                             cbh.SubTotalAmount, cbh.TransportCost, cbh.VatPercent, cbh.VatAmount, cbh.GrandTotalAmount,
                             cs.PartyName, cs.Address
-                    FROM techdefendersbd.CommercialBillHeader cbh
+                    FROM techdefendersbd.SubmitedCommercialBillHeader cbh
                     INNER JOIN tbl_CustomerSupplier cs ON cs.PartyID = cbh.CustomerPartyID
                     WHERE cbh.CommercialBillHeaderID = @Id AND cbh.IsActive = 1";
 
