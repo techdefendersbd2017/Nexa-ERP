@@ -333,9 +333,11 @@
     <Content Include="Production\Finishing\ShipmentChallanAndGatePass.aspx" />
     <Content Include="Production\Finishing\shortShipmentReason.aspx" />
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
+    <Content Include="Shipment\CreateForProformaInvoiceEntry.aspx" />
     <Content Include="Shipment\DeliveryBill.aspx" />
     <Content Include="Shipment\DeliveryChallanAndBill.aspx" />
     <Content Include="Shipment\proformaInvoiceEntry.aspx" />
+    <Content Include="Shipment\ShipmentReports\BillInvoiceReport.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallan.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx" />
     <Content Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx" />
@@ -1132,6 +1134,13 @@
       <DependentUpon>shortShipmentReasonStatusReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shipment\CreateForProformaInvoiceEntry.aspx.cs">
+      <DependentUpon>CreateForProformaInvoiceEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\CreateForProformaInvoiceEntry.aspx.designer.cs">
+      <DependentUpon>CreateForProformaInvoiceEntry.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Shipment\DeliveryBill.aspx.cs">
       <DependentUpon>DeliveryBill.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1152,6 +1161,13 @@
     </Compile>
     <Compile Include="Shipment\proformaInvoiceEntry.aspx.designer.cs">
       <DependentUpon>proformaInvoiceEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\BillInvoiceReport.aspx.cs">
+      <DependentUpon>BillInvoiceReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\BillInvoiceReport.aspx.designer.cs">
+      <DependentUpon>BillInvoiceReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="Shipment\ShipmentReports\DeliveryChallan.aspx.cs">
       <DependentUpon>DeliveryChallan.aspx</DependentUpon>

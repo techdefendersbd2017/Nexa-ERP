@@ -73,7 +73,7 @@
                                 <ItemTemplate>
                                     <asp:HyperLink ID="lnkView" runat="server" CssClass="btn btn-sm btn-outline-primary"
                                         Target="_blank" Text="View"
-                                        NavigateUrl='<%# "BillInvoiceReport.aspx?BillId=" + Eval("CommercialBillHeaderID") %>' />
+                                        NavigateUrl='<%# "~/Shipment/ShipmentReports/BillInvoiceReport.aspx?BillId=" + Eval("CommercialBillHeaderID") %>' />
                                 </ItemTemplate>
                             </asp:TemplateField>
                         </Columns>

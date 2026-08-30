@@ -546,7 +546,7 @@
         function fetchSuggestions(webMethodName, term, $list, $input) {
             $.ajax({
                 type: "POST",
-                url: "WorkOrderReceived.aspx/" + webMethodName,   // ★ FIX: আগে "WorkOrderReceive.aspx/" ছিল (নামের "d" মিসিং ছিল) — এই typo-এর কারণেই suggestion আসছিল না
+                url: "WorkOrderReceived.aspx/" + webMethodName,
                 data: JSON.stringify({ prefixText: term }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
@@ -580,9 +580,6 @@
             $list.addClass('show');
         }
     </script>
-    <%-- ★ FIX: এখানে আগে একটা দ্বিতীয় (duplicate) <script> ব্লক ছিল যেখানে renderSuggestions()
-         ফাংশনটা আবার ডিফাইন করা হচ্ছিল এবং উপরের সঠিক ফাংশনকে override করে ফেলছিল।
-         সেটা এবং তার সাথে যুক্ত অব্যবহৃত .suggestion-box CSS মুছে দেওয়া হয়েছে। --%>
 
 </head>
 <body>
@@ -811,7 +808,6 @@
                                                             <asp:ListItem Text="--Select Unit--" Value="0" />
                                                         </asp:DropDownList>
 
-                                                        <!-- ★ FIX: এখন সঠিক হ্যান্ডলার LinkButton2_Click (আগে ভুল করে LinkButton1_Click কল হতো) -->
                                                         <asp:LinkButton ID="LinkButton2" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh Rate Unit" OnClick="LinkButton2_Click">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                                                                 <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
@@ -896,9 +892,14 @@
                                                 </asp:TemplateField>
                                                 <asp:TemplateField HeaderText="Required Qty">
                                                     <ItemTemplate>
+                                                        <%-- ★ FIX: ডুপ্লিকেট onchange="calculateRow(this);" সরানো হয়েছে।
+                                                             AutoPostBack="true" নিজে থেকেই onchange-এ __doPostBack যোগ করে;
+                                                             ম্যানুয়াল onchange থাকলে সেটা override হয়ে সার্ভার postback আটকে যেত,
+                                                             ফলে Sub Total / Grand Total রিক্যালকুলেট হতো না। onkeyup রেখে দেওয়া হয়েছে
+                                                             যাতে টাইপ করার সময় রো-এর মধ্যে লাইভ ক্যালকুলেশন (client-side) ঠিকই দেখা যায়। --%>
                                                         <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm text-center"
                                                             Text='<%# Eval("ReqQty") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
-                                                            onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
+                                                            onkeyup="calculateRow(this);"></asp:TextBox>
                                                     </ItemTemplate>
                                                 </asp:TemplateField>
 
@@ -910,9 +911,10 @@
 
                                                 <asp:TemplateField HeaderText="Rate/Unit">
                                                     <ItemTemplate>
+                                                        <%-- ★ FIX: ডুপ্লিকেট onchange সরানো হয়েছে (একই কারণে) --%>
                                                         <asp:TextBox ID="txtRateUnit" runat="server" CssClass="form-control form-control-sm text-center"
                                                             Text='<%# Eval("RateUnit") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
-                                                            onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
+                                                            onkeyup="calculateRow(this);"></asp:TextBox>
                                                     </ItemTemplate>
                                                 </asp:TemplateField>
 
@@ -924,9 +926,10 @@
 
                                                 <asp:TemplateField HeaderText="Extra %">
                                                     <ItemTemplate>
+                                                        <%-- ★ FIX: ডুপ্লিকেট onchange সরানো হয়েছে (একই কারণে) --%>
                                                         <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm text-center"
                                                             Text='<%# Eval("ExtraPercent") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
-                                                            onkeyup="calculateRow(this);" onchange="calculateRow(this);"></asp:TextBox>
+                                                            onkeyup="calculateRow(this);"></asp:TextBox>
                                                     </ItemTemplate>
                                                 </asp:TemplateField>
 
