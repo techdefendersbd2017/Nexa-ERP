@@ -18,71 +18,70 @@
         <div class="max-w-[1320px] w-full m-auto rounded-lg border">
 
             <asp:HiddenField ID="hfUserId" runat="server" />
-            <asp:HiddenField ID="hfLCId" runat="server" />
+            <asp:HiddenField ID="hfSetBreakdownId" runat="server" />
 
-            <%-- LIST PANEL : Buyer Brand Setup --%>
-
+            <%-- ============================================================ --%>
+            <%-- LIST PANEL : Set Breakdown Filters / List (opens first, always) --%>
+            <%-- ============================================================ --%>
             <asp:Panel ID="pnlList" runat="server">
 
                 <div class="bg-[#255C8C] flex justify-between items-center rounded-t-lg px-4 py-2">
                     <div class="text-white">
-                        <p class="text-xl mb-1 font-medium">Buyer Brand Setup</p>
+                        <p class="text-xl mb-1 font-medium">Set Breakdown List</p>
                     </div>
-                    <div class="flex gap-2 items-center bg-[#f0f0f0] hover:bg-[#cbd5e1] transition-all duration-200 px-2 py-1 rounded cursor-pointer">
-                        <div class="cursor-pointer hover:bg-[#f1f5f9] transition-all duration-200">
-                            <i class="fa-solid fa-plus text-gray-500 flex justify-center items-center"></i>
-                        </div>
-
-                        <asp:LinkButton ID="btnAddNew" runat="server" OnClick="btnAddNew_Click">Add New Deemed Export LC</asp:LinkButton>
-                    </div>
+                    <asp:LinkButton ID="btnAddNew" runat="server" OnClick="btnAddNew_Click" CssClass="flex items-center gap-1.5 rounded bg-[#2EB85C] text-white px-4 py-1.5 shadow-sm hover:bg-[#1E7E34] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add New Set Breakdown</span>
+                    </asp:LinkButton>
                 </div>
 
                 <div class="bg-[#ffffff] shadow-xl rounded-b-lg p-4">
 
-                    <%-- Input section --%>
-                    <div class="flex flex-col gap-y-2 mb-2">
-
-                        <%--1st row input --%>
-                        <div class="flex gap-3">
-                            <div class="flex flex-col gap-0.5 w-full">
-                                <label class="text-sm font-medium">Company</label>
-                                <asp:DropDownList ID="ddlCompany" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                    <asp:ListItem Value="" Selected="True">--Select Company--</asp:ListItem>
-                                </asp:DropDownList>
-                            </div>
-                            <div class="flex flex-col gap-0.5 w-full">
-                                <label class="text-sm font-medium">Customer</label>
-                                <asp:DropDownList ID="ddlCustomer" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                    <asp:ListItem Value="" Selected="True">--Select Customer--</asp:ListItem>
-                                </asp:DropDownList>
-                            </div>
-                            <div class="flex flex-col gap-0.5 w-full">
-                                <label class="text-sm font-medium">DMD Export LC No</label>
-                                <asp:TextBox ID="txtDMDExportLCNo" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                            </div>
-                        </div>
-
-                        <%-- row 2 input --%>
-                        <div class="flex gap-3 items-end">
+                    <%-- filter box --%>
+                    <div class="bg-[#FBFCFE] p-2 rounded border border-gray-400">
+                        <div class="grid grid-cols-5 gap-x-3 gap-y-2">
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">From</label>
-                                <asp:TextBox ID="txtFromDate" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtFromDate" placeholder="From" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">To</label>
-                                <asp:TextBox ID="txtToDate" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtToDate" placeholder="To" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
-                            <div class="w-full">
-                                <asp:LinkButton ID="btnSearch" runat="server" CssClass="flex items-center justify-center rounded px-4 py-1.5 shadow-sm bg-[#2EB85C] text-white hover:bg-[#1E7E34] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline w-full">
-                                    <span>Search</span>
-                                </asp:LinkButton>
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label class="text-sm font-medium">Buyer</label>
+                                <asp:DropDownList ID="ddlBuyerFilter" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                    <asp:ListItem Value="" Selected="True">--Select Buyer--</asp:ListItem>
+                                </asp:DropDownList>
+                            </div>
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label class="text-sm font-medium">Style</label>
+                                <asp:DropDownList ID="ddlStyleFilter" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                    <asp:ListItem Value="" Selected="True">--Select Style--</asp:ListItem>
+                                </asp:DropDownList>
+                            </div>
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label class="text-sm font-medium">PO</label>
+                                <asp:DropDownList ID="ddlPOFilter" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                    <asp:ListItem Value="" Selected="True">--Select PO--</asp:ListItem>
+                                </asp:DropDownList>
                             </div>
                         </div>
 
+                        <div class="flex justify-end gap-3 mt-3">
+                            <asp:LinkButton ID="btnClearFilter" runat="server" OnClick="btnClearFilter_Click" CssClass="flex items-center gap-1.5 rounded bg-gray-500 text-white px-4 py-1.5 shadow-sm hover:bg-gray-600 cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                                <i class="fa-solid fa-eraser"></i>
+                                <span>Clear</span>
+                            </asp:LinkButton>
+                            <asp:LinkButton ID="btnSearch" runat="server" CssClass="flex items-center gap-1.5 rounded bg-[#255C8C] text-white px-4 py-1.5 shadow-sm hover:bg-[#1a4569] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <span>Search</span>
+                            </asp:LinkButton>
+                        </div>
                     </div>
 
                     <!--Gridview-->
-                    <div class="border border-gray-400 bg-gray-300 rounded w-full h-96 flex-1 overflow-y-auto overflow-x-auto mt-2 mb-2">
+                    <div class="border border-gray-400 bg-gray-300 rounded w-full h-96 flex-1 overflow-y-auto overflow-x-auto mt-3">
                         <asp:GridView ID="GridView1" runat="server"></asp:GridView>
                     </div>
 
@@ -90,92 +89,126 @@
             </asp:Panel>
 
             <%-- ============================================================ --%>
-            <%-- ENTRY PANEL : Deemed Export LC Entry Page --%>
+            <%-- ENTRY PANEL : Master Information --%>
             <%-- ============================================================ --%>
             <asp:Panel ID="pnlEntry" runat="server" Visible="false">
 
-                <!--card name and button-->
                 <div class="bg-[#255C8C] flex justify-between items-center rounded-t-lg px-4 py-2">
                     <div class="text-white">
-                        <p class="text-xl mb-1 font-medium">Deemed Export LC Entry Page</p>
+                        <p class="text-xl mb-1 font-medium">Master Information</p>
                     </div>
                     <div class="flex gap-2 items-center bg-[#f0f0f0] hover:bg-[#cbd5e1] transition-all duration-200 px-2 py-1 rounded cursor-pointer">
                         <div class="cursor-pointer hover:bg-[#f1f5f9] transition-all duration-200">
                             <i class="fa-solid fa-arrow-left text-gray-500 flex justify-center items-center"></i>
                         </div>
-                        <asp:LinkButton ID="btnBackToListHeader" runat="server" OnClick="btnBackToList_Click">Back To Deemed Export LC List</asp:LinkButton>
+                        <asp:LinkButton ID="btnBackToList" runat="server" OnClick="btnBackToList_Click">Back To List</asp:LinkButton>
                     </div>
                 </div>
 
-                <div class="bg-[#ffffff] shadow-xl rounded-b-lg p-4">
+                <div class="bg-[#ffffff] shadow-xl rounded-b-lg px-3 py-2">
 
-                    <%-- main container --%>
-                    <div class="grid grid-cols-12 gap-2 rounded">
+                    <%-- Buyer / Main Style / PO No + PO list --%>
+                    <div class="grid grid-cols-12 gap-3">
 
-                        <%-- left : main LC info box --%>
-                        <div class="col-span-7 bg-[#FBFCFE] p-2 rounded border border-gray-400 mt-3">
-                            <div class="grid grid-cols-2 gap-x-3 gap-y-2">
-
+                        <%-- left : Buyer, Main Style No, PO No + Add --%>
+                        <div class="col-span-5 bg-[#FBFCFE] p-2 rounded border border-gray-400">
+                            <div class="flex flex-col gap-2">
                                 <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Benificiary</label>
-                                    <asp:DropDownList ID="ddlBeneficiary" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                        <asp:ListItem Value="" Selected="True">--Select--</asp:ListItem>
+                                    <label class="text-sm font-medium">Buyer</label>
+                                    <asp:DropDownList ID="ddlBuyer" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select Buyer--</asp:ListItem>
                                     </asp:DropDownList>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Commodity</label>
-                                    <asp:TextBox ID="txtCommodity" runat="server" Text="Trims &amp; Accessories" ReadOnly="true" CssClass="w-full border rounded outline-none border-gray-300 bg-gray-100 px-2 py-1 shadow-sm"></asp:TextBox>
-                                </div>
-
-                                <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">LC No</label>
-                                    <asp:TextBox ID="txtLCNo" placeholder="e.g LC No" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <label class="text-sm font-medium">Main Style No</label>
+                                    <asp:DropDownList ID="ddlMainStyleNo" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                        <asp:ListItem Value="" Selected="True">--Select Main Style No--</asp:ListItem>
+                                    </asp:DropDownList>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="text-sm font-medium">Issue Date</label>
-                                    <asp:TextBox ID="txtIssueDate" placeholder="e.g Issue Date" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <label class="text-sm font-medium">PO No</label>
+                                    <div class="flex gap-2">
+                                        <asp:DropDownList ID="ddlPONo" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                            <asp:ListItem Value="" Selected="True">--Select PO No--</asp:ListItem>
+                                        </asp:DropDownList>
+                                    </div>
                                 </div>
-
+                            </div>
+                            <div class="flex justify-end mt-3">
+                                <asp:LinkButton ID="btnAddPO" runat="server" OnClick="btnAddPO_Click" CssClass="flex items-center gap-1.5 rounded bg-[#255C8C] text-white px-4 py-1.5 shadow-sm hover:bg-[#1a4569] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>Add</span>
+                                </asp:LinkButton>
                             </div>
                         </div>
 
-                        <%-- right : PI Information box --%>
-                        <fieldset class="col-span-5 bg-[#FBFCFE] p-2 rounded border border-gray-400">
-                            <legend runat="server" class="font-semibold underline text-lg px-3">PI Information</legend>
-
-                            <div class="flex items-center gap-2 w-full h-fit py-1">
-                                <label class="text-sm font-medium block whitespace-nowrap leading-none mb-0">Attach File</label>
-                                <asp:TextBox ID="txtAttachFileName" runat="server" placeholder="File Name" CssClass="border rounded outline-none border-gray-300 px-2 py-1.5 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out w-full text-sm leading-none"></asp:TextBox>
-                                <asp:LinkButton ID="btnAttachFile" runat="server" CssClass="flex items-center justify-center rounded bg-[#2EB85C] text-white w-8 h-8 flex-shrink-0 shadow-sm hover:bg-[#1E7E34] cursor-pointer transition duration-200 ease-in-out no-underline">
-                                    <i class="fa-solid fa-plus text-xs"></i>
-                                </asp:LinkButton>
+                        <%-- Right Grid view--%>
+                        <div class="col-span-7 bg-[#FBFCFE] p-1 rounded border border-gray-400">
+                            <div class="border border-gray-400 bg-gray-300 rounded w-full h-64 overflow-y-auto overflow-x-auto">
+                                <asp:GridView ID="gvPOList" runat="server"></asp:GridView>
                             </div>
+                        </div>
 
-                            <!--Gridview Attach File-->
-                            <div class="border border-gray-400 bg-gray-300 rounded w-full h-48 flex-1 overflow-y-auto overflow-x-auto mt-2 mb-2">
-                                <asp:GridView ID="gvAttachFile" runat="server"></asp:GridView>
-                            </div>
-                        </fieldset>
                     </div>
 
-                    <!-- btn : Save & Print Work Order / Cancel / Back to List -->
-                    <div class="space-x-4 flex justify-end items-end mt-3">
+                    <%-- Main Color / Style No / Color / Ratio / CM(PCS) / FOB(PCS) + Add --%>
+                    <div class="bg-[#FBFCFE] px-2 py-1 rounded border border-gray-400 mt-3">
+                        <div class="grid grid-cols-6 gap-x-3 gap-y-2">
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label class="text-sm font-medium">Main Color</label>
+                                <asp:DropDownList ID="ddlMainColor" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                    <asp:ListItem Value="" Selected="True">--Select Main Color--</asp:ListItem>
+                                </asp:DropDownList>
+                            </div>
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label class="text-sm font-medium">Style No</label>
+                                <asp:DropDownList ID="ddlStyleNo" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                    <asp:ListItem Value="" Selected="True">--Select Style No--</asp:ListItem>
+                                </asp:DropDownList>
+                            </div>
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label class="text-sm font-medium">Color</label>
+                                <asp:DropDownList ID="ddlColor" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                    <asp:ListItem Value="" Selected="True">--Select Color--</asp:ListItem>
+                                </asp:DropDownList>
+                            </div>
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label class="text-sm font-medium">Ratio</label>
+                                <asp:TextBox ID="txtRatio" Text="0" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                            </div>
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label class="text-sm font-medium">CM (PCS)</label>
+                                <asp:TextBox ID="txtCMPcs" Text="0" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                            </div>
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label class="text-sm font-medium">FOB (PCS)</label>
+                                <asp:TextBox ID="txtFOBPcs" Text="0" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                            </div>
+                        </div>
 
-                        <asp:LinkButton ID="btnSaveAndPrint" runat="server" OnClick="btnSaveAndPrint_Click" CssClass="flex items-center gap-1.5 rounded bg-[#2EB85C] text-white px-4 py-1.5 shadow-sm hover:bg-[#1E7E34] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
-                            <i class="fa-solid fa-print"></i>
-                            <span>Save &amp; Print</span>
+                        <div class="flex justify-end mt-2">
+                            <asp:LinkButton ID="btnAddColorLine" runat="server" OnClick="btnAddColorLine_Click" CssClass="flex items-center gap-1.5 rounded bg-[#255C8C] text-white px-4 py-1.5 shadow-sm hover:bg-[#1a4569] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Add</span>
+                            </asp:LinkButton>
+                        </div>
+                    </div>
+
+                    <%-- Color Grid view --%>
+                    <div class="border border-gray-400 bg-gray-300 rounded w-full h-80 overflow-y-auto overflow-x-auto mt-3">
+                        <asp:GridView ID="gvColorBreakdown" runat="server"></asp:GridView>
+                    </div>
+
+                    <%-- footer buttons --%>
+                    <div class="space-x-3 flex justify-end items-end mt-4">
+                        <asp:LinkButton ID="btnClear" runat="server" OnClick="btnClear_Click" CssClass="flex items-center gap-1.5 rounded bg-gray-500 text-white px-4 py-1.5 shadow-sm hover:bg-gray-600 cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                            <i class="fa-solid fa-eraser"></i>
+                            <span>Clear</span>
                         </asp:LinkButton>
-
-                        <asp:LinkButton ID="btnCancel" runat="server" OnClick="btnCancel_Click" CssClass="flex items-center gap-1.5 rounded bg-gray-500 text-white px-4 py-1.5 shadow-sm hover:bg-gray-600 cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
-                            <i class="fa-solid fa-ban"></i>
-                            <span>Cancel</span>
+                        <asp:LinkButton ID="btnSave" runat="server" OnClick="btnSave_Click" CssClass="flex items-center gap-1.5 rounded bg-[#2EB85C] text-white px-4 py-1.5 shadow-sm hover:bg-[#1E7E34] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                            <i class="fa-solid fa-save"></i>
+                            <span>Save</span>
                         </asp:LinkButton>
-
-                        <asp:LinkButton ID="btnBackToListFooter" runat="server" OnClick="btnBackToList_Click" CssClass="flex items-center gap-1.5 rounded bg-cyan-500 text-white px-4 py-1.5 shadow-sm hover:bg-cyan-600 cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
-                            <i class="fa-solid fa-list"></i>
-                            <span>Back to List</span>
-                        </asp:LinkButton>
-
                     </div>
 
                 </div>

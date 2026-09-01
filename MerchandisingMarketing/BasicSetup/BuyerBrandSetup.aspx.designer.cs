@@ -33,13 +33,13 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         protected global::System.Web.UI.WebControls.HiddenField hfUserId;
 
         /// <summary>
-        /// hfLCId control.
+        /// hfSetBreakdownId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfLCId;
+        protected global::System.Web.UI.WebControls.HiddenField hfSetBreakdownId;
 
         /// <summary>
         /// pnlList control.
@@ -60,33 +60,6 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         protected global::System.Web.UI.WebControls.LinkButton btnAddNew;
 
         /// <summary>
-        /// ddlCompany control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlCompany;
-
-        /// <summary>
-        /// ddlCustomer control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlCustomer;
-
-        /// <summary>
-        /// txtDMDExportLCNo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDMDExportLCNo;
-
-        /// <summary>
         /// txtFromDate control.
         /// </summary>
         /// <remarks>
@@ -103,6 +76,42 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtToDate;
+
+        /// <summary>
+        /// ddlBuyerFilter control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlBuyerFilter;
+
+        /// <summary>
+        /// ddlStyleFilter control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlStyleFilter;
+
+        /// <summary>
+        /// ddlPOFilter control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlPOFilter;
+
+        /// <summary>
+        /// btnClearFilter control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnClearFilter;
 
         /// <summary>
         /// btnSearch control.
@@ -132,102 +141,147 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         protected global::System.Web.UI.WebControls.Panel pnlEntry;
 
         /// <summary>
-        /// btnBackToListHeader control.
+        /// btnBackToList control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnBackToListHeader;
+        protected global::System.Web.UI.WebControls.LinkButton btnBackToList;
 
         /// <summary>
-        /// ddlBeneficiary control.
+        /// ddlBuyer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlBeneficiary;
+        protected global::System.Web.UI.WebControls.DropDownList ddlBuyer;
 
         /// <summary>
-        /// txtCommodity control.
+        /// ddlMainStyleNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCommodity;
+        protected global::System.Web.UI.WebControls.DropDownList ddlMainStyleNo;
 
         /// <summary>
-        /// txtLCNo control.
+        /// ddlPONo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtLCNo;
+        protected global::System.Web.UI.WebControls.DropDownList ddlPONo;
 
         /// <summary>
-        /// txtIssueDate control.
+        /// btnAddPO control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtIssueDate;
+        protected global::System.Web.UI.WebControls.LinkButton btnAddPO;
 
         /// <summary>
-        /// txtAttachFileName control.
+        /// gvPOList control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtAttachFileName;
+        protected global::System.Web.UI.WebControls.GridView gvPOList;
 
         /// <summary>
-        /// btnAttachFile control.
+        /// ddlMainColor control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnAttachFile;
+        protected global::System.Web.UI.WebControls.DropDownList ddlMainColor;
 
         /// <summary>
-        /// gvAttachFile control.
+        /// ddlStyleNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvAttachFile;
+        protected global::System.Web.UI.WebControls.DropDownList ddlStyleNo;
 
         /// <summary>
-        /// btnSaveAndPrint control.
+        /// ddlColor control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnSaveAndPrint;
+        protected global::System.Web.UI.WebControls.DropDownList ddlColor;
 
         /// <summary>
-        /// btnCancel control.
+        /// txtRatio control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnCancel;
+        protected global::System.Web.UI.WebControls.TextBox txtRatio;
 
         /// <summary>
-        /// btnBackToListFooter control.
+        /// txtCMPcs control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnBackToListFooter;
+        protected global::System.Web.UI.WebControls.TextBox txtCMPcs;
+
+        /// <summary>
+        /// txtFOBPcs control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtFOBPcs;
+
+        /// <summary>
+        /// btnAddColorLine control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnAddColorLine;
+
+        /// <summary>
+        /// gvColorBreakdown control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvColorBreakdown;
+
+        /// <summary>
+        /// btnClear control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnClear;
+
+        /// <summary>
+        /// btnSave control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnSave;
     }
 }

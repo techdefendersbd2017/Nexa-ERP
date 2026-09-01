@@ -1,78 +1,93 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 
-namespace Nexa_ERP.Shipment
+namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
 {
-    public partial class DeemedExportLC : System.Web.UI.Page
+    public partial class BuyerBrandSetup : System.Web.UI.Page
     {
-        protected void Page_Load1(object sender, EventArgs e)
+        protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                ShowList1();
+                ShowList();
                 // TODO: BindDropDowns(); BindGridView();
             }
         }
 
-        private void ShowList1()
+        private void ShowList()
         {
             pnlList.Visible = true;
             pnlEntry.Visible = false;
         }
 
-        private void ShowEntry1()
+        private void ShowEntry()
         {
             pnlList.Visible = false;
             pnlEntry.Visible = true;
         }
 
-        // Deemed Export LC List -> "Add New Deemed Export LC" clicked
-        protected void btnAddNew_Click1(object sender, EventArgs e)
+        // Set Breakdown List -> "Add New Set Breakdown" clicked
+        protected void btnAddNew_Click(object sender, EventArgs e)
         {
-            hfLCId.Value = "";
-            ClearEntryForm1();
+            hfSetBreakdownId.Value = "";
+            ClearEntryForm();
             ShowEntry();
         }
 
-        // Used by both the header "Back To Deemed Export LC List" link
-        // and the footer "Back to List" button
-        protected void btnBackToList_Click1(object sender, EventArgs e)
+        // Master Information -> "Back To List" clicked
+        protected void btnBackToList_Click(object sender, EventArgs e)
         {
             ShowList();
             // TODO: BindGridView();
         }
 
-        protected void btnCancel_Click1(object sender, EventArgs e)
+        protected void btnSearch_Click(object sender, EventArgs e)
         {
+            // TODO: filter GridView1 by txtFromDate, txtToDate, ddlBuyerFilter, ddlStyleFilter, ddlPOFilter
+        }
+
+        protected void btnClearFilter_Click(object sender, EventArgs e)
+        {
+            txtFromDate.Text = "";
+            txtToDate.Text = "";
+            ddlBuyerFilter.SelectedIndex = 0;
+            ddlStyleFilter.SelectedIndex = 0;
+            ddlPOFilter.SelectedIndex = 0;
+        }
+
+        protected void btnAddPO_Click(object sender, EventArgs e)
+        {
+            // TODO: append selected ddlPONo value as a row into gvPOList
+        }
+
+        protected void btnAddColorLine_Click(object sender, EventArgs e)
+        {
+            // TODO: append Main Color / Style No / Color / Ratio / CM (PCS) / FOB (PCS)
+            // as a row into gvColorBreakdown
+        }
+
+        protected void btnSave_Click(object sender, EventArgs e)
+        {
+            // TODO: validate + save Master Information (Buyer, Main Style No, PO list,
+            // color breakdown list) using hfSetBreakdownId.Value
             ShowList();
         }
 
-        protected void btnSaveAndPrint_Click1(object sender, EventArgs e)
+        protected void btnClear_Click(object sender, EventArgs e)
         {
-            // TODO: validate + save Deemed Export LC record using hfLCId.Value
-            // TODO: trigger work order print
-            ShowList();
+            ClearEntryForm();
         }
 
-        private void ClearEntryForm1()
+        private void ClearEntryForm()
         {
-            txtLCNo.Text = "";
-            txtIssueDate.Text = "";
-            txtExportDate.Text = "";
-            txtExpiryDate.Text = "";
-            txtLCValue.Text = "";
-            txtLCQty.Text = "";
-            txtCustomer.Text = "";
-            txtExportPI.Text = "";
-            txtRemarks.Text = "";
-            txtLCValueDisplay.Text = "0";
-            txtPIValueDisplay.Text = "0";
-            txtDifferenceDisplay.Text = "0";
-            txtLCCharge.Text = "0";
+            ddlBuyer.SelectedIndex = 0;
+            ddlMainStyleNo.SelectedIndex = 0;
+            ddlPONo.SelectedIndex = 0;
+            ddlMainColor.SelectedIndex = 0;
+            ddlStyleNo.SelectedIndex = 0;
+            ddlColor.SelectedIndex = 0;
+            txtRatio.Text = "0";
+            txtCMPcs.Text = "0";
+            txtFOBPcs.Text = "0";
         }
     }
 }
