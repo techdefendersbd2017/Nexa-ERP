@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" />
 </head>
 <body>
-    <form id="form1" runat="server" class="min-h-screen p-2 mt-2">
+    <form id="form1" runat="server" class="min-h-screen p-2 mt-2" >
         <div class="max-w-[1320px] w-full m-auto rounded-lg border">
 
             <div class="bg-[#255C8C] flex justify-center items-center rounded-t-lg px-4 py-2">
