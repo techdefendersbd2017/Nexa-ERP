@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Buyer Brand Setup</title>
+    <title>Buyer Brand Setup </title>
 
     <!-- tailwind css link -->
     <script src="https://cdn.tailwindcss.com"></script>
