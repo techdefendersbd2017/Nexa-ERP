@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Process Wise Production List</title>
+    <title>Process Wise Production List </title>
 
     <!-- tailwind css link -->
     <script src="https://cdn.tailwindcss.com"></script>
