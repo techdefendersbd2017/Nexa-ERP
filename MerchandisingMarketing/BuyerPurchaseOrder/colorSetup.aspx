@@ -217,6 +217,7 @@
 
 
 
+
     <script>
         const colorPage = document.getElementById('Color');
         const addNewBtn = document.getElementById('lnkAddNew');
