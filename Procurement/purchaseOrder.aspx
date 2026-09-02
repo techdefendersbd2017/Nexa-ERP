@@ -5,7 +5,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Purchase Order List</title>
+    <title>Purchase Order</title>
     <!-- tailwind css link -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- icon link -->
@@ -247,54 +247,6 @@
 
                 <fieldset class="border border-gray-400 rounded p-2 mt-6">
                     <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Purchase Order Details</legend>
-
-                    <%--<div class="grid grid-cols-4 gap-x-3 gap-y-2">
-
-                        <div class="flex flex-col gap-0.5 w-full">
-                            <label class="text-sm font-medium">Item Name</label>
-                            <asp:TextBox ID="txtItemName" placeholder="e.g Item Name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                        </div>
-                        <div class="flex flex-col gap-0.5 w-full">
-                            <label class="text-sm font-medium">Req. Qty</label>
-                            <asp:TextBox ID="txtRequisitionQty" placeholder="0" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                        </div>
-                        <div class="flex flex-col gap-0.5 w-full">
-                            <label class="text-sm font-medium">Stokc Qty</label>
-                            <asp:TextBox ID="txtStockQty" placeholder="0" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                        </div>
-                        <div class="flex flex-col gap-0.5 w-full">
-                            <label class="text-sm font-medium">Unit</label>
-                            <asp:TextBox ID="txtUnit" placeholder="e.g Unit" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                        </div>
-                        <div class="flex flex-col gap-0.5 w-full">
-                            <label class="text-sm font-medium">Origin</label>
-                            <asp:TextBox ID="txtOrigin" placeholder="e.g Origin" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                        </div>
-                        <div class="flex flex-col gap-0.5 w-full">
-                            <label class="text-sm font-medium">Item Specification</label>
-                            <asp:TextBox ID="txtItemSpecification" placeholder="e.g Item Specification" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                        </div>
-                        <div class="flex flex-col gap-0.5 w-full">
-                            <label class="text-sm font-medium">Remarks</label>
-                            <asp:TextBox ID="txtRemarks" placeholder="e.g Remarks" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                        </div>
-
-                        <div class="flex gap-3 items-end">
-
-                            <!-- Add Item Button -->
-                            <asp:LinkButton ID="btnAddItem" runat="server" CssClass="flex items-center gap-1.5 rounded bg-[#16A34A] text-white px-4 py-1.5 shadow-sm hover:bg-[#15803D] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
-                                <i class="fa-solid fa-plus text-xs"></i>
-                                <span>Add Item</span>
-                            </asp:LinkButton>
-
-                            <!-- Reset Button -->
-                            <asp:LinkButton ID="btnReset" runat="server" CssClass="flex items-center gap-1.5 rounded bg-[#DC2626] text-white px-4 py-1.5 shadow-sm hover:bg-[#B91C1C] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
-                                <i class="fa-solid fa-rotate-right text-xs"></i>
-                                <span>Reset</span>
-                            </asp:LinkButton>
-
-                        </div>
-                    </div>--%>
 
                     <div class="border border-gray-400 bg-gray-300 rounded w-full h-full overflow-y-auto overflow-x-auto pt-6">
                         <asp:ListView ID="ListView4" runat="server"></asp:ListView>
