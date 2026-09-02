@@ -595,34 +595,54 @@
                     <button type="button" class="btn btn-success btn-sm" onclick="showPanel('pnlForm')">+ Add New Work Order</button>
                 </div>
                 <fieldset class="section-box">
-                    <div class="row g-3">
+                    <div class="row g-3 align-items-end">
+                        <!-- Customer Name -->
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Customer Name</label>
                             <asp:UpdatePanel ID="UpdatePanel4" runat="server">
                                 <ContentTemplate>
                                     <div class="d-flex">
-                                        <asp:DropDownList ID="DropDownList2" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
+                                        <asp:DropDownList ID="ddlCustomerListPage" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
                                             <asp:ListItem Text="--Select Customer--" Value="0" />
                                         </asp:DropDownList>
                                     </div>
                                 </ContentTemplate>
                             </asp:UpdatePanel>
                         </div>
+
+                        <!-- Work Order No -->
                         <div class="col-md-2">
                             <label class="form-label fw-bold">Work Order No</label>
-                            <asp:TextBox ID="TextBox2" runat="server" CssClass="form-control form-control-sm" Text="WO-2026-0001" ReadOnly="true"></asp:TextBox>
+                            <asp:TextBox ID="txtWorderNo" runat="server" CssClass="form-control form-control-sm" Text=""></asp:TextBox>
                         </div>
+
+                        <!-- Ref. Work Order No -->
                         <div class="col-md-2">
                             <label class="form-label fw-bold">Ref. Work Order No</label>
-                            <asp:TextBox ID="TextBox5" runat="server" CssClass="form-control form-control-sm" Text="WO-2026-0001" ReadOnly="true"></asp:TextBox>
+                            <asp:TextBox ID="txtRefWorkOrderNo" runat="server" CssClass="form-control form-control-sm" Text=""></asp:TextBox>
                         </div>
+
+                        <!-- From Date / Till Date -->
                         <div class="col-md-2">
-                            <label class="form-label fw-bold">Work Order Date</label>
-                            <asp:TextBox ID="TextBox3" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label fw-bold mb-0">From Date</label>
+                                <div>
+                                    <asp:CheckBox ID="cktilldateshow" runat="server" AutoPostBack="true" OnCheckedChanged="cktilldateshow_CheckedChanged" CssClass="form-check-input" />
+                                </div>
+                            </div>
+                            <asp:TextBox ID="txtFormDate" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
+                            <asp:TextBox ID="txtTillDate" runat="server" Visible="false" CssClass="form-control form-control-sm mt-1" TextMode="Date"></asp:TextBox>
                         </div>
+
+                        <!-- Delivery Date -->
                         <div class="col-md-2">
                             <label class="form-label fw-bold">Delivery Date</label>
-                            <asp:TextBox ID="TextBox4" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
+                            <asp:TextBox ID="txtdeliveryDated" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
+                        </div>
+
+                        <!-- Show Button -->
+                        <div class="col-md-1">
+                            <asp:Button ID="btnShow" runat="server" Text="Show" CssClass="btn btn-primary btn-sm w-100" />
                         </div>
                     </div>
                 </fieldset>
@@ -639,24 +659,26 @@
                             <ItemTemplate>
                                 <%# Container.DataItemIndex + 1 %>
                             </ItemTemplate>
-                            <ItemStyle Width="40px" />
+                            <ItemStyle Width="5%" />
                         </asp:TemplateField>
 
-                        <asp:BoundField DataField="WORcvNo" HeaderText="WO Rcv No" ItemStyle-Width="15%" />
+                        <asp:BoundField DataField="PartyName" HeaderText="Customer Name" ItemStyle-Width="20%" />
 
-                        <asp:BoundField DataField="WORcvDate" HeaderText="WO Rcv Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="15%" />
+                        <asp:BoundField DataField="WORcvNo" HeaderText="WO Rcv No" ItemStyle-Width="10%" />
 
-                        <asp:BoundField DataField="DeliveryDate" HeaderText="Delivery Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="15%" />
+                        <asp:BoundField DataField="WORcvDate" HeaderText="WO Rcv Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="10%" />
 
-                        <asp:BoundField DataField="GrandTotal" HeaderText="Total Value" DataFormatString="{0:N2}" HtmlEncode="false" ItemStyle-Width="15%" />
+                        <asp:BoundField DataField="DeliveryDate" HeaderText="Delivery Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="10%" />
 
-                        <asp:TemplateField HeaderText="Action" ItemStyle-Width="40%">
+                        <asp:BoundField DataField="GrandTotal" HeaderText="Total Value" DataFormatString="{0:N2}" HtmlEncode="false" ItemStyle-Width="10%" />
+
+                        <asp:TemplateField HeaderText="Action" ItemStyle-Width="35%">
                             <ItemTemplate>
                                 <div style="display: flex; gap: 5px; align-items: center;">
                                     <asp:LinkButton ID="lnkEdit" runat="server" Text="Edit" CommandName="EditRow" CommandArgument='<%# Eval("WORcvNo") %>'
                                         Style="background-color: #e3f2fd; color: #1976d2; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid #90caf9;" />
 
-                                    <asp:LinkButton ID="lnkDelete" runat="server" Text="Delete" CommandName="DeleteRow" CommandArgument='<%# Eval("WORcvNo") %>'
+                                    <asp:LinkButton ID="lnkDelete" runat="server" Visible="false" Text="Delete" CommandName="DeleteRow" CommandArgument='<%# Eval("WORcvNo") %>'
                                         Style="background-color: #ffebee; color: #c62828; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid #ef9a9a;"
                                         OnClientClick="return confirm('Are you sure you want to delete this item?');" />
 

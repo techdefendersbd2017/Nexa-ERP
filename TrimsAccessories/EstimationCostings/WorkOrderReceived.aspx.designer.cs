@@ -42,49 +42,76 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.UpdatePanel UpdatePanel4;
 
         /// <summary>
-        /// DropDownList2 control.
+        /// ddlCustomerListPage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DropDownList2;
+        protected global::System.Web.UI.WebControls.DropDownList ddlCustomerListPage;
 
         /// <summary>
-        /// TextBox2 control.
+        /// txtWorderNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox TextBox2;
+        protected global::System.Web.UI.WebControls.TextBox txtWorderNo;
 
         /// <summary>
-        /// TextBox5 control.
+        /// txtRefWorkOrderNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox TextBox5;
+        protected global::System.Web.UI.WebControls.TextBox txtRefWorkOrderNo;
 
         /// <summary>
-        /// TextBox3 control.
+        /// cktilldateshow control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox TextBox3;
+        protected global::System.Web.UI.WebControls.CheckBox cktilldateshow;
 
         /// <summary>
-        /// TextBox4 control.
+        /// txtFormDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox TextBox4;
+        protected global::System.Web.UI.WebControls.TextBox txtFormDate;
+
+        /// <summary>
+        /// txtTillDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTillDate;
+
+        /// <summary>
+        /// txtdeliveryDated control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtdeliveryDated;
+
+        /// <summary>
+        /// btnShow control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnShow;
 
         /// <summary>
         /// gvWorkOrderReceive control.
