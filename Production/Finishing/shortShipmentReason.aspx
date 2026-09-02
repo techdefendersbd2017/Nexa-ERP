@@ -1,7 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="shortShipmentReason.aspx.cs" Inherits="Nexa_ERP.Production.Finishing.shortShipmentReason" %>
 
-
-
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">

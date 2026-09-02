@@ -233,6 +233,7 @@
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
+    <Content Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\CustomerSupplier.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\FloorInformation.aspx" />
@@ -464,6 +465,13 @@
     </Compile>
     <Compile Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx.designer.cs">
       <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx.cs">
+      <DependentUpon>PaymentConfiguration.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx.designer.cs">
+      <DependentUpon>PaymentConfiguration.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx.cs">
       <DependentUpon>BranchInformation.aspx</DependentUpon>
