@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Daily Finishing Target And Manpower Set</title>
+    <title>Daily Finishing Target</title>
 
     <!-- tailwind css link -->
     <script src="https://cdn.tailwindcss.com"></script>
