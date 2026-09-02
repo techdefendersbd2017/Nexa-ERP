@@ -24,11 +24,6 @@ namespace Nexa_ERP.Shipment
 
             if (!IsPostBack)
             {
-                // ★ FIX: আগে এখানে ছিল "string user = Request.QueryString["user"];" —
-                // কোথাও এই পেজে ?user=... পাঠানো হতো না, তাই এটা সবসময় null আসত,
-                // এবং variable-টা আসলে কোথাও ব্যবহারও হতো না (dead code)।
-                // Session["User_ID"] সরাসরি btnSave_Click-এ ব্যবহার করা হচ্ছে, তাই এখানে আলাদা করে
-                // লোকাল ভ্যারিয়েবলে রাখার দরকার নেই।
 
                 txtChallanNo.Text = LoadDeliveryChallanNo();
                 txtInvoiceNo.Text = LoadInvoiceNo();
@@ -44,7 +39,7 @@ namespace Nexa_ERP.Shipment
 
             if (IsPostBack)
             {
-                RunScript($"window.addEventListener('load', function() {{ showPanel('{hdnActivePanel.Value}'); calculateTotal(); }});");
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "showPanel", $"window.addEventListener('load', function() {{ showPanel('{hdnActivePanel.Value}'); calculateTotal(); }});", true);
             }
         }
         // ==================== LIST ====================
@@ -222,10 +217,6 @@ namespace Nexa_ERP.Shipment
 
                 gvDeliveryItems.DataSource = gridDt;
                 gvDeliveryItems.DataBind();
-
-                // ★ FIX: আগে এখানে সরাসরি RunScript("showPanel('pnlForm')...") কল করা হতো,
-                // কিন্তু সেটা শুধু Edit কেসে কাজ করত। এখন শুধু state সেট করে দিচ্ছি —
-                // OnPreRender সব পোস্টব্যাকের শেষে এই state অনুযায়ী প্যানেল দেখিয়ে দেবে।
                 hdnActivePanel.Value = "pnlForm";
             }
             catch (Exception ex)
@@ -246,7 +237,7 @@ namespace Nexa_ERP.Shipment
 
         protected void ddlWorkOrder_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadDeliveryItems(ddlWorkOrder.SelectedValue);
+            LoadChallanList();
         }
 
         private void LoadWorkOrderList()
@@ -417,11 +408,11 @@ namespace Nexa_ERP.Shipment
             }
             catch (Exception ex)
             {
-                ShowAlert("Error: " + ex.Message);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
             }
             finally
             {
-                CloseConnection();
+                con.Close();
             }
         }
 
@@ -432,12 +423,6 @@ namespace Nexa_ERP.Shipment
             try
             {
                 con = conn.openConnection();
-                // ★ FIX: আগে "techdefendersbd.DeliveryChallanHeader" (schema hardcoded) ব্যবহার হতো,
-                // কিন্তু এই ফাইলের বাকি সব কোয়েরি schema ছাড়াই "DeliveryChallanHeader" ব্যবহার করে
-                // এবং সেগুলো ঠিকমতো ডেটা দেখাচ্ছে। schema mismatch-এর কারণে এই কোয়েরিটা ভিন্ন
-                // (হয়তো খালি) টেবিলে গিয়ে সবসময় NULL রিটার্ন করছিল, ফলে নম্বর কখনো বাড়ছিল না।
-                // এখন বাকি কোয়েরির মতোই schema বাদ দেওয়া হলো, এবং TRY_CAST ব্যবহার করা হলো
-                // যাতে পুরনো কোনো row-এর ফরম্যাট না মিললেও পুরো MAX() কোয়েরি ব্যর্থ না হয়।
                 string query = @"SELECT MAX(TRY_CAST(RIGHT(DeliveryChallanNumber, 6) AS INT)) 
                   FROM DeliveryChallanHeader   
                   WHERE DeliveryChallanNumber LIKE @Prefix + '%'";
@@ -467,8 +452,6 @@ namespace Nexa_ERP.Shipment
             try
             {
                 con = conn.openConnection();
-                // ★ FIX: LoadDeliveryChallanNo()-এর মতো একই কারণে (schema mismatch) এখানেও
-                // নম্বর না বাড়ার একই বাগ থাকতে পারে, তাই একই ফিক্স প্রয়োগ করা হলো।
                 string query = @"SELECT MAX(TRY_CAST(RIGHT(InvoiceNumber, 6) AS INT)) 
                           FROM CommercialBillHeader 
                           WHERE InvoiceNumber LIKE @Prefix + '%'";
@@ -631,7 +614,7 @@ namespace Nexa_ERP.Shipment
                 if (!anyItemInserted)
                 {
                     transaction.Rollback();
-                    ShowAlert("Please enter Delivery Quantity for at least one item.");
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Please enter Delivery Quantity for at least one item.');", true);
                     return;
                 }
 

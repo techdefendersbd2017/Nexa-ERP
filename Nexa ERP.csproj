@@ -232,6 +232,7 @@
     <Content Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx" />
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\CustomerSupplier.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\FloorInformation.aspx" />
@@ -293,6 +294,8 @@
     <Content Include="Inventory\StoreRequisition.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx" />
     <Content Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
     <Content Include="MasterConfiguration\ProductMaster\ColorInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx" />
@@ -306,6 +309,9 @@
     <Content Include="MasterConfiguration\BuyerManagement\StyleName.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleRegistrationSystem.aspx" />
     <Content Include="Planning\ProductionPlanning.aspx" />
+    <Content Include="Procurement\purchaseOrder.aspx" />
+    <Content Include="Procurement\purchaseRequisition.aspx" />
+    <Content Include="Procurement\supplierRateEntry.aspx" />
     <Content Include="Production\Cutting\cuttingContrastFabricsEntry.aspx" />
     <Content Include="Production\Cutting\cuttingNumberWiseRecutEntry.aspx" />
     <Content Include="Production\Cutting\cuttingReject.aspx" />
@@ -331,7 +337,16 @@
     <Content Include="Production\Finishing\ShipmentChallanAndGatePass.aspx" />
     <Content Include="Production\Finishing\shortShipmentReason.aspx" />
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
+    <Content Include="Production\ProductionListEntryDashboard\DailyProduction&amp;RejectionEntry.aspx" />
+    <Content Include="Production\ProductionListEntryDashboard\DailyTargetEntry.aspx" />
+    <Content Include="Production\ProductionListEntryDashboard\ProcessWiseProductionList.aspx" />
+    <Content Include="Production\ProductionListEntryDashboard\ProductionDashboard.aspx" />
+    <Content Include="Shipment\DeemedExportLC.aspx" />
+    <Content Include="Shipment\CreateForProformaInvoiceEntry.aspx" />
+    <Content Include="Shipment\DeliveryBill.aspx" />
     <Content Include="Shipment\DeliveryChallanAndBill.aspx" />
+    <Content Include="Shipment\proformaInvoiceEntry.aspx" />
+    <Content Include="Shipment\ShipmentReports\BillInvoiceReport.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallan.aspx" />
     <Content Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx" />
     <Content Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx" />
@@ -447,6 +462,13 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx.cs">
+      <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx.designer.cs">
+      <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx.cs">
       <DependentUpon>BranchInformation.aspx</DependentUpon>
@@ -847,6 +869,20 @@
     <Compile Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx.designer.cs">
       <DependentUpon>CurrencySetup.aspx</DependentUpon>
     </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx.cs">
+      <DependentUpon>BuyerBrandSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx.designer.cs">
+      <DependentUpon>BuyerBrandSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx.cs">
+      <DependentUpon>BuyerSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx.designer.cs">
+      <DependentUpon>BuyerSetup.aspx</DependentUpon>
+    </Compile>
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx.cs">
       <DependentUpon>BuyingHouseAgent.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -937,6 +973,27 @@
     </Compile>
     <Compile Include="Planning\ProductionPlanning.aspx.designer.cs">
       <DependentUpon>ProductionPlanning.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Procurement\purchaseOrder.aspx.cs">
+      <DependentUpon>purchaseOrder.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Procurement\purchaseOrder.aspx.designer.cs">
+      <DependentUpon>purchaseOrder.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Procurement\purchaseRequisition.aspx.cs">
+      <DependentUpon>purchaseRequisition.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Procurement\purchaseRequisition.aspx.designer.cs">
+      <DependentUpon>purchaseRequisition.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Procurement\supplierRateEntry.aspx.cs">
+      <DependentUpon>supplierRateEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Procurement\supplierRateEntry.aspx.designer.cs">
+      <DependentUpon>supplierRateEntry.aspx</DependentUpon>
     </Compile>
     <Compile Include="Production\Cutting\cuttingContrastFabricsEntry.aspx.cs">
       <DependentUpon>cuttingContrastFabricsEntry.aspx</DependentUpon>
@@ -1113,13 +1170,76 @@
     <Compile Include="Production\Finishing\shortShipmentReasonStatusReport.aspx.designer.cs">
       <DependentUpon>shortShipmentReasonStatusReport.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Production\ProductionListEntryDashboard\DailyProduction&amp;RejectionEntry.aspx.cs">
+      <DependentUpon>DailyProduction&amp;RejectionEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\ProductionListEntryDashboard\DailyProduction&amp;RejectionEntry.aspx.designer.cs">
+      <DependentUpon>DailyProduction&amp;RejectionEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\ProductionListEntryDashboard\DailyTargetEntry.aspx.cs">
+      <DependentUpon>DailyTargetEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\ProductionListEntryDashboard\DailyTargetEntry.aspx.designer.cs">
+      <DependentUpon>DailyTargetEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\ProductionListEntryDashboard\ProcessWiseProductionList.aspx.cs">
+      <DependentUpon>ProcessWiseProductionList.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\ProductionListEntryDashboard\ProcessWiseProductionList.aspx.designer.cs">
+      <DependentUpon>ProcessWiseProductionList.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Production\ProductionListEntryDashboard\ProductionDashboard.aspx.cs">
+      <DependentUpon>ProductionDashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\ProductionListEntryDashboard\ProductionDashboard.aspx.designer.cs">
+      <DependentUpon>ProductionDashboard.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shipment\DeemedExportLC.aspx.cs">
+      <DependentUpon>DeemedExportLC.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\DeemedExportLC.aspx.designer.cs">
+      <DependentUpon>DeemedExportLC.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\CreateForProformaInvoiceEntry.aspx.cs">
+      <DependentUpon>CreateForProformaInvoiceEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\CreateForProformaInvoiceEntry.aspx.designer.cs">
+      <DependentUpon>CreateForProformaInvoiceEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\DeliveryBill.aspx.cs">
+      <DependentUpon>DeliveryBill.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\DeliveryBill.aspx.designer.cs">
+      <DependentUpon>DeliveryBill.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Shipment\DeliveryChallanAndBill.aspx.cs">
       <DependentUpon>DeliveryChallanAndBill.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Shipment\DeliveryChallanAndBill.aspx.designer.cs">
       <DependentUpon>DeliveryChallanAndBill.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\proformaInvoiceEntry.aspx.cs">
+      <DependentUpon>proformaInvoiceEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\proformaInvoiceEntry.aspx.designer.cs">
+      <DependentUpon>proformaInvoiceEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\BillInvoiceReport.aspx.cs">
+      <DependentUpon>BillInvoiceReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Shipment\ShipmentReports\BillInvoiceReport.aspx.designer.cs">
+      <DependentUpon>BillInvoiceReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="Shipment\ShipmentReports\DeliveryChallan.aspx.cs">
       <DependentUpon>DeliveryChallan.aspx</DependentUpon>
