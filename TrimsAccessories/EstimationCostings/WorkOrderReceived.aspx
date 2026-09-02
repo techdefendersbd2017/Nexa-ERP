@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head runat="server">
-    <title>Work Order Received</title>
+    <title>Work Order Received.</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -594,6 +594,39 @@
                     <div class="list-title">Work Order Receive List</div>
                     <button type="button" class="btn btn-success btn-sm" onclick="showPanel('pnlForm')">+ Add New Work Order</button>
                 </div>
+                <fieldset class="section-box">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Customer Name</label>
+                            <asp:UpdatePanel ID="UpdatePanel4" runat="server">
+                                <ContentTemplate>
+                                    <div class="d-flex">
+                                        <asp:DropDownList ID="DropDownList2" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
+                                            <asp:ListItem Text="--Select Customer--" Value="0" />
+                                        </asp:DropDownList>
+                                    </div>
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Work Order No</label>
+                            <asp:TextBox ID="TextBox2" runat="server" CssClass="form-control form-control-sm" Text="WO-2026-0001" ReadOnly="true"></asp:TextBox>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Ref. Work Order No</label>
+                            <asp:TextBox ID="TextBox5" runat="server" CssClass="form-control form-control-sm" Text="WO-2026-0001" ReadOnly="true"></asp:TextBox>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Work Order Date</label>
+                            <asp:TextBox ID="TextBox3" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Delivery Date</label>
+                            <asp:TextBox ID="TextBox4" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
+                        </div>
+                    </div>
+                </fieldset>
+
 
                 <asp:GridView ID="gvWorkOrderReceive" runat="server" AutoGenerateColumns="False" CssClass="grid" ShowHeaderWhenEmpty="True" OnRowCommand="gvWorkOrderReceive_RowCommand">
                     <EmptyDataTemplate>
