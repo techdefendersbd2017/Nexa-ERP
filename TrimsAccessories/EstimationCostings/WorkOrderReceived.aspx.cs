@@ -82,6 +82,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 BindSizeDetails();
                 LoadItemsName();
                 LoadSizeGroup();
+                LoadPartyList();
             }
         }
 
@@ -236,6 +237,35 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 if (con != null && con.State == ConnectionState.Open) con.Close();
             }
         }
+        private void LoadPartyList()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = "SELECT PartyID, PartyName FROM tbl_CustomerSupplier ORDER BY PartyName";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    ddlCustomerListPage.DataSource = dt;
+                    ddlCustomerListPage.DataTextField = "PartyName";
+                    ddlCustomerListPage.DataValueField = "PartyID";
+                    ddlCustomerListPage.DataBind();
+
+                    ddlCustomerListPage.Items.Insert(0, new ListItem("--Select Party Name--", "0"));
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Error: " + ex.Message, "warning");
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
+        }
 
         private void LoadPartyName()
         {
@@ -332,13 +362,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             try
             {
                 con = conn.openConnection();
-                string query = @"SELECT TOP 50 
-                                      WORcvID,
-                                      WORcvNo,
-                                      WORcvDate,
-                                      DeliveryDate,
-                                      GrandTotal
-                                  FROM techdefendersbd.WorkOrderHeader 
+                string query = @"SELECT WorkOrderHeader.WORcvID, WorkOrderHeader.WORcvNo, WorkOrderHeader.WORcvDate, WorkOrderHeader.DeliveryDate, WorkOrderHeader.GrandTotal, tbl_CustomerSupplier.PartyName
+                                    FROM WorkOrderHeader INNER JOIN tbl_CustomerSupplier ON WorkOrderHeader.CustomerID = tbl_CustomerSupplier.PartyID
                                   WHERE IsActive = 1
                                   ORDER BY WORcvID DESC";
                 using (SqlCommand cmd = new SqlCommand(query, con))
@@ -1256,6 +1281,18 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected void txtOrderNo_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        protected void cktilldateshow_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cktilldateshow.Checked == true)
+            {
+                txtTillDate.Visible = true;
+            }
+            else
+            { 
+                txtTillDate.Visible = false; 
+            }
         }
     }
 }
