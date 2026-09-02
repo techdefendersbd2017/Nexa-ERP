@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Deemed Export LC</title>
+    <title>Deemed Export LC.</title>
 
     <!-- tailwind css link -->
     <script src="https://cdn.tailwindcss.com"></script>

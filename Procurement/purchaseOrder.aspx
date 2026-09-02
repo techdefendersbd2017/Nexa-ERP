@@ -1,7 +1,6 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="purchaseOrder.aspx.cs" Inherits="Nexa_ERP.Procurement.purchaseOrder" %>
 
 
-
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -11,7 +10,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- icon link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" />
-
 
     <style>
         #Order {

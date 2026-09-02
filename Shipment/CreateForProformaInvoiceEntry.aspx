@@ -16,10 +16,26 @@
     <!-- Quill Rich Text Editor CSS -->
     <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet" />
 
+    <!-- Select2 CSS CDN for Searchable Dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- jQuery (Required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
         #editor-container {
             height: 150px;
             background: #fff;
+        }
+        /* Select2 Tailwind compatibility fix */
+        .select2-container .select2-selection--single {
+            height: 38px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.375rem !important;
+            padding-top: 4px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px !important;
         }
     </style>
 </head>
@@ -52,7 +68,6 @@
                 </div>
 
                 <div class="border border-gray-400 bg-gray-300 rounded w-full overflow-x-auto p-2">
-                    <%-- TODO: bind this GridView from code-behind (e.g. gvPIList_Bind()) to list saved PI/PO records --%>
                     <asp:GridView ID="gvPIList" runat="server" CssClass="w-full border-collapse bg-white text-left text-sm" AutoGenerateColumns="false" GridLines="None"
                         HeaderStyle-CssClass="bg-gray-100 text-gray-700" RowStyle-CssClass="border-b border-gray-300">
                         <Columns>
@@ -102,23 +117,34 @@
                     
                     <div class="col-span-12">
                         <div class="grid grid-cols-4 gap-x-3 gap-y-2 w-full">
+
+                            <!-- Branch -->
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label for="ddlBranch" class="text-sm font-medium">Branch *</label>
+                                <asp:DropDownList ID="ddlBranch" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out" required="true">
+                                </asp:DropDownList>
+                            </div>
                             
-                            <!-- Document Type List (Added Here) -->
+                            <!-- Document Type -->
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label for="ddlDocType" class="text-sm font-medium">Document Type *</label>
                                 <asp:DropDownList ID="ddlDocType" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out" required="true">
-                                    <asp:ListItem Value="PI">Proforma Invoice (PI)</asp:ListItem>
-                                    <asp:ListItem Value="PO">Purchase Order (PO)</asp:ListItem>
+                                    <asp:ListItem Text="Proforma Invoice (PI)" Value="1"></asp:ListItem>
+                                    <asp:ListItem Text="Purchase Order (PO)" Value="2"></asp:ListItem>
                                 </asp:DropDownList>
                             </div>
 
-                            <!-- Supplier -->
+                            <!-- Ref Work Order -->
+                            <div class="flex flex-col gap-0.5 w-full">
+                                <label for="txtRefWorkOrder" class="text-sm font-medium">Ref. Work Order</label>
+                                <asp:TextBox ID="txtRefWorkOrder" runat="server" Placeholder="Ref. Work Order" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 bg-gray-100 shadow-sm"></asp:TextBox>
+                            </div>
+
+                            <!-- Supplier (Searchable DropDownList) -->
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label for="ddlSupplier" class="text-sm font-medium">Select Supplier *</label>
-                                <asp:DropDownList ID="ddlSupplier" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out" required="true">
+                                <asp:DropDownList ID="ddlSupplier" runat="server" CssClass="searchable-dropdown w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out" required="true">
                                     <asp:ListItem Value="">--Choose Supplier--</asp:ListItem>
-                                    <asp:ListItem Value="1">Supplier A Limited</asp:ListItem>
-                                    <asp:ListItem Value="2">Supplier B Traders</asp:ListItem>
                                 </asp:DropDownList>
                             </div>
 
@@ -140,13 +166,10 @@
                                 <asp:TextBox ID="txtDeliveryDate" runat="server" TextMode="Date" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
 
-                            <!-- Payment Terms -->
+                            <!-- Payment Terms (Searchable DropDownList) -->
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label for="ddlPaymentTerms" class="text-sm font-medium">Payment Terms</label>
-                                <asp:DropDownList ID="ddlPaymentTerms" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                    <asp:ListItem Value="Advance">Advance</asp:ListItem>
-                                    <asp:ListItem Value="Credit">Credit (30 Days)</asp:ListItem>
-                                    <asp:ListItem Value="LC">Letter of Credit (LC)</asp:ListItem>
+                                <asp:DropDownList ID="ddlPaymentTerms" runat="server" CssClass="searchable-dropdown w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
                                 </asp:DropDownList>
                             </div>
 
@@ -158,49 +181,56 @@
             <!-- Dynamic Items Table Fieldset -->
             <fieldset class="border border-gray-400 rounded p-3 mb-6">
                 <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Item List</legend>
-                
-                <div class="border border-gray-400 bg-gray-300 rounded w-full overflow-y-auto overflow-x-auto p-2">
-                    <table class="w-full border-collapse bg-white text-left text-sm" id="itemTable">
-                        <thead class="bg-gray-100 text-gray-700">
-                            <tr>
-                                <th class="p-2 border border-gray-300" width="30%">Item Name / Description</th>
-                                <th class="p-2 border border-gray-300" width="15%">UOM</th>
-                                <th class="p-2 border border-gray-300" width="15%">Quantity</th>
-                                <th class="p-2 border border-gray-300" width="15%">Unit Price (BDT)</th>
-                                <th class="p-2 border border-gray-300" width="20%">Total Amount</th>
-                                <th class="p-2 border border-gray-300 text-center" width="5%">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="p-2 border border-gray-300">
-                                    <input type="text" class="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C]" name="item_name[]" placeholder="Item name" required />
-                                </td>
-                                <td class="p-2 border border-gray-300">
-                                    <input type="text" class="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C]" name="uom[]" placeholder="Pcs/Kg/Box" required />
-                                </td>
-                                <td class="p-2 border border-gray-300">
-                                    <input type="number" class="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] qty" name="quantity[]" value="1" min="1" oninput="calculateTotal(this)" required />
-                                </td>
-                                <td class="p-2 border border-gray-300">
-                                    <input type="number" class="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] price" name="unit_price[]" value="0" min="0" step="0.01" oninput="calculateTotal(this)" required />
-                                </td>
-                                <td class="p-2 border border-gray-300">
-                                    <input type="text" class="w-full border rounded outline-none border-gray-300 px-2 py-1 bg-gray-100 total" name="total_price[]" value="0.00" readonly />
-                                </td>
-                                <td class="p-2 border border-gray-300 text-center">
-                                    <button type="button" class="bg-[#EF4444] hover:bg-[#DC2626] text-white px-2 py-1 rounded text-xs transition duration-200" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- Add Item Row -->
+                <div class="grid grid-cols-12 gap-2 mb-3">
+                    <div class="col-span-4">
+                        <!-- Item Name Changed from TextBox to DropDownList with Searchable support -->
+                        <asp:DropDownList ID="ddlItemName" runat="server" CssClass="searchable-dropdown w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C]" AutoPostBack="true" OnSelectedIndexChanged="ddlItemName_SelectedIndexChanged">
+                            <asp:ListItem Value="">--Select Item--</asp:ListItem>
+                        </asp:DropDownList>
+                    </div>
+                    <div class="col-span-2">
+                        <asp:TextBox ID="txtUOM" runat="server" ReadOnly="true" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C]" placeholder="Pcs/Kg/Box"></asp:TextBox>
+                    </div>
+                    <div class="col-span-2">
+                        <asp:TextBox ID="txtQuantity" runat="server" TextMode="Number" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C]" placeholder="Qty"></asp:TextBox>
+                    </div>
+                    <div class="col-span-2">
+                        <asp:TextBox ID="txtUnitPrice" runat="server" TextMode="Number" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C]" placeholder="Unit Price"></asp:TextBox>
+                    </div>
+                    <div class="col-span-2">
+                        <asp:TextBox ID="txttotalAmount" runat="server" TextMode="Number" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C]" placeholder="Unit Price"></asp:TextBox>
+                    </div>
+                    <div class="col-span-2">
+                        <asp:LinkButton ID="btnAddItem" runat="server" CssClass="flex items-center justify-center gap-1.5 w-full rounded bg-[#16A34A] text-white px-3 py-1.5 shadow-sm hover:bg-[#15803D] transition duration-200 font-medium text-sm no-underline" OnClick="btnAddItem_Click">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>Add</span>
+                        </asp:LinkButton>
+                    </div>
                 </div>
 
-                <div class="mt-3">
-                    <button type="button" class="flex items-center gap-1.5 rounded bg-[#16A34A] text-white px-3 py-1.5 shadow-sm hover:bg-[#15803D] cursor-pointer transition duration-200 font-medium text-sm" onclick="addRow()">
-                        <i class="fa-solid fa-plus text-xs"></i>
-                        <span>Add New Row</span>
-                    </button>
+                <div class="border border-gray-400 bg-gray-300 rounded w-full overflow-y-auto overflow-x-auto p-2" style="max-height: 300px;">
+                    <asp:GridView ID="gvItemList" runat="server" CssClass="w-full border-collapse bg-white text-left text-sm" AutoGenerateColumns="false" GridLines="None" DataKeyNames="RowId"
+                        HeaderStyle-CssClass="bg-gray-100 text-gray-700" RowStyle-CssClass="border-b border-gray-300" OnRowCommand="gvItemList_RowCommand">
+                        <Columns>
+                            <asp:BoundField DataField="ItemName" HeaderText="Item Name / Description" ItemStyle-CssClass="p-2 border border-gray-300" HeaderStyle-CssClass="p-2 border border-gray-300" ItemStyle-Width="30%" />
+                            <asp:BoundField DataField="UOM" HeaderText="UOM" ItemStyle-CssClass="p-2 border border-gray-300" HeaderStyle-CssClass="p-2 border border-gray-300" ItemStyle-Width="15%" />
+                            <asp:BoundField DataField="Quantity" HeaderText="Quantity" ItemStyle-CssClass="p-2 border border-gray-300" HeaderStyle-CssClass="p-2 border border-gray-300" ItemStyle-Width="15%" />
+                            <asp:BoundField DataField="UnitPrice" HeaderText="Unit Price (BDT)" DataFormatString="{0:N2}" ItemStyle-CssClass="p-2 border border-gray-300" HeaderStyle-CssClass="p-2 border border-gray-300" ItemStyle-Width="15%" />
+                            <asp:BoundField DataField="TotalAmount" HeaderText="Total Amount" DataFormatString="{0:N2}" ItemStyle-CssClass="p-2 border border-gray-300" HeaderStyle-CssClass="p-2 border border-gray-300" ItemStyle-Width="20%" />
+                            <asp:TemplateField HeaderText="Action" ItemStyle-CssClass="p-2 border border-gray-300 text-center" HeaderStyle-CssClass="p-2 border border-gray-300 text-center" ItemStyle-Width="5%">
+                                <ItemTemplate>
+                                    <asp:LinkButton ID="lnkRemoveItem" runat="server" CssClass="bg-[#EF4444] hover:bg-[#DC2626] text-white px-2 py-1 rounded text-xs" CommandName="RemoveItem" CommandArgument='<%# Eval("RowId") %>' OnClientClick="return confirm('Remove this item?');">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </asp:LinkButton>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                        </Columns>
+                        <EmptyDataTemplate>
+                            <div class="p-4 text-center text-gray-500 text-sm">No items added yet.</div>
+                        </EmptyDataTemplate>
+                    </asp:GridView>
                 </div>
             </fieldset>
 
@@ -209,15 +239,15 @@
                 <div class="w-full md:w-1/3 bg-gray-50 p-4 border border-gray-300 rounded shadow-sm">
                     <div class="mb-2 flex justify-between text-sm">
                         <span>Subtotal:</span>
-                        <strong id="subTotal">0.00</strong>
+                        <strong><asp:Label ID="lblSubTotal" runat="server" Text="0.00"></asp:Label></strong>
                     </div>
                     <div class="mb-2 flex justify-between items-center text-sm">
                         <span>VAT / Tax (%):</span>
-                        <input type="number" id="taxRate" name="tax_rate" class="border rounded outline-none border-gray-300 px-2 py-1 w-24 text-right focus:border-[#255C8C]" value="0" oninput="calculateGrandTotal()" />
+                        <asp:TextBox ID="txtTaxRate" runat="server" TextMode="Number" CssClass="border rounded outline-none border-gray-300 px-2 py-1 w-24 text-right focus:border-[#255C8C]" Text="0" AutoPostBack="true" OnTextChanged="txtTaxRate_TextChanged"></asp:TextBox>
                     </div>
                     <div class="flex justify-between border-t border-gray-300 pt-2 text-base font-semibold text-[#255C8C]">
                         <span>Grand Total:</span>
-                        <strong id="grandTotal">0.00</strong>
+                        <strong><asp:Label ID="lblGrandTotal" runat="server" Text="0.00"></asp:Label></strong>
                     </div>
                 </div>
             </div>
@@ -226,12 +256,10 @@
             <fieldset class="border border-gray-400 rounded p-3 mb-6">
                 <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Terms & Conditions</legend>
                 <div class="w-full">
-                    <!-- Quill Editor Container -->
                     <div id="editor-container" class="border border-gray-300 rounded">
                         <p>1. Goods must be delivered within the stipulated time.</p>
                         <p>2. Products will be returned if they do not meet quality standards.</p>
                     </div>
-                    <!-- Hidden input to pass editor HTML to backend -->
                     <asp:HiddenField ID="terms_hidden" runat="server" />
                 </div>
             </fieldset>
@@ -261,7 +289,10 @@
     <!-- Quill Rich Text Editor JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 
-    <!-- JavaScript for Dynamic Calculations & Editor -->
+    <!-- Select2 JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- JavaScript for Editor, View Toggle & Select2 Activation -->
     <script>
         // Initialize Quill Editor
         var quill = new Quill('#editor-container', {
@@ -279,6 +310,10 @@
         function showFormView() {
             document.getElementById('listView').classList.add('hidden');
             document.getElementById('formView').classList.remove('hidden');
+            // Re-initialize Select2 when form becomes visible (fixes hidden rendering issues)
+            $('.searchable-dropdown').select2({
+                width: '100%'
+            });
         }
 
         function showListView() {
@@ -292,76 +327,23 @@
             document.getElementById('<%= terms_hidden.ClientID %>').value = termsHtml;
         }
 
-        // Set today's date automatically if empty
-        window.addEventListener('DOMContentLoaded', (event) => {
+        // Initialize Select2 & Date on page load
+        $(document).ready(function () {
+            $('.searchable-dropdown').select2({
+                width: '100%'
+            });
+
             let dateField = document.getElementById('<%= txtPiDate.ClientID %>');
             if (dateField && !dateField.value) {
                 dateField.valueAsDate = new Date();
             }
         });
 
-        // Add new row function with Tailwind styling
-        function addRow() {
-            let table = document.getElementById('itemTable').getElementsByTagName('tbody')[0];
-            let newRow = table.insertRow();
-            newRow.innerHTML = `
-                <td class="p-2 border border-gray-300">
-                    <input type="text" class="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C]" name="item_name[]" placeholder="Item name" required />
-                </td>
-                <td class="p-2 border border-gray-300">
-                    <input type="text" class="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C]" name="uom[]" placeholder="Pcs/Kg/Box" required />
-                </td>
-                <td class="p-2 border border-gray-300">
-                    <input type="number" class="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] qty" name="quantity[]" value="1" min="1" oninput="calculateTotal(this)" required />
-                </td>
-                <td class="p-2 border border-gray-300">
-                    <input type="number" class="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] price" name="unit_price[]" value="0" min="0" step="0.01" oninput="calculateTotal(this)" required />
-                </td>
-                <td class="p-2 border border-gray-300">
-                    <input type="text" class="w-full border rounded outline-none border-gray-300 px-2 py-1 bg-gray-100 total" name="total_price[]" value="0.00" readonly />
-                </td>
-                <td class="p-2 border border-gray-300 text-center">
-                    <button type="button" class="bg-[#EF4444] hover:bg-[#DC2626] text-white px-2 py-1 rounded text-xs transition duration-200" onclick="removeRow(this)"><i class="fa-solid fa-trash"></i></button>
-                </td>
-            `;
-        }
-
-        // Remove row function
-        function removeRow(button) {
-            let row = button.closest('tr');
-            if (document.getElementById('itemTable').rows.length > 2) {
-                row.remove();
-                calculateGrandTotal();
-            } else {
-                alert('At least one item is required!');
-            }
-        }
-
-        // Calculate individual row total
-        function calculateTotal(element) {
-            let row = element.closest('tr');
-            let qty = parseFloat(row.querySelector('.qty').value) || 0;
-            let price = parseFloat(row.querySelector('.price').value) || 0;
-            let total = qty * price;
-            row.querySelector('.total').value = total.toFixed(2);
-            calculateGrandTotal();
-        }
-
-        // Calculate grand total
-        function calculateGrandTotal() {
-            let totals = document.querySelectorAll('.total');
-            let subTotal = 0;
-            totals.forEach(t => {
-                subTotal += parseFloat(t.value) || 0;
+        // Re-initialize Select2 after ASP.NET UpdatePanel or PostBacks if applicable
+        function pageLoad() {
+            $('.searchable-dropdown').select2({
+                width: '100%'
             });
-
-            document.getElementById('subTotal').innerText = subTotal.toFixed(2);
-
-            let taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
-            let taxAmount = (subTotal * taxRate) / 100;
-            let grandTotal = subTotal + taxAmount;
-
-            document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
         }
     </script>
 
