@@ -20,9 +20,8 @@
             <asp:HiddenField ID="hfUserId" runat="server" />
             <asp:HiddenField ID="hfBuyerId" runat="server" />
 
-            <%-- ============================================================ --%>
             <%-- LIST PANEL : Buyer List (opens first, always) --%>
-            <%-- ============================================================ --%>
+
             <asp:Panel ID="pnlList" runat="server">
 
                 <div class="bg-[#255C8C] flex justify-between items-center rounded-t-lg px-4 py-2">
