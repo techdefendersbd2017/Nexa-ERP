@@ -43,7 +43,7 @@
                     <p class="text-xl mb-1 font-medium">Color Group List</p>
 
                 </div>
-                
+
             </div>
 
             <div class="bg-[#ffffff] shadow-xl rounded-b-lg p-4">
@@ -54,28 +54,28 @@
 
                     <%-- left container --%>
 
-                            <div class="flex justify-between w-full">
+                    <div class="flex justify-between w-full">
 
-                                <%-- search input btn --%>
-                                <div class="relative flex items-center w-full max-w-xs">
-                                   
-                                    <span class="absolute left-3 text-gray-400 pointer-events-none">
-                                        <i class="fa-solid fa-magnifying-glass text-sm"></i>
-                                    </span>
+                        <%-- search input btn --%>
+                        <div class="relative flex items-center w-full max-w-xs">
 
-                                    <asp:TextBox ID="TextBox1"
-                                        placeholder="Search..."
-                                        runat="server"
-                                        CssClass="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg outline-none text-sm text-gray-900 placeholder-gray-400 focus:border-[#255C8C] transition duration-150">
+                            <span class="absolute left-3 text-gray-400 pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                            </span>
+
+                            <asp:TextBox ID="TextBox1"
+                                placeholder="Search..."
+                                runat="server"
+                                CssClass="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg outline-none text-sm text-gray-900 placeholder-gray-400 focus:border-[#255C8C] transition duration-150">
                                     </asp:TextBox>
-                                </div>
+                        </div>
 
-                                <!-- Green Add New Button -->
-                                <asp:LinkButton ID="lnkAddNew" runat="server" PostBackUrl="~/eSTrimCode/purchaseRequisition.aspx" CssClass="flex gap-1.5 items-center bg-[#16A34A] hover:bg-[#15803D] text-white transition-all duration-200 px-3 py-2 rounded cursor-pointer shadow-md font-medium text-sm no-underline justify-center ">
+                        <!-- Green Add New Button -->
+                        <asp:LinkButton ID="lnkAddNew" runat="server" PostBackUrl="~/eSTrimCode/purchaseRequisition.aspx" CssClass="flex gap-1.5 items-center bg-[#16A34A] hover:bg-[#15803D] text-white transition-all duration-200 px-3 py-2 rounded cursor-pointer shadow-md font-medium text-sm no-underline justify-center ">
                                     <i class="fa-solid fa-plus text-xs"></i>
                                     <span>Add Color Group</span>
-                                </asp:LinkButton>
-                            </div>
+                        </asp:LinkButton>
+                    </div>
 
                 </div>
 
@@ -157,14 +157,14 @@
                                         <asp:ListItem Value="" Selected="True">--Select Style--</asp:ListItem>
                                     </asp:DropDownList>
                                 </div>
-                                
+
 
                             </div>
                         </div>
 
                     </fieldset>
 
-                        <%-- ======== search with  Grid ======== --%>
+                    <%-- ======== search with  Grid ======== --%>
                     <fieldset class="col-span-6 border border-gray-400 p-2 rounded">
                         <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Style Color</legend>
                         <div class=" space-y-2 flex flex-col h-full">
@@ -185,15 +185,15 @@
                             <div class="border border-gray-400 bg-gray-300 rounded w-full flex-1  overflow-y-auto overflow-x-auto">
                                 <asp:ListView ID="ListView3" runat="server"></asp:ListView>
                             </div>
-                            
+
                         </div>
                     </fieldset>
 
                 </div>
 
-          
+
                 <!-- below btn -->
-                <div class=" mt-6">
+                <div class=" mt-3">
 
                     <div class="flex gap-4 items-end justify-end">
 
@@ -208,7 +208,7 @@
                             <i class="fa-regular fa-calendar-minus"></i>
                             <span>Clear</span>
                         </asp:LinkButton>
-          
+
                     </div>
                 </div>
             </div>
