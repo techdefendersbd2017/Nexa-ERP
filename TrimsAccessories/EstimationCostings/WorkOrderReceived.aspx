@@ -642,7 +642,7 @@
 
                         <!-- Show Button -->
                         <div class="col-md-1">
-                            <asp:Button ID="btnShow" runat="server" Text="Show" CssClass="btn btn-primary btn-sm w-100" />
+                            <asp:Button ID="btnShow" runat="server" Text="Show" CssClass="btn btn-primary btn-sm w-100" OnClick="btnShow_Click" />
                         </div>
                     </div>
                 </fieldset>

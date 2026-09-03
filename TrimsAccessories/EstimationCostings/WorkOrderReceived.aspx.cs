@@ -85,6 +85,62 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 LoadPartyList();
             }
         }
+        private void ShowWorkOrderList()
+        {
+            try
+            {
+                con = conn.openConnection();
+                DataTable dt = new DataTable();
+                using (SqlCommand cmd = new SqlCommand("[techdefendersbd].[LoadWorkOrderList]", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // PartyID - dropdown থেকে
+                    int partyId = 0;
+                    if (ddlCustomerListPage.SelectedValue != "0" && !string.IsNullOrEmpty(ddlCustomerListPage.SelectedValue))
+                        partyId = Convert.ToInt32(ddlCustomerListPage.SelectedValue);
+
+                    cmd.Parameters.AddWithValue("@PartyID",
+                        partyId > 0 ? (object)partyId : DBNull.Value);
+
+                    // Work Order No
+                    cmd.Parameters.AddWithValue("@workOrderNo",
+                        string.IsNullOrEmpty(txtWorderNo.Text.Trim()) ? (object)DBNull.Value : txtWorderNo.Text.Trim());
+
+                    // Ref Work Order No
+                    cmd.Parameters.AddWithValue("@RefworkOrderNo",
+                        string.IsNullOrEmpty(txtRefWorkOrderNo.Text.Trim()) ? (object)DBNull.Value : txtRefWorkOrderNo.Text.Trim());
+
+                    // Date fields (procedure এ ব্যবহার না হলেও পাঠাতে হবে, কারণ parameter mandatory)
+                    cmd.Parameters.AddWithValue("@iSdate", cktilldateshow.Checked);
+
+                    cmd.Parameters.AddWithValue("@FormDate",
+                        string.IsNullOrEmpty(txtFormDate.Text.Trim()) ? (object)DBNull.Value : Convert.ToDateTime(txtFormDate.Text.Trim()));
+
+                    cmd.Parameters.AddWithValue("@TillDate",
+                        string.IsNullOrEmpty(txtTillDate.Text.Trim()) ? (object)DBNull.Value : Convert.ToDateTime(txtTillDate.Text.Trim()));
+
+                    cmd.Parameters.AddWithValue("@DeliveryDate",
+                        string.IsNullOrEmpty(txtdeliveryDated.Text.Trim()) ? (object)DBNull.Value : Convert.ToDateTime(txtdeliveryDated.Text.Trim()));
+
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        da.Fill(dt);
+                    }
+                }
+
+                gvWorkOrderReceive.DataSource = dt;
+                gvWorkOrderReceive.DataBind();
+            }
+            catch
+            {
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
+
+        }
 
         private string GenerateNextWorkOrderRef()
         {
@@ -1293,6 +1349,11 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             { 
                 txtTillDate.Visible = false; 
             }
+        }
+
+        protected void btnShow_Click(object sender, EventArgs e)
+        {
+            ShowWorkOrderList();
         }
     }
 }
