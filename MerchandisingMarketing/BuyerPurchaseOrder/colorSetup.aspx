@@ -86,7 +86,7 @@
                 <fieldset class="border border-gray-400 rounded p-1 mt-3">
 
                     <div class="">
-                        <div class="border border-gray-400 bg-gray-300 rounded w-full h-full  overflow-y-auto overflow-x-auto pt-6">
+                        <div class="border border-gray-400 bg-gray-300 rounded w-full h-72  overflow-y-auto overflow-x-auto pt-6">
                             <asp:ListView ID="ListView1" runat="server"></asp:ListView>
                         </div>
 
@@ -123,10 +123,10 @@
                 <asp:HiddenField ID="hfUserId" runat="server" />
 
                 <%-- main container --%>
-                <div class="bg-[#FBFCFE] w-full grid grid-cols-12 space-x-3">
+                <div class=" w-full grid grid-cols-12 space-x-3">
 
                     <%-- left container --%>
-                    <fieldset class="col-span-6 border border-gray-400 rounded p-2">
+                    <fieldset class="col-span-6 border border-gray-400 rounded p-2 bg-[#FBFCFE]">
                         <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Master Information</legend>
 
                         <div class=" flex flex-col">
@@ -165,7 +165,7 @@
                     </fieldset>
 
                     <%-- ======== search with  Grid ======== --%>
-                    <fieldset class="col-span-6 border border-gray-400 p-2 rounded">
+                    <fieldset class="col-span-6 border border-gray-400 p-2 rounded bg-[#FBFCFE]">
                         <legend class="text-sm font-medium px-2 text-[#255C8C] italic">Style Color</legend>
                         <div class=" space-y-2 flex flex-col h-full">
                             <div class="flex gap-1 items-end">
