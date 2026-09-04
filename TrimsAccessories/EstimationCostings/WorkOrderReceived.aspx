@@ -26,6 +26,21 @@
             font-size: 14px;
         }
 
+        /* ================= FULL WIDTH PAGE LAYOUT ================= */
+        .page-wrapper {
+            width: 100%;
+            max-width: 100%;
+            padding-left: 24px;
+            padding-right: 24px;
+            box-sizing: border-box;
+        }
+        @media (max-width: 575.98px) {
+            .page-wrapper {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+
         /* ================= CARD / HEADER ================= */
         .card-header-custom {
             background: linear-gradient(135deg, #1f4e78 0%, #2c6ca3 100%);
@@ -337,10 +352,6 @@
         }
 
         @media (max-width: 575.98px) {
-            .container {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
             .entry-row {
                 padding: 12px 8px 8px 8px;
             }
@@ -367,6 +378,41 @@
             .variant-fields-grid .vf-add {
                 grid-column: 1 / -1;
             }
+        }
+        .status-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-left: 4px solid #0d3b66; /* navy accent, matches card-header-custom */
+            border-radius: 6px;
+            padding: 14px 16px;
+            height: 100%;
+        }
+
+        .status-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #495057;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .status-select {
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        /* Optional: color-code by value using a small JS/postback trick,
+           or simply give Submit a green tint via a wrapper class if needed */
+        .summary-box .input-group-text.grand-total {
+            background-color: #0d3b66;
+            color: #fff;
+            border-color: #0d3b66;
+        }
+
+        .summary-box .grand-total ~ .form-control {
+            font-size: 1.05rem;
         }
     </style>
 
@@ -586,13 +632,16 @@
     <form id="form1" runat="server">
         <asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true"></asp:ScriptManager>
 
-        <div class="container my-4">
+        <div class="page-wrapper my-4">
 
+         <asp:Panel ID="pnlList" runat="server">
             <!-- ================= 1. LIST PANEL ================= -->
-            <div id="pnlList" class="panel active">
+            <%--<div id="pnlList" class="panel active">--%>
+            <div>
                 <div class="list-toolbar">
                     <div class="list-title">Work Order Receive List</div>
-                    <button type="button" class="btn btn-success btn-sm" onclick="showPanel('pnlForm')">+ Add New Work Order</button>
+                    <%--<button type="button" class="btn btn-success btn-sm" onclick="showPanel('pnlForm')">+ Add New Work Order</button>--%>
+                    <asp:Button ID="BtnAddNew" runat="server"  Text="+ Add New Work Order"  CssClass="btn btn-success btn-sm" OnClick="BtnAddNew_Click" />
                 </div>
                 <fieldset class="section-box">
                     <div class="row g-3 align-items-end">
@@ -642,7 +691,7 @@
 
                         <!-- Show Button -->
                         <div class="col-md-1">
-                            <asp:Button ID="btnShow" runat="server" Text="Show" CssClass="btn btn-primary btn-sm w-100" />
+                            <asp:Button ID="btnShow" runat="server" Text="Show" CssClass="btn btn-primary btn-sm w-100" OnClick="btnShow_Click" />
                         </div>
                     </div>
                 </fieldset>
@@ -662,15 +711,18 @@
                             <ItemStyle Width="5%" />
                         </asp:TemplateField>
 
-                        <asp:BoundField DataField="PartyName" HeaderText="Customer Name" ItemStyle-Width="20%" />
-
                         <asp:BoundField DataField="WORcvNo" HeaderText="WO Rcv No" ItemStyle-Width="10%" />
 
-                        <asp:BoundField DataField="WORcvDate" HeaderText="WO Rcv Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="10%" />
+                        <asp:BoundField DataField="PartyName" HeaderText="Customer Name" ItemStyle-Width="20%" />
+                        <asp:BoundField DataField="RefWorkOrderNo" HeaderText="Ref. Wo No" ItemStyle-Width="11%" />
 
-                        <asp:BoundField DataField="DeliveryDate" HeaderText="Delivery Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="10%" />
+                        <asp:BoundField DataField="WORcvDate" HeaderText="WO Rcv Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="8%" />
 
-                        <asp:BoundField DataField="GrandTotal" HeaderText="Total Value" DataFormatString="{0:N2}" HtmlEncode="false" ItemStyle-Width="10%" />
+                        <asp:BoundField DataField="DeliveryDate" HeaderText="Delivery Date" DataFormatString="{0:dd-MM-yyyy}" HtmlEncode="false" ItemStyle-Width="8%" />
+
+                        <asp:BoundField DataField="GrandTotal" HeaderText="Total Value" DataFormatString="{0:N2}" HtmlEncode="false" ItemStyle-Width="8%" />
+                        
+                        <asp:BoundField DataField="WOStatus" HeaderText="WO Status" ItemStyle-Width="5%" />
 
                         <asp:TemplateField HeaderText="Action" ItemStyle-Width="35%">
                             <ItemTemplate>
@@ -688,7 +740,7 @@
                                     <asp:LinkButton ID="lnkPrintViewWithAmount" runat="server" Text="WO Report with Amount" CommandName="ReportViewWithAmount" CommandArgument='<%# Eval("WORcvID") %>'
                                         Style="background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid #a5d6a7;" />
 
-                                    <asp:LinkButton ID="lnkRawMatrial" runat="server" Text="Raw Material Report" CommandName="RawMatrialView" CommandArgument='<%# Eval("WORcvID") %>'
+                                    <asp:LinkButton ID="lnkRawMatrial" runat="server" Visible="false" Text="Raw Material Report" CommandName="RawMatrialView" CommandArgument='<%# Eval("WORcvID") %>'
                                         Style="background-color: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; border: 1px solid #a5d6a7;" />
                                 </div>
                             </ItemTemplate>
@@ -697,13 +749,17 @@
                     </Columns>
                 </asp:GridView>
             </div>
-
+        </asp:Panel>
             <!-- ================= 2. FORM PANEL ================= -->
-            <div id="pnlForm" class="panel">
+            <asp:Panel ID="pnlDetails" runat="server" Visible="false">
+
+
+            <%--<div id="pnlForm" class="panel active">--%>
+            <div>
                 <div class="card shadow-sm">
                     <div class="card-header card-header-custom text-center py-2 d-flex justify-content-between align-items-center">
                         <span>Work Order Input Form (ERP Module)</span>
-                        <button type="button" class="btn btn-light btn-sm text-dark fw-bold" onclick="showPanel('pnlList')">← Back to List</button>
+                        <asp:Button ID="Button2" runat="server" class="btn btn-light btn-sm text-dark fw-bold" Text="← Back to List" OnClick="Button2_Click" />
                     </div>
                     <div class="card-body p-4">
 
@@ -715,7 +771,6 @@
 
                                 <!-- ============ SECTION 1: HEADER INFORMATION ============ -->
                                 <fieldset class="section-box">
-                                    <legend>[Company PAD Common] - Header Info</legend>
                                     <div class="row g-3">
                                         <div class="col-md-3">
                                             <label class="form-label fw-bold">1. Customer Name</label>
@@ -735,37 +790,30 @@
                                                 </ContentTemplate>
                                             </asp:UpdatePanel>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label class="form-label fw-bold">2. Work Order No.[Auto]</label>
                                             <asp:TextBox ID="txtWoRef" runat="server" CssClass="form-control form-control-sm" Text="WO-2026-0001" ReadOnly="true"></asp:TextBox>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label class="form-label fw-bold">3. Work Order Date</label>
                                             <asp:TextBox ID="txtWoDate" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label class="form-label fw-bold">4. Delivery Date</label>
                                             <asp:TextBox ID="txtDeliveryDate" runat="server" CssClass="form-control form-control-sm" TextMode="Date"></asp:TextBox>
                                         </div>
-                                    </div>
-                                </fieldset>
-
-                                <!-- ============ SECTION 2: WO DETAILS HEADER ============ -->
-                                <fieldset class="section-box">
-                                    <legend>WO Details Header (Branch, Ref No. &amp; Quotation)</legend>
-                                    <div class="row g-3">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label fw-bold">5. Receiving Branch</label>
                                             <asp:DropDownList ID="ddlReceivingBranch" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
                                                 <asp:ListItem Text="--Select Receiving Branch--" Value="0" />
                                             </asp:DropDownList>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">Ref. Work Order No</label>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold">6. Ref. Work Order No</label>
                                             <asp:TextBox ID="txtWoNoDetails" runat="server" CssClass="form-control form-control-sm" placeholder="e.g. WO-001"></asp:TextBox>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">Quotation No</label>
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-bold">7. Quotation No</label>
                                             <asp:TextBox ID="txtQuotationNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Quotation No"></asp:TextBox>
                                         </div>
                                     </div>
@@ -773,8 +821,6 @@
 
                                 <!-- ============ SECTION 3: ITEM / COLOR / SIZE ENTRY & GRID ============ -->
                                 <fieldset class="section-box">
-                                    <legend>Item, Color &amp; Size-wise Variant Entry</legend>
-
                                     <!-- Entry Row 1 -->
                                     <div class="row g-2 align-items-end entry-row">
                                         <div class="col-md-3">
@@ -874,7 +920,14 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold">Size</label>
+                                            <label class="form-label small fw-bold" style="color: #FF3300; text-align: right">if Required Size-Group? Check Here</label>
+                                            <asp:CheckBox ID="chksizeGroupEnable" AutoPostBack="true" runat="server" OnCheckedChanged="chksizeGroupEnable_CheckedChanged"/>
+
                                             <asp:TextBox ID="txtSize" runat="server" CssClass="form-control form-control-sm" placeholder="e.g. S / 10x12"></asp:TextBox>
+                                            
+                                            <asp:DropDownList ID="ddlsizeGroup" runat="server" Visible="false" CssClass="form-select form-select-sm searchable-dropdown">
+                                                <asp:ListItem Text="--Select size--" Value="0" />
+                                            </asp:DropDownList>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold">Req. Qty</label>
@@ -882,8 +935,7 @@
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold">Unit</label>
-                                            <asp:DropDownList ID="ddlUnit" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
-                                            </asp:DropDownList>
+                                            <asp:TextBox ID="ddlUnit" runat="server" CssClass="form-control form-control-sm"></asp:TextBox>
                                         </div>
                                         <div class="col-md-3">
                                             <label class="form-label small fw-bold">Extra %</label>
@@ -905,21 +957,18 @@
                                             <label class="form-label small fw-bold">Item Spec / Remarks</label>
                                             <asp:TextBox ID="txtSizeRemarks" runat="server" CssClass="form-control form-control-sm" placeholder="Remarks"></asp:TextBox>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-1">
                                             <asp:Button ID="btnAddSize" runat="server" CssClass="btn add-variant-btn btn-sm w-100 text-white" Text="+ Add" OnClick="btnAddSize_Click" />
                                         </div>
-                                    </div>
-
-                                    <!-- Entry Row 2: Size Group Bulk Add -->
-                                    <div class="row g-2 align-items-end entry-row">
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Size Group</label>
-                                            <asp:DropDownList ID="ddlsizeGroup" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
-                                                <asp:ListItem Text="--Select size--" Value="0" />
-                                            </asp:DropDownList>
+                                        
+                                        <div class="col-md-1">
+                                            <asp:Button ID="btnAddAllsize" runat="server" CssClass="btn btn-success btn-sm w-100" Text="Add All Size" OnClick="btnAddAllsize_Click" Enabled="False" />
                                         </div>
-                                        <div class="col-md-2">
-                                            <asp:Button ID="btnAddAllsize" runat="server" CssClass="btn btn-success btn-sm w-100" Text="Add All Size" OnClick="btnAddAllsize_Click" />
+                                        <div class="col-md-3">
+                                            <asp:Panel ID="Panel1" runat="server" Visible="false">
+                                            <label class="form-label small fw-bold">Items Entry ID</label>
+                                            <asp:TextBox ID="txtItemsEntryID" runat="server" CssClass="form-control form-control-sm" ReadOnly="true" placeholder="Entry ID"></asp:TextBox>
+                                            </asp:Panel>
                                         </div>
                                     </div>
 
@@ -929,11 +978,19 @@
                                         Added Item / Color / Size List
                                     </div>
                                     <div class="table-responsive mt-2">
-                                        <asp:GridView ID="gvSizeDetails" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle" AutoGenerateColumns="False" DataKeyNames="SlNo" EmptyDataText="No size variant added yet." OnRowCommand="gvSizeDetails_RowCommand">
+                                        <asp:GridView ID="gvSizeDetails" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle" AutoGenerateColumns="False" DataKeyNames="WorkOrderDetailsID" EmptyDataText="No size variant added yet." OnSelectedIndexChanged="gvSizeDetails_SelectedIndexChanged">
                                             <HeaderStyle CssClass="table-dark-custom" />
                                             <Columns>
-                                                <asp:BoundField DataField="SlNo" HeaderText="Sl No" />
+                                                <asp:TemplateField HeaderText="Action">
+                                                    <ItemTemplate>
+                                                        <asp:Button ID="btnSelect" runat="server" CommandName="Select" CommandArgument='<%# Container.DataItemIndex %>' Text="Select" CssClass="btn btn-sm btn-outline-primary" />
+                                                    </ItemTemplate>
+                                                    <ItemStyle CssClass="text-center" />
+                                                </asp:TemplateField>
+                                                <asp:BoundField DataField="WorkOrderDetailsID" HeaderText="Entry No" />
+
                                                 <asp:BoundField DataField="ItemName" HeaderText="Item Name" />
+                                                <asp:BoundField DataField="JobNo" HeaderText="Item Name" />
                                                 <asp:BoundField DataField="Buyer" HeaderText="Buyer Name" />
                                                 <asp:BoundField DataField="Style" HeaderText="Style Name" />
                                                 <asp:BoundField DataField="PO" HeaderText="PO Name" />
@@ -945,13 +1002,9 @@
                                                         <asp:TextBox ID="txtMeasurement" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("Measurement") %>'></asp:TextBox>
                                                     </ItemTemplate>
                                                 </asp:TemplateField>
+
                                                 <asp:TemplateField HeaderText="Required Qty">
                                                     <ItemTemplate>
-                                                        <%-- ★ FIX: ডুপ্লিকেট onchange="calculateRow(this);" সরানো হয়েছে।
-                                                             AutoPostBack="true" নিজে থেকেই onchange-এ __doPostBack যোগ করে;
-                                                             ম্যানুয়াল onchange থাকলে সেটা override হয়ে সার্ভার postback আটকে যেত,
-                                                             ফলে Sub Total / Grand Total রিক্যালকুলেট হতো না। onkeyup রেখে দেওয়া হয়েছে
-                                                             যাতে টাইপ করার সময় রো-এর মধ্যে লাইভ ক্যালকুলেশন (client-side) ঠিকই দেখা যায়। --%>
                                                         <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm text-center"
                                                             Text='<%# Eval("ReqQty") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
                                                             onkeyup="calculateRow(this);"></asp:TextBox>
@@ -966,7 +1019,6 @@
 
                                                 <asp:TemplateField HeaderText="Rate/Unit">
                                                     <ItemTemplate>
-                                                        <%-- ★ FIX: ডুপ্লিকেট onchange সরানো হয়েছে (একই কারণে) --%>
                                                         <asp:TextBox ID="txtRateUnit" runat="server" CssClass="form-control form-control-sm text-center"
                                                             Text='<%# Eval("RateUnit") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
                                                             onkeyup="calculateRow(this);"></asp:TextBox>
@@ -981,7 +1033,6 @@
 
                                                 <asp:TemplateField HeaderText="Extra %">
                                                     <ItemTemplate>
-                                                        <%-- ★ FIX: ডুপ্লিকেট onchange সরানো হয়েছে (একই কারণে) --%>
                                                         <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm text-center"
                                                             Text='<%# Eval("ExtraPercent") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
                                                             onkeyup="calculateRow(this);"></asp:TextBox>
@@ -1005,36 +1056,28 @@
                                                         <asp:TextBox ID="txtRemarks" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("Remarks") %>'></asp:TextBox>
                                                     </ItemTemplate>
                                                 </asp:TemplateField>
-
-                                                <asp:TemplateField HeaderText="Action">
-                                                    <ItemTemplate>
-                                                        <asp:Button ID="btnUpdateSize" runat="server" CssClass="btn btn-warning btn-sm px-2 py-0"
-                                                            Text="Update" CommandName="UpdateSize" CommandArgument='<%# Eval("SlNo") %>' CausesValidation="false" />
-                                                        <asp:Button ID="btnEditSize" runat="server" CssClass="btn btn-primary btn-sm px-2 py-0"
-                                                            Text="Edit" CommandName="EditSize" CommandArgument='<%# Eval("SlNo") %>' CausesValidation="false" />
-                                                        <asp:Button ID="btnDeleteSize" runat="server" CssClass="btn btn-danger btn-sm px-2 py-0"
-                                                            Text="X" CommandName="DeleteSize" CommandArgument='<%# Eval("SlNo") %>' CausesValidation="false" />
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
                                             </Columns>
                                         </asp:GridView>
-                                    </div>
-
-                                    <!-- Running Total -->
-                                    <div class="row justify-content-end mt-3">
-                                        <div class="col-md-4">
-                                            <div class="input-group input-group-sm summary-box">
-                                                <span class="input-group-text fw-bold w-50">Items Total Amount</span>
-                                                <asp:TextBox ID="txtColorTotalAmount" runat="server" CssClass="form-control text-end" Text="0.00" ReadOnly="true"></asp:TextBox>
-                                            </div>
-                                        </div>
                                     </div>
                                 </fieldset>
 
                                 <!-- ============ SECTION 4: OTHER COSTS & GRAND TOTAL ============ -->
                                 <fieldset class="section-box">
                                     <legend>Other Costs &amp; Grand Total Summary</legend>
-                                    <div class="row justify-content-end">
+                                    <div class="row justify-content-between align-items-start">
+
+                                        <!-- LEFT SIDE: Status Box -->
+                                        <div class="col-md-4">
+                                            <div class="status-box">
+                                                <label class="status-label">Work Order Status</label>
+                                                <asp:DropDownList ID="ddlWOStatus" runat="server" Enabled="false" CssClass="form-select form-select-sm status-select">
+                                                    <asp:ListItem Text="Draft" Value="0"></asp:ListItem>
+                                                    <asp:ListItem Text="Submit" Value="1"></asp:ListItem>
+                                                </asp:DropDownList>
+                                            </div>
+                                        </div>
+
+                                        <!-- RIGHT SIDE: Totals Summary -->
                                         <div class="col-md-4 summary-box">
                                             <div class="input-group input-group-sm mb-2">
                                                 <span class="input-group-text fw-bold w-50">Sub Total Amount</span>
@@ -1063,14 +1106,21 @@
 
                         <!-- Bottom Action Buttons -->
                         <div class="d-flex gap-2 form-footer-actions">
-                            <asp:Button ID="btnSave" runat="server" CssClass="btn btn-success px-4" Text="Save &amp; Print Work Order" OnClick="btnSave_Click" />
+                            <asp:Button ID="btnSave" runat="server" CssClass="btn btn-success px-4" Text="Save &amp; Submit Work Order" OnClick="btnSave_Click" />
                             <asp:Button ID="btnCancel" runat="server" CssClass="btn btn-secondary px-4" Text="Cancel" OnClick="btnCancel_Click" />
-                            <button type="button" class="btn btn-info px-4 text-white" onclick="showPanel('pnlList')">Back to List</button>
+                        <asp:Button ID="Button3" runat="server" class="btn btn-light btn-sm text-dark fw-bold" Text="← Back to List" OnClick="Button2_Click" />
                         </div>
 
                     </div>
                 </div>
             </div>
+
+        </asp:Panel>
+
+
+
+
+
 
         </div>
     </form>

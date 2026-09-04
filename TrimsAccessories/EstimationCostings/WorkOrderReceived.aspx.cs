@@ -1,4 +1,5 @@
-﻿using Nexa_ERP.Connection;
+﻿using CrystalDecisions.Windows.Forms;
+using Nexa_ERP.Connection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,11 +9,13 @@ using System.Web;
 using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using static iTextSharp.tool.xml.html.HTML;
 
 namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 {
     public partial class WorkOrderReceived : System.Web.UI.Page
     {
+        string DetailsID;
         SqlConnection con;
         DatabaseConnectionMerchandising conn = new DatabaseConnectionMerchandising();
         SqlCommand cmd;
@@ -78,12 +81,70 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 txtWoDate.Text = DateTime.Today.ToString("yyyy-MM-dd");
                 txtWoRef.Text = GenerateNextWorkOrderRef();
 
-                BindWorkOrderList();
-                BindSizeDetails();
+                //BindWorkOrderList();
                 LoadItemsName();
                 LoadSizeGroup();
                 LoadPartyList();
+                ShowWorkOrderList();
+
+                ClientScript.RegisterStartupScript(this.GetType(), "showListPanel", "showPanel('pnlList');", true);
             }
+        }
+        private void ShowWorkOrderList()
+        {
+            try
+            {
+                con = conn.openConnection();
+                DataTable dt = new DataTable();
+                using (SqlCommand cmd = new SqlCommand("[techdefendersbd].[LoadWorkOrderList]", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    // PartyID - dropdown থেকে
+                    int partyId = 0;
+                    if (ddlCustomerListPage.SelectedValue != "0" && !string.IsNullOrEmpty(ddlCustomerListPage.SelectedValue))
+                        partyId = Convert.ToInt32(ddlCustomerListPage.SelectedValue);
+
+                    cmd.Parameters.AddWithValue("@PartyID",
+                        partyId > 0 ? (object)partyId : DBNull.Value);
+
+                    // Work Order No
+                    cmd.Parameters.AddWithValue("@workOrderNo",
+                        string.IsNullOrEmpty(txtWorderNo.Text.Trim()) ? (object)DBNull.Value : txtWorderNo.Text.Trim());
+
+                    // Ref Work Order No
+                    cmd.Parameters.AddWithValue("@RefworkOrderNo",
+                        string.IsNullOrEmpty(txtRefWorkOrderNo.Text.Trim()) ? (object)DBNull.Value : txtRefWorkOrderNo.Text.Trim());
+
+                    // Date fields (procedure এ ব্যবহার না হলেও পাঠাতে হবে, কারণ parameter mandatory)
+                    cmd.Parameters.AddWithValue("@iSdate", cktilldateshow.Checked);
+
+                    cmd.Parameters.AddWithValue("@FormDate",
+                        string.IsNullOrEmpty(txtFormDate.Text.Trim()) ? (object)DBNull.Value : Convert.ToDateTime(txtFormDate.Text.Trim()));
+
+                    cmd.Parameters.AddWithValue("@TillDate",
+                        string.IsNullOrEmpty(txtTillDate.Text.Trim()) ? (object)DBNull.Value : Convert.ToDateTime(txtTillDate.Text.Trim()));
+
+                    cmd.Parameters.AddWithValue("@DeliveryDate",
+                        string.IsNullOrEmpty(txtdeliveryDated.Text.Trim()) ? (object)DBNull.Value : Convert.ToDateTime(txtdeliveryDated.Text.Trim()));
+
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        da.Fill(dt);
+                    }
+                }
+
+                gvWorkOrderReceive.DataSource = dt;
+                gvWorkOrderReceive.DataBind();
+            }
+            catch
+            {
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
+
         }
 
         private string GenerateNextWorkOrderRef()
@@ -118,32 +179,41 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         // ★ FIX: parameterized query — SQL Injection ঝুঁকি দূর করা হয়েছে
         private void LoadUnit()
         {
+            string a = gvSizeDetails.SelectedDataKey.Value.ToString();
+            txtQuotationNo.Text = a;
             try
             {
-                con = conn.openConnection();
-                string query = @"SELECT ta_ItemName.ItemID, tbl_UnitSetup.UnitID, tbl_UnitSetup.UnitName
+                string sql = @"SELECT ta_ItemName.ItemID, tbl_UnitSetup.UnitID, tbl_UnitSetup.UnitName
                     FROM ta_ItemName INNER JOIN tbl_UnitSetup ON ta_ItemName.Unit = tbl_UnitSetup.UnitName 
                     WHERE ta_ItemName.ItemID = @ItemID";
-                using (SqlCommand cmd = new SqlCommand(query, con))
+                con = conn.openConnection();
+                cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@ItemID", ddlItemNameDetails.SelectedValue);
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    cmd.Parameters.AddWithValue("@ItemID", ddlItemNameDetails.SelectedValue);
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-
-                    ddlUnit.DataSource = dt;
-                    ddlUnit.DataTextField = "UnitName";
-                    ddlUnit.DataValueField = "UnitID";
-                    ddlUnit.DataBind();
+                    while (reader.Read())
+                    {
+                        ddlUnit.Text = reader["Unit"].ToString();
+                    }
                 }
+                else
+                {
+                    //txtCategoryId.Text = txtCategory.Text = string.Empty;
+                }
+                reader.Close();
+                con.Close();
             }
             catch (Exception ex)
             {
-                ShowMessage("Error: " + ex.Message, "warning");
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
             }
             finally
             {
-                if (con != null && con.State == ConnectionState.Open) con.Close();
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
             }
         }
 
@@ -362,10 +432,10 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             try
             {
                 con = conn.openConnection();
-                string query = @"SELECT WorkOrderHeader.WORcvID, WorkOrderHeader.WORcvNo, WorkOrderHeader.WORcvDate, WorkOrderHeader.DeliveryDate, WorkOrderHeader.GrandTotal, tbl_CustomerSupplier.PartyName
+                string query = @"SELECT WorkOrderHeader.WORcvID, WorkOrderHeader.WORcvNo,WorkOrderHeader.WOStatus, WorkOrderHeader.WORcvDate, WorkOrderHeader.DeliveryDate, WorkOrderHeader.GrandTotal, tbl_CustomerSupplier.PartyName,WorkOrderHeader.RefWorkOrderNo
                                     FROM WorkOrderHeader INNER JOIN tbl_CustomerSupplier ON WorkOrderHeader.CustomerID = tbl_CustomerSupplier.PartyID
                                   WHERE IsActive = 1
-                                  ORDER BY WORcvID DESC";
+                                  ORDER BY WORcvNo DESC";
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
@@ -530,7 +600,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                         cmd.ExecuteNonQuery();
                     }
                     ShowMessage("Work Order Deleted Successfully!", "success");
-                    BindWorkOrderList();
+                    //BindWorkOrderList();
+                    ShowWODetailsdata();
                 }
                 catch (Exception ex)
                 {
@@ -566,7 +637,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             try
             {
                 con = conn.openConnection();
-
                 int woID = 0;
                 string headerQuery = "SELECT * FROM techdefendersbd.WorkOrderHeader WHERE WORcvNo = @WORcvNo";
                 using (SqlCommand cmd = new SqlCommand(headerQuery, con))
@@ -601,79 +671,11 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             txtVatPercent.Text = Convert.ToDecimal(reader["VatPercent"]).ToString("0.00");
                             txtSubTotalAmount.Text = Convert.ToDecimal(reader["SubTotalAmount"]).ToString("0.00");
                             txtGrandTotalAmount.Text = Convert.ToDecimal(reader["GrandTotal"]).ToString("0.00");
+                            ddlWOStatus.SelectedItem.Text= reader["WOStatus"].ToString();
                         }
                     }
                 }
-
-                if (woID == 0)
-                {
-                    ShowMessage("Work Order not found.", "warning");
-                    return;
-                }
-
-                var newSizeList = new List<SizeDetail>();
-                string detailsQuery = @"SELECT * FROM techdefendersbd.WorkOrderDetails 
-                                         WHERE WORcvID = @WORcvID 
-                                         ORDER BY (SELECT NULL)";
-                using (SqlCommand cmd = new SqlCommand(detailsQuery, con))
-                {
-                    cmd.Parameters.AddWithValue("@WORcvID", woID);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        int slNo = 1;
-                        while (reader.Read())
-                        {
-                            string itemName = reader["ItemName"]?.ToString() ?? string.Empty;
-                            ListItem matchedItem = ddlItemNameDetails.Items.FindByText(itemName);
-
-                            newSizeList.Add(new SizeDetail
-                            {
-                                SlNo = slNo++,
-                                ItemID = matchedItem != null ? Convert.ToInt32(matchedItem.Value) : 0,
-                                ItemName = itemName,
-                                JobNo = reader["JobNo"] != DBNull.Value ? reader["JobNo"].ToString() : string.Empty,               // ★ NEW
-                                Buyer = reader["Buyer"]?.ToString(),
-                                Style = reader["Style"]?.ToString(),
-                                PO = reader["PO"]?.ToString(),
-                                ItemDescription = reader["ItemDescription"]?.ToString(),
-                                ColorID = 0,
-                                ColorName = reader["ColorName"]?.ToString() ?? string.Empty,
-                                Size = reader["Size"]?.ToString(),
-                                Measurement = reader["Measurement"]?.ToString(),
-                                ReqQty = Convert.ToDecimal(reader["ReqQty"]),
-                                Unit = reader["Unit"]?.ToString(),
-                                RateUnit = Convert.ToDecimal(reader["RateUnit"]),
-                                RateUnitName = reader["RateUnitName"] != DBNull.Value ? reader["RateUnitName"].ToString() : string.Empty, // ★ NEW
-                                ExtraPercent = Convert.ToDecimal(reader["ExtraPercent"]),
-                                TotalReqQty = Convert.ToDecimal(reader["TotalReqQty"]),
-                                TotalAmount = Convert.ToDecimal(reader["TotalAmount"]),
-                                Remarks = reader["Remarks"]?.ToString()
-                            });
-                        }
-                    }
-                }
-
-                SizeList = newSizeList;
-
-                if (newSizeList.Count > 0)
-                {
-                    txtJobNo.Text = newSizeList[0].JobNo;   // ★ NEW
-                    txtBuyer.Text = newSizeList[0].Buyer;
-                    txtStyle.Text = newSizeList[0].Style;
-                    txtOrderNo.Text = newSizeList[0].PO;
-                    TextBox1.Text = newSizeList[0].ItemDescription;
-
-                    // ★ NEW: Rate Unit dropdown প্রি-সিলেক্ট (নাম মিলিয়ে, যেহেতু ID সেভ নেই)
-                    if (!string.IsNullOrEmpty(newSizeList[0].RateUnitName))
-                    {
-                        ListItem matchedRateUnit = ddlRateUnit.Items.FindByText(newSizeList[0].RateUnitName);
-                        if (matchedRateUnit != null)
-                            ddlRateUnit.SelectedValue = matchedRateUnit.Value;
-                    }
-                }
-
-                BindSizeDetails();
-                RecalculateGrandTotal();
+                ShowWODetailsdata();
             }
             catch (Exception ex)
             {
@@ -691,73 +693,94 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         protected void btnAddSize_Click(object sender, EventArgs e)
         {
+            SqlConnection con = null;
             try
             {
-                if (ddlItemNameDetails.SelectedValue == "0" || string.IsNullOrEmpty(ddlItemNameDetails.SelectedValue))
+                con = conn.openConnection();
+                using (SqlCommand cmd = new SqlCommand("Sp_InsertWorkOrderHeader", con))
                 {
-                    ShowMessage("Please select an Item Name first.", "warning");
-                    ShowFormPanel();
-                    return;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@WORcvNo", SqlDbType.NVarChar).Value = txtWoRef.Text;
+                    cmd.Parameters.Add("@WORcvDate", SqlDbType.Date).Value = Convert.ToDateTime(txtWoDate.Text);
+                    cmd.Parameters.Add("@DeliveryDate", SqlDbType.Date).Value = Convert.ToDateTime(txtDeliveryDate.Text);
+                    cmd.Parameters.Add("@CustomerID", SqlDbType.Int).Value = string.IsNullOrEmpty(ddlCustomerName.SelectedValue) ? 0 : Convert.ToInt32(ddlCustomerName.SelectedValue);
+                    cmd.Parameters.Add("@ReceivingBranchID", SqlDbType.Int).Value = string.IsNullOrEmpty(ddlReceivingBranch.SelectedValue) ? 0 : Convert.ToInt32(ddlReceivingBranch.SelectedValue);
+                    cmd.Parameters.Add("@RefWorkOrderNo", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtWoNoDetails.Text) ? "0" : txtWoNoDetails.Text;
+                    cmd.Parameters.Add("@QuotationNo", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtQuotationNo.Text) ? "0" : txtQuotationNo.Text;
+                    cmd.Parameters.Add("@SubTotalAmount", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtSubTotalAmount.Text) ? 0 : Convert.ToDecimal(txtSubTotalAmount.Text);
+                    cmd.Parameters.Add("@TransportCost", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtTransportCost.Text) ? 0 : Convert.ToDecimal(txtTransportCost.Text);
+                    cmd.Parameters.Add("@VatPercent", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtVatPercent.Text) ? 0 : Convert.ToDecimal(txtVatPercent.Text);
+                    cmd.Parameters.Add("@GrandTotal", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtGrandTotalAmount.Text) ? 0 : Convert.ToDecimal(txtGrandTotalAmount.Text);
+                    cmd.Parameters.Add("@WOStatus", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(ddlWOStatus.SelectedItem.Text) ? "0" : ddlWOStatus.SelectedItem.Text;
+                    
+                    cmd.Parameters.Add("@DetailsID", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtItemsEntryID.Text) ? "0" : txtItemsEntryID.Text;
+                    cmd.Parameters.Add("@Buyer", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtBuyer.Text) ? "0" : txtBuyer.Text;
+                    cmd.Parameters.Add("@Style", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtStyle.Text) ? "0" : txtStyle.Text;
+                    cmd.Parameters.Add("@PO", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtOrderNo.Text) ? "0" : txtOrderNo.Text;
+                    cmd.Parameters.Add("@ItemName", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(ddlItemNameDetails.SelectedItem.Text) ? "0" : ddlItemNameDetails.SelectedItem.Text;
+                    cmd.Parameters.Add("@ItemDescription", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(TextBox1.Text) ? "0" : TextBox1.Text;
+                    cmd.Parameters.Add("@ColorName", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(DropDownList1.SelectedItem.Text) ? "0" : DropDownList1.SelectedItem.Text;
+                    cmd.Parameters.Add("@Size", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtSize.Text) ? "0" : txtSize.Text;
+                    cmd.Parameters.Add("@Measurement", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtMeasurement.Text) ? "0" : txtMeasurement.Text; 
+                    cmd.Parameters.Add("@ReqQty", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtReqQty.Text) ? 0 : Convert.ToDecimal(txtReqQty.Text);
+                    cmd.Parameters.Add("@Unit", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(ddlUnit.Text) ? "0" : ddlUnit.Text;
+                    cmd.Parameters.Add("@RateUnit", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtRate.Text) ? 0 : Convert.ToDecimal(txtRate.Text);
+                    cmd.Parameters.Add("@ExtraPercent", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtExtraPercent.Text) ? 0 : Convert.ToDecimal(txtExtraPercent.Text);
+                    cmd.Parameters.Add("@TotalReqQty", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtTotalReqQtyInput.Text) ? 0 : Convert.ToDecimal(txtTotalReqQtyInput.Text);
+                    cmd.Parameters.Add("@TotalAmount", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtTotalAmountInput.Text) ? 0 : Convert.ToDecimal(txtTotalAmountInput.Text);
+                    cmd.Parameters.Add("@Remarks", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtSizeRemarks.Text) ? "0" : txtSizeRemarks.Text; 
+                    cmd.Parameters.Add("@JobNo", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtJobNo.Text) ? "0" : txtJobNo.Text; 
+                    cmd.Parameters.Add("@RateUnitName", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(ddlRateUnit.SelectedItem.Text) ? "0" : ddlRateUnit.SelectedItem.Text;
+
+                    cmd.ExecuteNonQuery();
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Draft Save Successfully!');", true);
                 }
-
-                decimal.TryParse(txtReqQty.Text, out decimal reqQty);
-                decimal.TryParse(txtRate.Text, out decimal rateUnit);
-                decimal.TryParse(txtExtraPercent.Text, out decimal extraPercent);
-
-                decimal totalReqQty = reqQty + (reqQty * (extraPercent / 100m));
-                decimal totalAmount = totalReqQty * rateUnit;
-
-                var list = SizeList;
-                int nextSlNo = list.Any() ? list.Max(s => s.SlNo) + 1 : 1;
-
-                int.TryParse(ddlItemNameDetails.SelectedValue, out int selectedItemID);
-                int.TryParse(DropDownList1.SelectedValue, out int selectedColorID);
-
-                string selectedColorName = (selectedColorID > 0 && DropDownList1.SelectedItem != null)
-                    ? DropDownList1.SelectedItem.Text
-                    : string.Empty;
-                if (selectedColorID <= 0) selectedColorID = 0;
-
-                // ★ NEW: Rate Unit নাম সংগ্রহ
-                string selectedRateUnitName = (ddlRateUnit.SelectedValue != "0" && ddlRateUnit.SelectedItem != null)
-                    ? ddlRateUnit.SelectedItem.Text
-                    : string.Empty;
-
-                list.Add(new SizeDetail
-                {
-                    SlNo = nextSlNo,
-                    ItemID = selectedItemID,
-                    JobNo = txtJobNo.Text.Trim(),
-                    Buyer = txtBuyer.Text.Trim(),
-                    Style = txtStyle.Text.Trim(),
-                    PO = txtOrderNo.Text.Trim(),
-                    ItemDescription = TextBox1.Text.Trim(),
-                    ItemName = ddlItemNameDetails.SelectedItem?.Text ?? string.Empty,
-                    ColorID = selectedColorID,
-                    ColorName = selectedColorName,
-                    Size = txtSize.Text.Trim(),
-                    Measurement = txtMeasurement.Text.Trim(),
-                    ReqQty = reqQty,
-                    Unit = ddlUnit.SelectedItem?.Text ?? string.Empty,   // ★ FIX: SelectedValue (ID) না, Text (Name)
-                    RateUnit = rateUnit,
-                    RateUnitName = selectedRateUnitName,                 // ★ NEW
-                    ExtraPercent = extraPercent,
-                    TotalReqQty = totalReqQty,
-                    TotalAmount = totalAmount,
-                    Remarks = txtSizeRemarks.Text.Trim()
-                });
-                SizeList = list;
-
-                ClearSizeInputRow();
-
-                BindSizeDetails();
-                RecalculateGrandTotal();
             }
             catch (Exception ex)
             {
-                ShowMessage("Add Size Error: " + ex.Message, "warning");
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message + "');", true);
             }
-            ShowFormPanel();
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                    con.Close();
+            }
+            ShowWODetailsdata();
+            txtItemsEntryID.Text = string.Empty;
+        }
+
+        private void ShowWODetailsdata()
+        {
+            try
+            {
+                con = conn.openConnection();
+                string query = @"SELECT WorkOrderHeader.WORcvNo, WorkOrderDetails.WorkOrderDetailsID, WorkOrderDetails.JobNo,WorkOrderDetails.Buyer, WorkOrderDetails.Style, WorkOrderDetails.PO, WorkOrderDetails.ItemName, WorkOrderDetails.ItemDescription, 
+                                WorkOrderDetails.ColorName, WorkOrderDetails.Size, WorkOrderDetails.Measurement, WorkOrderDetails.ReqQty, WorkOrderDetails.Unit, WorkOrderDetails.RateUnit, WorkOrderDetails.RateUnitName, 
+                                WorkOrderDetails.ExtraPercent, WorkOrderDetails.TotalReqQty, WorkOrderDetails.TotalAmount, WorkOrderDetails.Remarks
+                                FROM WorkOrderDetails INNER JOIN WorkOrderHeader ON WorkOrderDetails.WORcvID = WorkOrderHeader.WORcvID
+                            WHERE WorkOrderHeader.WORcvNo = @WORcvNo";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@WORcvNo", txtWoRef.Text);
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    gvSizeDetails.DataSource = dt;
+                    gvSizeDetails.DataBind();
+                }
+            }
+            catch (Exception ex)
+            {
+                gvSizeDetails.DataSource = null;
+                gvSizeDetails.DataBind();
+                ShowMessage("List Load Error: " + ex.Message, "warning");
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
         }
 
         protected void btnAddAllsize_Click(object sender, EventArgs e)
@@ -788,7 +811,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 : string.Empty;
             if (selectedColorID <= 0) selectedColorID = 0;
 
-            string selectedUnitName = ddlUnit.SelectedItem?.Text ?? string.Empty;
+            string selectedUnitName = ddlUnit.Text ?? string.Empty;
 
             // ★ Rate Unit নাম সংগ্রহ
             string selectedRateUnitName = (ddlRateUnit.SelectedValue != "0" && ddlRateUnit.SelectedItem != null)
@@ -862,8 +885,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     SizeList = list;
                 }
 
-                BindSizeDetails();
-                RecalculateGrandTotal();
             }
             catch (Exception ex)
             {
@@ -877,107 +898,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             ShowFormPanel();
         }
 
-        protected void gvSizeDetails_RowCommand(object sender, GridViewCommandEventArgs e)
-        {
-            if (!int.TryParse(e.CommandArgument?.ToString(), out int slNo))
-            {
-                ShowFormPanel();
-                return;
-            }
-
-            var list = SizeList;
-            var size = list.FirstOrDefault(s => s.SlNo == slNo);
-            if (size == null)
-            {
-                ShowFormPanel();
-                return;
-            }
-
-            switch (e.CommandName)
-            {
-                case "EditSize":
-                    if (ddlItemNameDetails.Items.FindByValue(size.ItemID.ToString()) != null)
-                        ddlItemNameDetails.SelectedValue = size.ItemID.ToString();
-
-                    if (size.ColorID > 0 && DropDownList1.Items.FindByValue(size.ColorID.ToString()) != null)
-                        DropDownList1.SelectedValue = size.ColorID.ToString();
-                    else
-                        DropDownList1.SelectedIndex = 0;
-
-                    txtJobNo.Text = size.JobNo;
-                    txtBuyer.Text = size.Buyer;
-                    txtStyle.Text = size.Style;
-                    txtOrderNo.Text = size.PO;
-                    TextBox1.Text = size.ItemDescription;
-
-                    txtSize.Text = size.Size;
-                    txtMeasurement.Text = size.Measurement;
-                    txtReqQty.Text = size.ReqQty.ToString("0.##");
-                    ListItem matchedUnit = ddlUnit.Items.FindByText(size.Unit);   
-                    if (matchedUnit != null) ddlUnit.SelectedValue = matchedUnit.Value;
-                    txtRate.Text = size.RateUnit.ToString("0.##");
-                    ListItem matchedRateUnit = !string.IsNullOrEmpty(size.RateUnitName)
-                        ? ddlRateUnit.Items.FindByText(size.RateUnitName)
-                        : null;
-                    ddlRateUnit.SelectedValue = matchedRateUnit != null ? matchedRateUnit.Value : "0";
-
-                    txtExtraPercent.Text = size.ExtraPercent.ToString("0.##");
-                    txtTotalReqQtyInput.Text = size.TotalReqQty.ToString("0.00");
-                    txtTotalAmountInput.Text = size.TotalAmount.ToString("0.00");
-                    txtSizeRemarks.Text = size.Remarks;
-
-                    list.Remove(size);
-                    SizeList = list;
-
-                    BindSizeDetails();
-                    RecalculateGrandTotal();
-                    break;
-
-                case "DeleteSize":
-                    list.Remove(size);
-                    SizeList = list;
-
-                    BindSizeDetails();
-                    RecalculateGrandTotal();
-                    break;
-
-                case "UpdateSize":
-                    GridViewRow row = ((Control)e.CommandSource).NamingContainer as GridViewRow;
-                    if (row != null)
-                    {
-                        ApplySizeRowEdits(row, size);
-
-                        BindSizeDetails();
-                        RecalculateGrandTotal();
-                    }
-                    break;
-            }
-
-            ShowFormPanel();
-        }
-
-        private void ApplySizeRowEdits(GridViewRow row, SizeDetail size)
-        {
-            TextBox txtM = (TextBox)row.FindControl("txtMeasurement");
-            TextBox txtQ = (TextBox)row.FindControl("txtReqQty");
-            TextBox txtU = (TextBox)row.FindControl("txtUnit");
-            TextBox txtR = (TextBox)row.FindControl("txtRateUnit");
-            TextBox txtE = (TextBox)row.FindControl("txtExtraPercent");
-            TextBox txtRem = (TextBox)row.FindControl("txtRemarks");
-
-            decimal.TryParse(txtQ?.Text, out decimal uReqQty);
-            decimal.TryParse(txtR?.Text, out decimal uRateUnit);
-            decimal.TryParse(txtE?.Text, out decimal uExtraPercent);
-
-            size.Measurement = txtM?.Text.Trim();
-            size.ReqQty = uReqQty;
-            size.Unit = txtU?.Text.Trim();
-            size.RateUnit = uRateUnit;
-            size.ExtraPercent = uExtraPercent;
-            size.TotalReqQty = uReqQty + (uReqQty * (uExtraPercent / 100m));
-            size.TotalAmount = size.TotalReqQty * uRateUnit;
-            size.Remarks = txtRem?.Text.Trim();
-        }
 
         protected void txtSizeGridField_TextChanged(object sender, EventArgs e)
         {
@@ -1003,57 +923,21 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 return;
             }
 
-            ApplySizeRowEdits(row, size);
-
-            BindSizeDetails();
-            RecalculateGrandTotal();
             ShowFormPanel();
         }
-
-        private void BindSizeDetails()
-        {
-            var list = SizeList.OrderBy(s => s.SlNo).ToList();
-            gvSizeDetails.DataSource = list;
-            gvSizeDetails.DataBind();
-            txtColorTotalAmount.Text = list.Sum(s => s.TotalAmount).ToString("0.00");
-        }
-
-        private void ClearSizeInputRow()
-        {
-            txtSize.Text = string.Empty;
-            txtMeasurement.Text = string.Empty;
-            txtReqQty.Text = "0";
-            ddlUnit.SelectedIndex = 0;
-            txtExtraPercent.Text = "0";
-            txtTotalReqQtyInput.Text = "0.00";
-            txtTotalAmountInput.Text = "0.00";
-            txtSizeRemarks.Text = string.Empty;
-        }
-
         #endregion
 
         #region ---------- Grand Total Summary ----------
 
-        private void RecalculateGrandTotal()
-        {
-            decimal subTotal = SizeList.Sum(s => s.TotalAmount);
-            decimal.TryParse(txtTransportCost.Text, out decimal transportCost);
-            decimal.TryParse(txtVatPercent.Text, out decimal vatPercent);
-            decimal vatAmount = subTotal * (vatPercent / 100m);
-            decimal grandTotal = subTotal + transportCost + vatAmount;
-            txtSubTotalAmount.Text = subTotal.ToString("0.00");
-            txtGrandTotalAmount.Text = grandTotal.ToString("0.00");
-        }
+
 
         protected void txtTransportCost_TextChanged(object sender, EventArgs e)
         {
-            RecalculateGrandTotal();
             ShowFormPanel();
         }
 
         protected void txtVatPercent_TextChanged(object sender, EventArgs e)
         {
-            RecalculateGrandTotal();
             ShowFormPanel();
         }
 
@@ -1063,176 +947,102 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            if (ddlCustomerName.SelectedValue == "0")
-            {
-                ShowMessage("Please select a Customer Name.", "warning");
-                ShowFormPanel();
-                return;
-            }
-            if (ddlReceivingBranch.SelectedValue == "0" || string.IsNullOrEmpty(ddlReceivingBranch.SelectedValue))
-            {
-                ShowMessage("Please select a Receiving Branch.", "warning");
-                ShowFormPanel();
-                return;
-            }
-            if (!SizeList.Any())
-            {
-                ShowMessage("Please add at least one Item Size row before saving.", "warning");
-                ShowFormPanel();
-                return;
-            }
-
+            SqlConnection con = null;
             try
             {
                 con = conn.openConnection();
-
-                using (SqlCommand cmd = new SqlCommand("sp_SaveOrUpdateWorkOrder", con))
+                using (SqlCommand cmd = new SqlCommand("Sp_InsertWorkOrderHeaderSubmit", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-
-                    int workOrderId = string.IsNullOrEmpty(hdnWorkOrderNo.Value) ? 0 : Convert.ToInt32(hdnWorkOrderNo.Value);
-
-                    SqlParameter pId = cmd.Parameters.Add("@WORcvID", SqlDbType.Int);
-                    pId.Value = workOrderId;
-                    pId.Direction = ParameterDirection.InputOutput;
-
-                    cmd.Parameters.AddWithValue("@WORcvNo", txtWoRef.Text.Trim());
-                    cmd.Parameters.AddWithValue("@WORcvDate", string.IsNullOrEmpty(txtWoDate.Text) ? (object)DBNull.Value : Convert.ToDateTime(txtWoDate.Text));
-                    cmd.Parameters.AddWithValue("@DeliveryDate", string.IsNullOrEmpty(txtDeliveryDate.Text) ? (object)DBNull.Value : Convert.ToDateTime(txtDeliveryDate.Text));
-                    cmd.Parameters.AddWithValue("@CustomerID", Convert.ToInt32(ddlCustomerName.SelectedValue));
-                    cmd.Parameters.AddWithValue("@ReceivingBranchID", Convert.ToInt32(ddlReceivingBranch.SelectedValue));
-                    cmd.Parameters.AddWithValue("@RefWorkOrderNo", txtWoNoDetails.Text.Trim());
-                    cmd.Parameters.AddWithValue("@QuotationNo", txtQuotationNo.Text.Trim());
-                    cmd.Parameters.AddWithValue("@SubTotalAmount", Convert.ToDecimal(string.IsNullOrEmpty(txtSubTotalAmount.Text) ? "0" : txtSubTotalAmount.Text));
-                    cmd.Parameters.AddWithValue("@TransportCost", Convert.ToDecimal(string.IsNullOrEmpty(txtTransportCost.Text) ? "0" : txtTransportCost.Text));
-                    cmd.Parameters.AddWithValue("@VatPercent", Convert.ToDecimal(string.IsNullOrEmpty(txtVatPercent.Text) ? "0" : txtVatPercent.Text));
-                    cmd.Parameters.AddWithValue("@GrandTotal", Convert.ToDecimal(string.IsNullOrEmpty(txtGrandTotalAmount.Text) ? "0" : txtGrandTotalAmount.Text));
-
-                    // ----- Details TVP: dbo.WorkOrderDetailsType এর কলাম-অর্ডারের সাথে হুবহু মিলিয়ে -----
-                    DataTable dtDetails = new DataTable();
-                    dtDetails.Columns.Add("JobNo", typeof(string));
-                    dtDetails.Columns.Add("Buyer", typeof(string));
-                    dtDetails.Columns.Add("Style", typeof(string));
-                    dtDetails.Columns.Add("PO", typeof(string));
-                    dtDetails.Columns.Add("ItemName", typeof(string));
-                    dtDetails.Columns.Add("ItemDescription", typeof(string));
-                    dtDetails.Columns.Add("ColorName", typeof(string));
-                    dtDetails.Columns.Add("Size", typeof(string));
-                    dtDetails.Columns.Add("Measurement", typeof(string));
-                    dtDetails.Columns.Add("ReqQty", typeof(decimal));
-                    dtDetails.Columns.Add("Unit", typeof(string));
-                    dtDetails.Columns.Add("RateUnit", typeof(decimal));
-                    dtDetails.Columns.Add("RateUnitName", typeof(string));   // ★ NEW
-                    dtDetails.Columns.Add("ExtraPercent", typeof(decimal));
-                    dtDetails.Columns.Add("TotalReqQty", typeof(decimal));
-                    dtDetails.Columns.Add("TotalAmount", typeof(decimal));
-                    dtDetails.Columns.Add("Remarks", typeof(string));
-
-                    foreach (GridViewRow row in gvSizeDetails.Rows)
-                    {
-                        if (row.RowType != DataControlRowType.DataRow) continue;
-
-                        int slNo = Convert.ToInt32(gvSizeDetails.DataKeys[row.RowIndex].Value);
-                        var sizeItem = SizeList.FirstOrDefault(s => s.SlNo == slNo);
-
-                        TextBox txtMeasurement = (TextBox)row.FindControl("txtMeasurement");
-                        TextBox txtReqQty = (TextBox)row.FindControl("txtReqQty");
-                        TextBox txtUnit = (TextBox)row.FindControl("txtUnit");
-                        TextBox txtRateUnit = (TextBox)row.FindControl("txtRateUnit");
-                        TextBox txtExtraPercent = (TextBox)row.FindControl("txtExtraPercent");
-                        Label lblTotalReqQty = (Label)row.FindControl("lblTotalReqQty");
-                        Label lblTotalAmount = (Label)row.FindControl("lblTotalAmount");
-                        TextBox txtRemarks = (TextBox)row.FindControl("txtRemarks");
-
-                        DataRow dr = dtDetails.NewRow();
-                        dr["JobNo"] = sizeItem?.JobNo ?? string.Empty;   // ★ FIX: আগে ভুল করে row.Cells[0] (SlNo) ব্যবহার হতো
-                        dr["Buyer"] = sizeItem?.Buyer ?? row.Cells[2].Text.Trim();
-                        dr["Style"] = sizeItem?.Style ?? row.Cells[3].Text.Trim();
-                        dr["PO"] = sizeItem?.PO ?? row.Cells[4].Text.Trim();
-                        dr["ItemName"] = sizeItem?.ItemName ?? row.Cells[1].Text.Trim();
-                        dr["ItemDescription"] = (object)sizeItem?.ItemDescription ?? (object)TextBox1.Text.Trim() ?? DBNull.Value;
-                        dr["ColorName"] = sizeItem?.ColorName ?? row.Cells[5].Text.Trim();
-                        dr["Size"] = sizeItem?.Size ?? row.Cells[6].Text.Trim();
-                        dr["Measurement"] = txtMeasurement != null ? txtMeasurement.Text : "";
-                        dr["ReqQty"] = Convert.ToDecimal(string.IsNullOrEmpty(txtReqQty?.Text) ? "0" : txtReqQty.Text);
-                        dr["Unit"] = txtUnit != null ? txtUnit.Text : "";
-                        dr["RateUnit"] = Convert.ToDecimal(string.IsNullOrEmpty(txtRateUnit?.Text) ? "0" : txtRateUnit.Text);
-                        dr["RateUnitName"] = sizeItem?.RateUnitName ?? string.Empty;   // ★ NEW
-                        dr["ExtraPercent"] = Convert.ToDecimal(string.IsNullOrEmpty(txtExtraPercent?.Text) ? "0" : txtExtraPercent.Text);
-                        dr["TotalReqQty"] = Convert.ToDecimal(string.IsNullOrEmpty(lblTotalReqQty?.Text) ? "0" : lblTotalReqQty.Text);
-                        dr["TotalAmount"] = Convert.ToDecimal(string.IsNullOrEmpty(lblTotalAmount?.Text) ? "0" : lblTotalAmount.Text);
-                        dr["Remarks"] = txtRemarks != null ? txtRemarks.Text : "";
-
-                        dtDetails.Rows.Add(dr);
-                    }
-
-                    SqlParameter pDetails = cmd.Parameters.AddWithValue("@DetailsType", dtDetails);
-                    pDetails.SqlDbType = SqlDbType.Structured;
-                    pDetails.TypeName = "dbo.WorkOrderDetailsType";
+                    cmd.Parameters.Add("@WORcvNo", SqlDbType.NVarChar).Value = txtWoRef.Text;
 
                     cmd.ExecuteNonQuery();
-
-                    hdnWorkOrderNo.Value = pId.Value.ToString();
-
-                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Work Order Saved Successfully!');", true);
-
-                    BindWorkOrderList();
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Submit & Save Successfully!');", true);
                 }
             }
             catch (Exception ex)
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", $"alert('Error: {ex.Message.Replace("'", "")}');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message + "');", true);
             }
             finally
             {
                 if (con != null && con.State == ConnectionState.Open)
-                {
                     con.Close();
-                }
             }
+
+            txtWoRef.Text = GenerateNextWorkOrderRef();
+            ClearFormFields();
+            ShowWorkOrderList();
+
+
+            pnlDetails.Visible = false;
+            pnlList.Visible = true;
         }
 
         protected void btnCancel_Click(object sender, EventArgs e)
-        {
-            Session["WO_SizeList"] = new List<SizeDetail>();
-            hdnWorkOrderNo.Value = string.Empty;
-
-            ClearHeaderFields();
-            ClearSizeInputRow();
+        {           
 
             txtWoRef.Text = GenerateNextWorkOrderRef();
-
-            BindSizeDetails();
-            RecalculateGrandTotal();
+            ClearFormFields();
+            ShowWorkOrderList();
         }
+        #endregion
 
-        private void ClearHeaderFields()
+        private void ClearFormFields()
         {
-            ddlCustomerName.SelectedIndex = 0;
-            txtWoDate.Text = DateTime.Today.ToString("yyyy-MM-dd");
+            // হেডার ফিল্ডস ক্লিয়ার করা
+            //txtWoRef.Text = "WO-2026-0001"; // অটো জেনারেটেড কোড থাকলে ডিফল্ট রাখতে পারেন
+            txtWoDate.Text = string.Empty;
             txtDeliveryDate.Text = string.Empty;
-            txtJobNo.Text = string.Empty;     // ★ NEW
+            txtWoNoDetails.Text = string.Empty;
+            txtQuotationNo.Text = string.Empty;
+
+            if (ddlCustomerName.Items.Count > 0) ddlCustomerName.SelectedIndex = 0;
+            if (ddlReceivingBranch.Items.Count > 0) ddlReceivingBranch.SelectedIndex = 0;
+
+            // আইটেম এন্ট্রি রো ফিল্ডস ক্লিয়ার করা
+            txtJobNo.Text = string.Empty;
             txtBuyer.Text = string.Empty;
             txtStyle.Text = string.Empty;
             txtOrderNo.Text = string.Empty;
-            txtWoNoDetails.Text = string.Empty;
-            ddlItemNameDetails.SelectedIndex = 0;
-            DropDownList1.SelectedIndex = 0;
-            ddlReceivingBranch.SelectedIndex = 0;
-            ddlRateUnit.SelectedIndex = 0;    // ★ NEW
-            txtQuotationNo.Text = string.Empty;
-            TextBox1.Text = string.Empty;
+            TextBox1.Text = string.Empty; // Items Description
+            txtRate.Text = string.Empty;
+            txtSize.Text = string.Empty;
+            txtReqQty.Text = "0";
+            ddlUnit.Text = string.Empty;
+            txtExtraPercent.Text = "0";
+            txtTotalReqQtyInput.Text = "0.00";
+            txtTotalAmountInput.Text = "0.00";
+            txtMeasurement.Text = string.Empty;
+            txtSizeRemarks.Text = string.Empty;
+            txtItemsEntryID.Text = string.Empty;
+
+            if (ddlItemNameDetails.Items.Count > 0) ddlItemNameDetails.SelectedIndex = 0;
+            if (DropDownList1.Items.Count > 0) DropDownList1.SelectedIndex = 0;
+            if (ddlRateUnit.Items.Count > 0) ddlRateUnit.SelectedIndex = 0;
+
+            // সামারি ফিল্ডস ক্লিয়ার করা
+            txtSubTotalAmount.Text = "0.00";
             txtTransportCost.Text = "0.00";
             txtVatPercent.Text = "0.00";
-            txtRate.Text = "0";
+            txtGrandTotalAmount.Text = "0.00";
+
+            // গ্রিডভিউ খালি করা (যদি চান)
+            gvSizeDetails.DataSource = null;
+            gvSizeDetails.DataBind();
+
+            pnlDetails.Visible = false;
+            pnlList.Visible = true;
         }
 
-        #endregion
+
 
         #region ---------- UI Feedback ----------
         private void ShowFormPanel()
         {
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "ShowFormPanel", "showPanel('pnlForm');", true);
+            pnlDetails.Visible = true;
+            pnlList.Visible = false;
+            //ScriptManager.RegisterStartupScript(this, this.GetType(), "ShowFormPanel", "showPanel('pnlForm');", true);
         }
 
         private void ShowMessage(string message, string type)
@@ -1293,6 +1103,134 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             { 
                 txtTillDate.Visible = false; 
             }
+        }
+
+        protected void btnShow_Click(object sender, EventArgs e)
+        {
+            ShowWorkOrderList();
+        }
+
+        protected void gvSizeDetails_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            txtItemsEntryID.Text = gvSizeDetails.SelectedDataKey.Value.ToString();
+            try
+            {
+                string sql = "SELECT * FROM WorkOrderDetails WHERE WorkOrderDetailsID = @WorkOrderDetailsID";
+                con = conn.openConnection();
+                cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@WorkOrderDetailsID", txtItemsEntryID.Text);
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        txtJobNo.Text = reader["JobNo"].ToString();
+                        txtBuyer.Text = reader["Buyer"].ToString();
+                        txtStyle.Text = reader["Style"].ToString();
+                        txtOrderNo.Text = reader["PO"].ToString();
+                        ddlItemNameDetails.SelectedItem.Text = reader["ItemName"].ToString();
+                        TextBox1.Text = reader["ItemDescription"].ToString();
+                        DropDownList1.SelectedItem.Text = reader["ColorName"].ToString();
+                        txtRate.Text = reader["RateUnit"].ToString();
+                        ddlRateUnit.SelectedItem.Text = reader["RateUnitName"].ToString();
+                        txtSize.Text = reader["Size"].ToString();
+                        txtReqQty.Text = reader["ReqQty"].ToString();
+                        ddlUnit.Text = reader["Unit"].ToString();
+                        txtExtraPercent.Text = reader["ExtraPercent"].ToString();
+                        txtTotalReqQtyInput.Text = reader["TotalReqQty"].ToString();
+                        txtTotalAmountInput.Text = reader["TotalAmount"].ToString();
+                        txtMeasurement.Text = reader["Measurement"].ToString();
+                        txtSizeRemarks.Text = reader["Remarks"].ToString();
+                    }
+                }
+                else
+                {
+                    //txtCategoryId.Text = txtCategory.Text = string.Empty;
+                }
+                reader.Close();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        protected void chksizeGroupEnable_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chksizeGroupEnable.Checked == true)
+            {
+                txtSize.Visible = false;
+                ddlsizeGroup.Visible = true;
+                btnAddAllsize.Enabled = true;
+                btnAddSize.Enabled = false;
+            }
+            else
+            {
+                txtSize.Visible = true;
+                ddlsizeGroup.Visible = false;
+                btnAddAllsize.Enabled = false;
+                btnAddSize.Enabled = true;
+            }
+        }
+
+        protected void BtnAddNew_Click(object sender, EventArgs e)
+        {
+
+            ShowFormPanel();
+            // হেডার ফিল্ডস ক্লিয়ার করা
+            //txtWoRef.Text = "WO-2026-0001"; // অটো জেনারেটেড কোড থাকলে ডিফল্ট রাখতে পারেন
+            txtWoDate.Text = string.Empty;
+            txtDeliveryDate.Text = string.Empty;
+            txtWoNoDetails.Text = string.Empty;
+            txtQuotationNo.Text = string.Empty;
+
+            if (ddlCustomerName.Items.Count > 0) ddlCustomerName.SelectedIndex = 0;
+            if (ddlReceivingBranch.Items.Count > 0) ddlReceivingBranch.SelectedIndex = 0;
+
+            // আইটেম এন্ট্রি রো ফিল্ডস ক্লিয়ার করা
+            txtJobNo.Text = string.Empty;
+            txtBuyer.Text = string.Empty;
+            txtStyle.Text = string.Empty;
+            txtOrderNo.Text = string.Empty;
+            TextBox1.Text = string.Empty; // Items Description
+            txtRate.Text = string.Empty;
+            txtSize.Text = string.Empty;
+            txtReqQty.Text = "0";
+            ddlUnit.Text = string.Empty;
+            txtExtraPercent.Text = "0";
+            txtTotalReqQtyInput.Text = "0.00";
+            txtTotalAmountInput.Text = "0.00";
+            txtMeasurement.Text = string.Empty;
+            txtSizeRemarks.Text = string.Empty;
+            txtItemsEntryID.Text = string.Empty;
+
+            if (ddlItemNameDetails.Items.Count > 0) ddlItemNameDetails.SelectedIndex = 0;
+            if (DropDownList1.Items.Count > 0) DropDownList1.SelectedIndex = 0;
+            if (ddlRateUnit.Items.Count > 0) ddlRateUnit.SelectedIndex = 0;
+
+            // সামারি ফিল্ডস ক্লিয়ার করা
+            txtSubTotalAmount.Text = "0.00";
+            txtTransportCost.Text = "0.00";
+            txtVatPercent.Text = "0.00";
+            txtGrandTotalAmount.Text = "0.00";
+
+            // গ্রিডভিউ খালি করা (যদি চান)
+            gvSizeDetails.DataSource = null;
+            gvSizeDetails.DataBind();
+        }
+
+        protected void Button2_Click(object sender, EventArgs e)
+        {
+            pnlDetails.Visible = false;
+            pnlList.Visible = true;
         }
     }
 }
