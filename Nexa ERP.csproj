@@ -297,6 +297,8 @@
     <Content Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx" />
     <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
     <Content Include="MasterConfiguration\ProductMaster\ColorInformation.aspx" />
@@ -887,6 +889,20 @@
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx.designer.cs">
       <DependentUpon>BuyerSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx.cs">
+      <DependentUpon>BuyingAgentSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx.designer.cs">
+      <DependentUpon>BuyingAgentSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx.cs">
+      <DependentUpon>EmbCategorySetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx.designer.cs">
+      <DependentUpon>EmbCategorySetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx.cs">
       <DependentUpon>colorSetup.aspx</DependentUpon>
