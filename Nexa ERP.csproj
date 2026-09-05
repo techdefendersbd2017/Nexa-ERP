@@ -296,6 +296,7 @@
     <Content Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx" />
     <Content Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx" />
     <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
     <Content Include="MasterConfiguration\ProductMaster\ColorInformation.aspx" />
@@ -879,6 +880,13 @@
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx.designer.cs">
       <DependentUpon>BuyerBrandSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx.cs">
+      <DependentUpon>BuyerSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx.designer.cs">
+      <DependentUpon>BuyerSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx.cs">
       <DependentUpon>colorSetup.aspx</DependentUpon>

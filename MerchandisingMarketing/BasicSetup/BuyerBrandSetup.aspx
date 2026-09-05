@@ -140,13 +140,11 @@
                             </div>
                         </div>
 
-                        <%-- right : PO list --%>
+                        <%-- right: Gridview (PO list) --%>
                         <div class="col-span-7 bg-[#FBFCFE] p-2 rounded border border-gray-400">
-                            <p class="text-sm text-gray-600 mb-1">If multiple PO is needed, please at first add them to the list.</p>
-                            <div class="border border-gray-400 bg-gray-300 rounded w-full h-32 overflow-y-auto overflow-x-auto">
+                            <div class="border border-gray-400 bg-gray-300 rounded w-full h-60 overflow-y-auto overflow-x-auto">
                                 <asp:GridView ID="gvPOList" runat="server"></asp:GridView>
                             </div>
-                            <p class="text-sm text-gray-500 mt-1">Double click on list for remove po.</p>
                         </div>
 
                     </div>
@@ -194,8 +192,8 @@
                         </div>
                     </div>
 
-                    <%-- Color / Ratio breakdown list --%>
-                    <div class="border border-gray-400 bg-gray-300 rounded w-full h-48 overflow-y-auto overflow-x-auto mt-3">
+                    <%-- Grid View --%>
+                    <div class="border border-gray-400 bg-gray-300 rounded w-full h-80 overflow-y-auto overflow-x-auto mt-3">
                         <asp:GridView ID="gvColorBreakdown" runat="server"></asp:GridView>
                     </div>
 
