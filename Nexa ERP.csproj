@@ -227,6 +227,7 @@
     <Content Include="AccountsModule\MasterData\CostCenterInfo.aspx" />
     <Content Include="AccountsModule\MasterData\fiscalsyearsInformation.aspx" />
     <Content Include="AccountsModule\MasterData\PaymentMode.aspx" />
+    <Content Include="AccountsModule\VoucherEntry.aspx" />
     <Content Include="Approval\HRM\Leave\LeaveApproved.aspx" />
     <Content Include="Approval\HRM\Payroll\DeductionEarningApproval.aspx" />
     <Content Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx" />
@@ -297,6 +298,7 @@
     <Content Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx" />
     <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx" />
     <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\cuttingLimitSet.aspx" />
+    <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\OrderWiseLabDipSelection.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
     <Content Include="MasterConfiguration\ProductMaster\ColorInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx" />
@@ -420,6 +422,13 @@
     </Compile>
     <Compile Include="AccountsModule\MasterData\PaymentMode.aspx.designer.cs">
       <DependentUpon>PaymentMode.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AccountsModule\VoucherEntry.aspx.cs">
+      <DependentUpon>VoucherEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccountsModule\VoucherEntry.aspx.designer.cs">
+      <DependentUpon>VoucherEntry.aspx</DependentUpon>
     </Compile>
     <Compile Include="Approval\HRM\Leave\LeaveApproved.aspx.cs">
       <DependentUpon>LeaveApproved.aspx</DependentUpon>
@@ -886,6 +895,13 @@
     </Compile>
     <Compile Include="MerchandisingMarketing\BuyerPurchaseOrder\cuttingLimitSet.aspx.designer.cs">
       <DependentUpon>cuttingLimitSet.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BuyerPurchaseOrder\OrderWiseLabDipSelection.aspx.cs">
+      <DependentUpon>OrderWiseLabDipSelection.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BuyerPurchaseOrder\OrderWiseLabDipSelection.aspx.designer.cs">
+      <DependentUpon>OrderWiseLabDipSelection.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx.cs">
       <DependentUpon>BuyingHouseAgent.aspx</DependentUpon>
