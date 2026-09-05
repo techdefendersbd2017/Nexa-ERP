@@ -267,6 +267,24 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.TextBox txtQuotationNo;
 
         /// <summary>
+        /// divEntryRowWrapper control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divEntryRowWrapper;
+
+        /// <summary>
+        /// UpdatePanelEntryRow control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel UpdatePanelEntryRow;
+
+        /// <summary>
         /// txtJobNo control.
         /// </summary>
         /// <remarks>
@@ -474,13 +492,13 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.TextBox txtReqQty;
 
         /// <summary>
-        /// ddlUnit control.
+        /// txtItemUnit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox ddlUnit;
+        protected global::System.Web.UI.WebControls.TextBox txtItemUnit;
 
         /// <summary>
         /// txtExtraPercent control.
@@ -562,6 +580,42 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtItemsEntryID;
+
+        /// <summary>
+        /// UpdatePanelSizeGroupList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel UpdatePanelSizeGroupList;
+
+        /// <summary>
+        /// pnlSizeGroupList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlSizeGroupList;
+
+        /// <summary>
+        /// gvSizeList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvSizeList;
+
+        /// <summary>
+        /// UpdatePanelSizeDetails control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel UpdatePanelSizeDetails;
 
         /// <summary>
         /// gvSizeDetails control.

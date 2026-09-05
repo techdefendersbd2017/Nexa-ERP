@@ -820,246 +820,299 @@
                                 </fieldset>
 
                                 <!-- ============ SECTION 3: ITEM / COLOR / SIZE ENTRY & GRID ============ -->
-                                <fieldset class="section-box">
-                                    <!-- Entry Row 1 -->
-                                    <div class="row g-2 align-items-end entry-row">
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Job No</label>
-                                            <div class="ac-wrapper">
-                                                <asp:TextBox ID="txtJobNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Job No" autocomplete="off"></asp:TextBox>
-                                                <ul id="Ul1" runat="server" class="ac-suggestion-list"></ul>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Buyer</label>
-                                            <div class="ac-wrapper">
-                                                <asp:TextBox ID="txtBuyer" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Buyer Name" autocomplete="off" OnTextChanged="txtBuyer_TextChanged"></asp:TextBox>
-                                                <ul id="lstBuyerSuggest" runat="server" class="ac-suggestion-list"></ul>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Style</label>
-                                            <div class="ac-wrapper">
-                                                <asp:TextBox ID="txtStyle" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Style No/Name" autocomplete="off" OnTextChanged="txtStyle_TextChanged"></asp:TextBox>
-                                                <ul id="lstStyleSuggest" runat="server" class="ac-suggestion-list"></ul>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Order/PO No</label>
-                                            <div class="ac-wrapper">
-                                                <asp:TextBox ID="txtOrderNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Order /PO No" autocomplete="off" OnTextChanged="txtOrderNo_TextChanged"></asp:TextBox>
-                                                <ul id="lstOrderSuggest" runat="server" class="ac-suggestion-list"></ul>
-                                            </div>
-                                        </div>
+                                <!-- ============ SECTION 3: ITEM / COLOR / SIZE ENTRY & GRID ============ -->
+<fieldset class="section-box">
 
-                                        <div class="col-md-3">
-                                            <asp:UpdatePanel ID="UpdatePanel1" runat="server">
-                                                <ContentTemplate>
-                                                    <label class="form-label small fw-bold">Item Name</label>
-                                                    <div class="d-flex">
-                                                        <asp:DropDownList ID="ddlItemNameDetails" runat="server" AutoPostBack="true" CssClass="form-select form-select-sm searchable-dropdown" OnSelectedIndexChanged="ddlItemNameDetails_SelectedIndexChanged">
-                                                            <asp:ListItem Text="--Select Item--" Value="0" />
-                                                        </asp:DropDownList>
+    <div class="row g-2">
 
-                                                        <asp:LinkButton ID="Button1" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh" OnClick="Button1_Click">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
-                                                            </svg>
-                                                        </asp:LinkButton>
-                                                    </div>
-                                                </ContentTemplate>
-                                            </asp:UpdatePanel>
-                                        </div>
+        <!-- ============ বাম পাশে entry-row : col ক্লাস এখন সরাসরি row-এর child div-এ, UpdatePanel এর ভিতরে ============ -->
+        <div id="divEntryRowWrapper" runat="server" class="col-md-12">
+            <asp:UpdatePanel ID="UpdatePanelEntryRow" runat="server" UpdateMode="Always">
+                <ContentTemplate>
+                    <div class="row g-2 align-items-end entry-row">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Job No</label>
+                            <div class="ac-wrapper">
+                                <asp:TextBox ID="txtJobNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Job No" autocomplete="off"></asp:TextBox>
+                                <ul id="Ul1" runat="server" class="ac-suggestion-list"></ul>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Buyer</label>
+                            <div class="ac-wrapper">
+                                <asp:TextBox ID="txtBuyer" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Buyer Name" autocomplete="off" OnTextChanged="txtBuyer_TextChanged"></asp:TextBox>
+                                <ul id="lstBuyerSuggest" runat="server" class="ac-suggestion-list"></ul>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Style</label>
+                            <div class="ac-wrapper">
+                                <asp:TextBox ID="txtStyle" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Style No/Name" autocomplete="off" OnTextChanged="txtStyle_TextChanged"></asp:TextBox>
+                                <ul id="lstStyleSuggest" runat="server" class="ac-suggestion-list"></ul>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Order/PO No</label>
+                            <div class="ac-wrapper">
+                                <asp:TextBox ID="txtOrderNo" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Order /PO No" autocomplete="off" OnTextChanged="txtOrderNo_TextChanged"></asp:TextBox>
+                                <ul id="lstOrderSuggest" runat="server" class="ac-suggestion-list"></ul>
+                            </div>
+                        </div>
 
-                                        <div class="col-md-3">
-                                            <label class="form-label fw-bold">Items Discription</label>
-                                            <asp:TextBox ID="TextBox1" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Items Description"></asp:TextBox>
-                                        </div>
+                        <div class="col-md-3">
+                            <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                                <ContentTemplate>
+                                    <label class="form-label small fw-bold">Item Name</label>
+                                    <div class="d-flex">
+                                        <asp:DropDownList ID="ddlItemNameDetails" runat="server" AutoPostBack="true" CssClass="form-select form-select-sm searchable-dropdown" OnSelectedIndexChanged="ddlItemNameDetails_SelectedIndexChanged">
+                                            <asp:ListItem Text="--Select Item--" Value="0" />
+                                        </asp:DropDownList>
 
-                                        <div class="col-md-3">
-                                            <asp:UpdatePanel ID="UpdatePanel2" runat="server">
-                                                <ContentTemplate>
-                                                    <label class="form-label small fw-bold">Color Name</label>
-                                                    <div class="d-flex">
-                                                        <asp:DropDownList ID="DropDownList1" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
-                                                            <asp:ListItem Text="--Select Color--" Value="0" />
-                                                        </asp:DropDownList>
-
-                                                        <asp:LinkButton ID="LinkButton1" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh" OnClick="LinkButton1_Click">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
-                                                            </svg>
-                                                        </asp:LinkButton>
-                                                    </div>
-                                                </ContentTemplate>
-                                            </asp:UpdatePanel>
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Item Rate</label>
-                                            <asp:TextBox ID="txtRate" runat="server" CssClass="form-control form-control-sm" placeholder="Item Rate" onkeyup="calculateRowTotal()"></asp:TextBox>
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <asp:UpdatePanel ID="UpdatePanel3" runat="server">
-                                                <ContentTemplate>
-                                                    <label class="form-label small fw-bold">Rate Currency</label>
-                                                    <div class="d-flex">
-                                                        <asp:DropDownList ID="ddlRateUnit" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
-                                                            <asp:ListItem Text="--Select Unit--" Value="0" />
-                                                        </asp:DropDownList>
-
-                                                        <asp:LinkButton ID="LinkButton2" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh Rate Unit" OnClick="LinkButton2_Click">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
-                                                            </svg>
-                                                        </asp:LinkButton>
-                                                    </div>
-                                                </ContentTemplate>
-                                            </asp:UpdatePanel>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Size</label>
-                                            <label class="form-label small fw-bold" style="color: #FF3300; text-align: right">if Required Size-Group? Check Here</label>
-                                            <asp:CheckBox ID="chksizeGroupEnable" AutoPostBack="true" runat="server" OnCheckedChanged="chksizeGroupEnable_CheckedChanged"/>
-
-                                            <asp:TextBox ID="txtSize" runat="server" CssClass="form-control form-control-sm" placeholder="e.g. S / 10x12"></asp:TextBox>
-                                            
-                                            <asp:DropDownList ID="ddlsizeGroup" runat="server" Visible="false" CssClass="form-select form-select-sm searchable-dropdown">
-                                                <asp:ListItem Text="--Select size--" Value="0" />
-                                            </asp:DropDownList>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Req. Qty</label>
-                                            <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm" Text="0" onkeyup="calculateRowTotal()"></asp:TextBox>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Unit</label>
-                                            <asp:TextBox ID="ddlUnit" runat="server" CssClass="form-control form-control-sm"></asp:TextBox>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Extra %</label>
-                                            <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm" Text="0" onkeyup="calculateRowTotal()"></asp:TextBox>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Total Req. Qty</label>
-                                            <asp:TextBox ID="txtTotalReqQtyInput" runat="server" CssClass="form-control form-control-sm" Text="0.00" ReadOnly="true"></asp:TextBox>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Total Amount</label>
-                                            <asp:TextBox ID="txtTotalAmountInput" runat="server" CssClass="form-control form-control-sm" Text="0.00" ReadOnly="true"></asp:TextBox>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Measurement</label>
-                                            <asp:TextBox ID="txtMeasurement" runat="server" CssClass="form-control form-control-sm" placeholder="Measurement"></asp:TextBox>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label small fw-bold">Item Spec / Remarks</label>
-                                            <asp:TextBox ID="txtSizeRemarks" runat="server" CssClass="form-control form-control-sm" placeholder="Remarks"></asp:TextBox>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <asp:Button ID="btnAddSize" runat="server" CssClass="btn add-variant-btn btn-sm w-100 text-white" Text="+ Add" OnClick="btnAddSize_Click" />
-                                        </div>
-                                        
-                                        <div class="col-md-1">
-                                            <asp:Button ID="btnAddAllsize" runat="server" CssClass="btn btn-success btn-sm w-100" Text="Add All Size" OnClick="btnAddAllsize_Click" Enabled="False" />
-                                        </div>
-                                        <div class="col-md-3">
-                                            <asp:Panel ID="Panel1" runat="server" Visible="false">
-                                            <label class="form-label small fw-bold">Items Entry ID</label>
-                                            <asp:TextBox ID="txtItemsEntryID" runat="server" CssClass="form-control form-control-sm" ReadOnly="true" placeholder="Entry ID"></asp:TextBox>
-                                            </asp:Panel>
-                                        </div>
+                                        <asp:LinkButton ID="Button1" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh" OnClick="Button1_Click">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                            </svg>
+                                        </asp:LinkButton>
                                     </div>
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                        </div>
 
-                                    <!-- Data Table: Size Variants -->
-                                    <div class="variant-grid-title">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM1 3h14V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1z"/></svg>
-                                        Added Item / Color / Size List
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Items Discription</label>
+                            <asp:TextBox ID="TextBox1" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Items Description"></asp:TextBox>
+                        </div>
+
+                        <div class="col-md-3">
+                            <asp:UpdatePanel ID="UpdatePanel2" runat="server">
+                                <ContentTemplate>
+                                    <label class="form-label small fw-bold">Color Name</label>
+                                    <div class="d-flex">
+                                        <asp:DropDownList ID="DropDownList1" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
+                                            <asp:ListItem Text="--Select Color--" Value="0" />
+                                        </asp:DropDownList>
+
+                                        <asp:LinkButton ID="LinkButton1" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh" OnClick="LinkButton1_Click">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                            </svg>
+                                        </asp:LinkButton>
                                     </div>
-                                    <div class="table-responsive mt-2">
-                                        <asp:GridView ID="gvSizeDetails" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle" AutoGenerateColumns="False" DataKeyNames="WorkOrderDetailsID" EmptyDataText="No size variant added yet." OnSelectedIndexChanged="gvSizeDetails_SelectedIndexChanged">
-                                            <HeaderStyle CssClass="table-dark-custom" />
-                                            <Columns>
-                                                <asp:TemplateField HeaderText="Action">
-                                                    <ItemTemplate>
-                                                        <asp:Button ID="btnSelect" runat="server" CommandName="Select" CommandArgument='<%# Container.DataItemIndex %>' Text="Select" CssClass="btn btn-sm btn-outline-primary" />
-                                                    </ItemTemplate>
-                                                    <ItemStyle CssClass="text-center" />
-                                                </asp:TemplateField>
-                                                <asp:BoundField DataField="WorkOrderDetailsID" HeaderText="Entry No" />
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                        </div>
 
-                                                <asp:BoundField DataField="ItemName" HeaderText="Item Name" />
-                                                <asp:BoundField DataField="JobNo" HeaderText="Item Name" />
-                                                <asp:BoundField DataField="Buyer" HeaderText="Buyer Name" />
-                                                <asp:BoundField DataField="Style" HeaderText="Style Name" />
-                                                <asp:BoundField DataField="PO" HeaderText="PO Name" />
-                                                <asp:BoundField DataField="ColorName" HeaderText="Color" />
-                                                <asp:BoundField DataField="Size" HeaderText="Size" />
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Item Rate</label>
+                            <asp:TextBox ID="txtRate" runat="server" CssClass="form-control form-control-sm" placeholder="Item Rate" onkeyup="calculateRowTotal()"></asp:TextBox>
+                        </div>
 
-                                                <asp:TemplateField HeaderText="Measurement">
-                                                    <ItemTemplate>
-                                                        <asp:TextBox ID="txtMeasurement" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("Measurement") %>'></asp:TextBox>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
+                        <div class="col-md-3">
+                            <asp:UpdatePanel ID="UpdatePanel3" runat="server">
+                                <ContentTemplate>
+                                    <label class="form-label small fw-bold">Rate Currency</label>
+                                    <div class="d-flex">
+                                        <asp:DropDownList ID="ddlRateUnit" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
+                                            <asp:ListItem Text="--Select Unit--" Value="0" />
+                                        </asp:DropDownList>
 
-                                                <asp:TemplateField HeaderText="Required Qty">
-                                                    <ItemTemplate>
-                                                        <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm text-center"
-                                                            Text='<%# Eval("ReqQty") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
-                                                            onkeyup="calculateRow(this);"></asp:TextBox>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
-
-                                                <asp:TemplateField HeaderText="Unit">
-                                                    <ItemTemplate>
-                                                        <asp:TextBox ID="txtUnit" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("Unit") %>'></asp:TextBox>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
-
-                                                <asp:TemplateField HeaderText="Rate/Unit">
-                                                    <ItemTemplate>
-                                                        <asp:TextBox ID="txtRateUnit" runat="server" CssClass="form-control form-control-sm text-center"
-                                                            Text='<%# Eval("RateUnit") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
-                                                            onkeyup="calculateRow(this);"></asp:TextBox>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
-
-                                                <asp:TemplateField HeaderText="Rate Unit">
-                                                    <ItemTemplate>
-                                                        <asp:Label ID="lblRateUnitName" runat="server" Text='<%# Eval("RateUnitName") %>'></asp:Label>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
-
-                                                <asp:TemplateField HeaderText="Extra %">
-                                                    <ItemTemplate>
-                                                        <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm text-center"
-                                                            Text='<%# Eval("ExtraPercent") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
-                                                            onkeyup="calculateRow(this);"></asp:TextBox>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
-
-                                                <asp:TemplateField HeaderText="Total Req. Qty">
-                                                    <ItemTemplate>
-                                                        <asp:Label ID="lblTotalReqQty" runat="server" Text='<%# Eval("TotalReqQty") %>' CssClass="fw-bold text-success"></asp:Label>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
-
-                                                <asp:TemplateField HeaderText="Total Amount">
-                                                    <ItemTemplate>
-                                                        <asp:Label ID="lblTotalAmount" runat="server" Text='<%# Eval("TotalAmount") %>' CssClass="fw-bold text-primary"></asp:Label>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
-
-                                                <asp:TemplateField HeaderText="Item Specification/Remarks">
-                                                    <ItemTemplate>
-                                                        <asp:TextBox ID="txtRemarks" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("Remarks") %>'></asp:TextBox>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>
-                                            </Columns>
-                                        </asp:GridView>
+                                        <asp:LinkButton ID="LinkButton2" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh Rate Unit" OnClick="LinkButton2_Click">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                            </svg>
+                                        </asp:LinkButton>
                                     </div>
-                                </fieldset>
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Size</label>
+                            <label class="form-label small fw-bold" style="color: #FF3300; text-align: right">if Required Size-Group? Check Here</label>
+                            <asp:CheckBox ID="chksizeGroupEnable" AutoPostBack="true" runat="server" OnCheckedChanged="chksizeGroupEnable_CheckedChanged"/>
+
+                            <asp:TextBox ID="txtSize" runat="server" CssClass="form-control form-control-sm" placeholder="e.g. S / 10x12"></asp:TextBox>
+
+                            <asp:DropDownList ID="ddlsizeGroup" runat="server" Visible="false" AutoPostBack="true" CssClass="form-select form-select-sm searchable-dropdown" OnSelectedIndexChanged="ddlsizeGroup_SelectedIndexChanged">
+                                <asp:ListItem Text="--Select size--" Value="0" />
+                            </asp:DropDownList>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Req. Qty</label>
+                            <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm" Text="0" onkeyup="calculateRowTotal()"></asp:TextBox>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Unit</label>
+                            <asp:TextBox ID="txtItemUnit" runat="server" CssClass="form-control form-control-sm"></asp:TextBox>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Extra %</label>
+                            <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm" Text="0" onkeyup="calculateRowTotal()"></asp:TextBox>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Total Req. Qty</label>
+                            <asp:TextBox ID="txtTotalReqQtyInput" runat="server" CssClass="form-control form-control-sm" Text="0.00" ReadOnly="true"></asp:TextBox>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Total Amount</label>
+                            <asp:TextBox ID="txtTotalAmountInput" runat="server" CssClass="form-control form-control-sm" Text="0.00" ReadOnly="true"></asp:TextBox>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Measurement</label>
+                            <asp:TextBox ID="txtMeasurement" runat="server" CssClass="form-control form-control-sm" placeholder="Measurement"></asp:TextBox>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Item Spec / Remarks</label>
+                            <asp:TextBox ID="txtSizeRemarks" runat="server" CssClass="form-control form-control-sm" placeholder="Remarks"></asp:TextBox>
+                        </div>
+                        <div class="col-md-1">
+                            <asp:Button ID="btnAddSize" runat="server" CssClass="btn add-variant-btn btn-sm w-100 text-white" Text="+ Add" OnClick="btnAddSize_Click" />
+                        </div>
+
+                        <div class="col-md-1">
+                            <asp:Button ID="btnAddAllsize" runat="server" CssClass="btn btn-success btn-sm w-100" Text="Add All Size" OnClick="btnAddAllsize_Click" Enabled="False" />
+                        </div>
+                        <div class="col-md-3">
+                            <asp:Panel ID="Panel1" runat="server" Visible="false">
+                            <label class="form-label small fw-bold">Items Entry ID</label>
+                            <asp:TextBox ID="txtItemsEntryID" runat="server" CssClass="form-control form-control-sm" ReadOnly="true" placeholder="Entry ID"></asp:TextBox>
+                            </asp:Panel>
+                        </div>
+                    </div>
+                </ContentTemplate>
+            </asp:UpdatePanel>
+        </div>
+        <!-- ============ entry-row wrapper শেষ ============ -->
+
+        <!-- ============ ডান পাশে Size Group Panel — row এর সরাসরি child, তাই পাশে ঠিক থাকবে ============ -->
+        <div class="col-md-2">
+            <asp:UpdatePanel ID="UpdatePanelSizeGroupList" runat="server" UpdateMode="Always">
+                <ContentTemplate>
+                    <asp:Panel ID="pnlSizeGroupList" runat="server" Visible="false" CssClass="size-group-side-panel border rounded p-2 h-100">
+                        <div class="variant-grid-title mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM1 3h14V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1z"/></svg>
+                            Size Group List
+                        </div>
+                        <asp:GridView ID="gvSizeList" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle"
+                            AutoGenerateColumns="False" DataKeyNames="SizeID"
+                            EmptyDataText="No Size Found." OnRowDataBound="gvSizeList_RowDataBound" OnSelectedIndexChanged="gvSizeList_SelectedIndexChanged">
+                            <HeaderStyle CssClass="table-dark-custom" />
+                            <Columns>                                
+                                <asp:TemplateField HeaderText="">
+                                    <HeaderTemplate>
+                                        <asp:CheckBox ID="chkHeaderView" runat="server" Text=" " onclick="toggleColumn(this, 'chkItemView');" />
+                                    </HeaderTemplate>
+                                    <ItemTemplate>
+                                        <asp:CheckBox ID="chkItemView" Checked="true" runat="server" CssClass="chkItemView" />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:BoundField DataField="SizeID" HeaderText="ID" />
+                                <asp:BoundField DataField="SizeName" HeaderText="Size Name" />
+                            </Columns>
+                        </asp:GridView>
+                    </asp:Panel>
+                </ContentTemplate>
+                <Triggers>
+                    <asp:AsyncPostBackTrigger ControlID="chksizeGroupEnable" EventName="CheckedChanged" />
+                    <asp:AsyncPostBackTrigger ControlID="ddlsizeGroup" EventName="SelectedIndexChanged" />
+                </Triggers>
+            </asp:UpdatePanel>
+        </div>
+
+    </div>
+
+    <!-- Data Table: Size Variants -->
+    <div class="variant-grid-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM1 3h14V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1z"/></svg>
+        Added Item / Color / Size List
+    </div>
+    <div class="table-responsive mt-2">
+        <asp:UpdatePanel ID="UpdatePanelSizeDetails" runat="server" UpdateMode="Always">
+            <ContentTemplate>
+                <asp:GridView ID="gvSizeDetails" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle" AutoGenerateColumns="False" DataKeyNames="WorkOrderDetailsID" EmptyDataText="No size variant added yet." OnSelectedIndexChanged="gvSizeDetails_SelectedIndexChanged">
+                    <HeaderStyle CssClass="table-dark-custom" />
+                    <Columns>
+                        <asp:TemplateField HeaderText="Action">
+                            <ItemTemplate>
+                                <asp:Button ID="btnSelect" runat="server" CommandName="Select" CommandArgument='<%# Container.DataItemIndex %>' Text="Select" CssClass="btn btn-sm btn-outline-primary" />
+                            </ItemTemplate>
+                            <ItemStyle CssClass="text-center" />
+                        </asp:TemplateField>
+                        <asp:BoundField DataField="WorkOrderDetailsID" HeaderText="Entry No" />
+
+                        <asp:BoundField DataField="ItemName" HeaderText="Item Name" />
+                        <asp:BoundField DataField="JobNo" HeaderText="Item Name" />
+                        <asp:BoundField DataField="Buyer" HeaderText="Buyer Name" />
+                        <asp:BoundField DataField="Style" HeaderText="Style Name" />
+                        <asp:BoundField DataField="PO" HeaderText="PO Name" />
+                        <asp:BoundField DataField="ColorName" HeaderText="Color" />
+                        <asp:BoundField DataField="Size" HeaderText="Size" />
+
+                        <asp:TemplateField HeaderText="Measurement">
+                            <ItemTemplate>
+                                <asp:TextBox ID="txtMeasurement" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("Measurement") %>'></asp:TextBox>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Required Qty">
+                            <ItemTemplate>
+                                <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm text-center"
+                                    Text='<%# Eval("ReqQty") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
+                                    onkeyup="calculateRow(this);"></asp:TextBox>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Unit">
+                            <ItemTemplate>
+                                <asp:TextBox ID="txtUnit" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("Unit") %>'></asp:TextBox>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Rate/Unit">
+                            <ItemTemplate>
+                                <asp:TextBox ID="txtRateUnit" runat="server" CssClass="form-control form-control-sm text-center"
+                                    Text='<%# Eval("RateUnit") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
+                                    onkeyup="calculateRow(this);"></asp:TextBox>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Rate Unit">
+                            <ItemTemplate>
+                                <asp:Label ID="lblRateUnitName" runat="server" Text='<%# Eval("RateUnitName") %>'></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Extra %">
+                            <ItemTemplate>
+                                <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm text-center"
+                                    Text='<%# Eval("ExtraPercent") %>' AutoPostBack="true" OnTextChanged="txtSizeGridField_TextChanged"
+                                    onkeyup="calculateRow(this);"></asp:TextBox>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Total Req. Qty">
+                            <ItemTemplate>
+                                <asp:Label ID="lblTotalReqQty" runat="server" Text='<%# Eval("TotalReqQty") %>' CssClass="fw-bold text-success"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Total Amount">
+                            <ItemTemplate>
+                                <asp:Label ID="lblTotalAmount" runat="server" Text='<%# Eval("TotalAmount") %>' CssClass="fw-bold text-primary"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Item Specification/Remarks">
+                            <ItemTemplate>
+                                <asp:TextBox ID="txtRemarks" runat="server" CssClass="form-control form-control-sm text-center" Text='<%# Eval("Remarks") %>'></asp:TextBox>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
+            </ContentTemplate>
+        </asp:UpdatePanel>
+    </div>
+</fieldset>
 
                                 <!-- ============ SECTION 4: OTHER COSTS & GRAND TOTAL ============ -->
                                 <fieldset class="section-box">

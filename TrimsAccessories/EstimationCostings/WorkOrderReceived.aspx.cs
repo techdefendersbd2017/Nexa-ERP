@@ -194,7 +194,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 {
                     while (reader.Read())
                     {
-                        ddlUnit.Text = reader["Unit"].ToString();
+                        txtItemUnit.Text = reader["Unit"].ToString();
                     }
                 }
                 else
@@ -723,7 +723,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     cmd.Parameters.Add("@Size", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtSize.Text) ? "0" : txtSize.Text;
                     cmd.Parameters.Add("@Measurement", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtMeasurement.Text) ? "0" : txtMeasurement.Text; 
                     cmd.Parameters.Add("@ReqQty", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtReqQty.Text) ? 0 : Convert.ToDecimal(txtReqQty.Text);
-                    cmd.Parameters.Add("@Unit", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(ddlUnit.Text) ? "0" : ddlUnit.Text;
+                    cmd.Parameters.Add("@Unit", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtItemUnit.Text) ? "0" : txtItemUnit.Text;
                     cmd.Parameters.Add("@RateUnit", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtRate.Text) ? 0 : Convert.ToDecimal(txtRate.Text);
                     cmd.Parameters.Add("@ExtraPercent", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtExtraPercent.Text) ? 0 : Convert.ToDecimal(txtExtraPercent.Text);
                     cmd.Parameters.Add("@TotalReqQty", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtTotalReqQtyInput.Text) ? 0 : Convert.ToDecimal(txtTotalReqQtyInput.Text);
@@ -811,7 +811,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 : string.Empty;
             if (selectedColorID <= 0) selectedColorID = 0;
 
-            string selectedUnitName = ddlUnit.Text ?? string.Empty;
+            string selectedUnitName = txtItemUnit.Text ?? string.Empty;
 
             // ★ Rate Unit নাম সংগ্রহ
             string selectedRateUnitName = (ddlRateUnit.SelectedValue != "0" && ddlRateUnit.SelectedItem != null)
@@ -1009,7 +1009,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             txtRate.Text = string.Empty;
             txtSize.Text = string.Empty;
             txtReqQty.Text = "0";
-            ddlUnit.Text = string.Empty;
+            txtItemUnit.Text = string.Empty;
             txtExtraPercent.Text = "0";
             txtTotalReqQtyInput.Text = "0.00";
             txtTotalAmountInput.Text = "0.00";
@@ -1135,7 +1135,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                         ddlRateUnit.SelectedItem.Text = reader["RateUnitName"].ToString();
                         txtSize.Text = reader["Size"].ToString();
                         txtReqQty.Text = reader["ReqQty"].ToString();
-                        ddlUnit.Text = reader["Unit"].ToString();
+                        txtItemUnit.Text = reader["Unit"].ToString();
                         txtExtraPercent.Text = reader["ExtraPercent"].ToString();
                         txtTotalReqQtyInput.Text = reader["TotalReqQty"].ToString();
                         txtTotalAmountInput.Text = reader["TotalAmount"].ToString();
@@ -1204,7 +1204,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             txtRate.Text = string.Empty;
             txtSize.Text = string.Empty;
             txtReqQty.Text = "0";
-            ddlUnit.Text = string.Empty;
+            txtItemUnit.Text = string.Empty;
             txtExtraPercent.Text = "0";
             txtTotalReqQtyInput.Text = "0.00";
             txtTotalAmountInput.Text = "0.00";
@@ -1231,6 +1231,21 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         {
             pnlDetails.Visible = false;
             pnlList.Visible = true;
+        }
+
+        protected void ddlsizeGroup_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void gvSizeList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void gvSizeList_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+
         }
     }
 }
