@@ -7,7 +7,6 @@
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
@@ -627,8 +626,13 @@
                 $list.append($li);
             });
 
-            $list.addClass('show');
-        }
+        $list.addClass('show');
+            }
+            function toggleColumn(headerCheckbox, targetClass) {
+                var checkboxes = document.querySelectorAll('.' + targetClass);
+                checkboxes.forEach(function(cb) {
+                            cb.checked = headerCheckbox.checked;
+                        });
     </script>
 
 </head>
@@ -971,12 +975,13 @@
                             <label class="form-label small fw-bold">Item Spec / Remarks</label>
                             <asp:TextBox ID="txtMeasurement" runat="server" CssClass="form-control form-control-sm" placeholder="Measurement"></asp:TextBox>
                         </div>
-                        <div class="col-md-1">
-                            <asp:Button ID="btnAddAllsize" runat="server" CssClass="btn btn-success btn-sm w-100" Text="Add All Size" OnClick="btnAddAllsize_Click" Enabled="False" />
-                        </div>
 
                         <div class="col-md-1">
                             <asp:Button ID="btnAddSize" runat="server" CssClass="btn add-variant-btn btn-sm w-100 text-white" Text="+ Add" OnClick="btnAddSize_Click" />
+                        </div>
+
+                        <div class="col-md-1">
+                            <asp:Button ID="btnAddAllsize" runat="server" CssClass="btn btn-success btn-sm w-100" Text="Add All Size" OnClick="btnAddAllsize_Click" Enabled="False" />
                         </div>
                         <div class="col-md-3">
                             <asp:Panel ID="Panel1" runat="server" Visible="false">

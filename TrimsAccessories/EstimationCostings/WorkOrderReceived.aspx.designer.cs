@@ -546,15 +546,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.TextBox txtMeasurement;
 
         /// <summary>
-        /// btnAddAllsize control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAddAllsize;
-
-        /// <summary>
         /// btnAddSize control.
         /// </summary>
         /// <remarks>
@@ -562,6 +553,15 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnAddSize;
+
+        /// <summary>
+        /// btnAddAllsize control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnAddAllsize;
 
         /// <summary>
         /// Panel1 control.
