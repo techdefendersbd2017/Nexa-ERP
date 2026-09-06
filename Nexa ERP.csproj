@@ -1428,6 +1428,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="APIControlar\" />
+    <Folder Include="Assets\" />
     <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
     <Folder Include="IndustrialEngineering\" />
     <Folder Include="Production\Embellishments\PrintandOthers\" />
