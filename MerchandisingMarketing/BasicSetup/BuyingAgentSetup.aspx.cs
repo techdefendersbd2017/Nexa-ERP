@@ -2,7 +2,7 @@
 
 namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
 {
-    public partial class BuyerSetup : System.Web.UI.Page
+    public partial class BuyingAgentSetup : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -25,31 +25,30 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
             pnlEntry.Visible = true;
         }
 
-        // Buyer List -> "Add Buyer Entry" clicked
+        // Buying Agent List -> "Add Buying Agent" clicked
         protected void btnAddNew_Click(object sender, EventArgs e)
         {
-            hfBuyerId.Value = "";
+            hfBuyingAgentId.Value = "";
             ClearEntryForm();
             ShowEntry();
         }
 
-        // Buyer Information -> "Back To List" clicked
+        // Buying Agent Entry -> "Back To List" clicked
         protected void btnBackToList_Click(object sender, EventArgs e)
         {
             ShowList();
             // TODO: BindGridView();
         }
 
-        protected void btnClearFilter_Click(object sender, EventArgs e)
+        protected void btnAddBuyer_Click(object sender, EventArgs e)
         {
-            txtSearchBuyer.Text = "";
-            ddlBuyerType.SelectedIndex = 0;
+            // TODO: append selected ddlSelectBuyer value as a row into gvBuyers
         }
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            // TODO: validate + save Buyer Information + Buyer Ledger
-            // using hfBuyerId.Value
+            // TODO: validate + save Buying Agent Info + linked Buyers list
+            // using hfBuyingAgentId.Value
             ShowList();
         }
 
@@ -60,25 +59,18 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
 
         private void ClearEntryForm()
         {
-            txtBuyerCode.Text = "";
-            ddlMainBuyer.SelectedIndex = 0;
-            txtKnitOutsideBuyerName.Text = "";
-            txtBuyerName.Text = "";
-            txtContact.Text = "";
-            txtDyeingOutsideBuyerName.Text = "";
-            txtDisplayName.Text = "";
-            txtEmail.Text = "";
-            txtGarmentsOutsideBuyerName.Text = "";
-            txtLCSCName.Text = "";
-            txtCommission.Text = "0";
-            txtLicenceNo.Text = "";
+            txtCode.Text = "";
+            txtName.Text = "";
+            ddlAgentType.SelectedIndex = 0;
+            txtContactPerson.Text = "";
+            txtMobile.Text = "";
+            txtPhone.Text = "";
             txtAddress.Text = "";
-            ddlCountry.SelectedIndex = 0;
-            rbIsActive.Checked = false;
-            rbIsLocal.Checked = false;
-            txtAssetLedger.Text = "0";
-            txtSalesLedger.Text = "0";
-            txtLiabilityLedger.Text = "0";
+            txtFax.Text = "";
+            txtEmail.Text = "";
+            txtWeb.Text = "";
+            chkIsActive.Checked = true;
+            ddlSelectBuyer.SelectedIndex = 0;
         }
     }
 }

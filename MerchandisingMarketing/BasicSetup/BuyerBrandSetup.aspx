@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Buyer Brand Setup </title>
+    <title>Buyer Brand Setup</title>
 
     <!-- tailwind css link -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +27,7 @@
 
                 <div class="bg-[#255C8C] flex justify-between items-center rounded-t-lg px-4 py-2">
                     <div class="text-white">
-                        <p class="text-xl mb-1 font-medium">Set Breakdown List</p>
+                        <p class="text-xl mb-1 font-medium">Buyer Brand Setup List</p>
                     </div>
                     <asp:LinkButton ID="btnAddNew" runat="server" OnClick="btnAddNew_Click" CssClass="flex items-center gap-1.5 rounded bg-[#2EB85C] text-white px-4 py-1.5 shadow-sm hover:bg-[#1E7E34] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
                         <i class="fa-solid fa-plus"></i>
@@ -105,7 +105,7 @@
                     </div>
                 </div>
 
-                <div class="bg-[#ffffff] shadow-xl rounded-b-lg px-3 py-2">
+                <div class="bg-[#ffffff] shadow-xl rounded-b-lg p-4">
 
                     <%-- Buyer / Main Style / PO No + PO list --%>
                     <div class="grid grid-cols-12 gap-3">
@@ -131,20 +131,18 @@
                                         <asp:DropDownList ID="ddlPONo" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
                                             <asp:ListItem Value="" Selected="True">--Select PO No--</asp:ListItem>
                                         </asp:DropDownList>
+                                        <asp:LinkButton ID="btnAddPO" runat="server" OnClick="btnAddPO_Click" CssClass="flex items-center gap-1.5 rounded bg-[#255C8C] text-white px-4 py-1 shadow-sm hover:bg-[#1a4569] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline whitespace-nowrap">
+                                            <i class="fa-solid fa-plus"></i>
+                                            <span>Add</span>
+                                        </asp:LinkButton>
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex justify-end mt-3">
-                                <asp:LinkButton ID="btnAddPO" runat="server" OnClick="btnAddPO_Click" CssClass="flex items-center gap-1.5 rounded bg-[#255C8C] text-white px-4 py-1.5 shadow-sm hover:bg-[#1a4569] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
-                                    <i class="fa-solid fa-plus"></i>
-                                    <span>Add</span>
-                                </asp:LinkButton>
-                            </div>
                         </div>
 
-                        <%-- Right Grid view--%>
-                        <div class="col-span-7 bg-[#FBFCFE] p-1 rounded border border-gray-400">
-                            <div class="border border-gray-400 bg-gray-300 rounded w-full h-64 overflow-y-auto overflow-x-auto">
+                        <%-- right: Gridview (PO list) --%>
+                        <div class="col-span-7 bg-[#FBFCFE] p-2 rounded border border-gray-400">
+                            <div class="border border-gray-400 bg-gray-300 rounded w-full h-60 overflow-y-auto overflow-x-auto">
                                 <asp:GridView ID="gvPOList" runat="server"></asp:GridView>
                             </div>
                         </div>
@@ -152,7 +150,7 @@
                     </div>
 
                     <%-- Main Color / Style No / Color / Ratio / CM(PCS) / FOB(PCS) + Add --%>
-                    <div class="bg-[#FBFCFE] px-2 py-1 rounded border border-gray-400 mt-3">
+                    <div class="bg-[#FBFCFE] p-2 rounded border border-gray-400 mt-3">
                         <div class="grid grid-cols-6 gap-x-3 gap-y-2">
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Main Color</label>
@@ -186,7 +184,7 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end mt-2">
+                        <div class="flex justify-end mt-3">
                             <asp:LinkButton ID="btnAddColorLine" runat="server" OnClick="btnAddColorLine_Click" CssClass="flex items-center gap-1.5 rounded bg-[#255C8C] text-white px-4 py-1.5 shadow-sm hover:bg-[#1a4569] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
                                 <i class="fa-solid fa-plus"></i>
                                 <span>Add</span>
@@ -194,7 +192,7 @@
                         </div>
                     </div>
 
-                    <%-- Color Grid view --%>
+                    <%-- Grid View --%>
                     <div class="border border-gray-400 bg-gray-300 rounded w-full h-80 overflow-y-auto overflow-x-auto mt-3">
                         <asp:GridView ID="gvColorBreakdown" runat="server"></asp:GridView>
                     </div>

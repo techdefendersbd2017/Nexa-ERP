@@ -230,6 +230,7 @@
     <Content Include="Approval\HRM\Leave\LeaveApproved.aspx" />
     <Content Include="Approval\HRM\Payroll\DeductionEarningApproval.aspx" />
     <Content Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx" />
+    <Content Include="Assets\WorkOrderJS.js" />
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
@@ -295,6 +296,10 @@
     <Content Include="Inventory\StoreRequisition.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx" />
     <Content Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx" />
     <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
     <Content Include="MasterConfiguration\ProductMaster\ColorInformation.aspx" />
@@ -1323,7 +1328,6 @@
     </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx.cs">
       <DependentUpon>WorkOrderReceived.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx.designer.cs">
       <DependentUpon>WorkOrderReceived.aspx</DependentUpon>
