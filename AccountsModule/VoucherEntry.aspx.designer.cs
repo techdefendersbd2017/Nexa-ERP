@@ -24,6 +24,42 @@ namespace Nexa_ERP.AccountsModule
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
+        /// rbCash control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RadioButton rbCash;
+
+        /// <summary>
+        /// lblCash control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblCash;
+
+        /// <summary>
+        /// rbBank control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RadioButton rbBank;
+
+        /// <summary>
+        /// lblBank control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblBank;
+
+        /// <summary>
         /// hfUserId control.
         /// </summary>
         /// <remarks>
@@ -60,13 +96,13 @@ namespace Nexa_ERP.AccountsModule
         protected global::System.Web.UI.WebControls.TextBox txtVoucherNo;
 
         /// <summary>
-        /// txtTransSource control.
+        /// ddlPaymentMode control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTransSource;
+        protected global::System.Web.UI.WebControls.DropDownList ddlPaymentMode;
 
         /// <summary>
         /// ddlVoucherDate control.
@@ -87,13 +123,13 @@ namespace Nexa_ERP.AccountsModule
         protected global::System.Web.UI.WebControls.TextBox txtVoucherRefaranceNo;
 
         /// <summary>
-        /// ddlPaymentMode control.
+        /// txtTransSource control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlPaymentMode;
+        protected global::System.Web.UI.WebControls.TextBox txtTransSource;
 
         /// <summary>
         /// txtChequeNo control.
@@ -103,42 +139,6 @@ namespace Nexa_ERP.AccountsModule
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtChequeNo;
-
-        /// <summary>
-        /// rbCash control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton rbCash;
-
-        /// <summary>
-        /// lblCash control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCash;
-
-        /// <summary>
-        /// rbBank control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton rbBank;
-
-        /// <summary>
-        /// lblBank control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblBank;
 
         /// <summary>
         /// txtAccountsHead control.
@@ -267,22 +267,13 @@ namespace Nexa_ERP.AccountsModule
         protected global::System.Web.UI.WebControls.TextBox txtNarration;
 
         /// <summary>
-        /// btnPrintCheque control.
+        /// btnCancel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnPrintCheque;
-
-        /// <summary>
-        /// btnPost control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnPost;
+        protected global::System.Web.UI.WebControls.LinkButton btnCancel;
 
         /// <summary>
         /// btnSave control.
@@ -294,13 +285,22 @@ namespace Nexa_ERP.AccountsModule
         protected global::System.Web.UI.WebControls.LinkButton btnSave;
 
         /// <summary>
-        /// btnCancel control.
+        /// btnPost control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnCancel;
+        protected global::System.Web.UI.WebControls.LinkButton btnPost;
+
+        /// <summary>
+        /// btnPrintCheque control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnPrintCheque;
 
         /// <summary>
         /// btnPrint control.
