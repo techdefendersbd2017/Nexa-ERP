@@ -414,6 +414,10 @@
         .summary-box .grand-total ~ .form-control {
             font-size: 1.05rem;
         }
+        .auto-style1 {
+            font-weight: bold;
+            font-size: 18px;
+        }
     </style>
 
     <script type="text/javascript">
@@ -821,6 +825,7 @@
 
                                 <!-- ============ SECTION 3: ITEM / COLOR / SIZE ENTRY & GRID ============ -->
                                 <!-- ============ SECTION 3: ITEM / COLOR / SIZE ENTRY & GRID ============ -->
+<!-- ============ SECTION 3: ITEM / COLOR / SIZE ENTRY & GRID ============ -->
 <fieldset class="section-box">
 
     <div class="row g-2">
@@ -883,6 +888,40 @@
                             <asp:TextBox ID="TextBox1" runat="server" CssClass="form-control form-control-sm" placeholder="Enter Items Description"></asp:TextBox>
                         </div>
 
+                        <div class="col-md-1">
+                            <label class="form-label small fw-bold">Item Rate</label>
+                            <asp:TextBox ID="txtRate" runat="server" CssClass="form-control form-control-sm" placeholder="Item Rate" onkeyup="calculateRowTotal()"></asp:TextBox>
+                        </div>
+
+                        <div class="col-md-2">
+                            <asp:UpdatePanel ID="UpdatePanel3" runat="server">
+                                <ContentTemplate>
+                                    <label class="form-label small fw-bold">Rate Currency</label>
+                                    <div class="d-flex">
+                                        <asp:DropDownList ID="ddlRateUnit" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
+                                            <asp:ListItem Text="--Select Unit--" Value="0" />
+                                        </asp:DropDownList>
+
+                                        <asp:LinkButton ID="LinkButton2" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh Rate Unit" OnClick="LinkButton2_Click">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                            </svg>
+                                        </asp:LinkButton>
+                                    </div>
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                        </div>
+
+                        <div class="col-md-1">
+                            <label class="form-label small fw-bold">Req. Qty</label>                         
+                            <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm" onkeyup="calculateRowTotal()" Text="0"></asp:TextBox>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">Unit</label>
+                            <asp:TextBox ID="txtItemUnit" runat="server" CssClass="form-control form-control-sm"></asp:TextBox>
+                        </div>
+
                         <div class="col-md-3">
                             <asp:UpdatePanel ID="UpdatePanel2" runat="server">
                                 <ContentTemplate>
@@ -903,74 +942,41 @@
                         </div>
 
                         <div class="col-md-3">
-                            <label class="form-label small fw-bold">Item Rate</label>
-                            <asp:TextBox ID="txtRate" runat="server" CssClass="form-control form-control-sm" placeholder="Item Rate" onkeyup="calculateRowTotal()"></asp:TextBox>
-                        </div>
-
-                        <div class="col-md-3">
-                            <asp:UpdatePanel ID="UpdatePanel3" runat="server">
-                                <ContentTemplate>
-                                    <label class="form-label small fw-bold">Rate Currency</label>
-                                    <div class="d-flex">
-                                        <asp:DropDownList ID="ddlRateUnit" runat="server" CssClass="form-select form-select-sm searchable-dropdown">
-                                            <asp:ListItem Text="--Select Unit--" Value="0" />
-                                        </asp:DropDownList>
-
-                                        <asp:LinkButton ID="LinkButton2" runat="server" CssClass="btn refresh-icon-btn d-flex align-items-center justify-content-center" ToolTip="Refresh Rate Unit" OnClick="LinkButton2_Click">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
-                                            </svg>
-                                        </asp:LinkButton>
-                                    </div>
-                                </ContentTemplate>
-                            </asp:UpdatePanel>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label small fw-bold">Size</label>
-                            <label class="form-label small fw-bold" style="color: #FF3300; text-align: right">if Required Size-Group? Check Here</label>
-                            <asp:CheckBox ID="chksizeGroupEnable" AutoPostBack="true" runat="server" OnCheckedChanged="chksizeGroupEnable_CheckedChanged"/>
-
+                            <label class="form-label small fw-bold">Size</label>   
+                            <label class="form-label small fw-bold" style="color: #FF3300; text-align: right">
+                            if Required Size-Group? Check Here</label>
+                            <asp:CheckBox ID="chksizeGroupEnable" runat="server" AutoPostBack="true" OnCheckedChanged="chksizeGroupEnable_CheckedChanged" />
                             <asp:TextBox ID="txtSize" runat="server" CssClass="form-control form-control-sm" placeholder="e.g. S / 10x12"></asp:TextBox>
-
-                            <asp:DropDownList ID="ddlsizeGroup" runat="server" Visible="false" AutoPostBack="true" CssClass="form-select form-select-sm searchable-dropdown" OnSelectedIndexChanged="ddlsizeGroup_SelectedIndexChanged">
+                            <asp:DropDownList ID="ddlsizeGroup" runat="server" AutoPostBack="true" CssClass="form-select form-select-sm searchable-dropdown" OnSelectedIndexChanged="ddlsizeGroup_SelectedIndexChanged" Visible="false">
                                 <asp:ListItem Text="--Select size--" Value="0" />
                             </asp:DropDownList>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label small fw-bold">Req. Qty</label>
-                            <asp:TextBox ID="txtReqQty" runat="server" CssClass="form-control form-control-sm" Text="0" onkeyup="calculateRowTotal()"></asp:TextBox>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label small fw-bold">Unit</label>
-                            <asp:TextBox ID="txtItemUnit" runat="server" CssClass="form-control form-control-sm"></asp:TextBox>
-                        </div>
-                        <div class="col-md-3">
                             <label class="form-label small fw-bold">Extra %</label>
-                            <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm" Text="0" onkeyup="calculateRowTotal()"></asp:TextBox>
+                            <asp:TextBox ID="txtExtraPercent" runat="server" CssClass="form-control form-control-sm" onkeyup="calculateRowTotal()" Text="0"></asp:TextBox>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold">Total Req. Qty</label>
-                            <asp:TextBox ID="txtTotalReqQtyInput" runat="server" CssClass="form-control form-control-sm" Text="0.00" ReadOnly="true"></asp:TextBox>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label small fw-bold">Total Amount</label>
                             <asp:TextBox ID="txtTotalAmountInput" runat="server" CssClass="form-control form-control-sm" Text="0.00" ReadOnly="true"></asp:TextBox>
                         </div>
                         <div class="col-md-3">
+                            <label class="form-label small fw-bold">Total Amount</label>
+                            <asp:TextBox ID="txtTotalReqQtyInput" runat="server" CssClass="form-control form-control-sm" Text="0.00" ReadOnly="true"></asp:TextBox>
+                        </div>
+                        <div class="col-md-3">
                             <label class="form-label small fw-bold">Measurement</label>
-                            <asp:TextBox ID="txtMeasurement" runat="server" CssClass="form-control form-control-sm" placeholder="Measurement"></asp:TextBox>
+                            <asp:TextBox ID="txtSizeRemarks" runat="server" CssClass="form-control form-control-sm" placeholder="Remarks"></asp:TextBox>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold">Item Spec / Remarks</label>
-                            <asp:TextBox ID="txtSizeRemarks" runat="server" CssClass="form-control form-control-sm" placeholder="Remarks"></asp:TextBox>
+                            <asp:TextBox ID="txtMeasurement" runat="server" CssClass="form-control form-control-sm" placeholder="Measurement"></asp:TextBox>
                         </div>
                         <div class="col-md-1">
-                            <asp:Button ID="btnAddSize" runat="server" CssClass="btn add-variant-btn btn-sm w-100 text-white" Text="+ Add" OnClick="btnAddSize_Click" />
+                            <asp:Button ID="btnAddAllsize" runat="server" CssClass="btn btn-success btn-sm w-100" Text="Add All Size" OnClick="btnAddAllsize_Click" Enabled="False" />
                         </div>
 
                         <div class="col-md-1">
-                            <asp:Button ID="btnAddAllsize" runat="server" CssClass="btn btn-success btn-sm w-100" Text="Add All Size" OnClick="btnAddAllsize_Click" Enabled="False" />
+                            <asp:Button ID="btnAddSize" runat="server" CssClass="btn add-variant-btn btn-sm w-100 text-white" Text="+ Add" OnClick="btnAddSize_Click" />
                         </div>
                         <div class="col-md-3">
                             <asp:Panel ID="Panel1" runat="server" Visible="false">
@@ -984,40 +990,82 @@
         </div>
         <!-- ============ entry-row wrapper শেষ ============ -->
 
-        <!-- ============ ডান পাশে Size Group Panel — row এর সরাসরি child, তাই পাশে ঠিক থাকবে ============ -->
-        <div class="col-md-2">
-            <asp:UpdatePanel ID="UpdatePanelSizeGroupList" runat="server" UpdateMode="Always">
-                <ContentTemplate>
-                    <asp:Panel ID="pnlSizeGroupList" runat="server" Visible="false" CssClass="size-group-side-panel border rounded p-2 h-100">
-                        <div class="variant-grid-title mb-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM1 3h14V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1z"/></svg>
-                            Size Group List
-                        </div>
-                        <asp:GridView ID="gvSizeList" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle"
-                            AutoGenerateColumns="False" DataKeyNames="SizeID"
-                            EmptyDataText="No Size Found." OnRowDataBound="gvSizeList_RowDataBound" OnSelectedIndexChanged="gvSizeList_SelectedIndexChanged">
-                            <HeaderStyle CssClass="table-dark-custom" />
-                            <Columns>                                
-                                <asp:TemplateField HeaderText="">
-                                    <HeaderTemplate>
-                                        <asp:CheckBox ID="chkHeaderView" runat="server" Text=" " onclick="toggleColumn(this, 'chkItemView');" />
-                                    </HeaderTemplate>
-                                    <ItemTemplate>
-                                        <asp:CheckBox ID="chkItemView" Checked="true" runat="server" CssClass="chkItemView" />
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                                <asp:BoundField DataField="SizeID" HeaderText="ID" />
-                                <asp:BoundField DataField="SizeName" HeaderText="Size Name" />
-                            </Columns>
-                        </asp:GridView>
-                    </asp:Panel>
-                </ContentTemplate>
-                <Triggers>
-                    <asp:AsyncPostBackTrigger ControlID="chksizeGroupEnable" EventName="CheckedChanged" />
-                    <asp:AsyncPostBackTrigger ControlID="ddlsizeGroup" EventName="SelectedIndexChanged" />
-                </Triggers>
-            </asp:UpdatePanel>
-        </div>
+     <div class="col-md-2">
+    <asp:UpdatePanel ID="UpdatePanelSizeGroupList" runat="server" UpdateMode="Always">
+        <ContentTemplate>
+            <asp:Panel ID="pnlSizeGroupList" runat="server" Visible="false" CssClass="size-group-side-panel border rounded p-2 h-100">
+                <div class="variant-grid-title mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM1 3h14V2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1z"/></svg>
+                    Size Group List
+                </div>
+                <asp:GridView ID="gvSizeList" runat="server" CssClass="table table-bordered table-striped table-sm text-center align-middle"
+                    AutoGenerateColumns="False" DataKeyNames="SizeID"
+                    EmptyDataText="No Size Found." OnRowDataBound="gvSizeList_RowDataBound" OnSelectedIndexChanged="gvSizeList_SelectedIndexChanged">
+                    <HeaderStyle CssClass="table-dark-custom" />
+                    <Columns>                                
+                        <asp:TemplateField HeaderText="">
+                            <HeaderTemplate>
+                                <asp:CheckBox ID="chkHeaderView" runat="server" Text=" " onclick="toggleColumn(this, 'chkItemView');" />
+                            </HeaderTemplate>
+                            <ItemTemplate>
+                                <asp:CheckBox ID="chkItemView" Checked="true" runat="server" CssClass="chkItemView" />
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:BoundField DataField="SizeID" HeaderText="ID" />
+                        <asp:BoundField DataField="SizeName" HeaderText="Size Name" />
+                        <asp:TemplateField HeaderText="QTY">
+                            <ItemTemplate>
+                                <asp:TextBox ID="txtqty" runat="server" TextMode="Number" CssClass="form-control form-control-sm text-center txtQtyInput" Text='<%# Eval("sizewiseQty") %>'></asp:TextBox>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
+                
+            <asp:Label ID="Label1" runat="server" Text="Total Quantity: " CssClass="auto-style1"></asp:Label>
+            <asp:Label ID="Label2" runat="server" CssClass="lblTotalQtyValue" style="font-weight: bold; font-size: 18px"></asp:Label>
+
+            </asp:Panel>
+
+
+<script type="text/javascript">
+    function calculateTotalQty() {
+        var total = 0;
+        var inputs = document.querySelectorAll('.txtQtyInput');
+        inputs.forEach(function (el) {
+            var val = parseInt(el.value, 10);
+            if (!isNaN(val)) {
+                total += val;
+            }
+        });
+        var lbl = document.querySelector('.lblTotalQtyValue');
+        if (lbl) {
+            lbl.textContent = total;
+        }
+    }
+
+    // Event delegation - class দিয়ে ম্যাচ করা, GridView re-render হলেও কাজ করবে
+    document.addEventListener('input', function (e) {
+        if (e.target && e.target.classList && e.target.classList.contains('txtQtyInput')) {
+            calculateTotalQty();
+        }
+    });
+
+    // Initial + async postback শেষে recalculate
+    calculateTotalQty();
+
+    if (typeof Sys !== 'undefined' && Sys.WebForms && Sys.WebForms.PageRequestManager) {
+        Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function () {
+            calculateTotalQty();
+        });
+    }
+</script>
+        </ContentTemplate>
+        <Triggers>
+            <asp:AsyncPostBackTrigger ControlID="chksizeGroupEnable" EventName="CheckedChanged" />
+            <asp:AsyncPostBackTrigger ControlID="ddlsizeGroup" EventName="SelectedIndexChanged" />
+        </Triggers>
+    </asp:UpdatePanel>
+</div>
 
     </div>
 
@@ -1167,14 +1215,7 @@
                     </div>
                 </div>
             </div>
-
         </asp:Panel>
-
-
-
-
-
-
         </div>
     </form>
 </body>

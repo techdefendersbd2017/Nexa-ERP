@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Services;
@@ -86,8 +87,63 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 LoadSizeGroup();
                 LoadPartyList();
                 ShowWorkOrderList();
+            }
+            ApplySizeGroupUIState();
+        }
+        private void ApplySizeGroupUIState()
+        {
+            if (chksizeGroupEnable.Checked)
+            {
+                txtSize.Visible = false;
+                ddlsizeGroup.Visible = true;
+                btnAddAllsize.Enabled = true;
+                btnAddSize.Enabled = false;
+                pnlSizeGroupList.Visible = true;
+                divEntryRowWrapper.Attributes["class"] = "col-md-10";
+                BindSizeListGrid();
+            }
+            else
+            {
+                txtSize.Visible = true;
+                ddlsizeGroup.Visible = false;
+                btnAddAllsize.Enabled = false;
+                btnAddSize.Enabled = true;
+                pnlSizeGroupList.Visible = false;
+                divEntryRowWrapper.Attributes["class"] = "col-md-12";
+            }
+        }
 
-                ClientScript.RegisterStartupScript(this.GetType(), "showListPanel", "showPanel('pnlList');", true);
+        private void BindSizeListGrid()
+        {
+            if (string.IsNullOrEmpty(ddlsizeGroup.SelectedValue) || ddlsizeGroup.SelectedValue == "0")
+            {
+                gvSizeList.DataSource = null;
+                gvSizeList.DataBind(); // অন্তত DataBind() একবার কল হওয়া নিশ্চিত করা, নইলে GridView ফাঁকাই থাকবে
+                return;
+            }
+
+            try
+            {
+                con = conn.openConnection();
+                // ✅ SQL Injection ঝুঁকি এড়াতে parameterized query ব্যবহার করা হলো
+                string query = "SELECT * FROM [techdefendersbd].[Sizes] WHERE GroupID = @GroupID";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@GroupID", ddlsizeGroup.SelectedValue);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvSizeList.DataSource = dt;
+                    gvSizeList.DataBind();
+                }
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
             }
         }
         private void ShowWorkOrderList()
@@ -179,13 +235,18 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         // ★ FIX: parameterized query — SQL Injection ঝুঁকি দূর করা হয়েছে
         private void LoadUnit()
         {
-            string a = gvSizeDetails.SelectedDataKey.Value.ToString();
-            txtQuotationNo.Text = a;
+            // ✅ null-check যোগ করুন — SelectedDataKey null হলে এই লাইন এড়িয়ে যান
+            if (gvSizeDetails.SelectedDataKey != null)
+            {
+                string a = gvSizeDetails.SelectedDataKey.Value.ToString();
+                txtQuotationNo.Text = a;
+            }
+
             try
             {
                 string sql = @"SELECT ta_ItemName.ItemID, tbl_UnitSetup.UnitID, tbl_UnitSetup.UnitName
-                    FROM ta_ItemName INNER JOIN tbl_UnitSetup ON ta_ItemName.Unit = tbl_UnitSetup.UnitName 
-                    WHERE ta_ItemName.ItemID = @ItemID";
+            FROM ta_ItemName INNER JOIN tbl_UnitSetup ON ta_ItemName.Unit = tbl_UnitSetup.UnitName 
+            WHERE ta_ItemName.ItemID = @ItemID";
                 con = conn.openConnection();
                 cmd = new SqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("@ItemID", ddlItemNameDetails.SelectedValue);
@@ -194,12 +255,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 {
                     while (reader.Read())
                     {
-                        txtItemUnit.Text = reader["Unit"].ToString();
+                        txtItemUnit.Text = reader["UnitName"].ToString();
                     }
-                }
-                else
-                {
-                    //txtCategoryId.Text = txtCategory.Text = string.Empty;
                 }
                 reader.Close();
                 con.Close();
@@ -785,117 +842,86 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         protected void btnAddAllsize_Click(object sender, EventArgs e)
         {
-            if (ddlsizeGroup.SelectedValue == "0")
-            {
-                ShowMessage("Please select a Size Group first.", "warning");
-                ShowFormPanel();
-                return;
-            }
-
-            if (ddlItemNameDetails.SelectedValue == "0")
-            {
-                ShowMessage("Please select an Item Name first.", "warning");
-                ShowFormPanel();
-                return;
-            }
-
-            decimal.TryParse(txtRate.Text, out decimal rateVal);
-            decimal.TryParse(txtReqQty.Text, out decimal RequiresQtyVal);
-            decimal.TryParse(txtExtraPercent.Text, out decimal extraPercentVal); // ★ FIX: এন্ট্রি রো-এর Extra % এখন পড়া হচ্ছে
-
-            int.TryParse(ddlItemNameDetails.SelectedValue, out int selectedItemID);
-            int.TryParse(DropDownList1.SelectedValue, out int selectedColorID);
-            string selectedItemName = ddlItemNameDetails.SelectedItem?.Text ?? string.Empty;
-            string selectedColorName = (selectedColorID > 0 && DropDownList1.SelectedItem != null)
-                ? DropDownList1.SelectedItem.Text
-                : string.Empty;
-            if (selectedColorID <= 0) selectedColorID = 0;
-
-            string selectedUnitName = txtItemUnit.Text ?? string.Empty;
-
-            // ★ Rate Unit নাম সংগ্রহ
-            string selectedRateUnitName = (ddlRateUnit.SelectedValue != "0" && ddlRateUnit.SelectedItem != null)
-                ? ddlRateUnit.SelectedItem.Text
-                : string.Empty;
-
-            string buyer = txtBuyer.Text.Trim();
-            string style = txtStyle.Text.Trim();
-            string po = txtOrderNo.Text.Trim();
-            string itemDescription = TextBox1.Text.Trim();
-            string jobNo = txtJobNo.Text.Trim();
-
             try
             {
                 con = conn.openConnection();
-                string query = @"SELECT s.SizeID, s.SizeName AS Size
-          FROM Sizes s 
-          INNER JOIN SizeGroups g ON s.GroupID = g.GroupID 
-          WHERE s.GroupID = @GroupID
-          ORDER BY s.SizeID ASC";
 
-                using (SqlCommand cmd = new SqlCommand(query, con))
+                foreach (GridViewRow row in gvSizeList.Rows)
                 {
-                    cmd.Parameters.AddWithValue("@GroupID", ddlsizeGroup.SelectedValue);
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
+                    if (row.RowType != DataControlRowType.DataRow) continue;
 
-                    var list = SizeList;
-                    int nextSlNo = list.Any() ? list.Max(s => s.SlNo) + 1 : 1;
+                    CheckBox chkItemView = (CheckBox)row.FindControl("chkItemView");
+                    if (chkItemView == null || !chkItemView.Checked) continue; // শুধু চেক করা সাইজ
 
-                    // ★ FIX: TotalReqQty ও TotalAmount আগে থেকেই ক্যালকুলেট করা হচ্ছে,
-                    // যাতে "Add All Size" দিয়ে অ্যাড করা রো-গুলোও সাথে সাথেই
-                    // Section 4 (Sub Total / Grand Total) সামারিতে সঠিকভাবে যোগ হয়।
-                    decimal totalReqQty = RequiresQtyVal + (RequiresQtyVal * (extraPercentVal / 100m));
-                    decimal totalAmount = totalReqQty * rateVal;
+                    int SizeID = Convert.ToInt32(gvSizeList.DataKeys[row.RowIndex].Value);
+                    string SizeName = row.Cells[2].Text.Trim(); 
+                    TextBox txtQtyCtrl = (TextBox)row.FindControl("txtqty");
+                    string SizeQty = (txtQtyCtrl != null) ? txtQtyCtrl.Text.Trim() : string.Empty;
+                    // ============================================
 
-                    foreach (DataRow row in dt.Rows)
+                    using (SqlCommand cmd = new SqlCommand("Sp_InsertWorkOrderHeader", con)) // ✅ আপনার আসল SP নাম বসান
                     {
-                        string sizeName = row["Size"].ToString();
+                        cmd.CommandType = CommandType.StoredProcedure;
 
-                        bool alreadyExists = list.Any(s => s.Size == sizeName
-                                                            && s.ItemID == selectedItemID
-                                                            && s.ColorName == selectedColorName);
-                        if (alreadyExists) continue;
+                        cmd.Parameters.Add("@WORcvNo", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtWoRef.Text) ? "0" : txtWoRef.Text;
+                        cmd.Parameters.Add("@WORcvDate", SqlDbType.Date).Value = string.IsNullOrEmpty(txtWoDate.Text) ? (object)DBNull.Value : Convert.ToDateTime(txtWoDate.Text);
+                        cmd.Parameters.Add("@DeliveryDate", SqlDbType.Date).Value = string.IsNullOrEmpty(txtDeliveryDate.Text) ? (object)DBNull.Value : Convert.ToDateTime(txtDeliveryDate.Text);
+                        cmd.Parameters.Add("@CustomerID", SqlDbType.Int).Value = string.IsNullOrEmpty(ddlCustomerName.SelectedValue) ? 0 : Convert.ToInt32(ddlCustomerName.SelectedValue);
+                        cmd.Parameters.Add("@ReceivingBranchID", SqlDbType.Int).Value = string.IsNullOrEmpty(ddlReceivingBranch.SelectedValue) ? 0 : Convert.ToInt32(ddlReceivingBranch.SelectedValue);
+                        cmd.Parameters.Add("@RefWorkOrderNo", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtWoNoDetails.Text) ? "0" : txtWoNoDetails.Text;
+                        cmd.Parameters.Add("@QuotationNo", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtQuotationNo.Text) ? "0" : txtQuotationNo.Text;
+                        cmd.Parameters.Add("@SubTotalAmount", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtSubTotalAmount.Text) ? 0 : Convert.ToDecimal(txtSubTotalAmount.Text);
+                        cmd.Parameters.Add("@TransportCost", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtTransportCost.Text) ? 0 : Convert.ToDecimal(txtTransportCost.Text);
+                        cmd.Parameters.Add("@VatPercent", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtVatPercent.Text) ? 0 : Convert.ToDecimal(txtVatPercent.Text);
+                        cmd.Parameters.Add("@GrandTotal", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtGrandTotalAmount.Text) ? 0 : Convert.ToDecimal(txtGrandTotalAmount.Text);
+                        cmd.Parameters.Add("@WOStatus", SqlDbType.NVarChar).Value = (ddlWOStatus.SelectedItem == null || string.IsNullOrEmpty(ddlWOStatus.SelectedItem.Text)) ? "0" : ddlWOStatus.SelectedItem.Text;
+                        cmd.Parameters.Add("@DetailsID", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtItemsEntryID.Text) ? "0" : txtItemsEntryID.Text;
+                        cmd.Parameters.Add("@Buyer", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtBuyer.Text) ? "0" : txtBuyer.Text;
+                        cmd.Parameters.Add("@Style", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtStyle.Text) ? "0" : txtStyle.Text;
+                        cmd.Parameters.Add("@PO", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtOrderNo.Text) ? "0" : txtOrderNo.Text;
+                        cmd.Parameters.Add("@ItemName", SqlDbType.NVarChar).Value = (ddlItemNameDetails.SelectedItem == null || string.IsNullOrEmpty(ddlItemNameDetails.SelectedItem.Text)) ? "0" : ddlItemNameDetails.SelectedItem.Text;
+                        cmd.Parameters.Add("@ItemDescription", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(TextBox1.Text) ? "0" : TextBox1.Text;
+                        cmd.Parameters.Add("@ColorName", SqlDbType.NVarChar).Value = (DropDownList1.SelectedItem == null || string.IsNullOrEmpty(DropDownList1.SelectedItem.Text)) ? "0" : DropDownList1.SelectedItem.Text;
 
-                        list.Add(new SizeDetail
+                        cmd.Parameters.Add("@Size", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(SizeName) ? SizeID.ToString() : SizeName;
+
+                        // ================= FIX #2 =================
+                        // আগে fallback ছিল SizeID.ToString() — যেটা ভুলভাবে SizeID কে
+                        // Qty হিসেবে পাঠাচ্ছিল। এখন fallback শূন্য (0), এবং
+                        // decimal parsing culture-safe রাখতে TryParse ব্যবহার করা হলো।
+                        decimal reqQtyValue = 0;
+                        if (!string.IsNullOrEmpty(SizeQty))
                         {
-                            SlNo = nextSlNo++,
-                            ItemID = selectedItemID,
-                            ItemName = selectedItemName,
-                            JobNo = jobNo,
-                            Buyer = buyer,
-                            Style = style,
-                            PO = po,
-                            ItemDescription = itemDescription,
-                            ColorID = selectedColorID,
-                            ColorName = selectedColorName,
-                            Size = sizeName,
-                            Measurement = string.Empty,
-                            ReqQty = RequiresQtyVal,
-                            Unit = selectedUnitName,
-                            RateUnit = rateVal,
-                            RateUnitName = selectedRateUnitName,
-                            ExtraPercent = extraPercentVal,        // ★ FIX: আগে হার্ডকোড 0 ছিল
-                            TotalReqQty = totalReqQty,             // ★ FIX: আগে হার্ডকোড 0 ছিল
-                            TotalAmount = totalAmount,             // ★ FIX: আগে হার্ডকোড 0 ছিল
-                            Remarks = string.Empty
-                        });
+                            decimal.TryParse(SizeQty, NumberStyles.Any, CultureInfo.InvariantCulture, out reqQtyValue);
+                        }
+                        cmd.Parameters.Add("@ReqQty", SqlDbType.Decimal).Value = reqQtyValue;
+                        // ============================================
+
+                        cmd.Parameters.Add("@Unit", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtItemUnit.Text) ? "0" : txtItemUnit.Text;
+                        cmd.Parameters.Add("@RateUnit", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtRate.Text) ? 0 : Convert.ToDecimal(txtRate.Text);
+                        cmd.Parameters.Add("@ExtraPercent", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtExtraPercent.Text) ? 0 : Convert.ToDecimal(txtExtraPercent.Text);
+                        cmd.Parameters.Add("@TotalReqQty", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtTotalReqQtyInput.Text) ? 0 : Convert.ToDecimal(txtTotalReqQtyInput.Text);
+                        cmd.Parameters.Add("@TotalAmount", SqlDbType.Decimal).Value = string.IsNullOrEmpty(txtTotalAmountInput.Text) ? 0 : Convert.ToDecimal(txtTotalAmountInput.Text);
+                        cmd.Parameters.Add("@Remarks", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtSizeRemarks.Text) ? "0" : txtSizeRemarks.Text;
+                        cmd.Parameters.Add("@JobNo", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtJobNo.Text) ? "0" : txtJobNo.Text;
+                        cmd.Parameters.Add("@RateUnitName", SqlDbType.NVarChar).Value = (ddlRateUnit.SelectedItem == null || string.IsNullOrEmpty(ddlRateUnit.SelectedItem.Text)) ? "0" : ddlRateUnit.SelectedItem.Text;
+
+                        cmd.ExecuteNonQuery();
                     }
-                    SizeList = list;
                 }
 
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('All selected sizes added successfully!');", true);
             }
             catch (Exception ex)
             {
-                ShowMessage("Error: " + ex.Message, "warning");
+                gvSizeDetails.DataSource = null;
+                gvSizeDetails.DataBind();
+                ShowMessage("List Load Error: " + ex.Message, "warning");
             }
             finally
             {
-                if (con != null && con.State == ConnectionState.Open) { con.Close(); }
+                if (con != null && con.State == ConnectionState.Open) con.Close();
             }
-
-            ShowFormPanel();
         }
 
 
@@ -1179,6 +1205,26 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 btnAddAllsize.Enabled = false;
                 btnAddSize.Enabled = true;
             }
+            BindSizeListGrid();
+
+            if (chksizeGroupEnable.Checked)
+            {
+                // ✅ যদি আগে থেকে কোনো Size Group সিলেক্ট করা না থাকে, ডিফল্টভাবে প্রথম গ্রুপ সিলেক্ট করে দিন
+                if (string.IsNullOrEmpty(ddlsizeGroup.SelectedValue) || ddlsizeGroup.SelectedValue == "0")
+                {
+                    if (ddlsizeGroup.Items.Count > 1)
+                        ddlsizeGroup.SelectedIndex = 1; // index 0 = "--Select Size Group--" placeholder
+                }
+
+                BindSizeListGrid(); // ✅ সাথে সাথে ডেটা bind করে দিন, নইলে GridView কখনো DataBind() না হওয়ায় সম্পূর্ণ ফাঁকা দেখাবে
+            }
+            else
+            {
+                gvSizeList.DataSource = null;
+                gvSizeList.DataBind();
+            }
+
+            ApplySizeGroupUIState();
         }
 
         protected void BtnAddNew_Click(object sender, EventArgs e)
@@ -1235,7 +1281,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         protected void ddlsizeGroup_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            BindSizeListGrid();
+            ApplySizeGroupUIState();
         }
 
         protected void gvSizeList_SelectedIndexChanged(object sender, EventArgs e)

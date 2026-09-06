@@ -393,33 +393,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.TextBox TextBox1;
 
         /// <summary>
-        /// UpdatePanel2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel2;
-
-        /// <summary>
-        /// DropDownList1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DropDownList1;
-
-        /// <summary>
-        /// LinkButton1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton LinkButton1;
-
-        /// <summary>
         /// txtRate control.
         /// </summary>
         /// <remarks>
@@ -456,6 +429,51 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.LinkButton LinkButton2;
 
         /// <summary>
+        /// txtReqQty control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtReqQty;
+
+        /// <summary>
+        /// txtItemUnit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtItemUnit;
+
+        /// <summary>
+        /// UpdatePanel2 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel UpdatePanel2;
+
+        /// <summary>
+        /// DropDownList1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList DropDownList1;
+
+        /// <summary>
+        /// LinkButton1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton LinkButton1;
+
+        /// <summary>
         /// chksizeGroupEnable control.
         /// </summary>
         /// <remarks>
@@ -483,24 +501,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.DropDownList ddlsizeGroup;
 
         /// <summary>
-        /// txtReqQty control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtReqQty;
-
-        /// <summary>
-        /// txtItemUnit control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtItemUnit;
-
-        /// <summary>
         /// txtExtraPercent control.
         /// </summary>
         /// <remarks>
@@ -508,15 +508,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtExtraPercent;
-
-        /// <summary>
-        /// txtTotalReqQtyInput control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTotalReqQtyInput;
 
         /// <summary>
         /// txtTotalAmountInput control.
@@ -528,13 +519,13 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.TextBox txtTotalAmountInput;
 
         /// <summary>
-        /// txtMeasurement control.
+        /// txtTotalReqQtyInput control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtMeasurement;
+        protected global::System.Web.UI.WebControls.TextBox txtTotalReqQtyInput;
 
         /// <summary>
         /// txtSizeRemarks control.
@@ -546,13 +537,13 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected global::System.Web.UI.WebControls.TextBox txtSizeRemarks;
 
         /// <summary>
-        /// btnAddSize control.
+        /// txtMeasurement control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAddSize;
+        protected global::System.Web.UI.WebControls.TextBox txtMeasurement;
 
         /// <summary>
         /// btnAddAllsize control.
@@ -562,6 +553,15 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnAddAllsize;
+
+        /// <summary>
+        /// btnAddSize control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnAddSize;
 
         /// <summary>
         /// Panel1 control.
@@ -607,6 +607,24 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView gvSizeList;
+
+        /// <summary>
+        /// Label1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label1;
+
+        /// <summary>
+        /// Label2 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label Label2;
 
         /// <summary>
         /// UpdatePanelSizeDetails control.
