@@ -300,6 +300,7 @@
     <Content Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\StyleSetup.aspx" />
     <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
     <Content Include="MasterConfiguration\ProductMaster\ColorInformation.aspx" />
@@ -905,6 +906,13 @@
     <Compile Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx.designer.cs">
       <DependentUpon>EmbCategorySetup.aspx</DependentUpon>
     </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\StyleSetup.aspx.cs">
+      <DependentUpon>StyleSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\StyleSetup.aspx.designer.cs">
+      <DependentUpon>StyleSetup.aspx</DependentUpon>
+    </Compile>
     <Compile Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx.cs">
       <DependentUpon>colorSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1428,7 +1436,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="APIControlar\" />
-    <Folder Include="Assets\" />
     <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
     <Folder Include="IndustrialEngineering\" />
     <Folder Include="Production\Embellishments\PrintandOthers\" />
