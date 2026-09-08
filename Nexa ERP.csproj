@@ -300,6 +300,8 @@
     <Content Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\SetBreakdown.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\SizeSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\StyleSetup.aspx" />
     <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
@@ -905,6 +907,20 @@
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx.designer.cs">
       <DependentUpon>EmbCategorySetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\SetBreakdown.aspx.cs">
+      <DependentUpon>SetBreakdown.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\SetBreakdown.aspx.designer.cs">
+      <DependentUpon>SetBreakdown.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\SizeSetup.aspx.cs">
+      <DependentUpon>SizeSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\SizeSetup.aspx.designer.cs">
+      <DependentUpon>SizeSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\StyleSetup.aspx.cs">
       <DependentUpon>StyleSetup.aspx</DependentUpon>
