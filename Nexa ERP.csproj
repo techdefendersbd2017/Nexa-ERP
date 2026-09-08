@@ -1328,6 +1328,7 @@
     </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx.cs">
       <DependentUpon>WorkOrderReceived.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\WorkOrderReceived.aspx.designer.cs">
       <DependentUpon>WorkOrderReceived.aspx</DependentUpon>
@@ -1428,7 +1429,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="APIControlar\" />
-    <Folder Include="Assets\" />
     <Folder Include="HRMPayroll\HRConfiguration\LockAndOthers\" />
     <Folder Include="IndustrialEngineering\" />
     <Folder Include="Production\Embellishments\PrintandOthers\" />
