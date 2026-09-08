@@ -300,6 +300,7 @@
     <Content Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\ItemTypeSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\JobSerialFormat.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ProductDepartmentSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ProductTypeSetup.aspx" />
@@ -910,6 +911,13 @@
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx.designer.cs">
       <DependentUpon>EmbCategorySetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\ItemTypeSetup.aspx.cs">
+      <DependentUpon>ItemTypeSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\ItemTypeSetup.aspx.designer.cs">
+      <DependentUpon>ItemTypeSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\JobSerialFormat.aspx.cs">
       <DependentUpon>JobSerialFormat.aspx</DependentUpon>
