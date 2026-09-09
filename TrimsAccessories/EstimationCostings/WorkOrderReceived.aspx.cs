@@ -1,5 +1,4 @@
-﻿<<<<<<< Updated upstream
-using Nexa_ERP.Connection;
+﻿using Nexa_ERP.Connection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -37,7 +36,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             public decimal ReqQty { get; set; }
             public string Unit { get; set; }
             public decimal RateUnit { get; set; }
-            public string RateUnitName { get; set; }   // ★ NEW: Rate যে ইউনিটে দেওয়া হয়েছে (Per PCS/Dozen/KG ইত্যাদি)
+            public string RateUnitName { get; set; }   // Rate যে ইউনিটে দেওয়া হয়েছে (Per PCS/Dozen/KG ইত্যাদি)
             public decimal ExtraPercent { get; set; }
             public decimal TotalReqQty { get; set; }
             public decimal TotalAmount { get; set; }
@@ -71,7 +70,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 LoadColorNameDropdown();
                 LoadPartyName();
                 LoadReceivingBranch();
-                LoadRateUnit(); // ★ NEW
+                LoadRateUnit();
 
                 Session["WO_SizeList"] = new List<SizeDetail>();
                 hdnWorkOrderNo.Value = string.Empty;
@@ -83,6 +82,10 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 BindSizeDetails();
                 LoadItemsName();
                 LoadSizeGroup();
+
+                // ডিফল্টভাবে লিস্ট প্যানেল দেখানো, ফর্ম প্যানেল লুকানো
+                pnlList.Visible = true;
+                pnlDetails.Visible = false;
             }
         }
 
@@ -115,11 +118,18 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             return prefix + nextNumber.ToString("D4");
         }
 
-        // ★ FIX: parameterized query — SQL Injection ঝুঁকি দূর করা হয়েছে
+        // ★ NOTE: .aspx-এ Unit ফিল্ড এখন TextBox (txtItemUnit), তাই এখানে DropDownList এর বদলে
+        // সরাসরি TextBox-এ আইটেমের ডিফল্ট ইউনিট বসিয়ে দেওয়া হচ্ছে।
         private void LoadUnit()
         {
             try
             {
+                if (ddlItemNameDetails.SelectedValue == "0" || string.IsNullOrEmpty(ddlItemNameDetails.SelectedValue))
+                {
+                    txtItemUnit.Text = string.Empty;
+                    return;
+                }
+
                 con = conn.openConnection();
                 string query = @"SELECT ta_ItemName.ItemID, tbl_UnitSetup.UnitID, tbl_UnitSetup.UnitName
                     FROM ta_ItemName INNER JOIN tbl_UnitSetup ON ta_ItemName.Unit = tbl_UnitSetup.UnitName 
@@ -127,14 +137,18 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@ItemID", ddlItemNameDetails.SelectedValue);
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
+                    object result = cmd.ExecuteScalar();
+                    // ExecuteScalar শুধু প্রথম কলাম দেয়, তাই UnitName আলাদা কুয়েরি দিয়ে আনা হচ্ছে
+                }
 
-                    ddlUnit.DataSource = dt;
-                    ddlUnit.DataTextField = "UnitName";
-                    ddlUnit.DataValueField = "UnitID";
-                    ddlUnit.DataBind();
+                string unitQuery = @"SELECT tbl_UnitSetup.UnitName
+                    FROM ta_ItemName INNER JOIN tbl_UnitSetup ON ta_ItemName.Unit = tbl_UnitSetup.UnitName 
+                    WHERE ta_ItemName.ItemID = @ItemID";
+                using (SqlCommand cmd2 = new SqlCommand(unitQuery, con))
+                {
+                    cmd2.Parameters.AddWithValue("@ItemID", ddlItemNameDetails.SelectedValue);
+                    object unitResult = cmd2.ExecuteScalar();
+                    txtItemUnit.Text = unitResult != null && unitResult != DBNull.Value ? unitResult.ToString() : string.Empty;
                 }
             }
             catch (Exception ex)
@@ -147,7 +161,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             }
         }
 
-        // ★ NEW: Rate Unit dropdown লোড করার মেথড (item-নির্ভর না, পুরো ইউনিট লিস্ট)
+        // Rate Unit dropdown লোড করার মেথড (item-নির্ভর না, পুরো কারেন্সি লিস্ট)
         private void LoadRateUnit()
         {
             try
@@ -250,12 +264,20 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     DataTable dt = new DataTable();
                     da.Fill(dt);
 
+                    // ফর্ম প্যানেলের কাস্টমার ড্রপডাউন
                     ddlCustomerName.DataSource = dt;
                     ddlCustomerName.DataTextField = "PartyName";
                     ddlCustomerName.DataValueField = "PartyID";
                     ddlCustomerName.DataBind();
-
                     ddlCustomerName.Items.Insert(0, new ListItem("--Select Party Name--", "0"));
+
+                    // লিস্ট প্যানেলের ফিল্টার কাস্টমার ড্রপডাউন
+                    DataTable dt2 = dt.Copy();
+                    ddlCustomerListPage.DataSource = dt2;
+                    ddlCustomerListPage.DataTextField = "PartyName";
+                    ddlCustomerListPage.DataValueField = "PartyID";
+                    ddlCustomerListPage.DataBind();
+                    ddlCustomerListPage.Items.Insert(0, new ListItem("--Select Customer--", "0"));
                 }
             }
             catch (Exception ex)
@@ -330,20 +352,44 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         private void BindWorkOrderList()
         {
+            BindWorkOrderList(null, null, null, null, null, null);
+        }
+
+        // ★ NEW: ফিল্টারসহ লিস্ট বাইন্ডিং (btnShow_Click থেকে ব্যবহৃত হয়)
+        private void BindWorkOrderList(string customerId, string workOrderNo, string refWorkOrderNo,
+            DateTime? fromDate, DateTime? tillDate, DateTime? deliveryDate)
+        {
             try
             {
                 con = conn.openConnection();
                 string query = @"SELECT TOP 50 
-                                      WORcvID,
-                                      WORcvNo,
-                                      WORcvDate,
-                                      DeliveryDate,
-                                      GrandTotal
-                                  FROM techdefendersbd.WorkOrderHeader 
-                                  WHERE IsActive = 1
-                                  ORDER BY WORcvID DESC";
+                                      h.WORcvID,
+                                      h.WORcvNo,
+                                      p.PartyName,
+                                      h.RefWorkOrderNo,
+                                      h.WORcvDate,
+                                      h.DeliveryDate,
+                                      h.GrandTotal,
+                                      CASE WHEN h.WOStatus = 1 THEN 'Submit' ELSE 'Draft' END AS WOStatus
+                                  FROM techdefendersbd.WorkOrderHeader h
+                                  LEFT JOIN tbl_CustomerSupplier p ON p.PartyID = h.CustomerID
+                                  WHERE h.IsActive = 1
+                                    AND (@CustomerID IS NULL OR h.CustomerID = @CustomerID)
+                                    AND (@WORcvNo IS NULL OR h.WORcvNo LIKE '%' + @WORcvNo + '%')
+                                    AND (@RefWorkOrderNo IS NULL OR h.RefWorkOrderNo LIKE '%' + @RefWorkOrderNo + '%')
+                                    AND (@FromDate IS NULL OR h.WORcvDate >= @FromDate)
+                                    AND (@TillDate IS NULL OR h.WORcvDate <= @TillDate)
+                                    AND (@DeliveryDate IS NULL OR h.DeliveryDate = @DeliveryDate)
+                                  ORDER BY h.WORcvID DESC";
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
+                    cmd.Parameters.AddWithValue("@CustomerID", string.IsNullOrEmpty(customerId) || customerId == "0" ? (object)DBNull.Value : Convert.ToInt32(customerId));
+                    cmd.Parameters.AddWithValue("@WORcvNo", string.IsNullOrEmpty(workOrderNo) ? (object)DBNull.Value : workOrderNo);
+                    cmd.Parameters.AddWithValue("@RefWorkOrderNo", string.IsNullOrEmpty(refWorkOrderNo) ? (object)DBNull.Value : refWorkOrderNo);
+                    cmd.Parameters.AddWithValue("@FromDate", fromDate.HasValue ? (object)fromDate.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@TillDate", tillDate.HasValue ? (object)tillDate.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DeliveryDate", deliveryDate.HasValue ? (object)deliveryDate.Value : DBNull.Value);
+
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
@@ -362,6 +408,60 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 if (con != null && con.State == ConnectionState.Open) con.Close();
             }
+        }
+
+        #endregion
+
+        #region ---------- List Panel Filter / Navigation ----------
+
+        protected void btnShow_Click(object sender, EventArgs e)
+        {
+            DateTime? fromDate = null, tillDate = null, deliveryDate = null;
+
+            if (!string.IsNullOrEmpty(txtFormDate.Text) && DateTime.TryParse(txtFormDate.Text, out DateTime fd))
+                fromDate = fd;
+
+            if (cktilldateshow.Checked && !string.IsNullOrEmpty(txtTillDate.Text) && DateTime.TryParse(txtTillDate.Text, out DateTime td))
+                tillDate = td;
+
+            if (!string.IsNullOrEmpty(txtdeliveryDated.Text) && DateTime.TryParse(txtdeliveryDated.Text, out DateTime dd))
+                deliveryDate = dd;
+
+            BindWorkOrderList(
+                ddlCustomerListPage.SelectedValue,
+                txtWorderNo.Text.Trim(),
+                txtRefWorkOrderNo.Text.Trim(),
+                fromDate, tillDate, deliveryDate);
+        }
+
+        protected void cktilldateshow_CheckedChanged(object sender, EventArgs e)
+        {
+            txtTillDate.Visible = cktilldateshow.Checked;
+        }
+
+        // "+ Add New Work Order" — ফর্ম প্যানেল খোলা, ব্ল্যাংক ফর্ম রেডি করা
+        protected void BtnAddNew_Click(object sender, EventArgs e)
+        {
+            Session["WO_SizeList"] = new List<SizeDetail>();
+            hdnWorkOrderNo.Value = string.Empty;
+
+            ClearHeaderFields();
+            ClearSizeInputRow();
+            txtWoRef.Text = GenerateNextWorkOrderRef();
+
+            BindSizeDetails();
+            RecalculateGrandTotal();
+
+            pnlList.Visible = false;
+            pnlDetails.Visible = true;
+        }
+
+        // "← Back to List" (Button2 এবং Button3 উভয়ই এখানে বাইন্ড করা)
+        protected void Button2_Click(object sender, EventArgs e)
+        {
+            pnlDetails.Visible = false;
+            pnlList.Visible = true;
+            BindWorkOrderList();
         }
 
         #endregion
@@ -492,7 +592,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             if (e.CommandName == "EditRow")
             {
                 LoadWorkOrderForEdit(arg);
-                ShowFormPanel();
+                pnlList.Visible = false;
+                pnlDetails.Visible = true;
             }
             else if (e.CommandName == "DeleteRow")
             {
@@ -607,7 +708,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                                 SlNo = slNo++,
                                 ItemID = matchedItem != null ? Convert.ToInt32(matchedItem.Value) : 0,
                                 ItemName = itemName,
-                                JobNo = reader["JobNo"] != DBNull.Value ? reader["JobNo"].ToString() : string.Empty,               // ★ NEW
+                                JobNo = reader["JobNo"] != DBNull.Value ? reader["JobNo"].ToString() : string.Empty,
                                 Buyer = reader["Buyer"]?.ToString(),
                                 Style = reader["Style"]?.ToString(),
                                 PO = reader["PO"]?.ToString(),
@@ -619,7 +720,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                                 ReqQty = Convert.ToDecimal(reader["ReqQty"]),
                                 Unit = reader["Unit"]?.ToString(),
                                 RateUnit = Convert.ToDecimal(reader["RateUnit"]),
-                                RateUnitName = reader["RateUnitName"] != DBNull.Value ? reader["RateUnitName"].ToString() : string.Empty, // ★ NEW
+                                RateUnitName = reader["RateUnitName"] != DBNull.Value ? reader["RateUnitName"].ToString() : string.Empty,
                                 ExtraPercent = Convert.ToDecimal(reader["ExtraPercent"]),
                                 TotalReqQty = Convert.ToDecimal(reader["TotalReqQty"]),
                                 TotalAmount = Convert.ToDecimal(reader["TotalAmount"]),
@@ -633,13 +734,12 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
                 if (newSizeList.Count > 0)
                 {
-                    txtJobNo.Text = newSizeList[0].JobNo;   // ★ NEW
+                    txtJobNo.Text = newSizeList[0].JobNo;
                     txtBuyer.Text = newSizeList[0].Buyer;
                     txtStyle.Text = newSizeList[0].Style;
                     txtOrderNo.Text = newSizeList[0].PO;
                     TextBox1.Text = newSizeList[0].ItemDescription;
 
-                    // ★ NEW: Rate Unit dropdown প্রি-সিলেক্ট (নাম মিলিয়ে, যেহেতু ID সেভ নেই)
                     if (!string.IsNullOrEmpty(newSizeList[0].RateUnitName))
                     {
                         ListItem matchedRateUnit = ddlRateUnit.Items.FindByText(newSizeList[0].RateUnitName);
@@ -663,6 +763,77 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         #endregion
 
+        #region ---------- Size Group (Bulk Add) ----------
+
+        protected void chksizeGroupEnable_CheckedChanged(object sender, EventArgs e)
+        {
+            bool useGroup = chksizeGroupEnable.Checked;
+
+            txtSize.Visible = !useGroup;
+            ddlsizeGroup.Visible = useGroup;
+            pnlSizeGroupList.Visible = false; // গ্রুপ সিলেক্ট করার আগে লিস্ট দেখানো হবে না
+            btnAddAllsize.Enabled = false;
+
+            if (!useGroup)
+            {
+                ddlsizeGroup.SelectedIndex = 0;
+            }
+        }
+
+        protected void ddlsizeGroup_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ddlsizeGroup.SelectedValue == "0" || string.IsNullOrEmpty(ddlsizeGroup.SelectedValue))
+            {
+                pnlSizeGroupList.Visible = false;
+                btnAddAllsize.Enabled = false;
+                return;
+            }
+
+            try
+            {
+                con = conn.openConnection();
+                string query = @"SELECT SizeID, SizeName, 0 AS sizewiseQty
+                                  FROM Sizes
+                                  WHERE GroupID = @GroupID
+                                  ORDER BY SizeID ASC";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@GroupID", ddlsizeGroup.SelectedValue);
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+                    gvSizeList.DataSource = dt;
+                    gvSizeList.DataBind();
+                }
+
+                pnlSizeGroupList.Visible = true;
+                btnAddAllsize.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("Size Group Load Error: " + ex.Message, "warning");
+                pnlSizeGroupList.Visible = false;
+                btnAddAllsize.Enabled = false;
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open) con.Close();
+            }
+        }
+
+        protected void gvSizeList_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            // প্রয়োজন হলে এখানে row-ভিত্তিক স্টাইলিং/লজিক যোগ করা যাবে (আপাতত করার কিছু নেই)
+        }
+
+        protected void gvSizeList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // এই গ্রিডে সিলেকশন কলাম নেই, তাই এই ইভেন্টে বর্তমানে কোনো কাজ নেই।
+        }
+
+        #endregion
+
         #region ---------- Size-wise Variant Entry ----------
 
         protected void btnAddSize_Click(object sender, EventArgs e)
@@ -672,7 +843,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 if (ddlItemNameDetails.SelectedValue == "0" || string.IsNullOrEmpty(ddlItemNameDetails.SelectedValue))
                 {
                     ShowMessage("Please select an Item Name first.", "warning");
-                    ShowFormPanel();
+                    pnlList.Visible = false; pnlDetails.Visible = true;
                     return;
                 }
 
@@ -694,7 +865,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     : string.Empty;
                 if (selectedColorID <= 0) selectedColorID = 0;
 
-                // ★ NEW: Rate Unit নাম সংগ্রহ
                 string selectedRateUnitName = (ddlRateUnit.SelectedValue != "0" && ddlRateUnit.SelectedItem != null)
                     ? ddlRateUnit.SelectedItem.Text
                     : string.Empty;
@@ -714,9 +884,9 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     Size = txtSize.Text.Trim(),
                     Measurement = txtMeasurement.Text.Trim(),
                     ReqQty = reqQty,
-                    Unit = ddlUnit.SelectedItem?.Text ?? string.Empty,   // ★ FIX: SelectedValue (ID) না, Text (Name)
+                    Unit = txtItemUnit.Text.Trim(),
                     RateUnit = rateUnit,
-                    RateUnitName = selectedRateUnitName,                 // ★ NEW
+                    RateUnitName = selectedRateUnitName,
                     ExtraPercent = extraPercent,
                     TotalReqQty = totalReqQty,
                     TotalAmount = totalAmount,
@@ -733,7 +903,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             {
                 ShowMessage("Add Size Error: " + ex.Message, "warning");
             }
-            ShowFormPanel();
+            pnlList.Visible = false; pnlDetails.Visible = true;
         }
 
         protected void btnAddAllsize_Click(object sender, EventArgs e)
@@ -741,20 +911,20 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             if (ddlsizeGroup.SelectedValue == "0")
             {
                 ShowMessage("Please select a Size Group first.", "warning");
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
 
             if (ddlItemNameDetails.SelectedValue == "0")
             {
                 ShowMessage("Please select an Item Name first.", "warning");
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
 
             decimal.TryParse(txtRate.Text, out decimal rateVal);
             decimal.TryParse(txtReqQty.Text, out decimal RequiresQtyVal);
-            decimal.TryParse(txtExtraPercent.Text, out decimal extraPercentVal); // ★ FIX: এন্ট্রি রো-এর Extra % এখন পড়া হচ্ছে
+            decimal.TryParse(txtExtraPercent.Text, out decimal extraPercentVal);
 
             int.TryParse(ddlItemNameDetails.SelectedValue, out int selectedItemID);
             int.TryParse(DropDownList1.SelectedValue, out int selectedColorID);
@@ -764,9 +934,8 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 : string.Empty;
             if (selectedColorID <= 0) selectedColorID = 0;
 
-            string selectedUnitName = ddlUnit.SelectedItem?.Text ?? string.Empty;
+            string selectedUnitName = txtItemUnit.Text.Trim();
 
-            // ★ Rate Unit নাম সংগ্রহ
             string selectedRateUnitName = (ddlRateUnit.SelectedValue != "0" && ddlRateUnit.SelectedItem != null)
                 ? ddlRateUnit.SelectedItem.Text
                 : string.Empty;
@@ -796,20 +965,40 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     var list = SizeList;
                     int nextSlNo = list.Any() ? list.Max(s => s.SlNo) + 1 : 1;
 
-                    // ★ FIX: TotalReqQty ও TotalAmount আগে থেকেই ক্যালকুলেট করা হচ্ছে,
-                    // যাতে "Add All Size" দিয়ে অ্যাড করা রো-গুলোও সাথে সাথেই
-                    // Section 4 (Sub Total / Grand Total) সামারিতে সঠিকভাবে যোগ হয়।
                     decimal totalReqQty = RequiresQtyVal + (RequiresQtyVal * (extraPercentVal / 100m));
                     decimal totalAmount = totalReqQty * rateVal;
+
+                    // gvSizeList-এ যদি ব্যবহারকারী প্রতিটি সাইজের জন্য আলাদা Qty দিয়ে থাকে,
+                    // সেটাকে অগ্রাধিকার দেওয়া হচ্ছে; না দিলে এন্ট্রি-রো এর Req.Qty ব্যবহার হবে।
+                    Dictionary<int, decimal> perSizeQty = new Dictionary<int, decimal>();
+                    if (gvSizeList.Rows.Count > 0)
+                    {
+                        foreach (GridViewRow row in gvSizeList.Rows)
+                        {
+                            if (row.RowType != DataControlRowType.DataRow) continue;
+                            TextBox txtQtyRow = (TextBox)row.FindControl("txtqty");
+                            int sizeId = Convert.ToInt32(gvSizeList.DataKeys[row.RowIndex].Value);
+                            decimal.TryParse(txtQtyRow?.Text, out decimal qtyVal);
+                            perSizeQty[sizeId] = qtyVal;
+                        }
+                    }
 
                     foreach (DataRow row in dt.Rows)
                     {
                         string sizeName = row["Size"].ToString();
+                        int sizeId = Convert.ToInt32(row["SizeID"]);
 
                         bool alreadyExists = list.Any(s => s.Size == sizeName
                                                             && s.ItemID == selectedItemID
                                                             && s.ColorName == selectedColorName);
                         if (alreadyExists) continue;
+
+                        decimal rowQty = RequiresQtyVal;
+                        if (perSizeQty.TryGetValue(sizeId, out decimal sizeQty) && sizeQty > 0)
+                            rowQty = sizeQty;
+
+                        decimal rowTotalReqQty = rowQty + (rowQty * (extraPercentVal / 100m));
+                        decimal rowTotalAmount = rowTotalReqQty * rateVal;
 
                         list.Add(new SizeDetail
                         {
@@ -825,13 +1014,13 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                             ColorName = selectedColorName,
                             Size = sizeName,
                             Measurement = string.Empty,
-                            ReqQty = RequiresQtyVal,
+                            ReqQty = rowQty,
                             Unit = selectedUnitName,
                             RateUnit = rateVal,
                             RateUnitName = selectedRateUnitName,
-                            ExtraPercent = extraPercentVal,        // ★ FIX: আগে হার্ডকোড 0 ছিল
-                            TotalReqQty = totalReqQty,             // ★ FIX: আগে হার্ডকোড 0 ছিল
-                            TotalAmount = totalAmount,             // ★ FIX: আগে হার্ডকোড 0 ছিল
+                            ExtraPercent = extraPercentVal,
+                            TotalReqQty = rowTotalReqQty,
+                            TotalAmount = rowTotalAmount,
                             Remarks = string.Empty
                         });
                     }
@@ -850,14 +1039,28 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                 if (con != null && con.State == ConnectionState.Open) { con.Close(); }
             }
 
-            ShowFormPanel();
+            pnlList.Visible = false; pnlDetails.Visible = true;
         }
 
-        protected void gvSizeDetails_RowCommand(object sender, GridViewCommandEventArgs e)
+        // ★ NOTE: .aspx-এ gvSizeDetails এখন প্রতিটি সেল ইনলাইন-এডিটেবল, এবং একটি
+        // "Select" বাটন (CommandName="Select") আছে যা GridView-এর SelectedIndexChanged ট্রিগার করে।
+        // এখানে সিলেক্ট করা সারিটি নিচের এন্ট্রি-রো ফিল্ডে তুলে এনে, লিস্ট থেকে বাদ দেওয়া হচ্ছে
+        // (আগের সংস্করণের "EditSize" আচরণের সমতুল্য)।
+        //
+        // ★ গুরুত্বপূর্ণ: এটা সঠিকভাবে কাজ করতে হলে .aspx-এ
+        //   DataKeyNames="WorkOrderDetailsID"  →  DataKeyNames="SlNo"
+        // করে দিতে হবে, কারণ in-memory SizeDetail মডেলে "WorkOrderDetailsID" নামের কোনো প্রপার্টি নেই, আছে "SlNo"।
+        protected void gvSizeDetails_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (!int.TryParse(e.CommandArgument?.ToString(), out int slNo))
+            if (gvSizeDetails.SelectedDataKey == null)
             {
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
+                return;
+            }
+
+            if (!int.TryParse(gvSizeDetails.SelectedDataKey.Value?.ToString(), out int slNo))
+            {
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
 
@@ -865,71 +1068,47 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             var size = list.FirstOrDefault(s => s.SlNo == slNo);
             if (size == null)
             {
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
 
-            switch (e.CommandName)
-            {
-                case "EditSize":
-                    if (ddlItemNameDetails.Items.FindByValue(size.ItemID.ToString()) != null)
-                        ddlItemNameDetails.SelectedValue = size.ItemID.ToString();
+            if (ddlItemNameDetails.Items.FindByValue(size.ItemID.ToString()) != null)
+                ddlItemNameDetails.SelectedValue = size.ItemID.ToString();
 
-                    if (size.ColorID > 0 && DropDownList1.Items.FindByValue(size.ColorID.ToString()) != null)
-                        DropDownList1.SelectedValue = size.ColorID.ToString();
-                    else
-                        DropDownList1.SelectedIndex = 0;
+            if (size.ColorID > 0 && DropDownList1.Items.FindByValue(size.ColorID.ToString()) != null)
+                DropDownList1.SelectedValue = size.ColorID.ToString();
+            else
+                DropDownList1.SelectedIndex = 0;
 
-                    txtJobNo.Text = size.JobNo;
-                    txtBuyer.Text = size.Buyer;
-                    txtStyle.Text = size.Style;
-                    txtOrderNo.Text = size.PO;
-                    TextBox1.Text = size.ItemDescription;
+            txtJobNo.Text = size.JobNo;
+            txtBuyer.Text = size.Buyer;
+            txtStyle.Text = size.Style;
+            txtOrderNo.Text = size.PO;
+            TextBox1.Text = size.ItemDescription;
 
-                    txtSize.Text = size.Size;
-                    txtMeasurement.Text = size.Measurement;
-                    txtReqQty.Text = size.ReqQty.ToString("0.##");
-                    ListItem matchedUnit = ddlUnit.Items.FindByText(size.Unit);
-                    if (matchedUnit != null) ddlUnit.SelectedValue = matchedUnit.Value;
-                    txtRate.Text = size.RateUnit.ToString("0.##");
-                    ListItem matchedRateUnit = !string.IsNullOrEmpty(size.RateUnitName)
-                        ? ddlRateUnit.Items.FindByText(size.RateUnitName)
-                        : null;
-                    ddlRateUnit.SelectedValue = matchedRateUnit != null ? matchedRateUnit.Value : "0";
+            txtSize.Text = size.Size;
+            txtMeasurement.Text = size.Measurement;
+            txtReqQty.Text = size.ReqQty.ToString("0.##");
+            txtItemUnit.Text = size.Unit;
+            txtRate.Text = size.RateUnit.ToString("0.##");
 
-                    txtExtraPercent.Text = size.ExtraPercent.ToString("0.##");
-                    txtTotalReqQtyInput.Text = size.TotalReqQty.ToString("0.00");
-                    txtTotalAmountInput.Text = size.TotalAmount.ToString("0.00");
-                    txtSizeRemarks.Text = size.Remarks;
+            ListItem matchedRateUnit = !string.IsNullOrEmpty(size.RateUnitName)
+                ? ddlRateUnit.Items.FindByText(size.RateUnitName)
+                : null;
+            ddlRateUnit.SelectedValue = matchedRateUnit != null ? matchedRateUnit.Value : "0";
 
-                    list.Remove(size);
-                    SizeList = list;
+            txtExtraPercent.Text = size.ExtraPercent.ToString("0.##");
+            txtTotalReqQtyInput.Text = size.TotalReqQty.ToString("0.00");
+            txtTotalAmountInput.Text = size.TotalAmount.ToString("0.00");
+            txtSizeRemarks.Text = size.Remarks;
 
-                    BindSizeDetails();
-                    RecalculateGrandTotal();
-                    break;
+            list.Remove(size);
+            SizeList = list;
 
-                case "DeleteSize":
-                    list.Remove(size);
-                    SizeList = list;
+            BindSizeDetails();
+            RecalculateGrandTotal();
 
-                    BindSizeDetails();
-                    RecalculateGrandTotal();
-                    break;
-
-                case "UpdateSize":
-                    GridViewRow row = ((Control)e.CommandSource).NamingContainer as GridViewRow;
-                    if (row != null)
-                    {
-                        ApplySizeRowEdits(row, size);
-
-                        BindSizeDetails();
-                        RecalculateGrandTotal();
-                    }
-                    break;
-            }
-
-            ShowFormPanel();
+            pnlList.Visible = false; pnlDetails.Visible = true;
         }
 
         private void ApplySizeRowEdits(GridViewRow row, SizeDetail size)
@@ -960,14 +1139,14 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             TextBox tb = sender as TextBox;
             if (tb == null)
             {
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
 
             GridViewRow row = tb.NamingContainer as GridViewRow;
             if (row == null || row.RowIndex < 0)
             {
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
 
@@ -975,7 +1154,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             var size = SizeList.FirstOrDefault(s => s.SlNo == slNo);
             if (size == null)
             {
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
 
@@ -983,7 +1162,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
             BindSizeDetails();
             RecalculateGrandTotal();
-            ShowFormPanel();
+            pnlList.Visible = false; pnlDetails.Visible = true;
         }
 
         private void BindSizeDetails()
@@ -991,7 +1170,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             var list = SizeList.OrderBy(s => s.SlNo).ToList();
             gvSizeDetails.DataSource = list;
             gvSizeDetails.DataBind();
-            txtColorTotalAmount.Text = list.Sum(s => s.TotalAmount).ToString("0.00");
         }
 
         private void ClearSizeInputRow()
@@ -999,7 +1177,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             txtSize.Text = string.Empty;
             txtMeasurement.Text = string.Empty;
             txtReqQty.Text = "0";
-            ddlUnit.SelectedIndex = 0;
+            txtItemUnit.Text = string.Empty;
             txtExtraPercent.Text = "0";
             txtTotalReqQtyInput.Text = "0.00";
             txtTotalAmountInput.Text = "0.00";
@@ -1024,13 +1202,13 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         protected void txtTransportCost_TextChanged(object sender, EventArgs e)
         {
             RecalculateGrandTotal();
-            ShowFormPanel();
+            pnlList.Visible = false; pnlDetails.Visible = true;
         }
 
         protected void txtVatPercent_TextChanged(object sender, EventArgs e)
         {
             RecalculateGrandTotal();
-            ShowFormPanel();
+            pnlList.Visible = false; pnlDetails.Visible = true;
         }
 
         #endregion
@@ -1042,19 +1220,19 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             if (ddlCustomerName.SelectedValue == "0")
             {
                 ShowMessage("Please select a Customer Name.", "warning");
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
             if (ddlReceivingBranch.SelectedValue == "0" || string.IsNullOrEmpty(ddlReceivingBranch.SelectedValue))
             {
                 ShowMessage("Please select a Receiving Branch.", "warning");
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
             if (!SizeList.Any())
             {
                 ShowMessage("Please add at least one Item Size row before saving.", "warning");
-                ShowFormPanel();
+                pnlList.Visible = false; pnlDetails.Visible = true;
                 return;
             }
 
@@ -1098,7 +1276,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                     dtDetails.Columns.Add("ReqQty", typeof(decimal));
                     dtDetails.Columns.Add("Unit", typeof(string));
                     dtDetails.Columns.Add("RateUnit", typeof(decimal));
-                    dtDetails.Columns.Add("RateUnitName", typeof(string));   // ★ NEW
+                    dtDetails.Columns.Add("RateUnitName", typeof(string));
                     dtDetails.Columns.Add("ExtraPercent", typeof(decimal));
                     dtDetails.Columns.Add("TotalReqQty", typeof(decimal));
                     dtDetails.Columns.Add("TotalAmount", typeof(decimal));
@@ -1121,7 +1299,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                         TextBox txtRemarks = (TextBox)row.FindControl("txtRemarks");
 
                         DataRow dr = dtDetails.NewRow();
-                        dr["JobNo"] = sizeItem?.JobNo ?? string.Empty;   // ★ FIX: আগে ভুল করে row.Cells[0] (SlNo) ব্যবহার হতো
+                        dr["JobNo"] = sizeItem?.JobNo ?? string.Empty;
                         dr["Buyer"] = sizeItem?.Buyer ?? row.Cells[2].Text.Trim();
                         dr["Style"] = sizeItem?.Style ?? row.Cells[3].Text.Trim();
                         dr["PO"] = sizeItem?.PO ?? row.Cells[4].Text.Trim();
@@ -1133,7 +1311,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
                         dr["ReqQty"] = Convert.ToDecimal(string.IsNullOrEmpty(txtReqQty?.Text) ? "0" : txtReqQty.Text);
                         dr["Unit"] = txtUnit != null ? txtUnit.Text : "";
                         dr["RateUnit"] = Convert.ToDecimal(string.IsNullOrEmpty(txtRateUnit?.Text) ? "0" : txtRateUnit.Text);
-                        dr["RateUnitName"] = sizeItem?.RateUnitName ?? string.Empty;   // ★ NEW
+                        dr["RateUnitName"] = sizeItem?.RateUnitName ?? string.Empty;
                         dr["ExtraPercent"] = Convert.ToDecimal(string.IsNullOrEmpty(txtExtraPercent?.Text) ? "0" : txtExtraPercent.Text);
                         dr["TotalReqQty"] = Convert.ToDecimal(string.IsNullOrEmpty(lblTotalReqQty?.Text) ? "0" : lblTotalReqQty.Text);
                         dr["TotalAmount"] = Convert.ToDecimal(string.IsNullOrEmpty(lblTotalAmount?.Text) ? "0" : lblTotalAmount.Text);
@@ -1187,7 +1365,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             ddlCustomerName.SelectedIndex = 0;
             txtWoDate.Text = DateTime.Today.ToString("yyyy-MM-dd");
             txtDeliveryDate.Text = string.Empty;
-            txtJobNo.Text = string.Empty;     // ★ NEW
+            txtJobNo.Text = string.Empty;
             txtBuyer.Text = string.Empty;
             txtStyle.Text = string.Empty;
             txtOrderNo.Text = string.Empty;
@@ -1195,7 +1373,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             ddlItemNameDetails.SelectedIndex = 0;
             DropDownList1.SelectedIndex = 0;
             ddlReceivingBranch.SelectedIndex = 0;
-            ddlRateUnit.SelectedIndex = 0;    // ★ NEW
+            ddlRateUnit.SelectedIndex = 0;
             txtQuotationNo.Text = string.Empty;
             TextBox1.Text = string.Empty;
             txtTransportCost.Text = "0.00";
@@ -1206,10 +1384,6 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         #endregion
 
         #region ---------- UI Feedback ----------
-        private void ShowFormPanel()
-        {
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "ShowFormPanel", "showPanel('pnlForm');", true);
-        }
 
         private void ShowMessage(string message, string type)
         {
@@ -1223,7 +1397,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
             LoadColorNameDropdown();
         }
 
-        // ★ NEW: Rate Unit dropdown-এর জন্য আলাদা, সঠিক রিফ্রেশ হ্যান্ডলার
+        // Rate Unit dropdown-এর জন্য আলাদা, সঠিক রিফ্রেশ হ্যান্ডলার
         protected void LinkButton2_Click(object sender, EventArgs e)
         {
             LoadRateUnit();
@@ -1241,7 +1415,7 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
 
         protected void btnRefreshCustomer_Click(object sender, EventArgs e)
         {
-
+            LoadPartyName();
         }
 
         protected void txtBuyer_TextChanged(object sender, EventArgs e)
@@ -1260,6 +1434,3 @@ namespace Nexa_ERP.TrimsAccessories.EstimationCostings
         }
     }
 }
-=======
-﻿
->>>>>>> Stashed changes

@@ -296,11 +296,11 @@
     <Content Include="Inventory\StoreRequisition.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\BuyerInformation.aspx" />
     <Content Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx" />
-    <Content Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx" />
-    <Content Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx" />
-    <Content Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\BuyerBrandSetup.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\BuyerSetup.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\BuyingAgentSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx" />
-    <Content Include="MerchandisingMarketing\BasicSetup\ItemTypeSetup.aspx" />
+    <Content Include="MasterConfiguration\ProductMaster\ItemTypeSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\JobSerialFormat.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ProductDepartmentSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ProductTypeSetup.aspx" />
@@ -884,25 +884,25 @@
     <Compile Include="MasterConfiguration\PurchaseMaster\CurrencySetup.aspx.designer.cs">
       <DependentUpon>CurrencySetup.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyerBrandSetup.aspx.cs">
       <DependentUpon>BuyerBrandSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerBrandSetup.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyerBrandSetup.aspx.designer.cs">
       <DependentUpon>BuyerBrandSetup.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyerSetup.aspx.cs">
       <DependentUpon>BuyerSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\BuyerSetup.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyerSetup.aspx.designer.cs">
       <DependentUpon>BuyerSetup.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyingAgentSetup.aspx.cs">
       <DependentUpon>BuyingAgentSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\BuyingAgentSetup.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\BuyingAgentSetup.aspx.designer.cs">
       <DependentUpon>BuyingAgentSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx.cs">
@@ -912,11 +912,11 @@
     <Compile Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx.designer.cs">
       <DependentUpon>EmbCategorySetup.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\ItemTypeSetup.aspx.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemTypeSetup.aspx.cs">
       <DependentUpon>ItemTypeSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\ItemTypeSetup.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\ProductMaster\ItemTypeSetup.aspx.designer.cs">
       <DependentUpon>ItemTypeSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\JobSerialFormat.aspx.cs">
