@@ -24,15 +24,6 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// hfUserId control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfUserId;
-
-        /// <summary>
         /// txtDepartmentID control.
         /// </summary>
         /// <remarks>
@@ -51,15 +42,6 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         protected global::System.Web.UI.WebControls.TextBox txtDepartmentName;
 
         /// <summary>
-        /// txtPrefix control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPrefix;
-
-        /// <summary>
         /// txtDepartmentNameLocal control.
         /// </summary>
         /// <remarks>
@@ -67,6 +49,15 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtDepartmentNameLocal;
+
+        /// <summary>
+        /// txtPrefix control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtPrefix;
 
         /// <summary>
         /// txtRequiredManpower control.
