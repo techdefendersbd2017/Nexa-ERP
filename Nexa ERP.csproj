@@ -235,6 +235,7 @@
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
     <Content Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
@@ -479,6 +480,13 @@
     </Compile>
     <Compile Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx.designer.cs">
       <DependentUpon>PunchDataImport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx.cs">
+      <DependentUpon>RandomAbsentAttendance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx.designer.cs">
+      <DependentUpon>RandomAbsentAttendance.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx.cs">
       <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>

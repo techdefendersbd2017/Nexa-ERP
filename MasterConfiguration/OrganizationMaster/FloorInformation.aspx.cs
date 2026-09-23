@@ -28,9 +28,10 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                 BuildingInformationLoad();
                 LoadNextFloorID();
                 LoadFloorInformation();
+                BranchInformationLoad();
             }
         }
-
+        
         private void LoadNextFloorID()
         {
             con = conn.openConnection();
@@ -81,6 +82,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
                     // Correct parameter types
                     cmd.Parameters.Add("@Action", SqlDbType.NVarChar, 10).Value = ddlAction.Text; // INSERT/UPDATE/DELETE
                     cmd.Parameters.Add("@Floor_ID", SqlDbType.BigInt).Value = Convert.ToInt64(txtFloorID.Text);
+                    cmd.Parameters.Add("@Branch_ID", SqlDbType.BigInt).Value = Convert.ToInt64(ddlBranch.SelectedValue);
                     cmd.Parameters.Add("@Building_ID", SqlDbType.BigInt).Value = Convert.ToInt64(ddlBuilding.SelectedValue);
                     cmd.Parameters.Add("@Floor_Name", SqlDbType.VarChar, 500).Value = txtFloor.Text;
                     cmd.Parameters.Add("@iS_Active", SqlDbType.Bit).Value = chkIsActive.Checked;
@@ -95,6 +97,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
             {
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message + "');", true);
             }
+            LoadFloorInformation();
         }
         private void LoadFloorInformation()
         {
@@ -112,34 +115,81 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
         protected void gvBuilding_SelectedIndexChanged(object sender, EventArgs e)
         {
             txtFloorID.Text = gvBuilding.SelectedRow.Cells[1].Text;
+
             try
             {
-                string sql = "Select * from Floor_Information where Floor_ID ='" + txtFloorID.Text + "'";
                 con = conn.openConnection();
-                cmd = new SqlCommand(sql, con);
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.HasRows)
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT * FROM Floor_Information WHERE Floor_ID = @FloorID", con))
                 {
-                    while (reader.Read())
+                    cmd.Parameters.Add("@FloorID", SqlDbType.BigInt).Value = Convert.ToInt64(txtFloorID.Text);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        txtFloorID.Text = reader[0].ToString();
-                        ddlBuilding.SelectedValue = reader[1].ToString();
-                        txtFloor.Text = reader[2].ToString();
-                        chkIsActive.Checked = reader[3] != DBNull.Value && Convert.ToBoolean(reader[3]); // ✅ CheckBox
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                txtFloorID.Text = reader[0].ToString();
+
+                                if (ddlBuilding.Items.FindByValue(reader[1].ToString()) != null)
+                                    ddlBuilding.SelectedValue = reader[1].ToString();
+
+                                txtFloor.Text = reader[2].ToString();
+                                chkIsActive.Checked = reader[3] != DBNull.Value && Convert.ToBoolean(reader[3]);
+
+                                if (ddlBranch.Items.FindByValue(reader[4].ToString()) != null)
+                                    ddlBranch.SelectedValue = reader[4].ToString();
+                            }
+                        }
+                        else
+                        {
+                            txtFloorID.Text = string.Empty;
+                            chkIsActive.Checked = false;
+                        }
                     }
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert",
+                    "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                    con.Close();
+            }
+
+            LoadFloorInformation();
+        }
+        private void BranchInformationLoad()
+        {
+            try
+            {
+                con = conn.openConnection();
                 {
-                    ddlBuilding.Text = txtFloorID.Text = string.Empty;
-                    chkIsActive.Checked = false;
+                    string query = "SELECT * FROM Branch_Information where Is_Active=1";
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        SqlDataAdapter da = new SqlDataAdapter(cmd);
+                        DataSet ds = new DataSet();
+                        da.Fill(ds);
+
+                        ddlBranch.DataSource = ds.Tables[0];
+                        ddlBranch.DataTextField = "Branch_Name";
+                        ddlBranch.DataValueField = "Branch_ID";
+                        ddlBranch.DataBind();
+
+                        ddlBranch.Items.Insert(0, new ListItem("--Select--", "0"));
+                    }
                 }
                 con.Close();
             }
             catch (Exception ex)
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+                Response.Write("Error: " + ex.Message);
             }
-            LoadFloorInformation();
         }
     }
 }

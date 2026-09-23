@@ -24,7 +24,7 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
                 string user = Request.QueryString["user"];
                 if (!string.IsNullOrEmpty(user))
                 {
-                    Label1.Text = "Welcome, " + user;
+                    //Label1.Text = "Welcome, " + user;
                 }
                 LoadSectionInformation();
             }
@@ -47,26 +47,32 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
             try
             {
                 con = conn.openConnection();
+
+                using (SqlCommand cmd = new SqlCommand("Pro_Section_Web", con))
                 {
-                    using (SqlCommand cmd = new SqlCommand("Pro_Section_Save_Web", con))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@Section_Code", SqlDbType.Int).Value = string.IsNullOrEmpty(txtSectionID.Text) ? 0 : Convert.ToInt32(txtSectionID.Text); 
-                        cmd.Parameters.Add("@Section_Name", SqlDbType.NVarChar).Value = txtSectionName.Text;
-                        cmd.Parameters.Add("@Section_bangla_Name", SqlDbType.NVarChar).Value = txtSectionNameLocal.Text;
-                        cmd.Parameters.Add("@SecPrefix", SqlDbType.NVarChar).Value = txtPrefix.Text;
-                        cmd.Parameters.Add("@SectionRequiredManpower", SqlDbType.BigInt).Value = string.IsNullOrEmpty(txtRequiredManpower.Text) ? 0 : Convert.ToInt32(txtRequiredManpower.Text); 
-                        cmd.Parameters.Add("@SectionExtra_Required_Manpower", SqlDbType.BigInt).Value = string.IsNullOrEmpty(txtExtraRequiredManpower.Text) ? 0 : Convert.ToInt32(txtExtraRequiredManpower.Text);
-                        cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = chkIsActive.Checked;
-                        cmd.ExecuteNonQuery();
-                        ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
-                    }
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@Section_Code", SqlDbType.BigInt).Value = string.IsNullOrEmpty(txtSectionID.Text) ? 0 : Convert.ToInt64(txtSectionID.Text);
+                    cmd.Parameters.Add("@Section_Name", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtSectionName.Text) ? (object)DBNull.Value : txtSectionName.Text.Trim();
+                    cmd.Parameters.Add("@Section_bangla_Name", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtSectionNameLocal.Text) ? (object)DBNull.Value : txtSectionNameLocal.Text.Trim();
+                    cmd.Parameters.Add("@SecPrefix", SqlDbType.NVarChar).Value = string.IsNullOrEmpty(txtPrefix.Text) ? (object)DBNull.Value : txtPrefix.Text.Trim();
+                    cmd.Parameters.Add("@SectionRequiredManpower", SqlDbType.BigInt).Value = string.IsNullOrEmpty(txtRequiredManpower.Text) ? 0 : Convert.ToInt64(txtRequiredManpower.Text);
+                    cmd.Parameters.Add("@SectionExtra_Required_Manpower", SqlDbType.BigInt).Value = string.IsNullOrEmpty(txtExtraRequiredManpower.Text) ? 0 : Convert.ToInt64(txtExtraRequiredManpower.Text);
+                    cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = chkIsActive.Checked;
+                    cmd.ExecuteNonQuery();
+
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
                 }
-                con.Close();
             }
             catch (Exception ex)
             {
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message + "');", true);
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Error: " + ex.Message.Replace("'", "\\'") + "');", true);
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
             }
             LoadSectionInformation();
         }

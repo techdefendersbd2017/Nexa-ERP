@@ -196,11 +196,9 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
-
-
-            con = conn.openConnection();
+            using (SqlConnection con = conn.openConnection())
             {
-                using (SqlCommand cmd = new SqlCommand("SP_Catagory_Save_Web", con))
+                using (SqlCommand cmd = new SqlCommand("Pro_Catagory", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     long categoryId = 0;
@@ -208,19 +206,19 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
                     {
                         long.TryParse(txtCategoryId.Text.Trim(), out categoryId);
                     }
+
                     cmd.Parameters.AddWithValue("@Catagory_Code", categoryId);
                     cmd.Parameters.AddWithValue("@Catagory_Name", string.IsNullOrEmpty(txtCategory.Text.Trim()) ? (object)DBNull.Value : txtCategory.Text.Trim());
                     cmd.Parameters.AddWithValue("@OT_Holder", Convert.ToInt32(ddlOTHolder.SelectedValue));
                     cmd.Parameters.AddWithValue("@Att_bonus_hoder", Convert.ToInt32(ddlAttBonusHolder.SelectedValue));
-                    cmd.Parameters.AddWithValue("@TIffin_Holder", Convert.ToInt32(ddlTifinHolder.SelectedValue));
+                    cmd.Parameters.AddWithValue("@Tiffin_Holder", Convert.ToInt32(ddlTifinHolder.SelectedValue));
                     cmd.Parameters.AddWithValue("@Night_holder", Convert.ToInt32(ddlNightBillHolder.SelectedValue));
                     cmd.Parameters.AddWithValue("@Holiday_holder", Convert.ToInt32(ddlHolidayHolder.SelectedValue));
-                    cmd.Parameters.AddWithValue("@SalaryBrackdownRullsID", Convert.ToInt32(ddlSalaryBrackdownPolicy.SelectedValue));
+                    cmd.Parameters.AddWithValue("@Salary_Breakdown_Policy", Convert.ToInt32(ddlSalaryBrackdownPolicy.SelectedValue));
                     cmd.Parameters.AddWithValue("@IsActive", chkIsActive.Checked);
 
                     try
                     {
-                        con = conn.openConnection();
                         using (SqlDataReader rdr = cmd.ExecuteReader())
                         {
                             if (rdr.Read())
@@ -240,7 +238,6 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
                         }
 
                         clearform();
-
                     }
                     catch (Exception ex)
                     {
@@ -248,7 +245,7 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
                     }
                 }
             }
-            con.Close();
+            LoadCategoryInformation();
         }
     }
 }
