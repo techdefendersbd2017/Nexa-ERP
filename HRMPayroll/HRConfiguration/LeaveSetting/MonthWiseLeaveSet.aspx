@@ -10,13 +10,64 @@
 <!-- tailwind css link -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<body>
+<style>
+    /* GridView Custom Styling */
+    .grid-view {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    .grid-view th {
+        position: sticky;
+        top: 0;
+        background: #0d6efd;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 10px 12px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+        z-index: 10;
+    }
+
+    .grid-view td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #e5e7eb;
+        color: #374151;
+        vertical-align: middle;
+    }
+
+    .grid-view tbody tr:hover {
+        background-color: #eff6ff;
+    }
+
+    .grid-view a {
+        color: #0d6efd;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 3px 10px;
+        border: 1px solid #0d6efd;
+        border-radius: 5px;
+        font-size: 0.78rem;
+        transition: all 0.15s ease;
+    }
+
+    .grid-view a:hover {
+        background-color: #0d6efd;
+        color: #fff;
+    }
+</style>
+
+<body class="bg-gray-100">
     <form id="form1" runat="server" class="min-h-screen p-2 mt-2">
         <div class="max-w-[1320px] w-full m-auto rounded-lg border">
 
             <div class="bg-[#0d6efd] text-white rounded-t-lg px-4 py-2">
                 <p class="text-2xl mb-1">Month Wise Leave Set</p>
-                <p class="">Label</p>
+                <p class="">HRM Configuration &rsaquo; Leave Setting &rsaquo; Month Wise Leave Set</p>
             </div>
 
             <div class="bg-[#f0f0f0] shadow-xl rounded-b-lg px-4 py-4">
@@ -26,17 +77,18 @@
 
                     <div class="flex flex-col gap-0.5 w-full">
                         <asp:Label ID="Label" runat="server" Text="Leave Set ID"></asp:Label>
-                        <asp:TextBox ID="txtLeaveSetId" ReadOnly="true" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:TextBox>
+                        <asp:TextBox ID="txtLeaveSetId" ReadOnly="true" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out bg-gray-100"></asp:TextBox>
                     </div>
 
                     <div class="flex flex-col gap-0.5 w-full col-span-2">
                         <asp:Label ID="Label1" runat="server" Text="Leave"></asp:Label>
-                        <asp:DropDownList ID="ddlLeave" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:DropDownList>
+                        <asp:DropDownList ID="ddlLeave" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out bg-white"></asp:DropDownList>
                     </div>
                     <div class="flex flex-col gap-0.5 w-full">
                         <asp:Label ID="Label2" runat="server" Text="Year"></asp:Label>
-                        <asp:DropDownList ID="ddlYear" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:DropDownList>
+                        <asp:DropDownList ID="ddlYear" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out bg-white"></asp:DropDownList>
                     </div>
+
                     <div class="flex flex-col gap-0.5 w-full">
                         <asp:Label ID="Label12" runat="server" Text="January"></asp:Label>
                         <asp:TextBox ID="txtJanuary" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:TextBox>
@@ -85,7 +137,7 @@
                         <asp:Label ID="Label11" runat="server" Text="December"></asp:Label>
                         <asp:TextBox ID="txtDecember" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:TextBox>
                     </div>
-                    
+
                 </div>
 
 
@@ -93,15 +145,52 @@
                 <div class="space-x-4 flex justify-between items-center my-4">
                     <div class="flex items-center gap-3">
 
+                        <asp:Button ID="btnRefresh" runat="server" Text="Refresh" CssClass="inline-block rounded bg-[#20c997] text-white px-4 py-1 shadow-sm hover:bg-[#1aa179] cursor-pointer transition delay-150 duration-300 ease-in-out" OnClick="btnRefresh_Click" />
+
                         <div class="flex items-center gap-1">
                             <asp:CheckBox ID="chkIsActive" runat="server" CssClass="cursor-pointer accent-[#198754]" />
                             <asp:Label for="chkIsActive" AssociatedControlID="chkIsActive" runat="server" Text="Is Active?" CssClass="cursor-pointer"></asp:Label>
                         </div>
                     </div>
-                        <div class="flex gap-3">
-                        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="rounded bg-[#198754] text-white px-4 py-1 shadow-sm hover:bg-[#146c43] cursor-pointer transition delay-150 duration-300 ease-in-out" />
+                    <div class="flex gap-3">
+                        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="rounded bg-[#198754] text-white px-4 py-1 shadow-sm hover:bg-[#146c43] cursor-pointer transition delay-150 duration-300 ease-in-out" OnClick="btnSave_Click" />
+                    </div>
+                </div>
 
-                        </div>
+                <!-- Grid -->
+                <div class="border border-gray-400 bg-gray-50 rounded w-full h-72 overflow-auto">
+                    <asp:GridView ID="GridView1"
+                        runat="server"
+                        CssClass="grid-view"
+                        AutoGenerateColumns="False"
+                        DataKeyNames="Leave_code,LeaveYear"
+                        GridLines="None"
+                        Width="100%"
+                        OnSelectedIndexChanged="GridView1_SelectedIndexChanged">
+
+                        <Columns>
+                            <asp:CommandField ShowSelectButton="True" SelectText="Select">
+                                <ItemStyle Width="90px" />
+                            </asp:CommandField>
+
+                            <asp:BoundField DataField="Leave_code" HeaderText="Leave Code" />
+                            <asp:BoundField DataField="Leave_Name" HeaderText="Leave Name" />
+                            <asp:BoundField DataField="LeaveYear" HeaderText="Year" />
+                            <asp:BoundField DataField="Jan" HeaderText="Jan" />
+                            <asp:BoundField DataField="Feb" HeaderText="Feb" />
+                            <asp:BoundField DataField="Mar" HeaderText="Mar" />
+                            <asp:BoundField DataField="Apr" HeaderText="Apr" />
+                            <asp:BoundField DataField="May" HeaderText="May" />
+                            <asp:BoundField DataField="Jun" HeaderText="Jun" />
+                            <asp:BoundField DataField="Jul" HeaderText="Jul" />
+                            <asp:BoundField DataField="Aug" HeaderText="Aug" />
+                            <asp:BoundField DataField="Sep" HeaderText="Sep" />
+                            <asp:BoundField DataField="Oct" HeaderText="Oct" />
+                            <asp:BoundField DataField="Nov" HeaderText="Nov" />
+                            <asp:BoundField DataField="Dec" HeaderText="Dec" />
+                        </Columns>
+
+                    </asp:GridView>
                 </div>
 
             </div>

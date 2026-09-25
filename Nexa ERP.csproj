@@ -230,12 +230,17 @@
     <Content Include="Approval\HRM\Leave\LeaveApproved.aspx" />
     <Content Include="Approval\HRM\Payroll\DeductionEarningApproval.aspx" />
     <Content Include="Approval\TrimsAccessoriesApprovl\PriceQuotationApproval.aspx" />
+    <Content Include="Assets\Dashboard.js" />
+    <Content Include="Assets\Default.js" />
+    <Content Include="Assets\index.js" />
     <Content Include="Assets\WorkOrderJS.js" />
     <Content Include="CSS\HRM\Department.css" />
+    <Content Include="DashboardNew.aspx" />
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
+    <Content Include="Index.html" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
     <Content Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
@@ -268,7 +273,6 @@
     <Content Include="HRMPayroll\HRConfiguration\HRMSetting\CreateSubSection.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\HRMSetting\DepartmentSetting.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\HRMSetting\DesignationInformation.aspx" />
-    <Content Include="HRMPayroll\HRConfiguration\HRMSetting\JobDescription.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\HRMSetting\SectionInformation.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\LeaveSetting\AnnualLeavePaymentPolicy.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\LeaveSetting\CreateLeaveName.aspx" />
@@ -353,7 +357,6 @@
     <Content Include="Production\Finishing\shortShipmentReason.aspx" />
     <Content Include="Production\Finishing\shortShipmentReasonStatusReport.aspx" />
     <Content Include="Shipment\DeemedExportLC.aspx" />
-    <Content Include="Shipment\CreateForProformaInvoiceEntry.aspx" />
     <Content Include="Shipment\DeliveryBill.aspx" />
     <Content Include="Shipment\DeliveryChallanAndBill.aspx" />
     <Content Include="Shipment\proformaInvoiceEntry.aspx" />
@@ -458,8 +461,14 @@
     </Compile>
     <Compile Include="Connection\DatabaseConectionAccounts.cs" />
     <Compile Include="Connection\DatabaseConnectionMerchandising.cs" />
-    <Compile Include="Connection\Database_Connection.cs" />
     <Compile Include="Connection\PayrollDB.cs" />
+    <Compile Include="DashboardNew.aspx.cs">
+      <DependentUpon>DashboardNew.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DashboardNew.aspx.designer.cs">
+      <DependentUpon>DashboardNew.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Deahboard.aspx.cs">
       <DependentUpon>Deahboard.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -711,13 +720,6 @@
     </Compile>
     <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\DesignationInformation.aspx.designer.cs">
       <DependentUpon>DesignationInformation.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\JobDescription.aspx.cs">
-      <DependentUpon>JobDescription.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\JobDescription.aspx.designer.cs">
-      <DependentUpon>JobDescription.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRConfiguration\HRMSetting\SectionInformation.aspx.cs">
       <DependentUpon>SectionInformation.aspx</DependentUpon>
@@ -1279,13 +1281,6 @@
     </Compile>
     <Compile Include="Shipment\DeemedExportLC.aspx.designer.cs">
       <DependentUpon>DeemedExportLC.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Shipment\CreateForProformaInvoiceEntry.aspx.cs">
-      <DependentUpon>CreateForProformaInvoiceEntry.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Shipment\CreateForProformaInvoiceEntry.aspx.designer.cs">
-      <DependentUpon>CreateForProformaInvoiceEntry.aspx</DependentUpon>
     </Compile>
     <Compile Include="Shipment\DeliveryBill.aspx.cs">
       <DependentUpon>DeliveryBill.aspx</DependentUpon>

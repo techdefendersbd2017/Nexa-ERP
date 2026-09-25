@@ -72,6 +72,7 @@ namespace Nexa_ERP.ERPConfiguration.CompanyInformation
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Save Successfully!');", true);
             try
             {
                 con = conn.openConnection();

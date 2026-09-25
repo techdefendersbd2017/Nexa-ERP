@@ -1,0 +1,893 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Defenders BD | Enterprise Software & IT Services</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ফন্ট ফ্যামিলি */
+            --bs-body-font-family: 'Inter', sans-serif;
+            /* ব্র্যান্ড কালার (Brand Palette) */
+            --bs-brand-50: #eff6ff;
+            --bs-brand-100: #dbeafe;
+            --bs-brand-200: #bfdbfe;
+            --bs-brand-500: #3b82f6;
+            --bs-brand-600: #2563eb;
+            --bs-brand-700: #1d4ed8;
+            --bs-brand-900: #1e3a8a;
+            /* একসেন্ট কালার (Accent Palette) */
+            --bs-accent-50: #fff7ed;
+            --bs-accent-100: #ffedd5;
+            --bs-accent-500: #f97316;
+            --bs-accent-600: #ea580c;
+            --bs-accent-700: #c2410c;
+            /* বুটস্ট্রাপের মূল প্রাইমারি কালার হিসেবে ব্র্যান্ড কালার সেট করতে পারেন */
+            --bs-primary: #3b82f6;
+            --bs-primary-rgb: 59, 130, 246;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white flex flex-col min-h-screen">
+
+    <!-- Shared Header & Navigation -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo -->
+                <a href="#home" onclick="navigateTo('home')" class="flex items-center space-x-2 cursor-pointer">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-brand-500/20">
+                        <i class="fa-solid fa-earth-americas"></i>
+                    </div>
+                    <span class="text-2xl font-extrabold tracking-tight">
+                        <span class="text-brand-600">Tech</span><span class="text-accent-500">D</span><span class="text-brand-600">efender</span><span class="text-accent-500">S</span><span class="text-brand-600">bd</span>
+                    </span>
+                </a>
+
+                <!-- Desktop Menu -->
+                <nav class="hidden lg:flex items-center space-x-8">
+                    <a href="#home" onclick="navigateTo('home')" class="nav-link font-medium text-slate-700 hover:text-brand-600 transition-colors" data-page="home">Home</a>
+
+                    <!-- Service Dropdown -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-1 font-medium text-slate-700 group-hover:text-brand-600 py-2 transition-colors">
+                            <span>Service</span>
+                            <i class="fa-solid fa-chevron-down text-xs transition-transform group-hover:rotate-180"></i>
+                        </button>
+                        <div class="absolute left-0 mt-0 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 p-2 z-50">
+                            <a href="#erp" onclick="navigateTo('erp')" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors">
+                                <i class="fa-solid fa-server text-brand-500 w-5"></i>
+                                <span class="font-medium text-sm">ERP Solution</span>
+                            </a>
+                            <a href="#hrm" onclick="navigateTo('hrm')" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors">
+                                <i class="fa-solid fa-users-gear text-brand-500 w-5"></i>
+                                <span class="font-medium text-sm">HRM Management</span>
+                            </a>
+                            <a href="#advocate" onclick="navigateTo('advocate')" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors">
+                                <i class="fa-solid fa-scale-balanced text-brand-500 w-5"></i>
+                                <span class="font-medium text-sm">Advocate Management</span>
+                            </a>
+                            <a href="#school" onclick="navigateTo('school')" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors">
+                                <i class="fa-solid fa-graduation-cap text-brand-500 w-5"></i>
+                                <span class="font-medium text-sm">School Management</span>
+                            </a>
+                            <a href="#inventory" onclick="navigateTo('inventory')" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors">
+                                <i class="fa-solid fa-boxes-stacked text-brand-500 w-5"></i>
+                                <span class="font-medium text-sm">Inventory Management</span>
+                            </a>
+                            <a href="#medical" onclick="navigateTo('medical')" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors">
+                                <i class="fa-solid fa-hospital-user text-brand-500 w-5"></i>
+                                <span class="font-medium text-sm">Medical Management</span>
+                            </a>
+                            <a href="#custom" onclick="navigateTo('custom')" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors">
+                                <i class="fa-solid fa-code text-brand-500 w-5"></i>
+                                <span class="font-medium text-sm">Custom Software</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <a href="#clients" onclick="navigateTo('clients')" class="nav-link font-medium text-slate-700 hover:text-brand-600 transition-colors" data-page="clients">Clients</a>
+                    <a href="#about" onclick="navigateTo('about')" class="nav-link font-medium text-slate-700 hover:text-brand-600 transition-colors" data-page="about">About</a>
+                    <a href="#contact" onclick="navigateTo('contact')" class="nav-link font-medium text-slate-700 hover:text-brand-600 transition-colors" data-page="contact">Contact</a>
+                </nav>
+
+                <!-- Action / Login Dropdown -->
+                <div class="hidden lg:flex items-center space-x-4">
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-md shadow-brand-500/20 transition-all">
+                            <i class="fa-solid fa-user-lock"></i>
+                            <span>Login</span>
+                            <i class="fa-solid fa-chevron-down text-xs ml-1"></i>
+                        </button>
+                        <div class="absolute right-0 mt-0 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 p-2 z-50">
+                            <asp:HyperLink ID="lnkAdminLogin" runat="server" NavigateUrl="~/Dashboard.aspx" CssClass="w-full flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-brand-50 text-slate-700 hover:text-brand-600 text-left transition-colors font-medium">
+                                <i class="fa-solid fa-user-shield text-brand-500"></i>
+                                <span>Admin Login</span>
+                            </asp:HyperLink>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="lg:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-700 hover:text-brand-600 focus:outline-none p-2">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-3">
+            <a href="#home" onclick="navigateTo('home'); toggleMobileMenu();" class="block py-2 font-medium text-slate-700 hover:text-brand-600">Home</a>
+            <div class="space-y-1 pl-4 border-l-2 border-brand-100">
+                <p class="font-semibold text-xs text-brand-600 uppercase tracking-wider py-1">Services</p>
+                <a href="#erp" onclick="navigateTo('erp'); toggleMobileMenu();" class="block py-1.5 text-sm text-slate-600 hover:text-brand-600">ERP Solution</a>
+                <a href="#hrm" onclick="navigateTo('hrm'); toggleMobileMenu();" class="block py-1.5 text-sm text-slate-600 hover:text-brand-600">HRM Management</a>
+                <a href="#advocate" onclick="navigateTo('advocate'); toggleMobileMenu();" class="block py-1.5 text-sm text-slate-600 hover:text-brand-600">Advocate Management</a>
+                <a href="#school" onclick="navigateTo('school'); toggleMobileMenu();" class="block py-1.5 text-sm text-slate-600 hover:text-brand-600">School Management</a>
+                <a href="#inventory" onclick="navigateTo('inventory'); toggleMobileMenu();" class="block py-1.5 text-sm text-slate-600 hover:text-brand-600">Inventory Management</a>
+                <a href="#medical" onclick="navigateTo('medical'); toggleMobileMenu();" class="block py-1.5 text-sm text-slate-600 hover:text-brand-600">Medical Management</a>
+                <a href="#custom" onclick="navigateTo('custom'); toggleMobileMenu();" class="block py-1.5 text-sm text-slate-600 hover:text-brand-600">Custom Software</a>
+            </div>
+            <a href="#clients" onclick="navigateTo('clients'); toggleMobileMenu();" class="block py-2 font-medium text-slate-700 hover:text-brand-600">Clients</a>
+            <a href="#about" onclick="navigateTo('about'); toggleMobileMenu();" class="block py-2 font-medium text-slate-700 hover:text-brand-600">About</a>
+            <a href="#contact" onclick="navigateTo('contact'); toggleMobileMenu();" class="block py-2 font-medium text-slate-700 hover:text-brand-600">Contact</a>
+            <div class="pt-4 border-t border-slate-100 flex flex-col space-y-2">
+                <button onclick="navigateTo('admin-login'); toggleMobileMenu();" class="w-full py-2.5 text-center bg-brand-50 text-brand-600 font-semibold rounded-xl">Admin Login</button>
+                <button onclick="navigateTo('user-login'); toggleMobileMenu();" class="w-full py-2.5 text-center bg-brand-600 text-white font-semibold rounded-xl">User Login</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container (Dynamic Multi-Page Views) -->
+    <main class="flex-grow">
+
+        <!-- 1. HOME PAGE VIEW -->
+        <div id="page-home" class="page-view">
+            <section class="relative overflow-hidden pt-20 pb-32 lg:pt-32 lg:pb-40 bg-gradient-to-b from-brand-50/50 via-white to-slate-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                            <div class="inline-flex items-center space-x-2 bg-brand-100 text-brand-700 px-4 py-1.5 rounded-full text-sm font-semibold shadow-inner">
+                                <i class="fa-solid fa-sparkles text-brand-600"></i>
+                                <span>Next-Gen Enterprise Solutions</span>
+                            </div>
+                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                                Empowering Businesses With <span class="bg-gradient-to-r from-brand-600 to-accent-500 bg-clip-text text-transparent">Smart Software</span>
+                            </h1>
+                            <p class="text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0">
+                                We build robust, scalable, and intuitive enterprise applications designed to automate workflows, accelerate growth, and drive unmatched operational efficiency.
+                            </p>
+                            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                                <button onclick="navigateTo('erp')" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg shadow-brand-500/25 transition-all text-center">
+                                    Explore Solutions <i class="fa-solid fa-arrow-right ml-2"></i>
+                                </button>
+                                <button onclick="navigateTo('contact')" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-700 font-semibold px-8 py-4 rounded-xl border border-slate-200 shadow-sm transition-all text-center">
+                                    Get Free Consultation
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 relative">
+                            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-100">
+                                <div class="flex items-center justify-between pb-6 border-b border-slate-100">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                                        <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                                        <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tech Defenders BD OS</span>
+                                </div>
+                                <div class="py-6 space-y-4">
+                                    <div class="flex items-center justify-between p-4 bg-brand-50 rounded-2xl">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold">
+                                                <i class="fa-solid fa-chart-line"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-semibold text-slate-900">ERP & Analytics</p>
+                                                <p class="text-xs text-slate-500">Real-time sync active</p>
+                                            </div>
+                                        </div>
+                                        <span class="text-emerald-600 font-bold text-sm">+24.5%</span>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-xl text-center">
+                                        <i class="fa-solid fa-shield-halved text-brand-600 text-xl mb-1"></i>
+                                        <p class="text-xs font-semibold text-slate-700">Enterprise Cloud Secure</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 2. ERP SOLUTION PAGE VIEW -->
+        <div id="page-erp" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                    <div class="max-w-3xl space-y-4">
+                        <span class="text-brand-600 font-bold text-sm tracking-wider uppercase bg-brand-50 px-4 py-1.5 rounded-full">Service Module</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900">ERP Solution</h1>
+                        <p class="text-slate-600 text-lg">Unified enterprise resource planning covering the full manufacturing lifecycle — from configuration and merchandising to production, commercial, accounting, and reporting — in one integrated dashboard.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-sliders"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">1. Configuration</h3>
+                            <p class="text-slate-500 text-xs mb-3">Core system setup for the entire ERP.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Company & branch setup</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>User roles & permissions</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Module activation control</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Workflow & approval customization</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-bullhorn"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">2. Merchandising & Marketing</h3>
+                            <p class="text-slate-500 text-xs mb-3">Manage buyers, styles, and orders.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Buyer & style management</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Costing & quotation sheets</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Sample development tracking</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Order confirmation calendar</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-diagram-project"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">3. Planning</h3>
+                            <p class="text-slate-500 text-xs mb-3">Production & resource planning.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Production & capacity planning</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Line balancing & allocation</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Material requirement planning (MRP)</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Time & action (TNA) calendar</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-gears"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">4. Industrial Engineering</h3>
+                            <p class="text-slate-500 text-xs mb-3">Efficiency & workflow optimization.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>SMV & time-motion study</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Line efficiency monitoring</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Work study & method analysis</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Operator skill matrix</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-cart-shopping"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">5. Procurement</h3>
+                            <p class="text-slate-500 text-xs mb-3">Sourcing & purchase management.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Purchase requisition & approval</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Vendor & supplier database</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Purchase order generation</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Price comparison & negotiation log</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-boxes-stacked"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">6. Inventory</h3>
+                            <p class="text-slate-500 text-xs mb-3">Stock & warehouse control.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Multi-warehouse stock tracking</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Stock transfer & adjustment</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Reorder level alerts</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Batch & lot tracking</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-shirt"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">7. Textile Manufacturing</h3>
+                            <p class="text-slate-500 text-xs mb-3">Fabric process tracking.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Fabric booking & inspection</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Knitting, dyeing & finishing tracking</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Quality control checkpoints</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Wastage & rejection analysis</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-industry"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">8. Production</h3>
+                            <p class="text-slate-500 text-xs mb-3">Daily production monitoring.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Daily production entry</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Work order & job card management</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Output & downtime monitoring</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Target vs. achievement tracking</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-scissors"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">9. Trims</h3>
+                            <p class="text-slate-500 text-xs mb-3">Trims & accessories control.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Trims & accessories inventory</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Booking & issue tracking</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Supplier-wise trims ledger</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Shortage & excess reporting</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-ship"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">10. Commercial</h3>
+                            <p class="text-slate-500 text-xs mb-3">Export & trade documentation.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Letter of Credit (LC) management</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Shipment & export documentation</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Bank & customs coordination</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Commercial invoice generation</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-calculator"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">11. Accounting</h3>
+                            <p class="text-slate-500 text-xs mb-3">Financial record management.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>General ledger & journal entries</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Accounts payable & receivable</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Bank reconciliation</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Financial statement generation</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-chart-line"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">12. MIS</h3>
+                            <p class="text-slate-500 text-xs mb-3">Management information system.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Cross-department dashboards</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>KPI & performance analytics</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Executive summary reports</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Data-driven decision insights</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-brand-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-file-lines"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">13. Reports</h3>
+                            <p class="text-slate-500 text-xs mb-3">Custom reporting engine.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Custom report builder</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Scheduled & automated reports</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Export to Excel & PDF</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-accent-500 mt-1 text-xs"></i><span>Department-wise access control</span></li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    <div class="text-center pt-8">
+                        <button onclick="navigateTo('contact')" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg">Request ERP Demo</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 3. HRM SOLUTION PAGE VIEW -->
+        <div id="page-hrm" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                    <div class="max-w-3xl space-y-4">
+                        <span class="text-accent-600 font-bold text-sm tracking-wider uppercase bg-accent-50 px-4 py-1.5 rounded-full">Service Module</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900">HRM Management</h1>
+                        <p class="text-slate-600 text-lg">Complete human resource management — from configuration, recruitment, and leave to attendance, payroll, approvals, and reporting — all in one platform.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-accent-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-accent-500 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-sliders"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">1. Configuration</h3>
+                            <p class="text-slate-500 text-xs mb-3">Core HR system setup.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Company & department setup</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Designation & grade structure</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Role-based access control</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>HR policy configuration</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-accent-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-accent-500 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-address-card"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">2. HRM</h3>
+                            <p class="text-slate-500 text-xs mb-3">Employee lifecycle management.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Employee database & profiles</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Recruitment & onboarding</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Promotion & transfer tracking</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Document & contract tracking</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-accent-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-accent-500 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-calendar-days"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">3. Leave</h3>
+                            <p class="text-slate-500 text-xs mb-3">Leave request & tracking.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Leave application & approval workflow</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Leave balance & entitlement tracking</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Leave policy & holiday calendar</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Leave history reports</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-accent-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-accent-500 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-fingerprint"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">4. Attendance</h3>
+                            <p class="text-slate-500 text-xs mb-3">Time & presence tracking.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Biometric & device integration</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Daily attendance tracking</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Shift & roster management</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Late & absence notifications</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-accent-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-accent-500 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-money-check-dollar"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">5. Payroll</h3>
+                            <p class="text-slate-500 text-xs mb-3">Automated salary processing.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Automated salary processing</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Tax & deduction calculation</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Payslip generation</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Bank-wise salary disbursement</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-accent-300 hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 bg-accent-500 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-check-double"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">6. Approval</h3>
+                            <p class="text-slate-500 text-xs mb-3">Workflow-based approvals.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Multi-level approval workflow</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Leave & expense request approval</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Real-time notification alerts</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Approval history tracking</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="p-7 bg-slate-50 rounded-3xl border border-slate-200 hover:border-accent-300 hover:shadow-lg transition-all md:col-span-2 lg:col-span-1">
+                            <div class="w-12 h-12 bg-accent-500 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-file-lines"></i></div>
+                            <h3 class="font-bold text-lg mb-1 text-slate-900">7. Reports</h3>
+                            <p class="text-slate-500 text-xs mb-3">HR analytics & reporting.</p>
+                            <ul class="space-y-1.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Attendance & payroll reports</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>HR analytics dashboard</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Custom export (Excel/PDF)</span></li>
+                                <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-600 mt-1 text-xs"></i><span>Department-wise report access</span></li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    <div class="text-center pt-8">
+                        <button onclick="navigateTo('contact')" class="bg-accent-500 hover:bg-accent-600 text-white font-semibold px-8 py-4 rounded-xl shadow-lg">Request HRM Demo</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 4. ADVOCATE MANAGEMENT PAGE VIEW -->
+        <div id="page-advocate" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                    <div class="max-w-3xl space-y-4">
+                        <span class="text-blue-600 font-bold text-sm tracking-wider uppercase bg-blue-50 px-4 py-1.5 rounded-full">Service Module</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900">Advocate Management</h1>
+                        <p class="text-slate-600 text-lg">Specialized legal practice software to track case hearings, client files, court diary logs, document archives, and automated schedule reminders.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-gavel"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Case Diary & Hearings</h3>
+                            <p class="text-slate-600 text-sm">Never miss a court date with automated cause list syncing and hearing logs.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-folder-open"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Client Archive</h3>
+                            <p class="text-slate-600 text-sm">Secure storage for client briefs, evidence files, and agreement drafts.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Billing & Retainers</h3>
+                            <p class="text-slate-600 text-sm">Track lawyer fees, billable hours, client retainers, and expense records.</p>
+                        </div>
+                    </div>
+                    <div class="text-center pt-8">
+                        <button onclick="navigateTo('contact')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg">Request Advocate Demo</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 5. SCHOOL MANAGEMENT PAGE VIEW -->
+        <div id="page-school" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                    <div class="max-w-3xl space-y-4">
+                        <span class="text-emerald-600 font-bold text-sm tracking-wider uppercase bg-emerald-50 px-4 py-1.5 rounded-full">Service Module</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900">School Management</h1>
+                        <p class="text-slate-600 text-lg">Comprehensive educational portal for student admissions, digital gradebooks, online tuition fee collection, attendance alerts, and parent communication.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-user-graduate"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Student Portals</h3>
+                            <p class="text-slate-600 text-sm">Manage admissions, roll numbers, class routines, and report cards.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-credit-card"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Online Fee Gateway</h3>
+                            <p class="text-slate-600 text-sm">Collect tuition fees securely with automated digital receipts and due reminders.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-comments"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Parent-Teacher Chat</h3>
+                            <p class="text-slate-600 text-sm">Instant messaging channel for student progress updates and announcements.</p>
+                        </div>
+                    </div>
+                    <div class="text-center pt-8">
+                        <button onclick="navigateTo('contact')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg">Request School Demo</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 6. INVENTORY MANAGEMENT PAGE VIEW -->
+        <div id="page-inventory" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                    <div class="max-w-3xl space-y-4">
+                        <span class="text-amber-600 font-bold text-sm tracking-wider uppercase bg-amber-50 px-4 py-1.5 rounded-full">Service Module</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900">Inventory Management</h1>
+                        <p class="text-slate-600 text-lg">Real-time multi-warehouse stock tracking, barcode scanning, automated re-order thresholds, and comprehensive supplier ledger management.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-amber-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-barcode"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Barcode & RFID</h3>
+                            <p class="text-slate-600 text-sm">Instant stock check-in and check-out scanning for zero-error warehousing.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-amber-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-warehouse"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Multi-Warehouse</h3>
+                            <p class="text-slate-600 text-sm">Track stock levels across multiple geographic storehouses in real time.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-amber-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-bell"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Low Stock Alerts</h3>
+                            <p class="text-slate-600 text-sm">Automated triggers when item stock dips below safety parameters.</p>
+                        </div>
+                    </div>
+                    <div class="text-center pt-8">
+                        <button onclick="navigateTo('contact')" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg">Request Inventory Demo</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 7. MEDICAL MANAGEMENT PAGE VIEW -->
+        <div id="page-medical" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                    <div class="max-w-3xl space-y-4">
+                        <span class="text-rose-600 font-bold text-sm tracking-wider uppercase bg-rose-50 px-4 py-1.5 rounded-full">Service Module</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900">Medical Management</h1>
+                        <p class="text-slate-600 text-lg">Robust hospital and clinic information system handling patient appointments, electronic health records (EHR), pharmacy inventory, and billing cycles.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-rose-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-calendar-check"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Appointment Scheduler</h3>
+                            <p class="text-slate-600 text-sm">Doctor scheduling, queue management, and patient SMS notifications.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-rose-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-file-medical"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">EHR & Prescriptions</h3>
+                            <p class="text-slate-600 text-sm">Digital patient history, lab test results, and secure e-prescriptions.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-rose-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-pills"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Pharmacy & Billing</h3>
+                            <p class="text-slate-600 text-sm">Medicine stock control linked directly with patient discharge billing.</p>
+                        </div>
+                    </div>
+                    <div class="text-center pt-8">
+                        <button onclick="navigateTo('contact')" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg">Request Medical Demo</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 8. CUSTOM SOFTWARE PAGE VIEW -->
+        <div id="page-custom" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                    <div class="max-w-3xl space-y-4">
+                        <span class="text-purple-600 font-bold text-sm tracking-wider uppercase bg-purple-50 px-4 py-1.5 rounded-full">Service Module</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900">Custom Software</h1>
+                        <p class="text-slate-600 text-lg">Have unique enterprise workflows? Our expert software architects engineer bespoke web, mobile, and cloud applications built precisely to your specifications.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-purple-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-laptop-code"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Bespoke Architecture</h3>
+                            <p class="text-slate-600 text-sm">Built from scratch using modern scalable stacks tailored to your business goals.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-purple-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Cross-Platform Apps</h3>
+                            <p class="text-slate-600 text-sm">iOS, Android, and web progressive applications with flawless user experience.</p>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200">
+                            <div class="w-12 h-12 bg-purple-600 text-white rounded-xl flex items-center justify-center text-xl font-bold mb-4"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                            <h3 class="font-bold text-xl mb-2 text-slate-900">Cloud Migration</h3>
+                            <p class="text-slate-600 text-sm">Secure deployment on AWS, Google Cloud, or Azure with auto-scaling.</p>
+                        </div>
+                    </div>
+                    <div class="text-center pt-8">
+                        <button onclick="navigateTo('contact')" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg">Consult Architects</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 9. CLIENTS PAGE VIEW -->
+        <div id="page-clients" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 text-center">
+                    <div class="max-w-3xl mx-auto space-y-4">
+                        <span class="text-brand-600 font-bold text-sm tracking-wider uppercase bg-brand-50 px-4 py-1.5 rounded-full">Our Partnerships</span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900">Trusted By Industry Leaders</h1>
+                        <p class="text-slate-600 text-lg">We take pride in empowering forward-thinking companies worldwide with our reliable software solutions.</p>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 py-8">
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200 font-bold text-xl text-slate-800 flex flex-col items-center justify-center space-y-3">
+                            <i class="fa-solid fa-shield text-brand-600 text-3xl"></i>
+                            <span>ApexCorp Enterprise</span>
+                            <span class="text-xs text-slate-500 font-normal">ERP & Inventory Client</span>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200 font-bold text-xl text-slate-800 flex flex-col items-center justify-center space-y-3">
+                            <i class="fa-solid fa-globe text-indigo-600 text-3xl"></i>
+                            <span>GlobalNet Networks</span>
+                            <span class="text-xs text-slate-500 font-normal">HRM & Cloud Client</span>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200 font-bold text-xl text-slate-800 flex flex-col items-center justify-center space-y-3">
+                            <i class="fa-solid fa-hospital text-rose-600 text-3xl"></i>
+                            <span>MedCare Hospital</span>
+                            <span class="text-xs text-slate-500 font-normal">Medical Management Client</span>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200 font-bold text-xl text-slate-800 flex flex-col items-center justify-center space-y-3">
+                            <i class="fa-solid fa-graduation-cap text-emerald-600 text-3xl"></i>
+                            <span>EduVenture Academy</span>
+                            <span class="text-xs text-slate-500 font-normal">School Management Client</span>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200 font-bold text-xl text-slate-800 flex flex-col items-center justify-center space-y-3">
+                            <i class="fa-solid fa-scale-balanced text-blue-600 text-3xl"></i>
+                            <span>LexFirm Legal Associates</span>
+                            <span class="text-xs text-slate-500 font-normal">Advocate Management Client</span>
+                        </div>
+                        <div class="p-8 bg-slate-50 rounded-3xl border border-slate-200 font-bold text-xl text-slate-800 flex flex-col items-center justify-center space-y-3">
+                            <i class="fa-solid fa-boxes-stacked text-amber-600 text-3xl"></i>
+                            <span>Stellar Logistics</span>
+                            <span class="text-xs text-slate-500 font-normal">Inventory & ERP Client</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 10. ABOUT PAGE VIEW -->
+        <div id="page-about" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                        <div class="lg:col-span-7 space-y-6">
+                            <span class="text-brand-600 font-bold text-sm tracking-wider uppercase bg-brand-50 px-4 py-1.5 rounded-full">About Tech Defenders BD</span>
+                            <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 leading-tight">Driving Digital Transformation With Innovation</h1>
+                            <p class="text-slate-600 leading-relaxed text-lg">
+                                Founded to serve growing businesses, Tech Defenders BD is a premier software development firm dedicated to delivering enterprise-grade ERP, HRM, and automation solutions. Our mission is to bridge operational bottlenecks with intuitive, reliable software.
+                            </p>
+                            <div class="grid grid-cols-2 gap-6 pt-4">
+                                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                                    <h3 class="font-bold text-slate-900 mb-1 text-lg">Our Mission</h3>
+                                    <p class="text-sm text-slate-600">Delivering affordable, robust automation for organizations of all scales.</p>
+                                </div>
+                                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                                    <h3 class="font-bold text-slate-900 mb-1 text-lg">Our Vision</h3>
+                                    <p class="text-sm text-slate-600">To be the global benchmark for dependable business software solutions.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5">
+                            <div class="bg-gradient-to-tr from-brand-600 to-accent-500 p-8 sm:p-10 rounded-3xl text-white shadow-2xl space-y-6">
+                                <h3 class="text-2xl font-bold">Key Milestones</h3>
+                                <ul class="space-y-4">
+                                    <li class="flex items-center space-x-3">
+                                        <i class="fa-solid fa-circle-check text-emerald-300"></i>
+                                        <span>250+ Successful Enterprise Deliveries</span>
+                                    </li>
+                                    <li class="flex items-center space-x-3">
+                                        <i class="fa-solid fa-circle-check text-emerald-300"></i>
+                                        <span>ISO 27001 Certified Data Security</span>
+                                    </li>
+                                    <li class="flex items-center space-x-3">
+                                        <i class="fa-solid fa-circle-check text-emerald-300"></i>
+                                        <span>50+ Expert Engineers & Architects</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 11. CONTACT PAGE VIEW -->
+        <div id="page-contact" class="page-view hidden">
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                        <div class="lg:col-span-5 space-y-6">
+                            <span class="text-brand-600 font-bold text-sm tracking-wider uppercase bg-brand-50 px-4 py-1.5 rounded-full">Get In Touch</span>
+                            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Let's Discuss Your Project</h1>
+                            <p class="text-slate-600 leading-relaxed">
+                                Have questions about our solutions or ready to start a custom build? Fill out the form or reach out directly through our contact details.
+                            </p>
+                            <div class="space-y-4 pt-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center text-xl font-bold">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-semibold uppercase">Office Address</p>
+                                        <p class="text-slate-800 font-medium">1202 Tech Avenue, Silicon Tower, Dhaka</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center text-xl font-bold">
+                                        <i class="fa-solid fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-semibold uppercase">Email Us</p>
+                                        <p class="text-slate-800 font-medium">support@technovasolutions.com</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center text-xl font-bold">
+                                        <i class="fa-solid fa-phone"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-slate-500 font-semibold uppercase">Call Hotline</p>
+                                        <p class="text-slate-800 font-medium">+880 1700-000000</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-7">
+                            <div class="bg-slate-50 p-8 sm:p-10 rounded-3xl shadow-xl border border-slate-200">
+                                <h3 class="text-2xl font-bold text-slate-900 mb-6">Send Us a Message</h3>
+                                <form onsubmit="handleContactSubmit(event)" class="space-y-6">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-slate-700 mb-2">Your Name</label>
+                                            <input type="text" required class="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white" placeholder="John Doe">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+                                            <input type="email" required class="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white" placeholder="john@company.com">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-2">Select Service</label>
+                                        <select class="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                                            <option>ERP Solution</option>
+                                            <option>HRM Management</option>
+                                            <option>Advocate Management</option>
+                                            <option>School Management</option>
+                                            <option>Inventory Management</option>
+                                            <option>Medical Management</option>
+                                            <option>Custom Software Development</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-2">Your Message</label>
+                                        <textarea rows="4" required class="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white" placeholder="Tell us about your requirements..."></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl shadow-lg shadow-brand-500/25 transition-all">
+                                        Send Message
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Shared Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-16 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-xl">
+                            <i class="fa-solid fa-cube"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold text-white">Tech<span class="text-accent-500">D</span>efender<span class="text-accent-500">S</span>bd</span>
+                    </div>
+                    <p class="text-sm leading-relaxed max-w-sm">
+                        Tech Defenders BD is a premier software development firm dedicated to delivering enterprise-grade ERP and business automation solutions.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold text-sm uppercase tracking-wider mb-4">Solutions</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><a href="#erp" onclick="navigateTo('erp')" class="hover:text-white transition-colors">ERP Solution</a></li>
+                        <li><a href="#hrm" onclick="navigateTo('hrm')" class="hover:text-white transition-colors">HRM Management</a></li>
+                        <li><a href="#advocate" onclick="navigateTo('advocate')" class="hover:text-white transition-colors">Advocate Management</a></li>
+                        <li><a href="#school" onclick="navigateTo('school')" class="hover:text-white transition-colors">School Management</a></li>
+                        <li><a href="#inventory" onclick="navigateTo('inventory')" class="hover:text-white transition-colors">Inventory Management</a></li>
+                        <li><a href="#medical" onclick="navigateTo('medical')" class="hover:text-white transition-colors">Medical Management</a></li>
+                        <li><a href="#custom" onclick="navigateTo('custom')" class="hover:text-white transition-colors">Custom Software</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold text-sm uppercase tracking-wider mb-4">Quick Links</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><a href="#home" onclick="navigateTo('home')" class="hover:text-white transition-colors">Home</a></li>
+                        <li><a href="#clients" onclick="navigateTo('clients')" class="hover:text-white transition-colors">Clients</a></li>
+                        <li><a href="#about" onclick="navigateTo('about')" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#contact" onclick="navigateTo('contact')" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold text-sm uppercase tracking-wider mb-4">Portal Login</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><button onclick="navigateTo('admin-login')" class="hover:text-white transition-colors text-left">Admin Login</button></li>
+                        <li><button onclick="navigateTo('user-login')" class="hover:text-white transition-colors text-left">User Login</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs">
+                <p>&copy; 2026 Tech Defenders BD. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 sm:mt-0">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="notification-toast" class="fixed bottom-5 right-5 z-50 transform translate-y-32 opacity-0 transition-all duration-300 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 border border-slate-700">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message" class="text-sm font-medium">Notification message</span>
+    </div>
+
+    <!-- Client-Side Hash Router Script -->
+    <script src="Assets/index.js"></script>
+</body>
+</html>

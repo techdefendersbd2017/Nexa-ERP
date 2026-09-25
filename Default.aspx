@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="Assets/Default.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     <style>
         :root{
@@ -465,19 +466,5 @@
         </div>
     </form>
 
-    <script>
-        // ===== password show/hide =====
-        function togglePassword() {
-            var pass = document.getElementById("txtPass");
-            var eye = document.getElementById("eyeToggle");
-            if (pass.type === "password") {
-                pass.type = "text";
-                eye.textContent = "HIDE";
-            } else {
-                pass.type = "password";
-                eye.textContent = "SHOW";
-            }
-        }
-    </script>
 </body>
 </html>

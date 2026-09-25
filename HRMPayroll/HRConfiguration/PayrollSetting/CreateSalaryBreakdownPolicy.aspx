@@ -435,38 +435,30 @@
                             <asp:BoundField DataField="OT_Policy_Code" HeaderText="Policy ID" />
                             <asp:BoundField DataField="OT_Policy_Name" HeaderText="OT Policy Name" />
                         </Columns>
-
                         <EmptyDataTemplate>
                             <div class="p-4 text-center text-muted">
                                 <i class="bi bi-exclamation-circle me-1"></i> No Over Time policies found.
                             </div>
                         </EmptyDataTemplate>
-
                     </asp:GridView>
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
-<!-- JavaScript to append variable tags into Formula MultiLine box -->
-<script type="text/javascript">
-    function insertVariable(val) {
-        var txtFormula = document.getElementById('<%= txtOTFormula.ClientID %>');
-        if (txtFormula) {
-            // Append with space for clean layout
-            if (txtFormula.value.length > 0 && !txtFormula.value.endsWith(' ')) {
-                txtFormula.value += ' ';
+    <script type="text/javascript">
+        function insertVariable(val) {
+            var txtFormula = document.getElementById('<%= txtOTFormula.ClientID %>');
+            if (txtFormula) {
+                if (txtFormula.value.length > 0 && !txtFormula.value.endsWith(' ')) {
+                    txtFormula.value += ' ';
+                }
+                txtFormula.value += val + ' ';
+                txtFormula.focus();
             }
-            txtFormula.value += val + ' ';
-            txtFormula.focus();
         }
-    }
-</script>
+    </script>
 </form>
 </body>
 </html>

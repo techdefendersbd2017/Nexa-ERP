@@ -60,13 +60,13 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.LeaveSetting
         protected global::System.Web.UI.WebControls.Label Label1;
 
         /// <summary>
-        /// ddlLeaveName control.
+        /// txtLeaveNameEnglish control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlLeaveName;
+        protected global::System.Web.UI.WebControls.TextBox txtLeaveNameEnglish;
 
         /// <summary>
         /// Label2 control.
@@ -78,13 +78,13 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.LeaveSetting
         protected global::System.Web.UI.WebControls.Label Label2;
 
         /// <summary>
-        /// txtBanglaName control.
+        /// txtLeaveNameBangla control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtBanglaName;
+        protected global::System.Web.UI.WebControls.TextBox txtLeaveNameBangla;
 
         /// <summary>
         /// Label3 control.
@@ -96,13 +96,13 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.LeaveSetting
         protected global::System.Web.UI.WebControls.Label Label3;
 
         /// <summary>
-        /// txtShortName control.
+        /// txtLeaveNameShort control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtShortName;
+        protected global::System.Web.UI.WebControls.TextBox txtLeaveNameShort;
 
         /// <summary>
         /// Label7 control.
@@ -114,13 +114,13 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.LeaveSetting
         protected global::System.Web.UI.WebControls.Label Label7;
 
         /// <summary>
-        /// txtLeaveDays control.
+        /// txtTotalLeaveDays control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtLeaveDays;
+        protected global::System.Web.UI.WebControls.TextBox txtTotalLeaveDays;
 
         /// <summary>
         /// Labe8 control.

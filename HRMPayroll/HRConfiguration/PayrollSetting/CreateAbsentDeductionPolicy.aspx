@@ -388,15 +388,11 @@
 <script>
     function insertVariable(variableName) {
         var txtBox = document.getElementById("txtFormula");
-        
-        // টেক্সটবক্সে কার্সার যেখানে আছে ঠিক সেখানে লেখাটি ঢুকিয়ে দেবে
         var startPos = txtBox.selectionStart;
         var endPos = txtBox.selectionEnd;
         var text = txtBox.value;
         
         txtBox.value = text.substring(0, startPos) + variableName + text.substring(endPos, text.length);
-        
-        // ফোকাস আবার টেক্সটবক্সে ফিরিয়ে আনা এবং কার্সার পজিশন ঠিক করা
         txtBox.focus();
         txtBox.selectionStart = startPos + variableName.length;
         txtBox.selectionEnd = startPos + variableName.length;
