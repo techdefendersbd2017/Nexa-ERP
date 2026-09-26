@@ -324,60 +324,11 @@
                         placeholder="Search form..." onkeyup="searchMenu()"></asp:TextBox>
                 </div>
 
-                <ul class="tree-root">
-                    <asp:Repeater ID="rptModules" runat="server">
-                        <ItemTemplate>
+                <%-- আগে এখানে rptModules > rptMenus > rptForms — তিনটা fixed-level nested Repeater ছিল।
+                     এখন পুরো ট্রি recursive-ভাবে code-behind-এ (TreeMenuHelper.RenderTree) বানিয়ে
+                     এই একটা Literal-এ বসানো হচ্ছে, তাই depth যত গভীরই হোক automatic সামলাবে। --%>
+                <asp:Literal ID="ltrMenu" runat="server"></asp:Literal>
 
-                            <li class="module-item" data-module-id="mod_<%# Eval("COA_ID") %>">
-                                <a onclick="toggleMenu('mod_<%# Eval("COA_ID") %>', this); return false;"
-                                   class="d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <i class='<%# Eval("Icon_Class") %> me-1'></i>
-                                        <%# Eval("Node_Name") %>
-                                    </span>
-                                    <i class="bi bi-chevron-down toggle-icon"></i>
-                                </a>
-
-                                <ul id="mod_<%# Eval("COA_ID") %>" class="submenu"
-                                    data-module-name="<%# Eval("Node_Name") %>"
-                                    style="display:none; padding-left:20px;">
-                                    <asp:Repeater ID="rptMenus" runat="server" DataSource='<%# Eval("Menus") %>'>
-                                        <ItemTemplate>
-                                            <li>
-                                                <a onclick="toggleMenu('menu_<%# Eval("COA_ID") %>', this); return false;"
-                                                   class="d-flex justify-content-between align-items-center">
-                                                    <span>
-                                                        <i class='<%# Eval("Icon_Class") %> me-1'></i>
-                                                        <%# Eval("Node_Name") %>
-                                                    </span>
-                                                    <i class="bi bi-chevron-down toggle-icon"></i>
-                                                </a>
-
-                                                <ul id="menu_<%# Eval("COA_ID") %>" class="pages"
-                                                    data-menu-name="<%# Eval("Node_Name") %>"
-                                                    style="display:none; padding-left:20px;">
-                                                    <asp:Repeater ID="rptForms" runat="server" DataSource='<%# Eval("Forms") %>'>
-                                                        <ItemTemplate>
-                                                            <li>
-
-                                                                <a href='Deahboard.aspx?form=<%# System.Web.HttpUtility.UrlEncode(Eval("URL").ToString()) %>'
-                                                                   data-formurl='<%# Eval("URL") %>'
-                                                                   onclick="return loadPage(event, this);">
-                                                                    <i class='<%# Eval("Icon_Class") %> me-1'></i>
-                                                                    <%# Eval("Node_Name") %>
-                                                                </a>
-                                                            </li>
-                                                        </ItemTemplate>
-                                                    </asp:Repeater>
-                                                </ul>
-                                            </li>
-                                        </ItemTemplate>
-                                    </asp:Repeater>
-                                </ul>
-                            </li>
-                        </ItemTemplate>
-                    </asp:Repeater>
-                </ul>
             </div>
         </div>
 

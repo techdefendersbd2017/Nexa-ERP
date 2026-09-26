@@ -222,6 +222,7 @@
   <ItemGroup>
     <Content Include="AccountsModule\MasterData\bankInformation.aspx" />
     <Content Include="AccountsModule\MasterData\ChartOfAccounts.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\ChartOfMenus.aspx" />
     <Content Include="AccountsModule\MasterData\chequeBookRegistration.aspx" />
     <Content Include="AccountsModule\MasterData\costCenterGroupInfo.aspx" />
     <Content Include="AccountsModule\MasterData\CostCenterInfo.aspx" />
@@ -402,6 +403,13 @@
     </Compile>
     <Compile Include="AccountsModule\MasterData\ChartOfAccounts.aspx.designer.cs">
       <DependentUpon>ChartOfAccounts.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\ChartOfMenus.aspx.cs">
+      <DependentUpon>ChartOfMenus.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\ChartOfMenus.aspx.designer.cs">
+      <DependentUpon>ChartOfMenus.aspx</DependentUpon>
     </Compile>
     <Compile Include="AccountsModule\MasterData\chequeBookRegistration.aspx.cs">
       <DependentUpon>chequeBookRegistration.aspx</DependentUpon>

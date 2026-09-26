@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -18,6 +19,18 @@ namespace Nexa_ERP
 
         string User_ID;
         string Role_ID;
+
+        // ===== আগে TreeMenuHelper.cs -তে ছিল, এখন এই ফাইলেই private ক্লাস হিসেবে আছে =====
+        private class TreeNode
+        {
+            public string Id { get; set; }
+            public string ParentId { get; set; }
+            public string Name { get; set; }
+            public string IconClass { get; set; }
+            public string Url { get; set; }
+            public bool IsLeaf { get; set; }
+            public List<TreeNode> Children { get; set; } = new List<TreeNode>();
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -89,22 +102,15 @@ namespace Nexa_ERP
                 CloseConnection();
             }
         }
-
-        /* ============================================================================
-           LoadFullTreeMenu -- এখন আর Module_Information / Menu_Information /
-           Form_Information থেকে আলাদাভাবে ডাটা টানা হচ্ছে না।
-           পুরো ট্রি একটামাত্র কোয়েরিতে dbo.ChartOfMenus থেকে লোড হচ্ছে,
-           শুধু Is_Active = 1 শর্তে, এবং Node_Type / Parent_ID / COA_ID
-           দিয়ে ৩-লেভেল (MODULE -> MENU -> FORM) hierarchy বানানো হচ্ছে।
-           ============================================================================ */
         private void LoadFullTreeMenu()
         {
+            List<TreeNode> flatList = new List<TreeNode>();
+
             using (SqlConnection con = conn.openConnection())
             {
                 DataTable dtChart = new DataTable();
                 using (SqlCommand cmdChart = new SqlCommand(
-                    @"SELECT COA_ID, Parent_ID, Node_Code, Node_Name, Node_Type, Node_Level,
-                             Reference_ID, Icon_Class, URL, SortingNo, Is_Active, Is_Leaf
+                    @"SELECT COA_ID, Parent_ID, Node_Name, Icon_Class, URL, Is_Leaf
                       FROM dbo.ChartOfMenus
                       WHERE Is_Active = 1
                       ORDER BY Node_Level, Parent_ID, SortingNo", con))
@@ -112,96 +118,83 @@ namespace Nexa_ERP
                     new SqlDataAdapter(cmdChart).Fill(dtChart);
                 }
 
-                DataTable dtModules = dtChart.Clone();
-                DataTable dtMenus = dtChart.Clone();
-                DataTable dtForms = dtChart.Clone();
-
                 foreach (DataRow row in dtChart.Rows)
                 {
-                    switch (row["Node_Type"].ToString())
+                    flatList.Add(new TreeNode
                     {
-                        case "MODULE":
-                            dtModules.ImportRow(row);
-                            break;
-                        case "MENU":
-                            dtMenus.ImportRow(row);
-                            break;
-                        case "FORM":
-                            dtForms.ImportRow(row);
-                            break;
-                    }
+                        Id = row["COA_ID"].ToString(),
+                        ParentId = row["Parent_ID"] == DBNull.Value ? null : row["Parent_ID"].ToString(),
+                        Name = row["Node_Name"].ToString(),
+                        IconClass = row["Icon_Class"] == DBNull.Value || string.IsNullOrEmpty(row["Icon_Class"].ToString())
+                                        ? "bi bi-dot"
+                                        : row["Icon_Class"].ToString(),
+                        Url = row["URL"] == DBNull.Value ? null : row["URL"].ToString(),
+                        IsLeaf = row["Is_Leaf"] != DBNull.Value && Convert.ToBoolean(row["Is_Leaf"])
+                    });
                 }
-
-                dtModules.Columns.Add("Menus", typeof(DataTable));
-                dtMenus.Columns.Add("Forms", typeof(DataTable));
-
-                foreach (DataRow menuRow in dtMenus.Rows)
-                {
-                    DataTable formsTable = dtForms.Clone();
-                    int menuCoaId = Convert.ToInt32(menuRow["COA_ID"]);
-
-                    foreach (DataRow formRow in dtForms.Rows)
-                    {
-                        if (formRow["Parent_ID"] != DBNull.Value &&
-                            Convert.ToInt32(formRow["Parent_ID"]) == menuCoaId)
-                        {
-                            formsTable.ImportRow(formRow);
-                        }
-                    }
-                    menuRow["Forms"] = formsTable;
-                }
-
-                foreach (DataRow moduleRow in dtModules.Rows)
-                {
-                    DataTable menusTable = dtMenus.Clone();
-                    int moduleCoaId = Convert.ToInt32(moduleRow["COA_ID"]);
-
-                    foreach (DataRow menuRow in dtMenus.Rows)
-                    {
-                        if (menuRow["Parent_ID"] != DBNull.Value &&
-                            Convert.ToInt32(menuRow["Parent_ID"]) == moduleCoaId)
-                        {
-                            menusTable.ImportRow(menuRow);
-                        }
-                    }
-                    moduleRow["Menus"] = menusTable;
-                }
-
-                rptModules.DataSource = dtModules;
-                rptModules.DataBind();
             }
+
+            List<TreeNode> tree = BuildTree(flatList, null);
+            ltrMenu.Text = RenderTree(tree, "tree-root");
         }
 
-        protected void rptModules_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        // ফ্ল্যাট লিস্ট থেকে Parent_ID মিলিয়ে recursive tree বানায় — depth যত গভীরই হোক চলবে
+        private List<TreeNode> BuildTree(List<TreeNode> flatList, string rootParentId)
         {
-            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
-            {
-                DataRowView drv = (DataRowView)e.Item.DataItem;
-                Repeater rptMenus = (Repeater)e.Item.FindControl("rptMenus");
+            var roots = flatList.Where(n => n.ParentId == rootParentId).ToList();
 
-                if (rptMenus != null && drv["Menus"] != DBNull.Value)
-                {
-                    DataTable menusTable = (DataTable)drv["Menus"];
-                    rptMenus.DataSource = menusTable;
-                    rptMenus.DataBind();
-                }
+            foreach (var node in roots)
+            {
+                node.Children = BuildTree(flatList, node.Id);
             }
+
+            return roots;
         }
 
-        protected void rptMenus_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        // Tree থেকে nested <ul><li> HTML বানায়। cssClass শুধু সবচেয়ে বাইরের <ul>-এ বসে (যেমন "tree-root")
+        private string RenderTree(List<TreeNode> nodes, string cssClass = null)
         {
-            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
-            {
-                DataRowView drv = (DataRowView)e.Item.DataItem;
-                Repeater rptForms = (Repeater)e.Item.FindControl("rptForms");
+            var sb = new StringBuilder();
+            sb.Append(cssClass != null ? $"<ul class='{cssClass}'>" : "<ul>");
 
-                if (rptForms != null && drv["Forms"] != DBNull.Value)
+            foreach (var node in nodes)
+            {
+                sb.Append("<li>");
+
+                if (node.IsLeaf)
                 {
-                    DataTable formsTable = (DataTable)drv["Forms"];
-                    rptForms.DataSource = formsTable;
-                    rptForms.DataBind();
+                    // এটা একটা form/page — ক্লিক করলে iframe-এ লোড হবে
+                    sb.AppendFormat(
+                        "<a href='Deahboard.aspx?form={0}' data-formurl='{1}' onclick=\"return loadPage(event, this);\">" +
+                        "<i class='{2} me-1'></i>{3}</a>",
+                        HttpUtility.UrlEncode(node.Url),
+                        HttpUtility.HtmlEncode(node.Url),
+                        node.IconClass,
+                        HttpUtility.HtmlEncode(node.Name));
                 }
+                else
+                {
+                    // এটা folder-node (Module/Menu/SubMenu...) — expand/collapse হবে
+                    sb.AppendFormat(
+                        "<a onclick=\"toggleMenu('node_{0}', this); return false;\" " +
+                        "class='d-flex justify-content-between align-items-center'>" +
+                        "<span><i class='{1} me-1'></i>{2}</span>" +
+                        "<i class='bi bi-chevron-down toggle-icon'></i></a>",
+                        node.Id, node.IconClass, HttpUtility.HtmlEncode(node.Name));
+
+                    if (node.Children != null && node.Children.Count > 0)
+                    {
+                        sb.AppendFormat("<div id='node_{0}' class='submenu' style='display:none; padding-left:20px;'>", node.Id);
+                        sb.Append(RenderTree(node.Children)); // <-- recursion, তাই depth automatic
+                        sb.Append("</div>");
+                    }
+                }
+
+                sb.Append("</li>");
             }
+
+            sb.Append("</ul>");
+            return sb.ToString();
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
