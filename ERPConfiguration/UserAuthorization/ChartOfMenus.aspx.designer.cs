@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
+namespace Nexa_ERP.AccountsModule.MasterData
 {
 
 
-    public partial class JobDescription
+    public partial class ChartOfMenus
     {
 
         /// <summary>
@@ -33,85 +33,139 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         protected global::System.Web.UI.ScriptManager ScriptManager1;
 
         /// <summary>
-        /// Label99 control.
+        /// btnExpand control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label99;
+        protected global::System.Web.UI.WebControls.LinkButton btnExpand;
 
         /// <summary>
-        /// UPJobDescription control.
+        /// btnCollapse control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UPJobDescription;
+        protected global::System.Web.UI.WebControls.LinkButton btnCollapse;
 
         /// <summary>
-        /// hfUserId control.
+        /// btnOffDuty control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfUserId;
+        protected global::System.Web.UI.WebControls.LinkButton btnOffDuty;
 
         /// <summary>
-        /// txtJobDescriptionId control.
+        /// tvAccounts control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtJobDescriptionId;
+        protected global::System.Web.UI.WebControls.TreeView tvAccounts;
 
         /// <summary>
-        /// ddlDesignation control.
+        /// txtCoaID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlDesignation;
+        protected global::System.Web.UI.WebControls.TextBox txtCoaID;
 
         /// <summary>
-        /// ddlReportTo1 control.
+        /// txtParentID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlReportTo1;
+        protected global::System.Web.UI.WebControls.TextBox txtParentID;
 
         /// <summary>
-        /// ddlReportTo2 control.
+        /// txtNodeCode control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlReportTo2;
+        protected global::System.Web.UI.WebControls.TextBox txtNodeCode;
 
         /// <summary>
-        /// txtPurposeTheWork control.
+        /// txtAccountName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPurposeTheWork;
+        protected global::System.Web.UI.WebControls.TextBox txtAccountName;
 
         /// <summary>
-        /// txtResponsibilities control.
+        /// rfvAccountName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtResponsibilities;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAccountName;
+
+        /// <summary>
+        /// txtNodeType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtNodeType;
+
+        /// <summary>
+        /// txtNodeLevel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtNodeLevel;
+
+        /// <summary>
+        /// txtSortingNo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtSortingNo;
+
+        /// <summary>
+        /// txtReferenceID control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtReferenceID;
+
+        /// <summary>
+        /// txtURL control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtURL;
+
+        /// <summary>
+        /// txtIconClass control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtIconClass;
 
         /// <summary>
         /// chkIsActive control.
@@ -123,22 +177,22 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
 
         /// <summary>
-        /// btnRefresh control.
+        /// chkIsLeaf control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnRefresh;
+        protected global::System.Web.UI.WebControls.CheckBox chkIsLeaf;
 
         /// <summary>
-        /// btnUpdate control.
+        /// btnAddnew control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnUpdate;
+        protected global::System.Web.UI.WebControls.Button btnAddnew;
 
         /// <summary>
         /// btnSave control.
@@ -150,12 +204,30 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         protected global::System.Web.UI.WebControls.Button btnSave;
 
         /// <summary>
-        /// gvJobDescription control.
+        /// btnUpdate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvJobDescription;
+        protected global::System.Web.UI.WebControls.Button btnUpdate;
+
+        /// <summary>
+        /// btnDelete control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnDelete;
+
+        /// <summary>
+        /// btnClear control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnClear;
     }
 }

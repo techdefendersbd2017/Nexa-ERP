@@ -58,7 +58,7 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
             {
                 using (SqlConnection con = conn.openConnection())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Pro_Department_Save_Web", con))
+                    using (SqlCommand cmd = new SqlCommand("Pro_Department_Web", con))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
 

@@ -251,7 +251,9 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
                     cmd.Parameters.Add("@Minimum_Wages", SqlDbType.BigInt).Value = txtMinimumWages.Text == "" ? 0 : Convert.ToInt64(txtMinimumWages.Text);
                     cmd.Parameters.Add("@Designation_Catagory", SqlDbType.VarChar).Value = txtWorkType.Text;
                     cmd.Parameters.Add("@Designation_Catagory_Bangla", SqlDbType.VarChar).Value = txtWorkTypeBangla.Text;
-                    cmd.Parameters.Add("@Tafsil_Code", SqlDbType.BigInt).Value = ddlTafsil.SelectedValue;
+
+                    // FIXED: Passing Name instead of Code/SelectedValue to match stored procedure logic
+                    cmd.Parameters.Add("@Tafsil_Name", SqlDbType.VarChar).Value = ddlTafsil.SelectedItem != null ? ddlTafsil.SelectedItem.Text : "";
 
                     //========== Tiffin ==========
                     cmd.Parameters.Add("@F_Tifin_Min", SqlDbType.BigInt).Value = txtTiffin1stMin.Text == "" ? 0 : Convert.ToInt64(txtTiffin1stMin.Text);
@@ -264,7 +266,7 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
                     cmd.Parameters.Add("@T_Tifin_Amount", SqlDbType.BigInt).Value = txtTiffin3rdAllowance.Text == "" ? 0 : Convert.ToInt64(txtTiffin3rdAllowance.Text);
 
                     cmd.Parameters.Add("@Fo_Tifin_min", SqlDbType.BigInt).Value = txtTiffin4thMin.Text == "" ? 0 : Convert.ToInt64(txtTiffin4thMin.Text);
-                    cmd.Parameters.Add("@Fo_Tifin_Amount", SqlDbType.BigInt).Value = txtTifin4thAllowance.Text == "" ? 0 : Convert.ToInt64(txtTifin4thAllowance.Text);
+                    //cmd.Parameters.Add("@Fo_Tifin_Amount", SqlDbType.BigInt).Value = txtTiffin4thAllowance.Text == "" ? 0 : Convert.ToInt64(txtTiffin4thAllowance.Text);
 
                     //========== Night ==========
                     cmd.Parameters.Add("@F_Night_min", SqlDbType.BigInt).Value = txtNight1stMin.Text == "" ? 0 : Convert.ToInt64(txtNight1stMin.Text);
@@ -287,7 +289,8 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
                     cmd.Parameters.Add("@Secend_H_Allow", SqlDbType.BigInt).Value = txtHoliday2ndAllowance.Text == "" ? 0 : Convert.ToInt64(txtHoliday2ndAllowance.Text);
 
                     //========== Others ==========
-                    cmd.Parameters.Add("@Designation_Category_ID", SqlDbType.BigInt).Value = ddlDesignationLeval.SelectedValue;
+                    // FIXED: Passing Name instead of SelectedValue to match stored procedure parameter `@Designation_Category_Name`
+                    cmd.Parameters.Add("@Designation_Category_Name", SqlDbType.VarChar).Value = ddlDesignationLeval.SelectedItem != null ? ddlDesignationLeval.SelectedItem.Text : "";
 
                     cmd.ExecuteNonQuery();
                 }

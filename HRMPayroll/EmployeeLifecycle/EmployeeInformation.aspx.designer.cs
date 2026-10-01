@@ -321,6 +321,15 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.TextBox txtTaxAmount;
 
         /// <summary>
+        /// txtTIN control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTIN;
+
+        /// <summary>
         /// ddlBankHolder control.
         /// </summary>
         /// <remarks>
@@ -544,15 +553,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtWeightKG;
-
-        /// <summary>
-        /// txtTIN control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTIN;
 
         /// <summary>
         /// txtHomePhone control.

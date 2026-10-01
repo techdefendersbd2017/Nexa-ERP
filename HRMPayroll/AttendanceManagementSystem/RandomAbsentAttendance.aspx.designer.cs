@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
+namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
 {
 
 
-    public partial class DepartmentSetting
+    public partial class RandomAbsentAttendance
     {
 
         /// <summary>
@@ -24,76 +24,76 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// txtDepartmentID control.
+        /// txtFromDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDepartmentID;
+        protected global::System.Web.UI.WebControls.TextBox txtFromDate;
 
         /// <summary>
-        /// txtDepartmentName control.
+        /// txtToDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDepartmentName;
+        protected global::System.Web.UI.WebControls.TextBox txtToDate;
 
         /// <summary>
-        /// txtDepartmentNameLocal control.
+        /// txtMinAbsent control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDepartmentNameLocal;
+        protected global::System.Web.UI.WebControls.TextBox txtMinAbsent;
 
         /// <summary>
-        /// txtPrefix control.
+        /// txtMaxAbsent control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPrefix;
+        protected global::System.Web.UI.WebControls.TextBox txtMaxAbsent;
 
         /// <summary>
-        /// txtRequiredManpower control.
+        /// txtMaxAbsentDays control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRequiredManpower;
+        protected global::System.Web.UI.WebControls.TextBox txtMaxAbsentDays;
 
         /// <summary>
-        /// txtExtraRequiredManpower control.
+        /// chkNoConsecutive control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtExtraRequiredManpower;
+        protected global::System.Web.UI.WebControls.CheckBox chkNoConsecutive;
 
         /// <summary>
-        /// chkIsActive control.
+        /// btnPreview control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
+        protected global::System.Web.UI.WebControls.Button btnPreview;
 
         /// <summary>
-        /// btnSave control.
+        /// btnApply control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSave;
+        protected global::System.Web.UI.WebControls.Button btnApply;
 
         /// <summary>
         /// btnClear control.
@@ -105,12 +105,30 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         protected global::System.Web.UI.WebControls.Button btnClear;
 
         /// <summary>
-        /// gvDepartment control.
+        /// lblStatus control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvDepartment;
+        protected global::System.Web.UI.WebControls.Label lblStatus;
+
+        /// <summary>
+        /// gvDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvDate;
+
+        /// <summary>
+        /// gvEmp control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvEmp;
     }
 }

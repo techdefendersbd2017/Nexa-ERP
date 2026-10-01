@@ -55,6 +55,7 @@ namespace Nexa_ERP
                     Session["Username"] = txtUser.Text;
                     Session["Password"] = txtPass.Text;
                     Session["User_ID"] = User_ID;
+                    //Response.Redirect("DashboardNew.aspx");
                     Response.Redirect("Deahboard.aspx");
                     ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('Employee Information Saved Successfully!');", true);
                 }

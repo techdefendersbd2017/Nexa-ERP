@@ -67,7 +67,13 @@
 <form id="form1" runat="server">
 
 <div class="container-fluid main-container">
-
+                <div class="page-heading">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <div>
+                        <h3>Section Information</h3>
+                        <small>HRM Configuration &rsaquo; HRM Setting &rsaquo; Section Information</small>
+                    </div>
+                </div>
     <div class="row">
 
         <!-- Left Side Form -->
@@ -75,10 +81,17 @@
 
             <div class="card shadow">
 
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Section Information</h4>
-                    <asp:Label ID="Label1" runat="server"></asp:Label>
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-person-vcard"></i>
+                        <h4 class="mb-0">Designation Information</h4>
+                    </div>
+                    <div>
+                        <asp:Button ID="Button1" runat="server" Text="Save" CssClass="btn btn-success btn-sm me-2" OnClick="btnSave_Click" />
+                        <asp:Button ID="btnRefresh2" runat="server" Text="Refresh" CssClass="btn btn-info" OnClick="btnClear_Click"/>
+                    </div>
                 </div>
+
 
                 <div class="card-body left-panel">
 

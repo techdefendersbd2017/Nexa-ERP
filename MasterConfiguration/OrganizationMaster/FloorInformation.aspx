@@ -299,6 +299,11 @@
                         </div>
 
                         <div class="col-md-6">
+                            <label>Branch Name</label>
+                            <asp:DropDownList ID="ddlBranch" runat="server" CssClass="form-select"></asp:DropDownList>
+                        </div>
+
+                        <div class="col-md-6">
                             <label>Building Name</label>
                             <asp:DropDownList ID="ddlBuilding" runat="server" CssClass="form-select"></asp:DropDownList>
                         </div>

@@ -69,15 +69,6 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.PayrollSetting
         protected global::System.Web.UI.WebControls.TextBox txtOTValue;
 
         /// <summary>
-        /// txtOTFormula control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtOTFormula;
-
-        /// <summary>
         /// chkOTIsActive control.
         /// </summary>
         /// <remarks>
@@ -85,6 +76,15 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.PayrollSetting
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox chkOTIsActive;
+
+        /// <summary>
+        /// txtOTFormula control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtOTFormula;
 
         /// <summary>
         /// btnOTClear control.

@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
+namespace Nexa_ERP.ERPConfiguration.UserAuthorization
 {
 
 
-    public partial class DepartmentSetting
+    public partial class RoleWiseChartOfMenuPermission
     {
 
         /// <summary>
@@ -24,67 +24,49 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// txtDepartmentID control.
+        /// Label1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDepartmentID;
+        protected global::System.Web.UI.WebControls.Label Label1;
 
         /// <summary>
-        /// txtDepartmentName control.
+        /// hfUserId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDepartmentName;
+        protected global::System.Web.UI.WebControls.HiddenField hfUserId;
 
         /// <summary>
-        /// txtDepartmentNameLocal control.
+        /// ddlRole control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDepartmentNameLocal;
+        protected global::System.Web.UI.WebControls.DropDownList ddlRole;
 
         /// <summary>
-        /// txtPrefix control.
+        /// ddlmodule control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPrefix;
+        protected global::System.Web.UI.WebControls.DropDownList ddlmodule;
 
         /// <summary>
-        /// txtRequiredManpower control.
+        /// ddlMenu control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRequiredManpower;
-
-        /// <summary>
-        /// txtExtraRequiredManpower control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtExtraRequiredManpower;
-
-        /// <summary>
-        /// chkIsActive control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
+        protected global::System.Web.UI.WebControls.DropDownList ddlMenu;
 
         /// <summary>
         /// btnSave control.
@@ -105,12 +87,12 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         protected global::System.Web.UI.WebControls.Button btnClear;
 
         /// <summary>
-        /// gvDepartment control.
+        /// gvModule control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvDepartment;
+        protected global::System.Web.UI.WebControls.GridView gvModule;
     }
 }
