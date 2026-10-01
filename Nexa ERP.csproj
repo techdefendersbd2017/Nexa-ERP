@@ -222,6 +222,8 @@
   <ItemGroup>
     <Content Include="AccountsModule\MasterData\bankInformation.aspx" />
     <Content Include="AccountsModule\MasterData\ChartOfAccounts.aspx" />
+    <Content Include="Assets\EmployeeInformation.js" />
+    <Content Include="Assets\RoleWiseChartOfMenuPermission.js" />
     <Content Include="ERPConfiguration\UserAuthorization\ChartOfMenus.aspx" />
     <Content Include="AccountsModule\MasterData\chequeBookRegistration.aspx" />
     <Content Include="AccountsModule\MasterData\costCenterGroupInfo.aspx" />
@@ -239,9 +241,9 @@
     <Content Include="DashboardNew.aspx" />
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
+    <Content Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
-    <Content Include="Index.html" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
     <Content Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
@@ -490,6 +492,13 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx.cs">
+      <DependentUpon>RoleWiseChartOfMenuPermission.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx.designer.cs">
+      <DependentUpon>RoleWiseChartOfMenuPermission.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx.cs">
       <DependentUpon>PunchDataImport.aspx</DependentUpon>

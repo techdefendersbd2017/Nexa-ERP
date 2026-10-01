@@ -8,7 +8,7 @@ namespace Nexa_ERP.Connection
 {
     public class PayrollDB
     {
-        private readonly string connString = @"Server=103.125.255.14,9436; Database=techpay; User Id=techdefendersbd; Password=KamrujamaN@12110;";
+        private readonly string connString = @"Server=103.125.255.21,9438; Database=techpay; User Id=techdefenders_bd; Password=KamrujamaN@12110;";
 
         public SqlConnection openConnection()
         {
@@ -19,7 +19,7 @@ namespace Nexa_ERP.Connection
     }
     public class Database_Connection
     {
-        private readonly string connString = @"Server=103.125.255.14,9436; Database=NexaMaster; User Id=techdefendersbd; Password=KamrujamaN@12110;";
+        private readonly string connString = @"Server=103.125.255.21,9438; Database=NexaMaster; User Id=techdefenders_bd; Password=KamrujamaN@12110;";
 
         public SqlConnection openConnection()
         {

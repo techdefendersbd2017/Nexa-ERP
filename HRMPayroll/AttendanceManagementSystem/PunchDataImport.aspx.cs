@@ -17,6 +17,7 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         // আপনার ফাইলের Date/Time ফরম্যাট অনুযায়ী এখানে ফরম্যাট যোগ/পরিবর্তন করুন
         private static readonly string[] DateFormats =
         {
+            "dd-MMM-yyyy",   // client-side page always sends dates in this format now, e.g. "09-Jan-2026"
             "yyyy-MM-dd", "dd/MM/yyyy", "d/M/yyyy", "yyyy/MM/dd", "dd-MM-yyyy", "d-M-yyyy"
         };
 

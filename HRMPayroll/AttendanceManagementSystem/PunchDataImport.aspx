@@ -409,6 +409,7 @@
         { name: "Machine ID", json: "MachineID",  keys: ["machineid", "machine", "machineno", "deviceid", "device"] }
     ];
     var NCOL = COLUMNS.length;
+    var DATE_COL_JSON = "Date";   // which COLUMNS entry gets normalised to dd-MMM-yyyy
 
     var state = {
         wb: null, fileName: "", fileSize: 0, sheetIndex: 0,
@@ -430,6 +431,91 @@
     function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
     function norm(s) { return String(s).toLowerCase().replace(/[^a-z0-9]/g, ""); }
     function errMsg(ex) { return (ex && ex.message) ? ex.message : "unknown error"; }
+
+    /* ---------- date normalisation: any recognised input -> "dd-MMM-yyyy" ---------- */
+    var MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    var MONTH_LOOKUP = (function () {
+        // Accepts short and full English month names/abbreviations, case-insensitive.
+        var full = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        var map = {};
+        MONTH_SHORT.forEach(function (m, i) { map[m.toLowerCase()] = i; });
+        full.forEach(function (m, i) { map[m.toLowerCase()] = i; map[m.slice(0, 3).toLowerCase()] = i; });
+        return map;
+    })();
+
+    function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+    function formatDMY(y, mIdx, d) {
+        return pad2(d) + "-" + MONTH_SHORT[mIdx] + "-" + y;
+    }
+
+    // Converts an Excel/Lotus 1900-date-system serial number to a JS {y, mIdx, d}.
+    function excelSerialToYMD(serial) {
+        // Excel's serial day 1 = 1900-01-01, but it wrongly treats 1900 as a leap year;
+        // using the well-known offset (25569 days to the Unix epoch) keeps real-world
+        // dates (>= 1900-03-01) correct, which covers every practical punch-data case.
+        var utcMs = Math.round((serial - 25569) * 86400 * 1000);
+        var d = new Date(utcMs);
+        return { y: d.getUTCFullYear(), mIdx: d.getUTCMonth(), d: d.getUTCDate() };
+    }
+
+    // Tries a series of known layouts and returns "dd-MMM-yyyy", or the original
+    // trimmed text unchanged if nothing could be recognised (never throws/blanks data).
+    function normalizeDateText(raw) {
+        var s = String(raw == null ? "" : raw).trim();
+        if (!s) return s;
+
+        // 1) Bare number -> Excel/Lotus serial date (typical when a sheet stores real
+        //    date cells and they arrive as a number instead of a formatted string).
+        if (/^\d+(\.\d+)?$/.test(s)) {
+            var num = parseFloat(s);
+            if (num > 15000 && num < 80000) {           // roughly years 1941..2119
+                var ymdS = excelSerialToYMD(num);
+                if (ymdS.y > 1900 && ymdS.y < 2200) return formatDMY(ymdS.y, ymdS.mIdx, ymdS.d);
+            }
+        }
+
+        // 2) yyyy-mm-dd / yyyy/mm/dd / yyyy.mm.dd  (ISO-like, unambiguous)
+        var m = s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);
+        if (m) {
+            var y1 = +m[1], mo1 = +m[2], d1 = +m[3];
+            if (mo1 >= 1 && mo1 <= 12 && d1 >= 1 && d1 <= 31) return formatDMY(y1, mo1 - 1, d1);
+        }
+
+        // 3) dd Mon yyyy / dd-Mon-yyyy / Mon dd, yyyy / dd Month yyyy (month name present)
+        m = s.match(/^(\d{1,2})[\s\-\/]([A-Za-z]{3,9})[\s\-\/,]+(\d{2,4})/);
+        if (m && MONTH_LOOKUP.hasOwnProperty(m[2].toLowerCase())) {
+            var y2 = +m[3]; if (y2 < 100) y2 += (y2 < 70 ? 2000 : 1900);
+            return formatDMY(y2, MONTH_LOOKUP[m[2].toLowerCase()], +m[1]);
+        }
+        m = s.match(/^([A-Za-z]{3,9})[\s\-\/]+(\d{1,2}),?[\s\-\/]+(\d{2,4})/);
+        if (m && MONTH_LOOKUP.hasOwnProperty(m[1].toLowerCase())) {
+            var y3 = +m[3]; if (y3 < 100) y3 += (y3 < 70 ? 2000 : 1900);
+            return formatDMY(y3, MONTH_LOOKUP[m[1].toLowerCase()], +m[2]);
+        }
+
+        // 4) dd-mm-yyyy / dd/mm/yyyy / mm-dd-yyyy / mm/dd/yyyy (numeric, ambiguous order)
+        //    Whichever of the two leading parts is > 12 is treated as the day;
+        //    if both are <= 12, defaults to day-first (dd-mm-yyyy), the common
+        //    layout for attendance/punch machine exports.
+        m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/);
+        if (m) {
+            var a = +m[1], b = +m[2], y4 = +m[3];
+            if (y4 < 100) y4 += (y4 < 70 ? 2000 : 1900);
+            var day, mIdx4;
+            if (a > 12 && b <= 12) { day = a; mIdx4 = b - 1; }
+            else if (b > 12 && a <= 12) { day = b; mIdx4 = a - 1; }
+            else { day = a; mIdx4 = b - 1; }   // ambiguous: assume day-first
+            if (mIdx4 >= 0 && mIdx4 <= 11 && day >= 1 && day <= 31) return formatDMY(y4, mIdx4, day);
+        }
+
+        // 5) Last resort: let the browser try (handles things like "2025-01-05T00:00:00Z").
+        var dt = new Date(s);
+        if (!isNaN(dt.getTime()) && s.length >= 6) return formatDMY(dt.getFullYear(), dt.getMonth(), dt.getDate());
+
+        // Unrecognised: leave the original text untouched rather than losing data.
+        return s;
+    }
 
     var toastTimer = null;
     function toast(msg) {
@@ -505,6 +591,7 @@
             var src = aoa[r], out = [], any = false;
             for (var k = 0; k < NCOL; k++) {
                 var v = m.map[k] === -1 ? "" : (src[m.map[k]] || "");
+                if (COLUMNS[k].json === DATE_COL_JSON && v !== "") v = normalizeDateText(v);
                 if (k !== 0 && v !== "") any = true;
                 out.push(v);
             }

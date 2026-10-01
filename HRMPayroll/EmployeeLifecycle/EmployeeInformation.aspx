@@ -11,7 +11,7 @@
     <!-- Google Font (added to match CreateCategory header style) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
+    <script src="../../Assets/EmployeeInformation.js"></script>
     <!-- Select2 (searchable dropdown) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 
@@ -68,10 +68,7 @@
 
         .fixed-top-section { border-bottom: 1px solid #eee; margin-bottom: 10px; padding-bottom: 10px; }
 
-        /* Joining Date / Probation Period / Employee Status / Separation Date
-           box (top-right of the fixed section). Grid guarantees the label
-           column and the input column line up on the same x-position on
-           every row, regardless of how long each label's text is. */
+
         .employee-meta-grid {
             display: grid;
             grid-template-columns: auto 150px;
@@ -531,8 +528,8 @@
                                             <asp:DropDownList ID="ddlTaxHolder" runat="server"
                                                 CssClass="form-select form-select-sm w-100">
                                                 <asp:ListItem Text="Select" Value="0"></asp:ListItem>
-                                                <asp:ListItem Text="Yes" Value="1"></asp:ListItem>
-                                                <asp:ListItem Text="No" Value="2"></asp:ListItem>
+                                                <asp:ListItem Text="Yes" Value="Yes"></asp:ListItem>
+                                                <asp:ListItem Text="No" Value="No"></asp:ListItem>
                                             </asp:DropDownList>
                                         </div>
 
@@ -541,7 +538,7 @@
                                             <asp:TextBox ID="txtTaxAmount" runat="server" TextMode="Number"
                                                 CssClass="form-control form-control-sm w-100" />
                                         </div>
-
+                                        <div class="form-row-custom"><label>TIN</label><asp:TextBox ID="txtTIN" runat="server" CssClass="form-control form-control-sm" /></div>         
                                     </div>
 
                                     <!-- Right Side -->
@@ -552,8 +549,8 @@
                                             <asp:DropDownList ID="ddlBankHolder" runat="server"
                                                 CssClass="form-select form-select-sm w-100">
                                                 <asp:ListItem Text="Select" Value="0"></asp:ListItem>
-                                                <asp:ListItem Text="Yes" Value="1"></asp:ListItem>
-                                                <asp:ListItem Text="No" Value="2"></asp:ListItem>
+                                                <asp:ListItem Text="Yes" Value="Yes"></asp:ListItem>
+                                                <asp:ListItem Text="No" Value="No"></asp:ListItem>
                                             </asp:DropDownList>
                                         </div>
 
@@ -605,14 +602,14 @@
                                 <div class="form-row-custom"><label>Blood Group</label>
                                     <asp:DropDownList ID="ddlBloodGroup" runat="server" CssClass="form-select form-select-sm w-100">
                                         <asp:ListItem Text="Select" Value="0"></asp:ListItem>
-                                        <asp:ListItem Text="A+" Value="1"></asp:ListItem>
-                                        <asp:ListItem Text="A-" Value="2"></asp:ListItem>
-                                        <asp:ListItem Text="B+" Value="3"></asp:ListItem>
-                                        <asp:ListItem Text="B-" Value="4"></asp:ListItem>
-                                        <asp:ListItem Text="AB+" Value="5"></asp:ListItem>
-                                        <asp:ListItem Text="AB-" Value="6"></asp:ListItem>
-                                        <asp:ListItem Text="O+" Value="7"></asp:ListItem>
-                                        <asp:ListItem Text="O-" Value="8"></asp:ListItem>
+                                        <asp:ListItem Text="A+" Value="A+"></asp:ListItem>
+                                        <asp:ListItem Text="A-" Value="A-"></asp:ListItem>
+                                        <asp:ListItem Text="B+" Value="B+"></asp:ListItem>
+                                        <asp:ListItem Text="B-" Value="B-"></asp:ListItem>
+                                        <asp:ListItem Text="AB+" Value="AB+"></asp:ListItem>
+                                        <asp:ListItem Text="AB-" Value="AB-"></asp:ListItem>
+                                        <asp:ListItem Text="O+" Value="O+"></asp:ListItem>
+                                        <asp:ListItem Text="O-" Value="O-"></asp:ListItem>
                                     </asp:DropDownList>
 
                                 </div>
@@ -632,7 +629,7 @@
                                     <asp:TextBox ID="txtHeightInch" runat="server" Width="50px" CssClass="form-control-sm mx-1" /> inc
                                     <label style="width:70px; min-width:70px;" class="ms-2">Weight KG</label><asp:TextBox ID="txtWeightKG" runat="server" Width="60px" CssClass="form-control-sm" />
                                 </div>
-                                <div class="form-row-custom"><label>TIN</label><asp:TextBox ID="txtTIN" runat="server" CssClass="form-control form-control-sm" /></div>
+                                
                                 <div class="form-row-custom"><label>Home Phone</label><asp:TextBox ID="txtHomePhone" runat="server" CssClass="form-control form-control-sm" /></div>
                                 <div class="form-row-custom"><label>E-mail</label><asp:TextBox ID="txtEmail" runat="server" CssClass="form-control form-control-sm" /></div>
                             </div>
@@ -830,137 +827,6 @@
     <!-- Select2 (searchable dropdown) -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <script>
-        // সর্বোচ্চ ছবির সাইজ: 300KB
-        var MAX_PHOTO_SIZE_BYTES = 300 * 1024;
 
-        // ছবি সিলেক্ট করার সাথে সাথে photo-box-এ প্রিভিউ দেখানো হয়
-        function previewEmployeePhoto(input) {
-            var img = document.getElementById('imgPhotoPreview');
-            var placeholder = document.getElementById('photoPlaceholderText');
-
-            if (input.files && input.files[0]) {
-                var file = input.files[0];
-
-                if (file.size > MAX_PHOTO_SIZE_BYTES) {
-                    alert('ছবির সাইজ 300KB-এর বেশি হতে পারবে না। আপনার ফাইলের সাইজ: ' + (file.size / 1024).toFixed(1) + 'KB');
-                    input.value = ''; // সিলেকশন বাতিল
-                    img.removeAttribute('src');
-                    img.style.display = 'none';
-                    placeholder.style.display = 'block';
-                    return;
-                }
-
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    img.src = e.target.result;
-                    img.style.display = 'block';
-                    placeholder.style.display = 'none';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                img.removeAttribute('src');
-                img.style.display = 'none';
-                placeholder.style.display = 'block';
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            var defaultTab = '#tab1';
-            var selectedTab = localStorage.getItem('activeTab') || defaultTab;
-            var tabEl = document.querySelector(`button[data-bs-target="${selectedTab}"]`);
-            if (tabEl) new bootstrap.Tab(tabEl).show();
-
-            var tabLinks = document.querySelectorAll('.nav-link');
-            tabLinks.forEach(function (tab) {
-                tab.addEventListener('shown.bs.tab', function (e) {
-                    localStorage.setItem('activeTab', e.target.getAttribute('data-bs-target'));
-                });
-            });
-
-            document.querySelectorAll('.tab-nav-btns [data-goto]').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var targetSelector = btn.getAttribute('data-goto');
-                    var targetTabBtn = document.querySelector('button[data-bs-target="' + targetSelector + '"]');
-                    if (targetTabBtn) {
-                        new bootstrap.Tab(targetTabBtn).show();
-                        var contentArea = document.querySelector('.content-area');
-                        if (contentArea) {
-                            contentArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    }
-                });
-            });
-        });
-
-        $(function () {
-            function humanize(name) {
-                // Convert "ddlDepartment" -> "Department", "ddlSkillGrade" -> "Skill Grade"
-                var base = (name || 'Option').replace(/^ddl/i, '');
-                base = base.replace(/([a-z0-9])([A-Z])/g, '$1 $2').trim();
-                return base || 'Option';
-            }
-            function initSelect2($el) {
-                var label = $el.closest('.form-row-custom').find('label').first().text().trim();
-                var placeholderText = 'Select ' + (label || humanize($el.attr('id')));
-                var hasEmptyOption = $el.find('option[value=""]').length > 0;
-                var $pane = $el.closest('.tab-pane');
-
-                var options = {
-                    width: '100%',
-                    dropdownParent: $pane.length ? $pane : $(document.body),
-                    minimumResultsForSearch: 0 // always show the search box, like the reference image
-                };
-
-                if (hasEmptyOption) {
-                    options.placeholder = placeholderText;
-                    options.allowClear = false;
-                }
-
-                $el.select2(options);
-            }
-
-            $('select').each(function () {
-                initSelect2($(this));
-            });
-
-            // Bootstrap tabs hide inactive panes with display:none, so Select2
-            // (which measures width on init) can render 0-width the first time
-            // a tab is opened. Force a re-calc when a tab becomes visible.
-            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-                var target = $(e.target).attr('data-bs-target');
-                $(target).find('select').each(function () {
-                    if ($(this).hasClass('select2-hidden-accessible')) {
-                        $(this).select2('destroy');
-                    }
-                });
-                $(target).find('select').each(function () {
-                    initSelect2($(this));
-                });
-            });
-
-            // =====================================================
-            // chkSame / CheckNominee live inside <asp:UpdatePanel>s,
-            // so toggling them causes an ASYNC (AJAX) postback that
-            // replaces only that panel's HTML — the page itself never
-            // reloads, so the active tab no longer resets. But the
-            // replaced <select> elements need Select2 re-initialized,
-            // since the plain DOM Select2 built earlier is discarded
-            // along with the old markup.
-            // =====================================================
-            if (window.Sys && Sys.WebForms && Sys.WebForms.PageRequestManager) {
-                Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function (sender, args) {
-                    var panel = args.get_panelsUpdated && args.get_panelsUpdated()[0];
-                    var $scope = panel ? $(panel) : $(document);
-                    $scope.find('select').each(function () {
-                        if ($(this).hasClass('select2-hidden-accessible')) {
-                            $(this).select2('destroy');
-                        }
-                        initSelect2($(this));
-                    });
-                });
-            }
-        });
-    </script>
 </body>
 </html>

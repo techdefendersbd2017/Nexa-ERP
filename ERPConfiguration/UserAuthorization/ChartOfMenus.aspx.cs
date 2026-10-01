@@ -2,6 +2,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -11,17 +12,11 @@ namespace Nexa_ERP.AccountsModule.MasterData
     {
         SqlConnection con;
         Database_Connection conn = new Database_Connection();
+        SqlCommand cmd;
         DataTable dt = new DataTable();
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // dt is an instance field, so it is empty on every new request/postback
-            // (ASP.NET creates a fresh Page object each time). It must be re-populated
-            // on EVERY postback too, otherwise event handlers like
-            // tvAccounts_SelectedNodeChanged (which run after Page_Load, on the same
-            // postback that loaded the tree row) will see a DataTable with no columns
-            // at all and dt.Select("COA_ID = ...") throws:
-            //   "Cannot find column [COA_ID]".
             LoadDataFromDatabase();
 
             if (!IsPostBack)
@@ -111,6 +106,12 @@ namespace Nexa_ERP.AccountsModule.MasterData
 
         protected void tvAccounts_SelectedNodeChanged(object sender, EventArgs e)
         {
+
+            btnSave.Visible = false;
+            btnAddnew.Visible = true;
+            btnUpdate.Visible = true;
+            btnDelete.Visible = true;
+
             TreeNode selectedNode = tvAccounts.SelectedNode;
             if (selectedNode == null)
                 return;
@@ -125,11 +126,43 @@ namespace Nexa_ERP.AccountsModule.MasterData
 
             txtCoaID.Text = row["COA_ID"].ToString();
             txtParentID.Text = row["Parent_ID"] == DBNull.Value ? "0" : row["Parent_ID"].ToString();
+
+
+            try
+            {
+                string sql = "Select * from ChartOfMenus where COA_ID='" + txtCoaID.Text + "'";
+                con = conn.openConnection();
+                cmd = new SqlCommand(sql, con);
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        txtParentID.Text = reader[1].ToString();
+                        txtNodeCode.Text = reader[2].ToString();
+                        txtAccountName.Text = reader[3].ToString();
+                        txtNodeType.Text = reader[4].ToString();
+                        txtNodeLevel.Text = reader[5].ToString();
+                        txtReferenceID.Text = reader[6].ToString();
+                        txtIconClass.Text = reader[7].ToString();
+                        txtURL.Text = reader[8].ToString();
+                        txtSortingNo.Text = reader[9].ToString();
+                        chkIsActive.Checked = reader[10] != DBNull.Value && Convert.ToBoolean(reader[5]); // ✅ CheckBox
+                        chkIsLeaf.Checked = reader[11] != DBNull.Value && Convert.ToBoolean(reader[5]); // ✅ CheckBox
+                    }
+                }
+                else
+                {
+                    //User_ID = string.Empty;
+                }
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alert", "alert('" + ex.Message.Replace("'", "") + "');", true);
+            }
         }
 
-        // Save = insert a NEW node. If a node is currently selected in the tree,
-        // the new node is created as its CHILD (txtParentID carries that context);
-        // otherwise it is created as a ROOT node (Parent_ID = 0).
         protected void btnSave_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid)
@@ -289,6 +322,12 @@ namespace Nexa_ERP.AccountsModule.MasterData
             txtURL.Text = string.Empty;
             chkIsActive.Checked = true;
             chkIsLeaf.Checked = true;
+
+            btnSave.Visible = false;
+            btnAddnew.Visible = true;
+            btnAddnew.Visible = true;
+            btnUpdate.Visible = true;
+            btnDelete.Visible = true;
         }
 
         protected void btnExpand_Click(object sender, EventArgs e)
@@ -319,6 +358,24 @@ namespace Nexa_ERP.AccountsModule.MasterData
         {
             string script = "alert('" + message.Replace("'", "") + "');";
             ClientScript.RegisterStartupScript(this.GetType(), "alert" + Guid.NewGuid().ToString("N"), script, true);
+        }
+
+        protected void btnAddnew_Click(object sender, EventArgs e)
+        {
+            btnSave.Visible = true;
+            btnAddnew.Visible = false;
+            btnUpdate.Visible = false;
+            btnDelete.Visible = false;
+            txtNodeCode.Text = string.Empty;
+            txtAccountName.Text = string.Empty;
+            txtNodeType.Text = string.Empty;
+            txtNodeLevel.Text = "0";
+            txtSortingNo.Text = "0";
+            txtReferenceID.Text = string.Empty;
+            txtIconClass.Text = string.Empty;
+            txtURL.Text = string.Empty;
+            chkIsActive.Checked = true;
+            chkIsLeaf.Checked = true;
         }
     }
 }

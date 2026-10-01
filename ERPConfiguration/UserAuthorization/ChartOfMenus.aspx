@@ -60,8 +60,7 @@
                 <div class="col-span-12 lg:col-span-7 p-6 bg-white flex flex-col">
                     <div class="space-y-4">
                         <div class="bg-white rounded-xl border border-gray-200 p-5 space-y-3 shadow-sm">
-                            <h3 class="text-sm font-bold text-gray-800 border-b pb-2 mb-3">Ledger Information</h3>
-
+                            <h3 class="text-sm font-bold text-gray-800 border-b pb-2 mb-3">Menu Information</h3>
                             <!-- IDs Row -->
                             <div class="grid grid-cols-3 gap-3">
                                 <div>
@@ -134,8 +133,10 @@
                         <!-- Action Buttons -->
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm">
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                
+                                <asp:Button ID="btnAddnew" runat="server" Text="Add New" CssClass="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg shadow transition active:scale-95 cursor-pointer font-bold text-xs" OnClick="btnAddnew_Click" />
                                 <asp:Button ID="btnSave" runat="server" Text="Save" OnClick="btnSave_Click" ValidationGroup="COA"
-                                    CssClass="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg shadow transition active:scale-95 cursor-pointer font-bold text-xs" />
+                                    CssClass="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg shadow transition active:scale-95 cursor-pointer font-bold text-xs" Visible="False" />
 
                                 <asp:Button ID="btnUpdate" runat="server" Text="Update" OnClick="btnUpdate_Click" ValidationGroup="COA"
                                     CssClass="bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg shadow transition active:scale-95 cursor-pointer font-bold text-xs" />
