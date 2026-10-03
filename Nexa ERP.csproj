@@ -223,6 +223,7 @@
     <Content Include="AccountsModule\MasterData\bankInformation.aspx" />
     <Content Include="AccountsModule\MasterData\ChartOfAccounts.aspx" />
     <Content Include="Assets\EmployeeInformation.js" />
+    <Content Include="Assets\HRMReports.js" />
     <Content Include="Assets\RoleWiseChartOfMenuPermission.js" />
     <Content Include="ERPConfiguration\UserAuthorization\ChartOfMenus.aspx" />
     <Content Include="AccountsModule\MasterData\chequeBookRegistration.aspx" />
@@ -244,6 +245,7 @@
     <Content Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
     <Content Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
@@ -513,6 +515,13 @@
     </Compile>
     <Compile Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx.designer.cs">
       <DependentUpon>RandomAbsentAttendance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx.cs">
+      <DependentUpon>AppointmentLetter.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx.designer.cs">
+      <DependentUpon>AppointmentLetter.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx.cs">
       <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
