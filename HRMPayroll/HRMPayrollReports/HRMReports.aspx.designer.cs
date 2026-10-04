@@ -24,112 +24,112 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// hfBranch control.
+        /// hfSelIds control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfBranch;
+        protected global::System.Web.UI.WebControls.HiddenField hfSelIds;
 
         /// <summary>
-        /// hfCategory control.
+        /// ddBranch control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfCategory;
+        protected global::System.Web.UI.WebControls.ListBox ddBranch;
 
         /// <summary>
-        /// hfDept control.
+        /// ddCategory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfDept;
+        protected global::System.Web.UI.WebControls.ListBox ddCategory;
 
         /// <summary>
-        /// hfSection control.
+        /// ddDept control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfSection;
+        protected global::System.Web.UI.WebControls.ListBox ddDept;
 
         /// <summary>
-        /// hfSubSec control.
+        /// ddSection control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfSubSec;
+        protected global::System.Web.UI.WebControls.ListBox ddSection;
 
         /// <summary>
-        /// hfFloor control.
+        /// ddSubSec control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfFloor;
+        protected global::System.Web.UI.WebControls.ListBox ddSubSec;
 
         /// <summary>
-        /// hfDesig control.
+        /// ddFloor control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfDesig;
+        protected global::System.Web.UI.WebControls.ListBox ddFloor;
 
         /// <summary>
-        /// hfLevel control.
+        /// ddDesig control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfLevel;
+        protected global::System.Web.UI.WebControls.ListBox ddDesig;
 
         /// <summary>
-        /// hfBlood control.
+        /// ddLevel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfBlood;
+        protected global::System.Web.UI.WebControls.ListBox ddLevel;
 
         /// <summary>
-        /// hfReligion control.
+        /// ddBlood control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfReligion;
+        protected global::System.Web.UI.WebControls.DropDownList ddBlood;
 
         /// <summary>
-        /// hfStatus control.
+        /// ddReligion control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfStatus;
+        protected global::System.Web.UI.WebControls.DropDownList ddReligion;
 
         /// <summary>
-        /// hfRType control.
+        /// ddStatus control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField hfRType;
+        protected global::System.Web.UI.WebControls.DropDownList ddStatus;
 
         /// <summary>
         /// txtFromDate control.
@@ -148,6 +148,15 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtTillDate;
+
+        /// <summary>
+        /// ddRType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddRType;
 
         /// <summary>
         /// txtMultiId control.

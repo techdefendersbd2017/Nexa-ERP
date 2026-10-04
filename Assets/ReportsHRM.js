@@ -1,6 +1,4 @@
 ﻿
-
-// id = dropdown নাম, hf = নির্বাচিত মান জমা রাখার HiddenField (মান '|' দিয়ে আলাদা)
 const FIELDS = [
     { id: 'branch', hf: 'hfBranch', label: 'Branch', multi: true, ph: 'Select branch…' },
     { id: 'category', hf: 'hfCategory', label: 'Category', multi: true, ph: 'Select category…' },
@@ -44,7 +42,7 @@ function buildFilters() {
                     </div>`;
         refreshField(f.id);
     });
-    // তারিখ ঘরে মান থাকলে date হিসেবে দেখাও
+
     document.querySelectorAll('input.date').forEach(i => { if (i.value) i.type = 'date'; });
 }
 
@@ -123,7 +121,6 @@ function toggleDD(id) {
 document.addEventListener('click', e => { if (!e.target.closest('[id^="wrap-"]')) closeAll(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
 
-// Multi ID ঘরে Enter চাপলে Show বাটন চলবে
 document.addEventListener('DOMContentLoaded', function () {
     buildFilters();
     const mi = document.getElementById('txtMultiId');
@@ -132,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// ---------- টেবিলের Quick filter (ব্রাউজারেই, বর্তমান সারিগুলোর উপর) ----------
+
 function searchTable() {
     const q = document.getElementById('tableSearch').value.toLowerCase();
     let shown = 0;
@@ -147,7 +144,6 @@ function toggleAllRowCheckboxes(source) {
     document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = source.checked);
 }
 
-// ---------- Export / Print ----------
 function exportData(format) { showNotification('Exporting report to ' + format.toUpperCase() + ' format...'); } // TODO: Back-End
 function printReport() { window.print(); }
 

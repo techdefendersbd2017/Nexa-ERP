@@ -40,49 +40,54 @@ p{margin:0}
 .sig{display:flex;justify-content:space-between;font-size:8pt;margin-top:42mm}
 .wrap{}
 .en{font-family:"Liberation Serif","Times New Roman",serif;font-size:9pt}
+.msg{display:block;text-align:center;font-size:12pt;margin:20mm auto}
 
 @media screen{html{background:#e5e5e5}.sheet{width:210mm;margin:8mm auto;padding:11mm 9mm 10mm 14mm;background:#fff;box-shadow:0 0 6px rgba(0,0,0,.25)}}
-@media print{.noprint{display:none!important}}
+@media print{.noprint{display:none!important}.sheet{page-break-after:always;break-after:page}.sheet:last-child{page-break-after:auto;break-after:auto}}
 .noprint{position:fixed;top:10px;right:14px}.noprint button{padding:6px 14px;font-size:14px;cursor:pointer}
 </style>
 </head>
 <body>
 <form id="form1" runat="server">
 <div class="noprint"><button type="button" onclick="window.print()">প্রিন্ট</button></div>
+
+<asp:Label ID="lblNone" runat="server" CssClass="msg" Visible="false" />
+
+<asp:Repeater ID="rptLetters" runat="server">
+<ItemTemplate>
 <div class="sheet">
 
-
-<div class="title"><asp:Label ID="lblCompanyName" runat="server" Text="স্ট্যান্ডার্ড ক্লোথিং ইন্ডাস্ট্রিজ লিমিটেড" /></div>
-<div class="addr"><asp:Label ID="lblCompanyAddress" runat="server" Text="৪৩/৩ ইব্রাহিমপুর, কাফরুল, মিরপুর-৪, ঢাকা ১২১৬, বাংলাদেশ" /></div>
+<div class="title"><%# H(Eval("CompanyName")) %></div>
+<div class="addr"><%# H(Eval("CompanyAddress")) %></div>
 <div class="sub"><span>(নিয়োগ পত্র / APPOINTMENT LETTER)</span></div>
-<div class="date">তারিখ: <asp:Label ID="lblDate" runat="server" Text="০৪/১০/২০২৫" /> ইং</div>
+<div class="date">তারিখ: <%# H(Eval("LetterDate")) %> ইং</div>
 
-<div class="row"><div style="width:100%">১। নাম: <span class="en">&nbsp;<asp:Label ID="lblName" runat="server" Text="Hafeza" /></span></div></div>
-<div class="row"><div class="c1">২। পিতার নাম: <span class="en"><asp:Label ID="lblFather" runat="server" Text="Md. Tarikul Islam" /></span></div><div class="c2">৩। মাতার নাম: <span class="en">&nbsp;<asp:Label ID="lblMother" runat="server" Text="Mst. Anas Akter" /></span></div></div>
-<div class="row"><div class="c1">৪। স্বামীর নাম (যদি থাকে): <span class="en"><asp:Label ID="lblHusband" runat="server" Text="" /></span></div><div class="c2">৫। স্ত্রীর নাম (যদি থাকে): <span class="en"><asp:Label ID="lblWife" runat="server" Text="" /></span></div></div>
-<div class="row"><div class="c1">৬। ব্যক্তিগত মোবাইল নং: <asp:Label ID="lblMobile" runat="server" Text="০১৭৭৯৭১৩২৪৭" /></div><div class="c2">৭। জাতীয় পরিচয় পত্রের নং: <asp:Label ID="lblNID" runat="server" Text="২০০৭৪৮১৯২১৩১১৬৩০০" /></div></div>
-<div class="row"><div class="c1">৮। বর্তমান &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;গ্রাম : <span class="en"><asp:Label ID="lblVillage" runat="server" Text="ibrahimpur" /></span></div><div class="c2">ডাকঘর :<span class="en"><asp:Label ID="lblPost" runat="server" Text="kafrul-1206" /></span></div></div>
-<div class="row"><div class="c1" style="padding-left:18.5mm">থানা / উপজেলা <span class="en">&nbsp;<asp:Label ID="lblThana" runat="server" Text="kafrul" /></span></div><div class="c2" style="padding-left:4mm">জেলা :<span class="en"><asp:Label ID="lblDistrict" runat="server" Text="Dhaka North" /></span></div></div>
-<div class="row"><div class="c1">৯। স্থায়ী &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;গ্রাম :<span class="en"><asp:Label ID="lblPVillage" runat="server" Text="Kajla" /></span></div><div class="c2">ডাকঘর :<span class="en"><asp:Label ID="lblPPost" runat="server" Text="Tarail" /></span></div></div>
-<div class="row"><div class="c1" style="padding-left:18.5mm">থানা / উপজেলা <span class="en">&nbsp;<asp:Label ID="lblPThana" runat="server" Text="Kajla Damiha" /></span></div><div class="c2" style="padding-left:4mm">জেলা :<span class="en"><asp:Label ID="lblPDistrict" runat="server" Text="Kishoreganj" /></span></div></div>
+<div class="row"><div style="width:100%">১। নাম: <span class="en">&nbsp;<%# H(Eval("Name")) %></span></div></div>
+<div class="row"><div class="c1">২। পিতার নাম: <span class="en"><%# H(Eval("Father")) %></span></div><div class="c2">৩। মাতার নাম: <span class="en">&nbsp;<%# H(Eval("Mother")) %></span></div></div>
+<div class="row"><div class="c1">৪। স্বামীর নাম (যদি থাকে): <span class="en"><%# H(Eval("Husband")) %></span></div><div class="c2">৫। স্ত্রীর নাম (যদি থাকে): <span class="en"><%# H(Eval("Wife")) %></span></div></div>
+<div class="row"><div class="c1">৬। ব্যক্তিগত মোবাইল নং: <%# H(Eval("Mobile")) %></div><div class="c2">৭। জাতীয় পরিচয় পত্রের নং: <%# H(Eval("NID")) %></div></div>
+<div class="row"><div class="c1">৮। বর্তমান &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;গ্রাম : <span class="en"><%# H(Eval("Village")) %></span></div><div class="c2">ডাকঘর :<span class="en"><%# H(Eval("Post")) %></span></div></div>
+<div class="row"><div class="c1" style="padding-left:18.5mm">থানা / উপজেলা <span class="en">&nbsp;<%# H(Eval("Thana")) %></span></div><div class="c2" style="padding-left:4mm">জেলা :<span class="en"><%# H(Eval("District")) %></span></div></div>
+<div class="row"><div class="c1">৯। স্থায়ী &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;গ্রাম :<span class="en"><%# H(Eval("PVillage")) %></span></div><div class="c2">ডাকঘর :<span class="en"><%# H(Eval("PPost")) %></span></div></div>
+<div class="row"><div class="c1" style="padding-left:18.5mm">থানা / উপজেলা <span class="en">&nbsp;<%# H(Eval("PThana")) %></span></div><div class="c2" style="padding-left:4mm">জেলা :<span class="en"><%# H(Eval("PDistrict")) %></span></div></div>
 
 <div class="subject">বিষয়: চাকুরীর নিয়োগপত্র।</div>
 <p>জনাবা,</p>
-<p>আপনার <asp:Label ID="lblApplyDate" runat="server" Text="০৪/১০/২০২৫" /> ইং তারিখের আবেদনপত্র ও &nbsp;সাক্ষাতের পরিপ্রেক্ষিতে আপনাকে <asp:Label ID="lblJoinDate" runat="server" Text="০৪/১০/২০২৫" /> ইং তারিখ হইতে নিম্ন বর্ণিত শর্ত সাপেক্ষে অত্র প্রতিষ্ঠানে নিয়োগ দেওয়া হলো:</p>
+<p>আপনার <%# H(Eval("ApplyDate")) %> ইং তারিখের আবেদনপত্র ও &nbsp;সাক্ষাতের পরিপ্রেক্ষিতে আপনাকে <%# H(Eval("JoinDate")) %> ইং তারিখ হইতে নিম্ন বর্ণিত শর্ত সাপেক্ষে অত্র প্রতিষ্ঠানে নিয়োগ দেওয়া হলো:</p>
 
-<div class="pos"><div class="a"><b>১০। আপনার বর্তমান পদবী:</b> <span class="en">&nbsp;<asp:Label ID="lblDesignation" runat="server" Text="Jr.Operator" /></span></div><div class="b">বিভাগ: <span class="en"><asp:Label ID="lblDepartment" runat="server" Text="Sewing Operator" /></span></div><div class="c"><b>সেকশন:</b> <span class="en"><asp:Label ID="lblSection" runat="server" Text="Sewing Operator" /></span></div></div>
-<div class="pos" style="margin-top:0"><div class="a" style="padding-left:12mm"><b>আই ডি নং: <asp:Label ID="lblIDNo" runat="server" Text="৬৩" /></b></div><div class="b"><b>গ্রেড: <asp:Label ID="lblGrade" runat="server" Text="৩" /></b></div><div class="c">কাজের ধরণ: <asp:Label ID="lblWorkType" runat="server" Text="" /></div></div>
+<div class="pos"><div class="a"><b>১০। আপনার বর্তমান পদবী:</b> <span class="en">&nbsp;<%# H(Eval("Designation")) %></span></div><div class="b">বিভাগ: <span class="en"><%# H(Eval("Department")) %></span></div><div class="c"><b>সেকশন:</b> <span class="en"><%# H(Eval("Section")) %></span></div></div>
+<div class="pos" style="margin-top:0"><div class="a" style="padding-left:12mm"><b>আই ডি নং: <%# H(Eval("IdNo")) %></b></div><div class="b"><b>গ্রেড: <%# H(Eval("Grade")) %></b></div><div class="c">কাজের ধরণ: <%# H(Eval("WorkType")) %></div></div>
 
 <p class="tight">১১। আপনার বর্তমান মাসিক মজুরী হবে নিম্নরূপ:</p>
 <div class="wage"><div class="l"><table>
-<tr><td class="k">মূল মজুরি</td><td class="s">:</td><td class="v"><asp:Label ID="lblBasic" runat="server" Text="0" /> /= টাকা</td><td></td></tr>
-<tr><td class="k">বাড়ী ভাড়া</td><td class="s">:</td><td colspan="2"><asp:Label ID="lblHouse" runat="server" Text="0" /> /= টাকা (মূল মজুরীর <asp:Label ID="lblHousePct" runat="server" Text="৫০" />%)</td></tr>
-<tr><td class="k">খাদ্য ভাতা</td><td class="s">:</td><td class="v"><asp:Label ID="lblFood" runat="server" Text="0" />/= টাকা</td><td></td></tr>
-<tr><td class="k">যাতায়াত ভাতা</td><td class="s">:</td><td class="v"><asp:Label ID="lblTransport" runat="server" Text="0" />/= টাকা</td><td></td></tr>
-<tr><td class="k">চিকিৎসা ভাতা</td><td class="s">:</td><td class="v"><asp:Label ID="lblMedical" runat="server" Text="0" />/= টাকা</td><td></td></tr>
-<tr class="tot"><td class="k" style="border-top:1px solid #000;padding-top:0.3mm">সর্বমোট মজুরী</td><td class="s" style="padding-top:0.3mm">:</td><td class="v" style="padding-top:0.3mm"><asp:Label ID="lblTotal" runat="server" Text="0" /> /= টাকা</td><td></td></tr>
+<tr><td class="k">মূল মজুরি</td><td class="s">:</td><td class="v"><%# H(Eval("Basic")) %> /= টাকা</td><td></td></tr>
+<tr><td class="k">বাড়ী ভাড়া</td><td class="s">:</td><td colspan="2"><%# H(Eval("House")) %> /= টাকা (মূল মজুরীর <%# H(Eval("HousePct")) %>%)</td></tr>
+<tr><td class="k">খাদ্য ভাতা</td><td class="s">:</td><td class="v"><%# H(Eval("Food")) %>/= টাকা</td><td></td></tr>
+<tr><td class="k">যাতায়াত ভাতা</td><td class="s">:</td><td class="v"><%# H(Eval("Transport")) %>/= টাকা</td><td></td></tr>
+<tr><td class="k">চিকিৎসা ভাতা</td><td class="s">:</td><td class="v"><%# H(Eval("Medical")) %>/= টাকা</td><td></td></tr>
+<tr class="tot"><td class="k" style="border-top:1px solid #000;padding-top:0.3mm">সর্বমোট মজুরী</td><td class="s" style="padding-top:0.3mm">:</td><td class="v" style="padding-top:0.3mm"><%# H(Eval("Total")) %> /= টাকা</td><td></td></tr>
 </table></div>
-<div class="r"><p>* ওটি হার (প্রতি ঘন্টা): &nbsp;<asp:Label ID="lblOTRate" runat="server" Text="0" /> টাকা</p><p style="margin-top:1mm">* বাৎসরিক মজুরী বৃদ্ধি শ্রম আইন অনুযায়ী।</p></div></div>
+<div class="r"><p>* ওটি হার (প্রতি ঘন্টা): &nbsp;<%# H(Eval("OTRate")) %> টাকা</p><p style="margin-top:1mm">* বাৎসরিক মজুরী বৃদ্ধি শ্রম আইন অনুযায়ী।</p></div></div>
 
 <p class="tight">১২।</p>
 <div class="item">১৩। <u>চাকুরীর অবসান :</u> কোন শ্রমিক মাসিক মজুরীর ভিত্তিতে নিয়োজিত থাকা অবস্থায় চাকুরীর অবসান করিতে চাহিলে স্থায়ী শ্রমিক ৬০ (ষাট) দিনের নোটিশ, অস্থায়ী শ্রমিক ৩০ (ত্রিশ) দিনের নোটিস এবং অন্যান্য শ্রমিক ১৪ (চৌদ্দ) দিনের নোটিশ নিয়োগ কর্তাকে প্রদান করিবেন। যদি উক্ত শ্রমিক উপরোক্ত দিন পূর্বে নোটিশ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;দিতে ব্যর্থ হন তাহলে সংশ্লিষ্ট শ্রমিক নোটিশ মেয়াদের সমপরিমাণ মজুরীর অর্থ নিয়োগ কর্তাকে ফেরত দিতে বাধ্য থাকিবেন।</div>
@@ -97,7 +102,7 @@ p{margin:0}
 <div class="item">১৬। আহারের /বিশ্রামের বিরতি ১ ঘন্টা।</div>
 <div class="item">১৭। আপনি যদি কখনো কোনরূপ অসদাচরনের অপরাধে দোষী প্রমানিত হন তবে কর্তৃপক্ষ আপনার বিরুদ্ধে আইনগত শাস্তিমূলক ব্যবস্থা গ্রহণ করিতে পারবে।</div>
 <div class="item">১৮। আপনার চাকুরীতে যোগদানের বয়স ছয় (৬) মাস পূর্ণ হলে মোট বেতনের ১/৪ (চার ভাগের এক ভাগ) এবং ১ বছর পূর্ণ হলে মোট বেতনের ১/২ (অর্ধেক) হিসাবে উৎসব বোনাস প্রাপ্য হবেন। ১ বছর পূর্ণ হওয়া সাপেক্ষে প্রতি বছরে ২ (দুই) টি উৎসব বোনাস পাবেন।</div>
-<div class="item">১৯। আপনি যদি কারখানায় বলিম্ব ব্যতিরেখে সঠিক সময়ে উপস্থিতি হন, তাহলে হাজিরা বোনাস মাসিক <asp:Label ID="lblAttBonus" runat="server" Text="০" /> টাকা প্রাপ্য হবেন। অনুমোদিত ছুটি কাটালেও ইহা পাবেন।</div>
+<div class="item">১৯। আপনি যদি কারখানায় বলিম্ব ব্যতিরেখে সঠিক সময়ে উপস্থিতি হন, তাহলে হাজিরা বোনাস মাসিক <%# H(Eval("AttBonus")) %> টাকা প্রাপ্য হবেন। অনুমোদিত ছুটি কাটালেও ইহা পাবেন।</div>
 <div class="item">২০। কোম্পানীর প্রয়োজনে স্ব-মালিকানাধীন অন্য যে কোন কারখানায় বদলী করিতে পারিবে।</div>
 <div class="item">২১। আপনি আপনার ঠিকানা পরিবর্তন করিলে ৭ (সাত) দিনের মধ্যে অফিসকে লিখিত ভাবে জানাইতে হইবে।</div>
 <div class="item">২২। সর্বোপরি আপনার চাকুরীর যাবতীয় শর্তাবলী বিদ্যমান শ্রম আইন অনুযায়ী পরিচালিত হবে।</div>
@@ -107,6 +112,9 @@ p{margin:0}
 <div class="sig"><div>শ্রমিকের স্বাক্ষর</div><div>নিয়োগকারীর স্বাক্ষর</div></div>
 
 </div>
+</ItemTemplate>
+</asp:Repeater>
+
 </form>
 </body>
 </html>
