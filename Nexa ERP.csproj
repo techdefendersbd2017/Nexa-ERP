@@ -245,6 +245,7 @@
     <Content Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
@@ -516,6 +517,12 @@
     </Compile>
     <Compile Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx.designer.cs">
       <DependentUpon>RandomAbsentAttendance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx.cs">
+      <DependentUpon>ActiveEmployeeListLastIncrement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx.designer.cs">
+      <DependentUpon>ActiveEmployeeListLastIncrement.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListReport.aspx.cs">
       <DependentUpon>ActiveEmployeeListReport.aspx</DependentUpon>

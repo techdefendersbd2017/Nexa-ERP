@@ -8,11 +8,11 @@ using System.Text;
 using System.Web;
 using System.Web.UI;
 
-// ASPX এর Inherits="Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports.ActiveEmployeeListReport" এর সঙ্গে মিলতে হবে
+// ASPX এর Inherits="Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports.ActiveEmployeeListLastIncrement" এর সঙ্গে মিলতে হবে
 namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
 {
     // ---------- একটি সারির তথ্য (সব আগে থেকে ফরম্যাট করা) ----------
-    public class AelRow
+    public class AelliRow
     {
         public string Sl { get; set; }
         public string IdNo { get; set; }
@@ -22,32 +22,44 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
         public string Department { get; set; }
         public string Section { get; set; }
         public string Line { get; set; }
-        public string Gross { get; set; }      // 14,273
-        public string GrossRaw { get; set; }   // 14273 (Excel এর জন্য)
+        public string Gross { get; set; }          // 13,550.00
+        public string GrossRaw { get; set; }       // 13550.00 (Excel এর জন্য)
+        public string IncMonth { get; set; }       // Jan-2026
+        public string IncAmount { get; set; }      // 1,000
+        public string IncAmountRaw { get; set; }   // 1000 (Excel এর জন্য)
+        public string Remarks { get; set; }
         public string GroupHead { get; set; }      // গ্রুপের প্রথম সারিতে ডিপার্টমেন্টের নাম, বাকিতে খালি
     }
 
-    public partial class ActiveEmployeeListReport : Page
+    public partial class ActiveEmployeeListLastIncrement : Page
     {
         PayrollDB conn = new PayrollDB();
         static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-        const string ReportTitle = "Active Employee List";
+        const string ReportTitle = "Active Employee List with Last Increment";
 
         // HRMReports এর ResolveReport এ এই রিপোর্টের formCode এর সঙ্গে মিলতে হবে
+        // (নতুন রিপোর্টের জন্য আলাদা কোড দিলে এখানে সেই কোড বসান)
         const int ReportFormCode = 7;
 
         // z_Test_ID এর সঙ্গে JOIN: শুধু HRMReports এ টিক দেওয়া কর্মচারীরা আসে।
-        // Nominee / Photo টেবিলে INNER JOIN নেই, তাই একই কর্মচারী একাধিকবার আসে না
-        // এবং ছবি/নমিনি না থাকলেও কেউ বাদ পড়ে না।
+        // Last Increment টেবিলে একই কর্মচারীর একাধিক রো থাকলেও ROW_NUMBER() দিয়ে শুধু সর্বশেষটি নেওয়া হয়,
+        // এবং LEFT JOIN, তাই ইনক্রিমেন্ট না থাকলেও কেউ বাদ পড়ে না।
+        // ডিপার্টমেন্ট অনুযায়ী গ্রুপ করার জন্য Department দিয়ে sort করা।
         const string Sql = @"
 SELECT e.ID_no, e.Name, e.Designation, e.Joining_Date, e.Department, e.Section, e.Line,
-       e.Company_Name, sal.Gross_Salary
+       e.Company_Name, sal.Gross_Salary,
+       li.Last_Increment_Month, li.Last_Increment_Amount
 FROM dbo.Employee_information_new e
 INNER JOIN dbo.z_Test_ID z ON e.ID_no = z.ID_No
 LEFT JOIN dbo.Employee_Salary_information_new sal ON e.ID_no = sal.ID_no
+LEFT JOIN (
+    SELECT ID_no, Last_Increment_Month, Last_Increment_Amount,
+           ROW_NUMBER() OVER (PARTITION BY ID_no ORDER BY Last_Increment_Month DESC) AS rn
+    FROM dbo.Employee_Information_Last_Increment
+) li ON e.ID_no = li.ID_no AND li.rn = 1
 WHERE z.User_ID = @u AND z.From_Code = @f
-ORDER BY e.ID_no";
+ORDER BY e.Department, e.ID_no";
 
         const string LogoSql = @"
 SELECT TOP 1 c.Company_Logo
@@ -77,17 +89,17 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
         {
             if (IsPostBack) return;
 
-            List<AelRow> rows = LoadForPage();
+            List<AelliRow> rows = LoadForPage();
             if (rows == null) return;
 
-            lblCompany.Text = HttpUtility.HtmlEncode(company);
-            litLogo.Text = LogoHtml();
+            Label1.Text = HttpUtility.HtmlEncode(company);
+            Literal1.Text = LogoHtml();
             rptRows.DataSource = rows;
             rptRows.DataBind();
         }
 
         // রো লোড করে; সমস্যা হলে বার্তা দেখিয়ে null ফেরত দেয়
-        List<AelRow> LoadForPage()
+        List<AelliRow> LoadForPage()
         {
             if (UserCode == 0)
             {
@@ -97,7 +109,7 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
 
             try
             {
-                List<AelRow> rows = LoadRows(UserCode, FromCode);
+                List<AelliRow> rows = LoadRows(UserCode, FromCode);
                 if (rows.Count == 0)
                 {
                     int saved = CountSaved(UserCode, FromCode);
@@ -145,23 +157,23 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
         // ================= ডাউনলোড বাটন =================
         protected void btnPdf_Click(object sender, EventArgs e)
         {
-            List<AelRow> rows = LoadForPage();
+            List<AelliRow> rows = LoadForPage();
             if (rows == null) return;
-            Send(AelExport.Pdf(rows, company, ReportTitle), "application/pdf", "ActiveEmployeeList.pdf");
+            Send(AelliExport.Pdf(rows, company, ReportTitle), "application/pdf", "ActiveEmployeeListWithLastIncrement.pdf");
         }
 
         protected void btnWord_Click(object sender, EventArgs e)
         {
-            List<AelRow> rows = LoadForPage();
+            List<AelliRow> rows = LoadForPage();
             if (rows == null) return;
-            Send(Utf8Bom(AelExport.WordHtml(rows, company, ReportTitle)), "application/msword", "ActiveEmployeeList.doc");
+            Send(Utf8Bom(AelliExport.WordHtml(rows, company, ReportTitle)), "application/msword", "ActiveEmployeeListWithLastIncrement.doc");
         }
 
         protected void btnExcel_Click(object sender, EventArgs e)
         {
-            List<AelRow> rows = LoadForPage();
+            List<AelliRow> rows = LoadForPage();
             if (rows == null) return;
-            Send(Utf8Bom(AelExport.ExcelHtml(rows, company, ReportTitle)), "application/vnd.ms-excel", "ActiveEmployeeList.xls");
+            Send(Utf8Bom(AelliExport.ExcelHtml(rows, company, ReportTitle)), "application/vnd.ms-excel", "ActiveEmployeeListWithLastIncrement.xls");
         }
 
         static byte[] Utf8Bom(string html)
@@ -194,7 +206,7 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
         }
 
         // ================= ডাটা লোড =================
-        List<AelRow> LoadRows(long user, long from)
+        List<AelliRow> LoadRows(long user, long from)
         {
             var dt = new DataTable();
             using (SqlConnection con = conn.openConnection())
@@ -208,8 +220,11 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                 }
             }
 
-            var list = new List<AelRow>();
+            var list = new List<AelliRow>();
             var seen = new HashSet<string>();
+            string prevDept = null;
+            int sl = 0;
+
             foreach (DataRow r in dt.Rows)
             {
                 string id = S(r, "ID_no");
@@ -217,21 +232,34 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
 
                 if (company.Length == 0) company = S(r, "Company_Name");
 
+                // ডিপার্টমেন্ট গ্রুপ: নতুন ডিপার্টমেন্ট এলে Sl আবার ১ থেকে
+                string dept = S(r, "Department");
+                string grp = dept.Length == 0 ? "N/A" : dept;
+                bool isNew = (prevDept == null || grp != prevDept);
+                if (isNew) { sl = 0; prevDept = grp; }
+                sl++;
+
                 decimal gross = Dec(r["Gross_Salary"]);
+                decimal inc = Dec(r["Last_Increment_Amount"]);
                 string line = S(r, "Line");
-                list.Add(new AelRow
+
+                list.Add(new AelliRow
                 {
-                    Sl = (list.Count + 1).ToString(Inv),
+                    Sl = sl.ToString(Inv),
                     IdNo = id,
                     Name = S(r, "Name"),
                     Designation = S(r, "Designation"),
                     JoinDate = FmtDate(r["Joining_Date"]),
-                    Department = S(r, "Department"),
+                    Department = dept,
                     Section = S(r, "Section"),
                     Line = line.Length == 0 ? "--" : line,
-                    Gross = Math.Round(gross, MidpointRounding.AwayFromZero).ToString("#,##0", Inv),
-                    GrossRaw = Math.Round(gross, MidpointRounding.AwayFromZero).ToString("0", Inv),
-                    //GroupHead = isNew ? grp : ""
+                    Gross = gross.ToString("#,##0.00", Inv),
+                    GrossRaw = gross.ToString("0.00", Inv),
+                    IncMonth = FmtMonth(r["Last_Increment_Month"]),
+                    IncAmount = inc.ToString("#,##0.##", Inv),
+                    IncAmountRaw = inc.ToString("0.##", Inv),
+                    Remarks = S(r, "Company_Name"),
+                    GroupHead = isNew ? grp : ""
                 });
             }
             return list;
@@ -284,77 +312,108 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
             else if (!DateTime.TryParse(Convert.ToString(o), out dt)) return "";
             return dt.ToString("dd-MMM-yyyy", Inv);   // 01-Apr-2026
         }
+
+        // Last_Increment_Month তারিখ হলে Jan-2026; text হলে যেমন আছে তেমন
+        static string FmtMonth(object o)
+        {
+            DateTime dt;
+            if (o == null || o == DBNull.Value) return "";
+            if (o is DateTime) return ((DateTime)o).ToString("MMM-yyyy", Inv);
+            string s = Convert.ToString(o).Trim();
+            if (s.Length == 0) return "";
+            if (DateTime.TryParse(s, out dt)) return dt.ToString("MMM-yyyy", Inv);
+            return s;
+        }
     }
 
     // =====================================================================
     //  এক্সপোর্ট: PDF (হাতে তৈরি, কোনো লাইব্রেরি লাগে না), Word ও Excel (HTML ভিত্তিক)
     // =====================================================================
-    public static class AelExport
+    public static class AelliExport
     {
         static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-        static readonly string[] Head = { "Sl", "ID No", "Name", "Designation", "Joining Date", "Department", "Section", "Line", "Gross Salary" };
-        // 0 = বাম, 1 = মাঝ, 2 = ডান
-        static readonly int[] Align = { 1, 2, 0, 0, 0, 0, 0, 0, 2 };
+        // '|' = লাইন ভাঙার জায়গা
+        static readonly string[] Head = {
+            "Sl No", "ID No", "Name", "Designation", "Joining Date", "Department", "Section", "Line",
+            "Gross|Salary", "Last|Increment|Month", "Last|Increment|Amount", "Remarks" };
 
-        static string[] Cells(AelRow r)
+        // 0 = বাম, 1 = মাঝ, 2 = ডান
+        static readonly int[] Align = { 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 2, 0 };
+
+        // কলামের প্রস্থ (%): PDF ডিজাইন অনুযায়ী
+        static readonly double[] Pct = { 4.2, 5.2, 11.6, 11.3, 9.4, 13.3, 9.9, 5.7, 6, 5.7, 5.8, 11.9 };
+
+        const int Cols = 12;
+
+        static string[] Cells(AelliRow r)
         {
-            return new[] { r.Sl, r.IdNo, r.Name, r.Designation, r.JoinDate, r.Department, r.Section, r.Line, r.Gross };
+            return new[] { r.Sl, r.IdNo, r.Name, r.Designation, r.JoinDate, r.Department,
+                           r.Section, r.Line, r.Gross, r.IncMonth, r.IncAmount, r.Remarks };
         }
 
         // ------------------------- Word -------------------------
-        public static string WordHtml(List<AelRow> rows, string company, string title)
+        public static string WordHtml(List<AelliRow> rows, string company, string title)
         {
             var sb = new StringBuilder();
             sb.Append("<html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" xmlns=\"http://www.w3.org/TR/REC-html40\">");
             sb.Append("<head><meta charset=\"utf-8\"><title>").Append(Enc(title)).Append("</title>");
             sb.Append("<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->");
             sb.Append("<style>");
-            sb.Append("@page Section1{size:595.3pt 841.9pt;margin:36pt 36pt 36pt 36pt}");
+            sb.Append("@page Section1{size:841.9pt 595.3pt;mso-page-orientation:landscape;margin:28pt 28pt 28pt 28pt}");
             sb.Append("div.Section1{page:Section1}");
-            sb.Append("body{font-family:Arial,Helvetica,sans-serif;font-size:8pt}");
+            sb.Append("body{font-family:Calibri,Arial,Helvetica,sans-serif;font-size:8.5pt}");
             sb.Append("p{margin:0}");
             sb.Append("table.t{border-collapse:collapse;width:100%}");
-            sb.Append("table.t td,table.t th{border:1px solid #000;padding:2pt 3pt;font-size:8pt;vertical-align:top;font-family:Arial,Helvetica,sans-serif}");
+            sb.Append("table.t td,table.t th{border:1px solid #000;padding:2pt 3pt;font-size:8.5pt;vertical-align:middle}");
             sb.Append("table.t th{font-weight:normal;text-align:center}");
             sb.Append("</style></head><body><div class=\"Section1\">");
-            sb.Append("<p style=\"text-align:center;font-size:14pt;font-weight:bold\">").Append(Enc(company)).Append("</p>");
-            sb.Append("<p style=\"text-align:center;font-size:9pt;border-bottom:1px solid #000;padding-bottom:3pt;margin-bottom:6pt\">").Append(Enc(title)).Append("</p>");
+            sb.Append("<p style=\"text-align:center;font-size:16pt;font-weight:bold;font-family:Arial\">").Append(Enc(company)).Append("</p>");
+            sb.Append("<p style=\"text-align:center;font-size:8.5pt;font-weight:bold;font-family:Arial;border-bottom:1px solid #000;padding-bottom:3pt;margin-bottom:6pt\">").Append(Enc(title)).Append("</p>");
             sb.Append(DataTable(rows, false));
             sb.Append("</div></body></html>");
             return sb.ToString();
         }
 
         // ------------------------- Excel -------------------------
-        public static string ExcelHtml(List<AelRow> rows, string company, string title)
+        public static string ExcelHtml(List<AelliRow> rows, string company, string title)
         {
             var sb = new StringBuilder();
             sb.Append("<html xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:x=\"urn:schemas-microsoft-com:office:excel\" xmlns=\"http://www.w3.org/TR/REC-html40\">");
             sb.Append("<head><meta charset=\"utf-8\">");
-            sb.Append("<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>").Append(Enc(title));
+            sb.Append("<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Active Employee List");
             sb.Append("</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->");
-            sb.Append("<style>td,th{font-family:Arial,Helvetica,sans-serif;font-size:10pt;vertical-align:top}</style></head><body>");
+            sb.Append("<style>td,th{font-family:Arial,Helvetica,sans-serif;font-size:10pt;vertical-align:middle}</style></head><body>");
             sb.Append("<table border=\"0\">");
-            sb.Append("<tr><td colspan=\"9\" style=\"text-align:center;font-size:14pt;font-weight:bold\">").Append(Enc(company)).Append("</td></tr>");
-            sb.Append("<tr><td colspan=\"9\" style=\"text-align:center;font-size:11pt\">").Append(Enc(title)).Append("</td></tr>");
+            sb.Append("<tr><td colspan=\"" + Cols + "\" style=\"text-align:center;font-size:14pt;font-weight:bold\">").Append(Enc(company)).Append("</td></tr>");
+            sb.Append("<tr><td colspan=\"" + Cols + "\" style=\"text-align:center;font-size:11pt;font-weight:bold\">").Append(Enc(title)).Append("</td></tr>");
             sb.Append("</table>");
             sb.Append(DataTable(rows, true));
             sb.Append("</body></html>");
             return sb.ToString();
         }
 
-        static string DataTable(List<AelRow> rows, bool excel)
+        static string DataTable(List<AelliRow> rows, bool excel)
         {
-            double[] pct = { 5, 7, 19, 14, 12, 15, 12, 5, 11 };
             var sb = new StringBuilder();
             sb.Append("<table class=\"t\" border=\"1\" cellspacing=\"0\" cellpadding=\"3\" style=\"border-collapse:collapse;width:100%\">");
             sb.Append("<tr>");
             for (int i = 0; i < Head.Length; i++)
-                sb.Append("<th style=\"width:").Append(pct[i].ToString("0", Inv)).Append("%;border:1px solid #000;text-align:center;font-weight:normal\">").Append(Enc(Head[i])).Append("</th>");
+            {
+                string h = excel ? Enc(Head[i]).Replace("|", " ") : Enc(Head[i]).Replace("|", "<br />");
+                sb.Append("<th style=\"width:").Append(Pct[i].ToString("0.#", Inv)).Append("%;border:1px solid #000;text-align:center;font-weight:normal\">").Append(h).Append("</th>");
+            }
             sb.Append("</tr>");
 
-            foreach (AelRow r in rows)
+            foreach (AelliRow r in rows)
             {
+                // ডিপার্টমেন্ট গ্রুপ হেডার সারি
+                if (r.GroupHead.Length > 0)
+                {
+                    sb.Append("<tr><td colspan=\"" + Cols + "\" style=\"border:1px solid #000;font-weight:bold;background:#e9e9e9;text-align:left\">Department : ")
+                      .Append(Enc(r.GroupHead)).Append("</td></tr>");
+                }
+
                 string[] c = Cells(r);
                 sb.Append("<tr>");
                 for (int i = 0; i < c.Length; i++)
@@ -364,8 +423,9 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                     string val = Enc(c[i]);
                     if (excel)
                     {
-                        if (i == 8) { val = Enc(r.GrossRaw); extra = ";mso-number-format:'\\#\\,\\#\\#0'"; }
-                        else if (i == 1 || i == 0) extra = ";mso-number-format:'0'";
+                        if (i == 8) { val = Enc(r.GrossRaw); extra = ";mso-number-format:'\\#\\,\\#\\#0\\.00'"; }
+                        else if (i == 10) { val = Enc(r.IncAmountRaw); extra = ";mso-number-format:'\\#\\,\\#\\#0'"; }
+                        else if (i == 0 || i == 1) extra = ";mso-number-format:'0'";
                         else extra = ";mso-number-format:'\\@'";
                     }
                     sb.Append("<td style=\"border:1px solid #000;text-align:").Append(al).Append(extra).Append("\">").Append(val).Append("</td>");
@@ -463,22 +523,31 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
 
         class Prep
         {
+            public bool IsGroup;
+            public string GroupText;
             public List<string>[] Cells;
             public double H;
         }
 
-        public static byte[] Pdf(List<AelRow> rows, string company, string title)
+        public static byte[] Pdf(List<AelliRow> rows, string company, string title)
         {
-            const double W = 595.28, Ht = 841.89, M = 36;
-            double[] cw = { 28, 38, 100, 72, 64, 78, 60, 28, 55 };
-            const double fs = 8, lineH = 10, padV = 3, padH = 3, headH = 18, tableTop = M + 42;
+            // A4 Landscape
+            const double W = 841.89, Ht = 595.28, M = 28;
+            const double fs = 8, lineH = 10, padV = 3, padH = 3, minRowH = 22, headH = 36, grpH = 16, tableTop = M + 42;
+
+            double usable = W - 2 * M;
+            double[] cw = new double[Cols];
+            for (int i = 0; i < Cols; i++) cw[i] = Pct[i] * usable / 100.0;
 
             company = Ascii(company); title = Ascii(title);
 
             // ১) প্রতিটি সারির উচ্চতা হিসাব (শব্দ ভেঙে একাধিক লাইন হতে পারে)
             var preps = new List<Prep>();
-            foreach (AelRow r in rows)
+            foreach (AelliRow r in rows)
             {
+                if (r.GroupHead.Length > 0)
+                    preps.Add(new Prep { IsGroup = true, GroupText = "Department : " + Ascii(r.GroupHead), H = grpH });
+
                 string[] c = Cells(r);
                 var p = new Prep { Cells = new List<string>[c.Length] };
                 int maxLines = 1;
@@ -487,17 +556,21 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                     p.Cells[i] = Wrap(c[i], cw[i] - 2 * padH, fs);
                     if (p.Cells[i].Count > maxLines) maxLines = p.Cells[i].Count;
                 }
-                p.H = maxLines * lineH + 2 * padV;
+                p.H = Math.Max(minRowH, maxLines * lineH + 2 * padV);
                 preps.Add(p);
             }
 
-            // ২) পাতায় ভাগ করা
+            // ২) পাতায় ভাগ করা (গ্রুপ হেডার একা পাতার শেষে পড়বে না)
             var pages = new List<List<Prep>>();
             var curPage = new List<Prep>();
             double used = tableTop + headH;
-            foreach (Prep p in preps)
+            for (int i = 0; i < preps.Count; i++)
             {
-                if (used + p.H > Ht - M && curPage.Count > 0)
+                Prep p = preps[i];
+                double need = p.H;
+                if (p.IsGroup && i + 1 < preps.Count) need += preps[i + 1].H;
+
+                if (used + need > Ht - M && curPage.Count > 0)
                 {
                     pages.Add(curPage);
                     curPage = new List<Prep>();
@@ -515,25 +588,27 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                 var cs = new StringBuilder();
                 cs.Append("0 G 0 g 0.5 w\n");
 
-                double titleFs = 14;
-                while (titleFs > 9 && Tw(company, titleFs, true) > W - 2 * M - 80) titleFs -= 0.5;
+                double titleFs = 16;
+                while (titleFs > 9 && Tw(company, titleFs, true) > W - 2 * M - 160) titleFs -= 0.5;
                 Text(cs, "F2", titleFs, (W - Tw(company, titleFs, true)) / 2, Ht - (M + 14), company);
 
                 string pageTxt = "Page " + (pg + 1) + " of " + pages.Count;
                 Text(cs, "F1", 8, W - M - Tw(pageTxt, 8, false), Ht - (M + 10), pageTxt);
-                Text(cs, "F1", 9, (W - Tw(title, 9, false)) / 2, Ht - (M + 30), title);
+                Text(cs, "F2", 9, (W - Tw(title, 9, true)) / 2, Ht - (M + 30), title);
 
-                cs.Append("1 w ").Append(F(M)).Append(' ').Append(F(Ht - (M + 36))).Append(" m ")
+                cs.Append("1.2 w ").Append(F(M)).Append(' ').Append(F(Ht - (M + 36))).Append(" m ")
                   .Append(F(W - M)).Append(' ').Append(F(Ht - (M + 36))).Append(" l S 0.5 w\n");
 
-                // হেডার সারি
+                // হেডার সারি (প্রতি পাতায়)
                 double x = M, top = tableTop;
-                for (int i = 0; i < cw.Length; i++)
+                for (int i = 0; i < Cols; i++)
                 {
                     cs.Append(F(x)).Append(' ').Append(F(Ht - (top + headH))).Append(' ')
                       .Append(F(cw[i])).Append(' ').Append(F(headH)).Append(" re S\n");
-                    string h = Head[i];
-                    Text(cs, "F1", fs, x + (cw[i] - Tw(h, fs, false)) / 2, Ht - (top + headH / 2 + 3), h);
+                    string[] hl = Head[i].Split('|');
+                    double start = (headH - hl.Length * lineH) / 2;
+                    for (int ln = 0; ln < hl.Length; ln++)
+                        Text(cs, "F1", fs, x + (cw[i] - Tw(hl[ln], fs, false)) / 2, Ht - (top + start + ln * lineH + 8), hl[ln]);
                     x += cw[i];
                 }
                 top += headH;
@@ -541,18 +616,32 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                 // ডাটা সারি
                 foreach (Prep p in pages[pg])
                 {
+                    if (p.IsGroup)
+                    {
+                        // ডিপার্টমেন্ট গ্রুপ হেডার: ধূসর ব্যাকগ্রাউন্ড + বোল্ড লেখা
+                        cs.Append("0.91 g ").Append(F(M)).Append(' ').Append(F(Ht - (top + p.H))).Append(' ')
+                          .Append(F(usable)).Append(' ').Append(F(p.H)).Append(" re f 0 g\n");
+                        cs.Append(F(M)).Append(' ').Append(F(Ht - (top + p.H))).Append(' ')
+                          .Append(F(usable)).Append(' ').Append(F(p.H)).Append(" re S\n");
+                        Text(cs, "F2", 9, M + 4, Ht - (top + 11.5), p.GroupText);
+                        top += p.H;
+                        continue;
+                    }
+
                     x = M;
-                    for (int i = 0; i < cw.Length; i++)
+                    for (int i = 0; i < Cols; i++)
                     {
                         cs.Append(F(x)).Append(' ').Append(F(Ht - (top + p.H))).Append(' ')
                           .Append(F(cw[i])).Append(' ').Append(F(p.H)).Append(" re S\n");
-                        for (int ln = 0; ln < p.Cells[i].Count; ln++)
+                        int n = p.Cells[i].Count;
+                        double start = (p.H - n * lineH) / 2;
+                        for (int ln = 0; ln < n; ln++)
                         {
                             string t = p.Cells[i][ln];
                             double tx = x + padH;
                             if (Align[i] == 1) tx = x + (cw[i] - Tw(t, fs, false)) / 2;
                             else if (Align[i] == 2) tx = x + cw[i] - padH - Tw(t, fs, false);
-                            Text(cs, "F1", fs, tx, Ht - (top + padV + 8 + ln * lineH), t);
+                            Text(cs, "F1", fs, tx, Ht - (top + start + ln * lineH + 8), t);
                         }
                         x += cw[i];
                     }

@@ -79,6 +79,11 @@ table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}
         <tbody>
             <asp:Repeater ID="rptRows" runat="server">
                 <ItemTemplate>
+                    <asp:PlaceHolder runat="server" Visible='<%# Convert.ToString(Eval("GroupHead")) != "" %>'>
+                        <tr class="grpRow">
+                            <td class="grp" colspan="8">Department : <%# H(Eval("GroupHead")) %></td>
+                        </tr>
+                    </asp:PlaceHolder>
                     <tr>
                         <td class="c"><%# H(Eval("Sl")) %></td>
                         <td class="r"><%# H(Eval("IdNo")) %></td>

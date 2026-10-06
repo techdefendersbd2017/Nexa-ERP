@@ -199,8 +199,8 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                     if (con.State != ConnectionState.Open) con.Open();
 
                     using (var cmd = new SqlCommand(
-                        "SELECT Report_Code, Report_Name FROM View_User_Access_Reports " +
-                        "WHERE Menu=1  AND user_id=1 ORDER BY Report_Name ASC", con))// AND user_id=@uid
+                        "SELECT Report_Code, Report_Name FROM Soft_Reports " +
+                        "WHERE Menu=1   ORDER BY Report_Name ASC", con))// AND user_id=@uid
                     {
                         cmd.Parameters.Add("@uid", SqlDbType.NVarChar, 50).Value = UserCode.ToString();
 
@@ -318,12 +318,12 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         {
             page = null; formCode = 0; needIds = true;
 
-            if (name == "Active Employee List")
+            if (name == "Active Employee  List")
             { page = "HRReports/ActiveEmployeeListReport.aspx"; formCode = 7; needIds = true; }  // ActiveEmployeeListReport.aspx.cs এর ReportFormCode এর সঙ্গে মিলতে হবে
             else if (name == "Appointment Latter")
             { page = "HRReports/AppointmentLetter.aspx"; formCode = 2; needIds = true; }       // WinForms: From_Code=2
-            else if (name == "Department Wise Summary")
-            { page = "HRReports/DepartmentSummary.aspx"; formCode = 3; needIds = false; }      // TODO
+            else if (name == "Active Employee List with Last Increment")
+            { page = "HRReports/ActiveEmployeeListLastIncrement.aspx"; formCode = 3; needIds = true; }      // TODO
             else if (name == "Designation Roster")
             { page = "HRReports/DesignationRoster.aspx"; formCode = 4; needIds = true; }       // TODO
             else if (name == "Blood Group Directory")

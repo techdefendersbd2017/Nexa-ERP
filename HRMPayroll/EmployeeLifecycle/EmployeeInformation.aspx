@@ -395,7 +395,6 @@
                     <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab4">Address Information</button></li>
                     <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab5">Nominee Information</button></li>
                     <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab6">Job Experience</button></li>
-                    <li class="nav-item"><button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab7">Reference</button></li>
                 </ul>
 
                 <!-- 3. TAB CONTENT -->
@@ -514,6 +513,18 @@
                                         <div class="form-row-custom">
                                             <label>Taxable Gross Salary</label>
                                             <asp:TextBox ID="txtTaxableGrossSalary" runat="server" TextMode="Number"
+                                                CssClass="form-control form-control-sm w-100" />
+                                        </div>
+
+                                        <div class="form-row-custom">
+                                            <label>Joining Gross Salary</label>
+                                            <asp:TextBox ID="txtJoiningGross" runat="server" TextMode="Number"
+                                                CssClass="form-control form-control-sm w-100" />
+                                        </div>
+
+                                        <div class="form-row-custom">
+                                            <label>Compliance Salary</label>
+                                            <asp:TextBox ID="txtNonComplianceGross" runat="server" TextMode="Number"
                                                 CssClass="form-control form-control-sm w-100" />
                                         </div>
 
@@ -774,46 +785,21 @@
                             <div class="col-md-7 border-end">
                                 <div class="form-row-custom"><label>Factory Name</label><asp:TextBox ID="txtFactoryName" runat="server" CssClass="form-control form-control-sm w-100" /></div>
                                 <div class="form-row-custom"><label>Address</label><asp:TextBox ID="txtFactoryAddress" runat="server" TextMode="MultiLine" Rows="2" CssClass="form-control form-control-sm w-100" /></div>
+                                <div class="form-row-custom"><label>Factory Name Bangla</label><asp:TextBox ID="txtFactoryNameBangla" runat="server" CssClass="form-control form-control-sm w-100" /></div>
+                                <div class="form-row-custom"><label>Address Bangla</label><asp:TextBox ID="txtFactoryAddressBangla" runat="server" TextMode="MultiLine" Rows="2" CssClass="form-control form-control-sm w-100" /></div>
                             </div>
                             <div class="col-md-5 ps-4">
-                                <div class="form-row-custom"><label>Total Experience</label><asp:TextBox ID="txtTotalExpYear" Width="40px" runat="server" /> Year <asp:TextBox ID="txtTotalExpMonth" Width="40px" runat="server" CssClass="ms-2" /> Month</div>
-                                <div class="form-check mb-2"> <asp:CheckBox ID="chkUseExpDate" runat="server" /><label for="chkUseExpDate"> If you use Experience From & Till Date</label></div>
-                                <div class="form-row-custom"><label>From Date</label><asp:TextBox ID="txtExpFromDate" runat="server" CssClass="form-control form-control-sm" Width="150px" /></div>
-                                <div class="form-row-custom"><label>Till Date</label><asp:TextBox ID="txtExpTillDate" runat="server" CssClass="form-control form-control-sm" Width="150px" /></div>
+                                <div class="form-row-custom"><label>Total Experience</label><asp:TextBox ID="txtTotalExpYear" Width="40px" runat="server" /> Year </div>
                             </div>
                         </div>
 
                         <!-- Page Navigation -->
                         <div class="tab-nav-btns">
                             <button type="button" class="btn-nav" data-goto="#tab5"><i class="bi bi-chevron-left"></i> Previous Page</button>
-                            <button type="button" class="btn-nav" data-goto="#tab7">Next Page <i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
 
-                    <div class="tab-pane fade" id="tab7">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-row-custom">
-                                    <label>Ref. Employee ID</label>
-                                    <div class="input-group input-group-sm">
-                                        <asp:TextBox ID="txtRefEmpID" runat="server" CssClass="form-control" />
-                                        <asp:Button runat="server" Text="Search" CssClass="btn btn-search-dark" />
-                                    </div>
-                                </div>
-                                <div class="form-row-custom"><label>Name</label><asp:TextBox ID="txtRefName" runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Designation</label><asp:TextBox ID="txtRefDesignation" runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Company</label><asp:TextBox ID="txtRefCompany" runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Email</label><asp:TextBox ID="txtRefEmail" runat="server" CssClass="form-control form-control-sm" /></div>
-                                <div class="form-row-custom"><label>Phone</label><asp:TextBox ID="txtRefPhone" runat="server" CssClass="form-control form-control-sm" /></div>
-                            </div>
-                        </div>
 
-                        <!-- Page Navigation -->
-                        <div class="tab-nav-btns">
-                            <button type="button" class="btn-nav" data-goto="#tab6"><i class="bi bi-chevron-left"></i> Previous Page</button>
-                            <span class="btn-nav btn-nav-spacer">Next Page <i class="bi bi-chevron-right"></i></span>
-                        </div>
-                    </div>
 
                     
                 </div>

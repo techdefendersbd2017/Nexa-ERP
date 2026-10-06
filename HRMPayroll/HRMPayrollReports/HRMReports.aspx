@@ -217,16 +217,18 @@ const NO_ID_REPORTS = ['Department Wise Summary'];   // যেগুলোতে
 function onReportClick() {
     collectIds();
     const f = document.forms[0];
-    const rt = (document.getElementById('ddRType').value || '').trim();
+    const dd = document.getElementById('ddRType');
+    // Value এখন Report_Code, তাই নাম নিতে হয় নির্বাচিত option এর Text থেকে
+    const rt = (dd.selectedIndex >= 0 ? dd.options[dd.selectedIndex].text : '').trim();
 
-    if (TAB_REPORTS.indexOf(rt) < 0) { f.target = ''; return true; }   // সাধারণ তালিকা: এই পেজেই
-
-    if (NO_ID_REPORTS.indexOf(rt) < 0 && !document.getElementById('hfSelIds').value) {
+    // তালিকাভুক্ত রিপোর্টে (যেগুলোতে কর্মচারী লাগে) কমপক্ষে একজন নির্বাচন বাধ্যতামূলক
+    if (TAB_REPORTS.indexOf(rt) >= 0 && NO_ID_REPORTS.indexOf(rt) < 0 &&
+        !document.getElementById('hfSelIds').value) {
         showNotification('কমপক্ষে একজন কর্মচারী নির্বাচন করুন।');
         return false;
     }
-    f.target = '_blank';                                   // নতুন ট্যাবে সাবমিট
-    setTimeout(function () { f.target = ''; }, 1000);      // অন্য বাটনের জন্য আগের অবস্থায় ফেরত
+    f.target = '_blank';                                   // Report View সবসময় নতুন ট্যাবে
+    setTimeout(function () { f.target = ''; }, 1000);      // Show/Clear এর জন্য আগের অবস্থায় ফেরত
     return true;
 }
 
