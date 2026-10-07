@@ -54,8 +54,8 @@ table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}
 
     <table class="t">
         <colgroup>
-            <col style="width:5%" /><col style="width:7%" /><col style="width:19%" /><col style="width:14%" />
-            <col style="width:12%" /><col style="width:15%" /><col style="width:12%" /><col style="width:5%" /><col style="width:11%" />
+            <col style="width:5%" /><col style="width:7%" /><col style="width:15%" /><col style="width:15%" />
+            <col style="width:10%" /><col style="width:15%" /><col style="width:12%" /><col style="width:10%" /><col style="width:11%" />
         </colgroup>
 
         <thead>
@@ -72,18 +72,14 @@ table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}
             <!-- কলাম হেডারও প্রতি পেজে repeat হবে -->
             <tr>
                 <th>Sl</th><th>ID No</th><th>Name</th><th>Designation</th><th>Joining Date</th>
-                <th>Department</th><th>Section</th><th>Line</th><th>Gross Salary</th>
+                <th>Department</th><th>Section</th><th>Gross Salary</th><th>Remarks</th>
             </tr>
         </thead>
 
         <tbody>
             <asp:Repeater ID="rptRows" runat="server">
                 <ItemTemplate>
-                    <asp:PlaceHolder runat="server" Visible='<%# Convert.ToString(Eval("GroupHead")) != "" %>'>
-                        <tr class="grpRow">
-                            <td class="grp" colspan="8">Department : <%# H(Eval("GroupHead")) %></td>
-                        </tr>
-                    </asp:PlaceHolder>
+
                     <tr>
                         <td class="c"><%# H(Eval("Sl")) %></td>
                         <td class="r"><%# H(Eval("IdNo")) %></td>
@@ -92,8 +88,8 @@ table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}
                         <td><%# H(Eval("JoinDate")) %></td>
                         <td><%# H(Eval("Department")) %></td>
                         <td><%# H(Eval("Section")) %></td>
-                        <td><%# H(Eval("Line")) %></td>
                         <td class="r"><%# H(Eval("Gross")) %></td>
+                        <td></td>
                     </tr>
                 </ItemTemplate>
             </asp:Repeater>

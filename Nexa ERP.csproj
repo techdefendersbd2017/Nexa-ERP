@@ -248,6 +248,7 @@
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
     <Content Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
@@ -526,16 +527,25 @@
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListReport.aspx.cs">
       <DependentUpon>ActiveEmployeeListReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListReport.aspx.designer.cs">
       <DependentUpon>ActiveEmployeeListReport.aspx</DependentUpon>
     </Compile>
+    <Compile Include="ExportClass\AelExport.cs" />
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx.cs">
       <DependentUpon>AppointmentLetter.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx.designer.cs">
       <DependentUpon>AppointmentLetter.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx.cs">
+      <DependentUpon>JoiningLatter.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx.designer.cs">
+      <DependentUpon>JoiningLatter.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx.cs">
       <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>

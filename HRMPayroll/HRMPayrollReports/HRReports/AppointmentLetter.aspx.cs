@@ -19,24 +19,29 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
         // ---------- প্রতিটি নিয়োগপত্রের তথ্য (সব আগে থেকে ফরম্যাট করা) ----------
         public class Letter
         {
-            public string CompanyName { get; set; }
-            public string CompanyAddress { get; set; }
+            public string CompanyName { get; set; }      // Branch_Bangla
+            public string CompanyAddress { get; set; }   // Bangla_Address_Branch
+            public string LogoSrc { get; set; }          // Branch_logo (data URI), না থাকলে ফাঁকা
             public string LetterDate { get; set; }
             public string Name { get; set; }
             public string Father { get; set; }
             public string Mother { get; set; }
-            public string Husband { get; set; }
-            public string Wife { get; set; }
+            public string Spouse { get; set; }           // SpousNameBangla (নতুন)
+            public string Husband { get; set; }          // পুরনো ASPX এর জন্য রাখা (এখন ফাঁকা)
+            public string Wife { get; set; }             // পুরনো ASPX এর জন্য রাখা (এখন ফাঁকা)
             public string Mobile { get; set; }
             public string NID { get; set; }
-            public string Village { get; set; }
-            public string Post { get; set; }
-            public string Thana { get; set; }
-            public string District { get; set; }
-            public string PVillage { get; set; }
-            public string PPost { get; set; }
-            public string PThana { get; set; }
-            public string PDistrict { get; set; }
+            public string BID { get; set; }
+            // বর্তমান ঠিকানা
+            public string Village { get; set; }          // নতুন টেবিলে নেই (ফাঁকা)
+            public string Post { get; set; }             // নতুন টেবিলে নেই (ফাঁকা)
+            public string Thana { get; set; }            // Present Upazila
+            public string District { get; set; }         // Present District
+            // স্থায়ী ঠিকানা
+            public string PVillage { get; set; }         // নতুন টেবিলে নেই (ফাঁকা)
+            public string PPost { get; set; }            // নতুন টেবিলে নেই (ফাঁকা)
+            public string PThana { get; set; }           // Permanent Upazila
+            public string PDistrict { get; set; }        // Permanent District
             public string ApplyDate { get; set; }
             public string JoinDate { get; set; }
             public string Designation { get; set; }
@@ -53,33 +58,40 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
             public string Medical { get; set; }
             public string Total { get; set; }
             public string OTRate { get; set; }
-            public string AttBonus { get; set; }
+            public string AttBonus { get; set; }         // নতুন কুয়েরিতে নেই (ফাঁকা)
         }
 
-        // মূল টেবিল: Employee_information_new (e), Employee_information_With_Code (ec), z_Test_ID (z) — এগুলো INNER।
-        // বাকি টেবিলে কোনো কর্মচারীর সারি না থাকলেও নিয়োগপত্র যেন বাদ না পড়ে, তাই LEFT JOIN।
+        // মূল টেবিল Employee_Information ও z_Test_ID — এগুলো INNER।
+        // বাকি সব LEFT JOIN, যাতে কোনো কোড/সারি না মিললেও নিয়োগপত্র বাদ না পড়ে।
         const string Sql = @"
-SELECT e.ID_no, e.Name, e.Joining_Date,
-       c.Conmany_Bangla, c.Bangla_Address,
-       p.Fathers, p.Mothers, p.Husband, p.Wife, p.Personal_Phone, p.NID,
-       p.Village, p.Post, p.Thana, p.District,
-       p.P_Village, p.P_Post, p.P_Thana, p.P_District,
-       d.Department_Name, s.Section_Name,
-       g.Desigation_name, g.Grade, g.Designation_Catagory_Bangla AS Work_Type_Bangla, g.Attendance_Bonus,
+SELECT e.Employee_ID_No, e.Name, e.Bangla_name, e.Joining_Date, e.JoiningGross,
+       e.Fathers, e.Fathers_Bangla, e.Mothers, e.Mothers_Bangla,
+       e.SpousNameEnglish, e.SpousNameBangla,
+       e.NID, e.BID, e.Personal_Phone,
+       br.Branch_Name, br.Branch_Bangla, br.Address AS Branch_Address_English,
+       br.Bangla_Address_Branch, br.Branch_logo,
+       d.Department_Name, d.Bangla_Name AS DepartmentNameBangla,
+       s.Section_Name, s.Section_bangla_Name,
+       dn.District_Name, dn.District_Bangla_Name,
+       un.Upazila_Name, un.Upazila_Bangla_Name,
+       dn1.District_Name AS Present_DistrictNameEng, dn1.District_Bangla_Name AS Present_DistrictNameBangla,
+       un1.Upazila_Name AS PresentUpazila_NameEnglish, un1.Upazila_Bangla_Name AS Present_Upazila_NameBangla,
        b.Basic_Salary, b.Hous_Rant, b.Food_Allowance, b.Medicl_Allowance, b.Transport_Allowance, b.OT_Rate,
-       sal.Gross_Salary
-FROM dbo.Employee_information_new e
-INNER JOIN dbo.Employee_information_With_Code ec ON e.ID_no = ec.ID_no
-INNER JOIN dbo.z_Test_ID z ON e.ID_no = z.ID_No
-LEFT JOIN dbo.Employee_Personal_Information_new p ON e.ID_no = p.ID_No
-LEFT JOIN dbo.Employee_Salary_information_new sal ON e.ID_no = sal.ID_no
-LEFT JOIN dbo.TB_Company c ON ec.Company_Code = c.Company_Code
-LEFT JOIN dbo.TB_Department d ON ec.Department_Code = d.Department_Code
-LEFT JOIN dbo.TB_Section s ON ec.Section_Code = s.Section_Code
-LEFT JOIN dbo.TB_Designation g ON ec.Designation_Code = g.Designation_Code
-LEFT JOIN dbo.Brack_Down_System b ON e.ID_no = b.ID_no
+       g.Desigation_name, g.Designation_Bangla, g.Grade,
+       g.Designation_Catagory, g.Designation_Catagory_Bangla
+FROM dbo.Employee_Information e
+INNER JOIN dbo.z_Test_ID z ON e.Employee_ID_No = z.ID_No
+LEFT JOIN dbo.TB_Branch br ON e.Branch_Code = br.Branch_Code
+LEFT JOIN dbo.TB_Department d ON e.Department_Code = d.Department_Code
+LEFT JOIN dbo.TB_Section s ON e.Section_Code = s.Section_Code
+LEFT JOIN dbo.District_Name_List dn ON e.District_Code = dn.District_Code
+LEFT JOIN dbo.Upazila_Name_List un ON e.Upzila_Code = un.Upazila_Code
+LEFT JOIN dbo.District_Name_List dn1 ON e.PresentDistrict_Code = dn1.District_Code
+LEFT JOIN dbo.Upazila_Name_List un1 ON e.PresentUpzila_Code = un1.Upazila_Code
+LEFT JOIN dbo.Brack_Down_System b ON e.Employee_ID_No = b.ID_no
+LEFT JOIN dbo.TB_Designation g ON e.Designation_Code = g.Designation_Code
 WHERE z.User_ID = @u AND z.From_Code = @f
-ORDER BY e.ID_no";
+ORDER BY e.Employee_ID_No";
 
         // WinForms এ Joining Latter এর জন্য From_Code=2 স্থির ছিল; HRMReports এর ResolveReport এর মানের সঙ্গে মিলতে হবে
         const int LetterFormCode = 2;
@@ -120,7 +132,7 @@ ORDER BY e.ID_no";
                                 ", z_Test_ID তে ID: " + saved + ")" +
                                 (saved == 0
                                     ? " রিপোর্ট পেজ থেকে কর্মচারী টিক দিয়ে আবার Report View চাপুন।"
-                                    : " ID সেভ আছে, কিন্তু Employee_information_new / Employee_information_With_Code এ মিলছে না।"));
+                                    : " ID সেভ আছে, কিন্তু Employee_Information এ মিলছে না।"));
                     return;
                 }
                 rptLetters.DataSource = list;
@@ -189,43 +201,56 @@ ORDER BY e.ID_no";
             decimal house = Dec(r["Hous_Rant"]);
             string pct = basic > 0 ? Math.Round(house / basic * 100).ToString("0", Inv) : "0";
 
+            // Gross: Brack_Down_System এর যোগফল না নিয়ে JoiningGross ব্যবহার; ০ হলে উপাদানগুলোর যোগফল
+            decimal gross = Dec(r["JoiningGross"]);
+            if (gross == 0)
+                gross = basic + house + Dec(r["Food_Allowance"]) + Dec(r["Medicl_Allowance"]) + Dec(r["Transport_Allowance"]);
+
             return new Letter
             {
-                CompanyName = S(r, "Conmany_Bangla"),
-                CompanyAddress = S(r, "Bangla_Address"),
+                CompanyName = Pick(r, "Branch_Bangla", "Branch_Name"),
+                CompanyAddress = Pick(r, "Bangla_Address_Branch", "Branch_Address_English"),
+                LogoSrc = LogoSrc(r),
                 LetterDate = joinDate,
-                Name = S(r, "Name"),
-                Father = S(r, "Fathers"),
-                Mother = S(r, "Mothers"),
-                Husband = S(r, "Husband"),
-                Wife = S(r, "Wife"),
+                Name = Pick(r, "Bangla_name", "Name"),
+                Father = Pick(r, "Fathers_Bangla", "Fathers"),
+                Mother = Pick(r, "Mothers_Bangla", "Mothers"),
+                Spouse = Pick(r, "SpousNameBangla", "SpousNameEnglish"),
+                Husband = "",
+                Wife = "",
                 Mobile = Bn(S(r, "Personal_Phone")),
                 NID = Bn(S(r, "NID")),
-                Village = S(r, "Village"),
-                Post = S(r, "Post"),
-                Thana = S(r, "Thana"),
-                District = S(r, "District"),
-                PVillage = S(r, "P_Village"),
-                PPost = S(r, "P_Post"),
-                PThana = S(r, "P_Thana"),
-                PDistrict = S(r, "P_District"),
+                BID = Bn(S(r, "BID")),
+
+                // বর্তমান ঠিকানা
+                Village = "",
+                Post = "",
+                Thana = Pick(r, "Present_Upazila_NameBangla", "PresentUpazila_NameEnglish"),
+                District = Pick(r, "Present_DistrictNameBangla", "Present_DistrictNameEng"),
+
+                // স্থায়ী ঠিকানা
+                PVillage = "",
+                PPost = "",
+                PThana = Pick(r, "Upazila_Bangla_Name", "Upazila_Name"),
+                PDistrict = Pick(r, "District_Bangla_Name", "District_Name"),
+
                 ApplyDate = joinDate,
                 JoinDate = joinDate,
-                Designation = S(r, "Desigation_name"),
-                Department = S(r, "Department_Name"),
-                Section = S(r, "Section_Name"),
-                IdNo = Bn(S(r, "ID_no")),
+                Designation = Pick(r, "Designation_Bangla", "Desigation_name"),
+                Department = Pick(r, "DepartmentNameBangla", "Department_Name"),
+                Section = Pick(r, "Section_bangla_Name", "Section_Name"),
+                IdNo = Bn(S(r, "Employee_ID_No")),
                 Grade = Bn(S(r, "Grade")),
-                WorkType = S(r, "Work_Type_Bangla"),
+                WorkType = Pick(r, "Designation_Catagory_Bangla", "Designation_Catagory"),
                 Basic = Money(r["Basic_Salary"]),
                 House = Money(r["Hous_Rant"]),
                 HousePct = Bn(pct),
                 Food = Money(r["Food_Allowance"]),
                 Transport = Money(r["Transport_Allowance"]),
                 Medical = Money(r["Medicl_Allowance"]),
-                Total = Money(r["Gross_Salary"]),
+                Total = Money(gross),
                 OTRate = Money(r["OT_Rate"]),
-                AttBonus = Bn(Money(r["Attendance_Bonus"]))
+                AttBonus = ""
             };
         }
 
@@ -234,6 +259,22 @@ ORDER BY e.ID_no";
         {
             if (!r.Table.Columns.Contains(col) || r[col] == DBNull.Value) return "";
             return Convert.ToString(r[col]).Trim();
+        }
+
+        // বাংলা মান থাকলে সেটি, না থাকলে ইংরেজি মান
+        static string Pick(DataRow r, string bnCol, string enCol)
+        {
+            string v = S(r, bnCol);
+            return v.Length > 0 ? v : S(r, enCol);
+        }
+
+        // Branch_logo বাইনারি হলে <img src> এর জন্য data URI; নইলে ফাঁকা
+        static string LogoSrc(DataRow r)
+        {
+            if (!r.Table.Columns.Contains("Branch_logo") || r["Branch_logo"] == DBNull.Value) return "";
+            byte[] bytes = r["Branch_logo"] as byte[];
+            if (bytes == null || bytes.Length == 0) return "";
+            return "data:image/png;base64," + Convert.ToBase64String(bytes);
         }
 
         static decimal Dec(object o)
