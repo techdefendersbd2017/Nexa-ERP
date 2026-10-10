@@ -222,7 +222,10 @@
   <ItemGroup>
     <Content Include="AccountsModule\MasterData\bankInformation.aspx" />
     <Content Include="AccountsModule\MasterData\ChartOfAccounts.aspx" />
+    <Content Include="Assets\EmployeeEntry.js" />
     <Content Include="Assets\EmployeeInformation.js" />
+    <Content Include="Assets\EmployeeSeperations.js" />
+    <Content Include="Assets\ManualAttendanceJs.js" />
     <Content Include="Assets\ReportsHRM.js" />
     <Content Include="Assets\RoleWiseChartOfMenuPermission.js" />
     <Content Include="ERPConfiguration\UserAuthorization\ChartOfMenus.aspx" />
@@ -243,12 +246,17 @@
     <Content Include="Deahboard.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\AttendanceProcess.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx" />
+    <Content Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveAllocation.aspx" />
+    <Content Include="HRMPayroll\LeaveInformation\LeaveReports\LeaveApplicationReport.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
     <Content Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
@@ -505,6 +513,20 @@
     <Compile Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx.designer.cs">
       <DependentUpon>RoleWiseChartOfMenuPermission.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\AttendanceProcess.aspx.cs">
+      <DependentUpon>AttendanceProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\AttendanceProcess.aspx.designer.cs">
+      <DependentUpon>AttendanceProcess.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx.cs">
+      <DependentUpon>ManualAttendance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx.designer.cs">
+      <DependentUpon>ManualAttendance.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx.cs">
       <DependentUpon>PunchDataImport.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -519,6 +541,14 @@
     <Compile Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx.designer.cs">
       <DependentUpon>RandomAbsentAttendance.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.cs">
+      <DependentUpon>EmployeeEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.designer.cs">
+      <DependentUpon>EmployeeEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\FilterItem.cs" />
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx.cs">
       <DependentUpon>ActiveEmployeeListLastIncrement.aspx</DependentUpon>
     </Compile>
@@ -546,6 +576,20 @@
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx.designer.cs">
       <DependentUpon>JoiningLatter.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveAllocation.aspx.cs">
+      <DependentUpon>EmployeeWiseLeaveAllocation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveAllocation.aspx.designer.cs">
+      <DependentUpon>EmployeeWiseLeaveAllocation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\LeaveReports\LeaveApplicationReport.aspx.cs">
+      <DependentUpon>LeaveApplicationReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\LeaveInformation\LeaveReports\LeaveApplicationReport.aspx.designer.cs">
+      <DependentUpon>LeaveApplicationReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx.cs">
       <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>

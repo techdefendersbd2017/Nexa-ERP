@@ -1,5 +1,5 @@
 ﻿using Nexa_ERP.Connection;
-using Nexa_ERP.HRMPayroll.Common;      // <-- নতুন
+using Nexa_ERP.HRMPayroll.Common;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,22 +9,18 @@ using System.Web.Script.Serialization;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
+namespace Nexa_ERP.HRMPayroll.LeaveInformation
 {
-    public partial class HRMReports : Page
+    public partial class EmployeeWiseLeaveAllocation : Page
     {
         PayrollDB conn = new PayrollDB();
 
-        // পাবলিক ফিল্টার ক্লাস
+        // HRM Reports এর মতই ফিল্টার ক্লাস (HRFilters অপরিবর্তিত)
         HRFilters filters;
 
         const int MaxIds = HRFilters.MaxIds;
 
         readonly List<string> loadErrors = new List<string>();
-
-        // সমস্যা মিটে গেলে false করে দিন
-        const bool ShowDebug = true;
-        readonly List<string> debug = new List<string>();
 
         // ---------- মডেল ----------
         public class Emp
@@ -37,7 +33,6 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             public string Status { get; set; }
         }
 
-        // TODO: আপনার Login/Session এর key অনুযায়ী বদলান
         long UserCode { get { return HRFilters.UserCode; } }
         long FromCode { get { return HRFilters.SessionLong("From_Code", "FromCode"); } }
 
@@ -49,7 +44,6 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         // ================= Page Load =================
         protected void Page_Load(object sender, EventArgs e)
         {
-            // ফিল্টার ক্লাস তৈরি: এই পেজে যেসব ফিল্টার আছে সেগুলো Attach করুন
             filters = new HRFilters()
                 .Attach(HRFilters.Branch, ddBranch)
                 .Attach(HRFilters.Category, ddCategory)
@@ -61,7 +55,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                 .Attach(HRFilters.Floor, ddFloor);
             filters.EmptyMeansAll = false;   // কিছু না বাছলে কিছুই insert হবে না
 
-            filters.LoadLookups();           // কোড খোঁজার জন্য প্রতিটি request এ লাগে
+            filters.LoadLookups();
 
             // পোস্টব্যাকের পর আগের টিক ফিরিয়ে আনা
             if (IsPostBack && !string.IsNullOrEmpty(SelectedIdsRaw()))
@@ -70,7 +64,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                 ClientScript.RegisterStartupScript(GetType(), "retick",
                     "document.addEventListener('DOMContentLoaded',function(){var ids=" + arr +
                     ";document.querySelectorAll('.row-checkbox').forEach(function(c){" +
-                    "if(ids.indexOf(c.getAttribute('data-id'))>=0)c.checked=true;});});", true);
+                    "if(ids.indexOf(c.getAttribute('data-id'))>=0)c.checked=true;});updateSelCount();});", true);
             }
 
             if (!IsPostBack)
@@ -88,56 +82,47 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         {
             filters.FillControls();   // Branch, Category, Dept ... সব ভরে দেয়
 
-            FillStatic(ddBlood, "-- All --", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
-            FillStatic(ddReligion, "-- All --", "Islam", "Hinduism", "Buddhism", "Christianity", "Others");
-            // TODO: comboBox_Resign_Status এর আইটেমের সঙ্গে হুবহু মিলিয়ে নিন (প্রথমটি ডিফল্ট)
             FillStatic(ddStatus, null, "Active", "New", "Seperation", "All", "Resign", "Left");
 
-            LoadReportTypes();
+            // Years: গত বছর থেকে আগামী বছর পর্যন্ত
+            ddYear.Items.Clear();
+            int y = DateTime.Today.Year;
+            for (int i = y - 1; i <= y + 1; i++)
+                ddYear.Items.Add(new ListItem(i.ToString(), i.ToString()));
+
+            LoadLeaves();
 
             if (AllErrors().Count > 0)
                 Toast("Option load error: " + string.Join(" | ", AllErrors()));
         }
 
-        // Text = Report_Name, Value = Report_Code
-        // Report_Name এর নাম ResolveReport এর নামের সঙ্গে হুবহু মিলতে হবে
-        void LoadReportTypes()
+        // Desktop এর Leave_Name_List: Text = Leave_Name, Value = Leave_code
+        void LoadLeaves()
         {
-            ddRType.Items.Clear();
+            ddLeave.Items.Clear();
+            ddLeave.Items.Add(new ListItem("-- Select --", ""));
             try
             {
                 using (SqlConnection con = conn.openConnection())
                 {
                     if (con.State != ConnectionState.Open) con.Open();
-
-                    using (var cmd = new SqlCommand(
-                        "SELECT Report_Code, Report_Name FROM Soft_Reports " +
-                        "WHERE Menu=1   ORDER BY Report_Name ASC", con))// AND user_id=@uid
+                    using (var cmd = new SqlCommand("SELECT Leave_Name, Leave_code FROM Leave_Name_List", con))
                     {
-                        cmd.Parameters.Add("@uid", SqlDbType.NVarChar, 50).Value = UserCode.ToString();
-
                         var dt = new DataTable();
                         using (var da = new SqlDataAdapter(cmd)) da.Fill(dt);
-
                         foreach (DataRow r in dt.Rows)
                         {
-                            string name = Convert.ToString(r["Report_Name"]);
+                            string name = Convert.ToString(r["Leave_Name"]);
                             if (string.IsNullOrWhiteSpace(name)) continue;
-                            ddRType.Items.Add(new ListItem(name.Trim(), Convert.ToString(r["Report_Code"])));
+                            ddLeave.Items.Add(new ListItem(name.Trim(), Convert.ToString(r["Leave_code"])));
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                loadErrors.Add("reportType: " + ex.Message);
+                loadErrors.Add("leave: " + ex.Message);
             }
-        }
-
-        // নির্বাচিত Report Type এর নাম (Value এখন কোড, তাই Text নিতে হয়)
-        string RTypeText()
-        {
-            return ddRType.SelectedItem != null ? ddRType.SelectedItem.Text.Trim() : "";
         }
 
         static void FillStatic(DropDownList dd, string blank, params string[] items)
@@ -153,41 +138,11 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             ShowData();
         }
 
-        // ===== নতুন রিপোর্ট যোগ করতে শুধু এখানে একটি else if বসান =====
-        // page    : রিপোর্ট পেজের পথ
-        // formCode: z_Test_ID এর From_Code
-        // needIds : true হলে গ্রিড থেকে কর্মচারী নির্বাচন লাগবে
-        static bool ResolveReport(string name, out string page, out int formCode, out bool needIds)
+        protected void btnClear_Click(object sender, EventArgs e)
         {
-            page = null; formCode = 0; needIds = true;
-
-            if (name == "Active Employee  List")
-            { page = "HRReports/ActiveEmployeeListReport.aspx"; formCode = 7; needIds = true; }
-            else if (name == "Appointment Latter")
-            { page = "HRReports/AppointmentLetter.aspx"; formCode = 2; needIds = true; }
-            else if (name == "Active Employee List with Last Increment")
-            { page = "HRReports/ActiveEmployeeListLastIncrement.aspx"; formCode = 3; needIds = true; }
-            else if (name == "Designation Roster")
-            { page = "HRReports/DesignationRoster.aspx"; formCode = 4; needIds = true; }
-            else if (name == "Blood Group Directory")
-            { page = "HRReports/BloodGroup.aspx"; formCode = 5; needIds = true; }
-            else if (name == "Joining Status Report")
-            { page = "HRReports/JoiningStatus.aspx"; formCode = 6; needIds = true; }
-            else
-                return false;   // তালিকায় নেই
-
-            return true;
-        }
-
-        protected void btnReport_Click(object sender, EventArgs e)
-        {
-            string page; int formCode; bool needIds;
-            string rt = RTypeText();
-
-            if (ResolveReport(rt, out page, out formCode, out needIds))
-                OpenReport(page, formCode, needIds);
-            else if (ShowData())
-                Toast("Report generated successfully! (Type: " + rt + ")");
+            ResetDefaults();
+            ClearGrid();
+            Toast("All filters cleared.");
         }
 
         // টিক দেওয়া ID গুলো: প্রথমে চেকবক্সের name="selId", না পেলে hfSelIds
@@ -199,71 +154,65 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             return hfSelIds.Value ?? "";
         }
 
-        // নির্বাচিত ID z_Test_ID তে সেভ করে পেজ খোলা
-        void OpenReport(string page, int formCode, bool needIds)
+        // ================= Leave Process (Desktop: button1_Click) =================
+        protected void btnProcess_Click(object sender, EventArgs e)
         {
-            if (UserCode == 0)
-            {
-                Toast("User_Code পাওয়া যায়নি (Session)। Login করে আবার চেষ্টা করুন।");
-                return;
-            }
-
             long[] ids = HRFilters.ParseIds(SelectedIdsRaw())
                 .Select(s => { long x; return long.TryParse(s, out x) ? x : 0; })
                 .Where(x => x != 0).Distinct().ToArray();
 
-            if (needIds && ids.Length == 0)
+            if (ids.Length == 0)
             {
-                Toast("কমপক্ষে একজন কর্মচারী নির্বাচন করুন।");
+                Toast("Please select at least one employee.");
                 return;
             }
-
             if (ids.Length > MaxIds)
             {
                 Toast("Too many IDs (max " + MaxIds + ").");
                 return;
             }
 
+            long leaveCode, year;
+            if (!long.TryParse(ddLeave.SelectedValue, out leaveCode))
+            {
+                Toast("Please select Leave.");
+                return;
+            }
+            if (!long.TryParse(ddYear.SelectedValue, out year))
+            {
+                Toast("Please select Year.");
+                return;
+            }
+
+            int done = 0;
+            long current = 0;
             try
             {
                 using (SqlConnection con = conn.openConnection())
                 {
                     if (con.State != ConnectionState.Open) con.Open();
 
-                    using (var del = new SqlCommand(
-                        "DELETE FROM dbo.z_Test_ID WHERE User_ID=@u AND From_Code=@f", con))
+                    foreach (long id in ids)
                     {
-                        del.Parameters.Add("@u", SqlDbType.BigInt).Value = UserCode;
-                        del.Parameters.Add("@f", SqlDbType.BigInt).Value = formCode;
-                        del.ExecuteNonQuery();
-                    }
-
-                    if (needIds)
-                    {
-                        foreach (long id in ids)
-                            HRDb.ExecProc(con, "Pro_z_Test_ID_New",
-                                HRDb.P("@ID_No", id), HRDb.P("@User_ID", UserCode), HRDb.P("@Form_Code", formCode));
+                        current = id;
+                        HRDb.ExecProc(con, "Pro_Leave_process",
+                            HRDb.P("@ID_No", id),
+                            HRDb.P("@Leave_Code", leaveCode),
+                            HRDb.P("@Years", year));
+                        done++;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Toast("Error: " + ex.Message);
+                Toast("Error at ID " + current + " (processed " + done + " of " + ids.Length + "): " + ex.Message);
                 return;
             }
 
-            Response.Redirect(page, false);
-            Context.ApplicationInstance.CompleteRequest();
+            Toast("Leave process completed for " + done + " employee(s).");
         }
 
-        protected void btnClear_Click(object sender, EventArgs e)
-        {
-            ResetDefaults();
-            ClearGrid();
-            Toast("All filters cleared.");
-        }
-
-        // ================= Show এর মূল লজিক =================
+        // ================= Search এর মূল লজিক (HRM Reports এর ShowData) =================
         bool ShowData()
         {
             DataTable dt;
@@ -296,10 +245,9 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                         }
 
                         // ফিল্টার ক্লাস দিয়ে সব নির্বাচন সেভ
-                        debug.AddRange(filters.SaveSelections(con, UserCode, FromCode));
+                        filters.SaveSelections(con, UserCode, FromCode);
 
                         dt = RunStatusProc(con, status);
-                        debug.Add("user=" + UserCode + ", fromCode=" + FromCode + ", status=" + status + ", rows=" + dt.Rows.Count);
                     }
                 }
             }
@@ -308,9 +256,6 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                 Toast("Error: " + ex.Message);
                 return false;
             }
-
-            if (ShowDebug && debug.Count > 0)
-                Toast("Debug → " + string.Join(", ", debug));
 
             BindTable(dt, status);
             return true;
@@ -398,17 +343,17 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             rptEmployees.DataBind();
             trEmpty.Visible = list.Count == 0;
 
-            lblReportTitle.Text = string.IsNullOrEmpty(RTypeText()) ? "Active Employee List" : RTypeText();
             lblCount.Text = list.Count + " Records";
             litPaging.Text = list.Count == 0
                 ? "Showing 0 entries"
                 : "Showing <span class=\"font-medium text-slate-700\">1</span> to <span class=\"font-medium text-slate-700\">" + list.Count +
                   "</span> of <span class=\"font-medium text-slate-700\">" + list.Count + "</span> entries";
 
+            // Desktop এর মতো Search এর পর সবাই টিক দেওয়া অবস্থায় আসে
             if (list.Count > 0)
             {
                 ClientScript.RegisterStartupScript(GetType(), "chkall",
-                    "document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.row-checkbox,#selectAllRows').forEach(function(c){c.checked=true;});});", true);
+                    "document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.row-checkbox,#selectAllRows').forEach(function(c){c.checked=true;});updateSelCount();});", true);
             }
         }
 
@@ -425,12 +370,13 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         // ================= সাহায্যকারী =================
         void ResetDefaults()
         {
-            // মাল্টিপল সিলেক্ট ফিল্টার: সব সিলেকশন মোছা
             filters.ClearSelections();
 
-            // সাধারণ ড্রপডাউন: প্রথম আইটেমে ফেরা
-            foreach (var d in new[] { ddBlood, ddReligion, ddStatus, ddRType })
-                if (d.Items.Count > 0) d.SelectedIndex = 0;
+            if (ddStatus.Items.Count > 0) ddStatus.SelectedIndex = 0;
+            if (ddLeave.Items.Count > 0) ddLeave.SelectedIndex = 0;
+
+            ListItem cur = ddYear.Items.FindByValue(DateTime.Today.Year.ToString());
+            if (cur != null) { ddYear.ClearSelection(); cur.Selected = true; }
 
             hfSelIds.Value = "";
             txtFromDate.Text = txtTillDate.Text = txtMultiId.Text = "";
@@ -442,7 +388,6 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             rptEmployees.DataBind();
             trEmpty.Visible = false;
 
-            lblReportTitle.Text = string.IsNullOrEmpty(RTypeText()) ? "Active Employee List" : RTypeText();
             lblCount.Text = "0 Records";
             litPaging.Text = "Showing 0 entries";
         }

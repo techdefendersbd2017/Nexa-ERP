@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
+namespace Nexa_ERP.HRMPayroll.LeaveInformation
 {
 
 
-    public partial class EmployeeSeperation
+    public partial class EmployeeWiseLeaveAllocation
     {
 
         /// <summary>
@@ -141,31 +141,22 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.TextBox txtTillDate;
 
         /// <summary>
-        /// toddStatus control.
+        /// ddYear control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList toddStatus;
+        protected global::System.Web.UI.WebControls.DropDownList ddYear;
 
         /// <summary>
-        /// TextBox1 control.
+        /// ddLeave control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox TextBox1;
-
-        /// <summary>
-        /// TextBox2 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox TextBox2;
+        protected global::System.Web.UI.WebControls.DropDownList ddLeave;
 
         /// <summary>
         /// btnShow control.
@@ -177,13 +168,13 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.LinkButton btnShow;
 
         /// <summary>
-        /// btnReport control.
+        /// btnProcess control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnReport;
+        protected global::System.Web.UI.WebControls.LinkButton btnProcess;
 
         /// <summary>
         /// btnClear control.
@@ -193,15 +184,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton btnClear;
-
-        /// <summary>
-        /// lblReportTitle control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblReportTitle;
 
         /// <summary>
         /// lblCount control.

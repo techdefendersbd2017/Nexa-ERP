@@ -1,13 +1,14 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="EmployeeSeperation.aspx.cs" Inherits="Nexa_ERP.HRMPayroll.EmployeeLifecycle.EmployeeSeperation" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="EmployeeWiseLeaveAllocation.aspx.cs" Inherits="Nexa_ERP.HRMPayroll.LeaveInformation.EmployeeWiseLeaveAllocation" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HRM Reports Dashboard</title>
+    <title>Employee wise Leave Allocation</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for professional icons -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +19,7 @@
         ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
         ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
 
-        /* ---- Filter fields (select / multi-select look) ---- */
+        /* ---- Filter fields (HRM Reports এর মতই) ---- */
         .fld{display:flex;align-items:center;justify-content:space-between;gap:6px;height:32px;padding:0 10px;
              border:1px solid #d9dce5;border-radius:6px;background:#f6f7fb;font-size:13px;color:#94a3b8;
              cursor:pointer;user-select:none;transition:border-color .15s, box-shadow .15s, background .15s;width:100%}
@@ -42,7 +43,6 @@
 
         .panel{position:absolute;left:0;top:calc(100% + 4px);min-width:100%;width:260px;background:#fff;border:1px solid #e2e8f0;
                border-radius:8px;box-shadow:0 10px 25px -5px rgba(15,23,42,.18),0 4px 10px -6px rgba(15,23,42,.12);z-index:60}
-        .panel.right{left:auto;right:0}
         .panel .ph{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;font-size:12px;color:#64748b;border-bottom:1px solid #eef0f4}
         .panel .ph button{color:#ef4444;font-size:12px;background:none;border:0;cursor:pointer}
         .panel .ph button:hover{text-decoration:underline}
@@ -50,25 +50,25 @@
         .panel .ps i{color:#94a3b8;font-size:13px}
         .panel .ps input{flex:1;border:0;outline:0;font-size:13px;color:#334155;background:transparent;min-width:0}
         .panel .pl{max-height:224px;overflow-y:auto;padding:6px}
-        .panel .sec{font-size:11px;font-weight:600;color:#64748b;padding:6px 8px 4px}
         .panel .it{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:6px;font-size:13px;color:#1e293b;cursor:pointer}
         .panel .it:hover{background:#f1f5f9}
-        .panel .it.sel-single{background:#eff6ff;color:#1d4ed8;font-weight:500}
         .panel .empty{padding:14px 8px;font-size:12px;color:#94a3b8;text-align:center}
         .cb{width:16px;height:16px;border-radius:4px;border:1.5px solid #cbd5e1;background:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:9px}
         .cb.on{background:#2563eb;border-color:#2563eb}
         .lbl{display:block;font-size:13px;color:#334155;margin-bottom:6px}
         .lbl.sm{font-size:11.5px;color:#64748b}
-        </style>
+    </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased h-screen flex flex-col overflow-hidden">
 <form id="form1" runat="server" class="flex flex-col h-screen overflow-hidden" autocomplete="off">
     <asp:HiddenField ID="hfSelIds" runat="server" ClientIDMode="Static" />
 
     <section class="bg-white border-b border-slate-200 px-6 py-4 shrink-0 relative z-30">
+        <h1 class="text-base font-bold text-slate-800 mb-3">Employee wise Leave Allocation</h1>
+
+        <!-- Employee search filters -->
         <div class="bg-slate-50/70 border border-slate-200 rounded-xl p-4">
             <div id="filterGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-4 gap-y-3">
-                <%-- নিচের ৮টি ফিল্টার মাল্টিপল সিলেক্ট (ListBox) --%>
                 <div><label class="lbl">Branch</label><asp:ListBox ID="ddBranch" runat="server" ClientIDMode="Static" SelectionMode="Multiple" CssClass="ms-src" /></div>
                 <div><label class="lbl">Category</label><asp:ListBox ID="ddCategory" runat="server" ClientIDMode="Static" SelectionMode="Multiple" CssClass="ms-src" /></div>
                 <div><label class="lbl">Department</label><asp:ListBox ID="ddDept" runat="server" ClientIDMode="Static" SelectionMode="Multiple" CssClass="ms-src" /></div>
@@ -78,69 +78,57 @@
                 <div><label class="lbl">Designation</label><asp:ListBox ID="ddDesig" runat="server" ClientIDMode="Static" SelectionMode="Multiple" CssClass="ms-src" /></div>
                 <div><label class="lbl">Designation Level</label><asp:ListBox ID="ddLevel" runat="server" ClientIDMode="Static" SelectionMode="Multiple" CssClass="ms-src" /></div>
                 <div><label class="lbl">Employee Status</label><asp:DropDownList ID="ddStatus" runat="server" ClientIDMode="Static" CssClass="fld" /></div>
-                <div><label class="lbl">Multi ID No</label><asp:TextBox ID="txtMultiId" runat="server" ClientIDMode="Static" CssClass="fld" placeholder="e.g. EMP-1001, EMP-1002…" autocomplete="off" style="cursor:text" /></div>
-
+                <div><label class="lbl">Multi ID No</label>
+                    <asp:TextBox ID="txtMultiId" runat="server" ClientIDMode="Static" CssClass="fld" placeholder="e.g. 1001, 1002…" autocomplete="off" style="cursor:text" /></div>
                 <div><label class="lbl sm">From Date</label>
                     <div class="dt-wrap"><asp:TextBox ID="txtFromDate" runat="server" ClientIDMode="Static" CssClass="fld date" placeholder="Pick a date" autocomplete="off" onfocus="this.type='date'; try{this.showPicker()}catch(e){}" onblur="if(!this.value)this.type='text'" /><i class="fa-regular fa-calendar"></i></div></div>
                 <div><label class="lbl sm">Till Date</label>
                     <div class="dt-wrap"><asp:TextBox ID="txtTillDate" runat="server" ClientIDMode="Static" CssClass="fld date" placeholder="Pick a date" autocomplete="off" onfocus="this.type='date'; try{this.showPicker()}catch(e){}" onblur="if(!this.value)this.type='text'" /><i class="fa-regular fa-calendar"></i></div></div>
-                <div><label class="lbl">To Employee Status</label><asp:DropDownList ID="toddStatus" runat="server" ClientIDMode="Static" CssClass="fld" /></div>
-                <div><label class="lbl sm">Application Date</label>
-                    <div class="dt-wrap"><asp:TextBox ID="TextBox1" runat="server" ClientIDMode="Static" CssClass="fld date" placeholder="Pick a date" autocomplete="off" onfocus="this.type='date'; try{this.showPicker()}catch(e){}" onblur="if(!this.value)this.type='text'" /><i class="fa-regular fa-calendar"></i></div></div>
-                <div><label class="lbl sm">Resign Date</label>
-                    <div class="dt-wrap"><asp:TextBox ID="TextBox2" runat="server" ClientIDMode="Static" CssClass="fld date" placeholder="Pick a date" autocomplete="off" onfocus="this.type='date'; try{this.showPicker()}catch(e){}" onblur="if(!this.value)this.type='text'" /><i class="fa-regular fa-calendar"></i></div></div>
             </div>
         </div>
-        <div class="flex justify-end items-center gap-2 mt-3">
-            <asp:LinkButton ID="btnShow" runat="server" ClientIDMode="Static" OnClick="btnShow_Click" CssClass="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-2 transition">
-                <i class="fa-regular fa-eye text-xs"></i><span>Show</span>
-            </asp:LinkButton>
-            <asp:LinkButton ID="btnReport" runat="server" ClientIDMode="Static" OnClick="btnReport_Click" OnClientClick="return collectIds();" CssClass="h-9 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center gap-2 shadow-sm transition">
-                <i class="fa-solid fa-floppy-disk text-xs"></i><span>Save</span>
-            </asp:LinkButton>
-            <asp:LinkButton ID="btnClear" runat="server" ClientIDMode="Static" OnClick="btnClear_Click" CssClass="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-2 transition">
-                <i class="fa-solid fa-eraser text-xs"></i><span>Clear</span>
-            </asp:LinkButton>
+
+        <!-- Allocation settings + buttons -->
+        <div class="flex flex-wrap items-end justify-between gap-3 mt-3">
+            <div class="flex items-end gap-4">
+                <div class="w-36"><label class="lbl">Years</label><asp:DropDownList ID="ddYear" runat="server" ClientIDMode="Static" CssClass="fld" /></div>
+                <div class="w-56"><label class="lbl">Leave</label><asp:DropDownList ID="ddLeave" runat="server" ClientIDMode="Static" CssClass="fld" /></div>
+            </div>
+            <div class="flex items-center gap-2">
+                <asp:LinkButton ID="btnShow" runat="server" ClientIDMode="Static" OnClick="btnShow_Click" CssClass="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-2 transition">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i><span>Search</span>
+                </asp:LinkButton>
+                <asp:LinkButton ID="btnProcess" runat="server" ClientIDMode="Static" OnClick="btnProcess_Click" OnClientClick="return onProcessClick();" CssClass="h-9 px-5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium flex items-center gap-2 shadow-sm transition">
+                    <i class="fa-solid fa-gears text-xs"></i><span>Leave Process</span>
+                </asp:LinkButton>
+                <asp:LinkButton ID="btnClear" runat="server" ClientIDMode="Static" OnClick="btnClear_Click" CssClass="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-2 transition">
+                    <i class="fa-solid fa-eraser text-xs"></i><span>Clear</span>
+                </asp:LinkButton>
+            </div>
         </div>
     </section>
 
     <!-- Results -->
     <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <!-- Right Main Content Area: Data Table & Report Preview -->
         <main class="flex-1 flex flex-col min-h-0 bg-slate-100 overflow-hidden relative">
 
-            <!-- Toolbar / Summary Header for Results -->
-            <div class="bg-white border-b border-slate-200 px-6 py-4 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xs">
+            <div class="bg-white border-b border-slate-200 px-6 py-3 flex flex-wrap items-center justify-between gap-4 shrink-0">
                 <div>
                     <div class="flex items-center space-x-2">
-                        <h2 class="text-base font-bold text-slate-800"><asp:Label ID="lblReportTitle" runat="server" Text="Active Employee List" /></h2>
+                        <h2 class="text-base font-bold text-slate-800">Employee List</h2>
                         <asp:Label ID="lblCount" runat="server" CssClass="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-indigo-100" Text="0 Records" />
+                        <span id="selCount" class="bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-emerald-100">0 selected</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-0.5">Showing results generated based on selected HRM criteria.</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Tick the employees and click Leave Process to allocate the selected leave for the selected year.</p>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <div class="relative">
-                        <input type="text" id="tableSearch" onkeyup="searchTable()" onkeydown="if(event.key==='Enter')return false;" placeholder="Quick filter table..." class="bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48 sm:w-64">
-                        <i class="fa-solid fa-search absolute left-2.5 top-2 text-slate-400 text-xs"></i>
-                    </div>
-                    <button type="button" onclick="exportData('excel')" title="Export to Excel" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 p-1.5 rounded-lg text-xs font-medium shadow-2xs transition flex items-center space-x-1 px-3">
-                        <i class="fa-solid fa-file-excel text-emerald-600"></i>
-                        <span class="hidden sm:inline">Excel</span>
-                    </button>
-                    <button type="button" onclick="exportData('pdf')" title="Export to PDF" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 p-1.5 rounded-lg text-xs font-medium shadow-2xs transition flex items-center space-x-1 px-3">
-                        <i class="fa-solid fa-file-pdf text-rose-600"></i>
-                        <span class="hidden sm:inline">PDF</span>
-                    </button>
-                    <button type="button" onclick="printReport()" title="Print Report" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 p-1.5 rounded-lg text-xs font-medium shadow-2xs transition">
-                        <i class="fa-solid fa-print"></i>
-                    </button>
+                <div class="relative">
+                    <input type="text" id="tableSearch" onkeyup="searchTable()" onkeydown="if(event.key==='Enter')return false;" placeholder="Quick filter table..." class="bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48 sm:w-64">
+                    <i class="fa-solid fa-search absolute left-2.5 top-2 text-slate-400 text-xs"></i>
                 </div>
             </div>
 
-            <!-- Data Table Container -->
             <div class="flex-1 p-6 overflow-auto">
                 <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col h-full">
-                    <div class="overflow-x-auto flex-1">
+                    <div class="overflow-auto flex-1">
                         <table id="reportTable" class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider sticky top-0 z-10">
@@ -160,7 +148,7 @@
                                     <ItemTemplate>
                                         <tr class="hover:bg-slate-50/80 transition-colors">
                                             <%-- name="selId" ও value অবশ্যই থাকতে হবে: ব্রাউজার টিক দেওয়া ID সরাসরি সার্ভারে পাঠায় --%>
-                                            <td class="py-3 px-4 text-center"><input type="checkbox" name="selId" class="row-checkbox rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" value='<%# Server.HtmlEncode(Convert.ToString(Eval("Id"))) %>' data-id='<%# Server.HtmlEncode(Convert.ToString(Eval("Id"))) %>'></td>
+                                            <td class="py-3 px-4 text-center"><input type="checkbox" name="selId" onchange="updateSelCount()" class="row-checkbox rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" value='<%# Server.HtmlEncode(Convert.ToString(Eval("Id"))) %>' data-id='<%# Server.HtmlEncode(Convert.ToString(Eval("Id"))) %>'></td>
                                             <td class="py-3 px-4 font-semibold text-slate-900 text-xs"><%# Server.HtmlEncode(Convert.ToString(Eval("Id"))) %></td>
                                             <td class="py-3 px-4 font-medium text-slate-800 text-xs"><%# Server.HtmlEncode(Convert.ToString(Eval("Name"))) %></td>
                                             <td class="py-3 px-4 text-slate-600 text-xs"><%# Server.HtmlEncode(Convert.ToString(Eval("Designation"))) %></td>
@@ -174,32 +162,23 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- Table Footer / Pagination -->
-                    <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex items-center justify-between text-xs text-slate-500 shrink-0">
-                        <div><asp:Literal ID="litPaging" runat="server" /></div>
-                        <div class="flex items-center space-x-2">
-                            <button type="button" class="px-3 py-1 rounded border border-slate-300 bg-white text-slate-400 cursor-not-allowed">Previous</button>
-                            <button type="button" class="px-3 py-1 rounded bg-indigo-600 text-white font-medium">1</button>
-                            <button type="button" class="px-3 py-1 rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 transition">Next</button>
-                        </div>
+                    <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 text-xs text-slate-500 shrink-0">
+                        <asp:Literal ID="litPaging" runat="server" />
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Notification Toast Container -->
+    <!-- Toast -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
-
 </form>
 
-
-    <script>
+<script>
 // @ts-nocheck
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-// টিক দেওয়া ID গুলো hfSelIds এ জমা (সার্ভার name="selId" থেকেও পড়ে, এটি অতিরিক্ত নিরাপত্তা)
+// টিক দেওয়া ID গুলো hfSelIds এ জমা (সার্ভার name="selId" থেকেও পড়ে)
 function collectIds() {
     const ids = [];
     document.querySelectorAll('.row-checkbox:checked').forEach(c => {
@@ -208,30 +187,24 @@ function collectIds() {
     });
     const hf = document.getElementById('hfSelIds');
     if (hf) hf.value = ids.join(',');
-    return true;
+    return ids;
 }
 
-// রিপোর্ট পেজ নতুন ট্যাবে খোলে (এই পেজ অপরিবর্তিত থাকে, গ্রিডের টিকও থাকে)
-// নাম গুলো code-behind এর ResolveReport এর সঙ্গে মিলতে হবে
-const TAB_REPORTS = ['Active Employee List', 'Appointment Latter', 'Department Wise Summary', 'Designation Roster', 'Blood Group Directory', 'Joining Status Report'];
-const NO_ID_REPORTS = ['Department Wise Summary'];   // যেগুলোতে কর্মচারী নির্বাচন লাগে না
+function updateSelCount() {
+    const n = document.querySelectorAll('.row-checkbox:checked').length;
+    const el = document.getElementById('selCount');
+    if (el) el.textContent = n + ' selected';
+}
 
-function onReportClick() {
-    collectIds();
-    const f = document.forms[0];
-    const dd = document.getElementById('ddRType');
-    // Value এখন Report_Code, তাই নাম নিতে হয় নির্বাচিত option এর Text থেকে
-    const rt = (dd.selectedIndex >= 0 ? dd.options[dd.selectedIndex].text : '').trim();
-
-    // তালিকাভুক্ত রিপোর্টে (যেগুলোতে কর্মচারী লাগে) কমপক্ষে একজন নির্বাচন বাধ্যতামূলক
-    if (TAB_REPORTS.indexOf(rt) >= 0 && NO_ID_REPORTS.indexOf(rt) < 0 &&
-        !document.getElementById('hfSelIds').value) {
-        showNotification('কমপক্ষে একজন কর্মচারী নির্বাচন করুন।');
-        return false;
-    }
-    f.target = '_blank';                                   // Report View সবসময় নতুন ট্যাবে
-    setTimeout(function () { f.target = ''; }, 1000);      // Show/Clear এর জন্য আগের অবস্থায় ফেরত
-    return true;
+// Leave Process: যাচাই + নিশ্চিতকরণ
+function onProcessClick() {
+    const ids = collectIds();
+    if (ids.length === 0) { showNotification('Please select at least one employee.'); return false; }
+    if (!document.getElementById('ddYear').value) { showNotification('Please select Year.'); return false; }
+    if (!document.getElementById('ddLeave').value) { showNotification('Please select Leave.'); return false; }
+    const lv = document.getElementById('ddLeave');
+    const msg = 'Process "' + lv.options[lv.selectedIndex].text + '" (' + document.getElementById('ddYear').value + ') for ' + ids.length + ' employee(s)?';
+    return confirm(msg);
 }
 
 // ---------- Multi-select ড্রপডাউন (ListBox → চেকবক্স প্যানেল) ----------
@@ -298,11 +271,10 @@ function initMulti() {
             panel.addEventListener('click', function (e) { e.stopPropagation(); });
             q.addEventListener('keydown', function (e) { if (e.key === 'Enter') e.preventDefault(); });
             render();
-            sel.style.display = 'none';          // আসল select লুকানো, কিন্তু সার্ভারে ঠিকই যায়
+            sel.style.display = 'none';
         } catch (err) { console.error('multi-select init failed for', sel.id, err); sel.style.display = ''; }
     });
 
-    // বাইরে ক্লিক করলে প্যানেল বন্ধ
     document.addEventListener('click', function (e) {
         if (e.target.closest('.panel') || e.target.closest('.fld')) return;
         document.querySelectorAll('.panel').forEach(function (p) { p.style.display = 'none'; });
@@ -313,14 +285,13 @@ function initMulti() {
 document.addEventListener('DOMContentLoaded', function () {
     try { initMulti(); } catch (err) { console.error('initMulti error:', err); }
 
-    // তারিখ ঘরে মান থাকলে date হিসেবে দেখাও
     document.querySelectorAll('input.date').forEach(i => { if (i.value) i.type = 'date'; });
 
     // যেভাবেই ফর্ম সাবমিট হোক, আগে ID জমা হবে
     const f = document.forms[0], old = f.onsubmit;
     f.onsubmit = function () { collectIds(); return old ? old.apply(this, arguments) : true; };
 
-    // Multi ID ঘরে Enter চাপলে Show বাটন চলবে
+    // Multi ID ঘরে Enter চাপলে Search বাটন চলবে
     const mi = document.getElementById('txtMultiId');
     if (mi) mi.addEventListener('keydown', e => {
         if (e.key === 'Enter') {
@@ -329,6 +300,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (b) b.click();
         }
     });
+
+    updateSelCount();
 });
 
 // ---------- টেবিলের Quick filter ----------
@@ -341,11 +314,8 @@ function searchTable() {
 }
 function toggleAllRowCheckboxes(source) {
     document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = source.checked);
+    updateSelCount();
 }
-
-// ---------- Export / Print ----------
-function exportData(format) { showNotification('Exporting report to ' + format.toUpperCase() + ' format...'); } // TODO: Back-End
-function printReport() { window.print(); }
 
 function showNotification(message) {
     const container = document.getElementById('toastContainer');
@@ -354,7 +324,7 @@ function showNotification(message) {
     toast.innerHTML = `<i class="fa-solid fa-circle-info text-indigo-400"></i><span>${esc(message)}</span>`;
     container.appendChild(toast);
     setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
-    setTimeout(() => { toast.classList.add('translate-y-2', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
+    setTimeout(() => { toast.classList.add('translate-y-2', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3500);
 }
 </script>
 </body>
