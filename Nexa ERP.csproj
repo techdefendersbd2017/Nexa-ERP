@@ -226,6 +226,7 @@
     <Content Include="Assets\EmployeeInformation.js" />
     <Content Include="Assets\EmployeeSeperations.js" />
     <Content Include="Assets\ManualAttendanceJs.js" />
+    <Content Include="Assets\PersonalInformationUpdate.js" />
     <Content Include="Assets\ReportsHRM.js" />
     <Content Include="Assets\RoleWiseChartOfMenuPermission.js" />
     <Content Include="ERPConfiguration\UserAuthorization\ChartOfMenus.aspx" />
@@ -251,6 +252,7 @@
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeePersonalInformationUpdate.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx" />
@@ -547,6 +549,13 @@
     </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.designer.cs">
       <DependentUpon>EmployeeEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeePersonalInformationUpdate.aspx.cs">
+      <DependentUpon>EmployeePersonalInformationUpdate.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeePersonalInformationUpdate.aspx.designer.cs">
+      <DependentUpon>EmployeePersonalInformationUpdate.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\FilterItem.cs" />
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx.cs">
