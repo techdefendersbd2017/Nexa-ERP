@@ -160,23 +160,61 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         static bool ResolveReport(string name, out string page, out int formCode, out bool needIds)
         {
             page = null; formCode = 0; needIds = true;
+            name = Norm(name);   // বাড়তি/ডবল স্পেস বাদ দিয়ে মেলানো, তাই Soft_Reports এর নামে স্পেসের ভুলে আর আটকাবে না
 
-            if (name == "Active Employee  List")
+            if (name == "Active Employee List")
             { page = "HRReports/ActiveEmployeeListReport.aspx"; formCode = 7; needIds = true; }
-            else if (name == "Appointment Latter")
-            { page = "HRReports/AppointmentLetter.aspx"; formCode = 2; needIds = true; }
-            else if (name == "Active Employee List with Last Increment")
-            { page = "HRReports/ActiveEmployeeListLastIncrement.aspx"; formCode = 3; needIds = true; }
-            else if (name == "Designation Roster")
-            { page = "HRReports/DesignationRoster.aspx"; formCode = 4; needIds = true; }
-            else if (name == "Blood Group Directory")
-            { page = "HRReports/BloodGroup.aspx"; formCode = 5; needIds = true; }
-            else if (name == "Joining Status Report")
-            { page = "HRReports/JoiningStatus.aspx"; formCode = 6; needIds = true; }
+            //else if (name == "Appointment Latter")
+            //{ page = "HRReports/AppointmentLetter.aspx"; formCode = 2; needIds = true; }
+            //else if (name == "Active Employee List with Last Increment")
+            //{ page = "HRReports/ActiveEmployeeListLastIncrement.aspx"; formCode = 3; needIds = true; }
+            //else if (name == "Designation Roster")
+            //{ page = "HRReports/DesignationRoster.aspx"; formCode = 4; needIds = true; }
+            //else if (name == "Blood Group Directory")
+            //{ page = "HRReports/BloodGroup.aspx"; formCode = 5; needIds = true; }
+            //else if (name == "Joining Status Report")
+            //{ page = "HRReports/JoiningStatus.aspx"; formCode = 6; needIds = true; }
+            // ---- নতুন: ডকুমেন্ট সেট (সবগুলো একই পেজ, ?r= দিয়ে কোনটি দেখাবে ঠিক হয়; সবার formCode = 8) ----
+            else if (name == "Full File Bangla")
+            { page = "HRReports/EmployeeDocuments.aspx?report=Full_File_Bangla"; formCode = 8; needIds = true; }
+            else if (name == "Appointment Letter")
+            { page = "~/HRMPayroll/HRMPayrollReports/HRReports/EmployeeDocuments.aspx?report=Appointment_Letter"; formCode = 8; needIds = true; }
+            else if (name == "ID Card")
+            { page = "HRReports/EmployeeDocuments.aspx?report=ID_Card"; formCode = 8; needIds = true; }
+            else if (name == "Background Check")
+            { page = "HRReports/EmployeeDocuments.aspx?report=Background_Check"; formCode = 8; needIds = true; }
+            else if (name == "Job Description")
+            { page = "HRReports/EmployeeDocuments.aspx?report=Job_Description"; formCode = 8; needIds = true; }
+            else if (name == "Nominee Form")
+            { page = "HRReports/EmployeeDocuments.aspx?report=Nominee_Form"; formCode = 8; needIds = true; }
+            else if (name == "Medical Form")
+            { page = "HRReports/EmployeeDocuments.aspx?report=Medical_Form"; formCode = 8; needIds = true; }
+            else if (name == "Joining Letter")
+            { page = "HRReports/EmployeeDocuments.aspx?report=Joining_Letter"; formCode = 8; needIds = true; }
             else
                 return false;   // তালিকায় নেই
 
             return true;
+        }
+
+        static string Norm(string s)
+        {
+            return System.Text.RegularExpressions.Regex.Replace((s ?? "").Trim(), @"\s+", " ");
+        }
+
+        // ড্রপডাউনের কোন কোন নাম নতুন ট্যাবে রিপোর্ট খোলে তার তালিকা ResolveReport থেকেই JS এ যায়
+        // (JS এ আলাদা তালিকা রাখতে হয় না, তাই দুই জায়গার নাম আর অমিল হবে না)
+        protected void Page_PreRender(object sender, EventArgs e)
+        {
+            var map = new Dictionary<string, bool>();
+            foreach (ListItem it in ddRType.Items)
+            {
+                string p; int f; bool n;
+                string key = it.Text.Trim();
+                if (ResolveReport(key, out p, out f, out n)) map[key] = n;
+            }
+            ClientScript.RegisterStartupScript(GetType(), "rpts",
+                "window.RESOLVED_REPORTS=" + new JavaScriptSerializer().Serialize(map) + ";", true);
         }
 
         protected void btnReport_Click(object sender, EventArgs e)

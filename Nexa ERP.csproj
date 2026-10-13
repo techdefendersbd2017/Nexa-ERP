@@ -248,15 +248,20 @@
     <Content Include="Default.aspx" />
     <Content Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\AttendanceProcess.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\ContinuousAbsence.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeePersonalInformationUpdate.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\LeftyLetterIssue.aspx" />
+    <Content Include="HRMPayroll\HRMDashboard.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeDocuments.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\HRReports\LeftyLetterView.aspx" />
     <Content Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveAllocation.aspx" />
     <Content Include="HRMPayroll\LeaveInformation\LeaveReports\LeaveApplicationReport.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\StyleInformationForGarments.aspx" />
@@ -522,6 +527,13 @@
     <Compile Include="HRMPayroll\AttendanceManagementSystem\AttendanceProcess.aspx.designer.cs">
       <DependentUpon>AttendanceProcess.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\ContinuousAbsence.aspx.cs">
+      <DependentUpon>ContinuousAbsence.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\ContinuousAbsence.aspx.designer.cs">
+      <DependentUpon>ContinuousAbsence.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx.cs">
       <DependentUpon>ManualAttendance.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -557,7 +569,21 @@
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeePersonalInformationUpdate.aspx.designer.cs">
       <DependentUpon>EmployeePersonalInformationUpdate.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\LeftyLetterIssue.aspx.cs">
+      <DependentUpon>LeftyLetterIssue.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\LeftyLetterIssue.aspx.designer.cs">
+      <DependentUpon>LeftyLetterIssue.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\FilterItem.cs" />
+    <Compile Include="HRMPayroll\HRMDashboard.aspx.cs">
+      <DependentUpon>HRMDashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMDashboard.aspx.designer.cs">
+      <DependentUpon>HRMDashboard.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx.cs">
       <DependentUpon>ActiveEmployeeListLastIncrement.aspx</DependentUpon>
     </Compile>
@@ -579,12 +605,26 @@
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx.designer.cs">
       <DependentUpon>AppointmentLetter.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeDocuments.aspx.cs">
+      <DependentUpon>EmployeeDocuments.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeDocuments.aspx.designer.cs">
+      <DependentUpon>EmployeeDocuments.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx.cs">
       <DependentUpon>JoiningLatter.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx.designer.cs">
       <DependentUpon>JoiningLatter.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\LeftyLetterView.aspx.cs">
+      <DependentUpon>LeftyLetterView.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\LeftyLetterView.aspx.designer.cs">
+      <DependentUpon>LeftyLetterView.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveAllocation.aspx.cs">
       <DependentUpon>EmployeeWiseLeaveAllocation.aspx</DependentUpon>

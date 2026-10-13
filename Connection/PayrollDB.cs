@@ -9,7 +9,7 @@ namespace Nexa_ERP.Connection
     public class PayrollDB
     {
         private readonly string connString = @"Server=103.125.255.21,9438; Database=techpay; User Id=techdefenders_bd; Password=KamrujamaN@12110;";
-        //private readonly string connString = @"Server=.; Database=Tech_Pay; User Id=sa; Password=bip1#;";
+        //private readonly string connString = @"Server=192.168.10.90,1433; Database=Tech_Pay; User Id=sa; Password=bip1#;";
         public SqlConnection openConnection()
         {
             SqlConnection con = new SqlConnection(connString);

@@ -209,25 +209,26 @@ function collectIds() {
     return true;
 }
 
-// রিপোর্ট পেজ নতুন ট্যাবে খোলে (এই পেজ অপরিবর্তিত থাকে, গ্রিডের টিকও থাকে)
-// নাম গুলো code-behind এর ResolveReport এর সঙ্গে মিলতে হবে
-const TAB_REPORTS = ['Active Employee List', 'Appointment Latter', 'Department Wise Summary', 'Designation Roster', 'Blood Group Directory', 'Joining Status Report'];
-const NO_ID_REPORTS = ['Department Wise Summary'];   // যেগুলোতে কর্মচারী নির্বাচন লাগে না
-
+// Report View: যেসব Report Type এর রিপোর্ট পেজ আছে শুধু সেগুলোই নতুন ট্যাবে খোলে।
+// তালিকাটি সার্ভার (code-behind এর ResolveReport) থেকে আসে: window.RESOLVED_REPORTS = { "রিপোর্টের নাম": কর্মচারী-লাগবে-কিনা }
+// তাই নতুন রিপোর্ট যোগ করলে এখানে কিছু বদলাতে হয় না।
 function onReportClick() {
     collectIds();
     const f = document.forms[0];
     const dd = document.getElementById('ddRType');
     // Value এখন Report_Code, তাই নাম নিতে হয় নির্বাচিত option এর Text থেকে
     const rt = (dd.selectedIndex >= 0 ? dd.options[dd.selectedIndex].text : '').trim();
+    const map = window.RESOLVED_REPORTS || {};
 
-    // তালিকাভুক্ত রিপোর্টে (যেগুলোতে কর্মচারী লাগে) কমপক্ষে একজন নির্বাচন বাধ্যতামূলক
-    if (TAB_REPORTS.indexOf(rt) >= 0 && NO_ID_REPORTS.indexOf(rt) < 0 &&
-        !document.getElementById('hfSelIds').value) {
+    // রিপোর্ট পেজ নেই: নতুন ট্যাব নয়, এই পেজেই চলবে (নইলে HRMReports নিজেই নতুন ট্যাবে খুলে যায়)
+    if (!Object.prototype.hasOwnProperty.call(map, rt)) return true;
+
+    // কর্মচারী লাগে এমন রিপোর্টে কমপক্ষে একজন নির্বাচন বাধ্যতামূলক
+    if (map[rt] && !document.getElementById('hfSelIds').value) {
         showNotification('কমপক্ষে একজন কর্মচারী নির্বাচন করুন।');
         return false;
     }
-    f.target = '_blank';                                   // Report View সবসময় নতুন ট্যাবে
+    f.target = '_blank';                                   // রিপোর্ট পেজ নতুন ট্যাবে
     setTimeout(function () { f.target = ''; }, 1000);      // Show/Clear এর জন্য আগের অবস্থায় ফেরত
     return true;
 }

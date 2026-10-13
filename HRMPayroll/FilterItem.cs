@@ -324,12 +324,11 @@ namespace Nexa_ERP.HRMPayroll.Common
                 }
             }
 
-            cmd.CommandText =
-                "SELECT Employee_ID_No, Name, Joining_Date, Resign_Date, Resign_Status, " +
-                "Branch_Code, Department_Code, Designation_Code " +
-                "FROM Employee_Information" +
+            cmd.CommandText =@"SELECT dbo.Employee_information_new.ID_no, dbo.Employee_information_new.Name, dbo.Employee_information_new.Resign_Status, dbo.Employee_information_new.Resign_Date, 
+dbo.Employee_information_With_Code.Branch_Code, dbo.Employee_information_With_Code.Department_Code, dbo.Employee_information_With_Code.Designation_Code
+FROM dbo.Employee_information_new INNER JOIN  dbo.Employee_information_With_Code ON dbo.Employee_information_new.ID_no = dbo.Employee_information_With_Code.ID_no" +
                 (where.Count > 0 ? " WHERE " + string.Join(" AND ", where) : "") +
-                " ORDER BY Employee_ID_No";
+                " ORDER BY Employee_information_new.ID_no";
 
             var raw = new DataTable();
             using (var da = new SqlDataAdapter(cmd)) da.Fill(raw);
@@ -345,7 +344,7 @@ namespace Nexa_ERP.HRMPayroll.Common
             foreach (DataRow r in raw.Rows)
             {
                 var row = res.NewRow();
-                row["ID_no"] = Convert.ToString(r["Employee_ID_No"]);
+                row["ID_no"] = Convert.ToString(r["ID_no"]);
                 row["Name"] = Convert.ToString(r["Name"]);
                 row["Designation"] = NameOf(Desig, Convert.ToString(r["Designation_Code"]));
                 row["Department"] = NameOf(Dept, Convert.ToString(r["Department_Code"]));
