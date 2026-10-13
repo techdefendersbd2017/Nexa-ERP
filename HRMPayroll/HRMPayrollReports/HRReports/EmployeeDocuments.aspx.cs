@@ -43,57 +43,106 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
                               NomineeForm(r) + MedicalForm(r) + JoiningLetter(r) } }
         };
 
-        // z_Test_ID এর টিক দেওয়া কর্মচারীদের সব তথ্য (HRMReports এর Crystal Query থেকে দরকারি কলাম)
-        // Photo / Nominee / Experience না থাকলেও যাতে কর্মী পাওয়া যায়, তাই ঐ তিনটি LEFT JOIN
-        const string SqlEmp = @"SELECT        Employee_information_new.ID_no, Employee_information_new.Bangla_name, Employee_information_new.Joining_Date, TB_Department.Bangla_Name AS Department_Bangla, TB_Section.Section_bangla_Name, 
-                         TB_Line.Line_bangla_Name, TB_Designation.Designation_Bangla, TB_Company.Conmany_Bangla, TB_Company.Address, TB_Company.Bangla_Address, Employee_Personal_Information_new.NID, 
-                         Employee_Personal_Information_new.B_Village, Employee_Personal_Information_new.B_Post, Employee_Personal_Information_new.B_Thana, Employee_Personal_Information_new.B_District, 
-                         Employee_Personal_Information_new.B_P_Village, Employee_Personal_Information_new.B_P_Post, Employee_Personal_Information_new.B_P_Thana, Employee_Personal_Information_new.B_P_District, 
-                         Employee_Personal_Information_new.Blood_Group, TB_Company.Company_Logo, Employee_Personal_Information_new.Home_Phone, Emp_Photo.Photo, TB_Designation.Designation_Catagory_Bangla AS Work_Type_Bangla,
-                          TB_Company.EMail, TB_Company.Phone, Employee_Personal_Information_new.BID, TB_Designation.Grade, z_Test_ID.User_ID, z_Test_ID.From_Code, techdefendersbd.tb_job_disciption.Purpose_the_work, techdefendersbd.tb_job_disciption.Responsibilities, 
-                         TB_Designation_1.Designation_Bangla AS Report_to1, TB_Designation_2.Designation_Bangla AS Report_to2, Employee_Personal_Information_new.Fathers, Employee_Personal_Information_new.Fathers_Bangla, 
-                         Employee_Personal_Information_new.Mothers, Employee_Personal_Information_new.Mothers_Bangla, Employee_Personal_Information_new.Husband, Employee_Personal_Information_new.Husband_Bangla, 
-                         Employee_Personal_Information_new.Wife, Employee_Personal_Information_new.Wife_Bangla, Employee_Personal_Information_new.Date_of_Birth, Employee_Personal_Information_new.Gender, 
-                         Employee_Personal_Information_new.Religion, Employee_Personal_Information_new.Marital_Status, Employee_Personal_Information_new.Personal_Phone, Employee_Personal_Information_new.TIN, 
-                         Employee_Personal_Information_new.Email AS EMp_Email, Employee_Personal_Information_new.Village, Employee_Personal_Information_new.Post, Employee_Personal_Information_new.Thana, 
-                         Employee_Personal_Information_new.District, Employee_Personal_Information_new.P_Village, Employee_Personal_Information_new.P_Post, Employee_Personal_Information_new.P_Thana, 
-                         Employee_Personal_Information_new.P_District, Employee_Personal_Information_new.Years, Employee_Personal_Information_new.Division_name, Employee_Personal_Information_new.Division_name_Bangla, 
-                         Employee_Personal_Information_new.Number_of_Child, Employee_Personal_Information_new.Hight, Employee_Personal_Information_new.House_Holder_name, Employee_Personal_Information_new.House_Hodler_Bangla, 
-                         Employee_Personal_Information_new.House_Holder_Phone, Employee_Personal_Information_new.DOB, Employee_Personal_Information_new.Weight, Employee_Personal_Information_new.Hight_inchi, 
-                         Employee_Salary_information_new.OT_Holder, Employee_Salary_information_new.Attendance_Bonus_Holder, Employee_Salary_information_new.Bonus_Amount, Employee_Salary_information_new.Tiffin_Holder, 
-                         Employee_Salary_information_new.Night_Holder, Employee_Salary_information_new.Holiday_Holder, Employee_Salary_information_new.Gross_Salary, Employee_Salary_information_new.Bank_Salary, 
-                         Employee_Salary_information_new.Cash_Salary, Employee_Salary_information_new.Tex_Holder, Employee_Salary_information_new.Tex_Amount, Employee_Salary_information_new.Bank_Holder, 
-                         Employee_Salary_information_new.Bank_Name, Employee_Salary_information_new.A_C_No, Employee_Salary_information_new.Brunch_Name, Employee_Salary_information_new.Brackdown_policy, 
-                         Employee_Salary_information_new.Salary_Lock, Employee_Salary_information_new.Others_Allow, tb_Education.Education_Name, tb_Education.Education_Bangla, Brack_Down_System.Basic_Salary, 
-                         Brack_Down_System.Hous_Rant, Brack_Down_System.Food_Allowance, Brack_Down_System.Medicl_Allowance, Brack_Down_System.Transport_Allowance, Brack_Down_System.OT_Rate, 
-                         Brack_Down_System.Absent_Deduction_Rate, TB_Designation.Designation_Catagory, Employee_Nominee_Information_New.Nominee_Name, Employee_Nominee_Information_New.Relation, 
-                         Employee_Nominee_Information_New.BID AS N_BID, Employee_Nominee_Information_New.NID AS N_NID, Employee_Nominee_Information_New.Address AS Nominit_Address, 
-                         Employee_Nominee_Information_New.Nominee_Name_Bangla, Employee_Nominee_Information_New.Relation_Bangla, Employee_Nominee_Information_New.Address_Bangla, 
-                         Employee_Nominee_Information_New.Nominee_Date_of_Birth, Employee_Nominee_Information_New.N_Village_En, Employee_Nominee_Information_New.N_Village_Ba, Employee_Nominee_Information_New.N_Post_En, 
-                         Employee_Nominee_Information_New.N_Post_Ba, Employee_Nominee_Information_New.N_Than_En, Employee_Nominee_Information_New.N_Thana_Ba, Employee_Nominee_Information_New.N_District_En, 
-                         Employee_Nominee_Information_New.N_District_Ba, Employee_Job_Exprience.Factory_Name, Employee_Job_Exprience.Factory_Name_Bangla, Employee_Job_Exprience.Factory_Address, 
-                         Employee_Job_Exprience.Factory_Address_Bangla, Employee_Job_Exprience.From_Date, Employee_Job_Exprience.To_Date, Employee_Job_Exprience.Total_Exprience, Employee_Job_Exprience.exp_time, 
-                         Employee_Job_Exprience.Total_Exprience_Month
-FROM            TB_Designation AS TB_Designation_1 INNER JOIN
-                         techdefendersbd.tb_job_disciption ON TB_Designation_1.Designation_Code = techdefendersbd.tb_job_disciption.Report_To1 INNER JOIN
-                         TB_Designation AS TB_Designation_2 ON techdefendersbd.tb_job_disciption.Report_To2 = TB_Designation_2.Designation_Code INNER JOIN
-                         Employee_information_new INNER JOIN
-                         Employee_Personal_Information_new ON Employee_information_new.ID_no = Employee_Personal_Information_new.ID_No INNER JOIN
-                         Emp_Photo ON Employee_information_new.ID_no = Emp_Photo.Emp_no INNER JOIN
-                         Employee_information_With_Code ON Employee_information_new.ID_no = Employee_information_With_Code.ID_no INNER JOIN
-                         TB_Company ON Employee_information_With_Code.Company_Code = TB_Company.Company_Code INNER JOIN
-                         TB_Department ON Employee_information_With_Code.Department_Code = TB_Department.Department_Code INNER JOIN
-                         TB_Section ON Employee_information_With_Code.Section_Code = TB_Section.Section_Code INNER JOIN
-                         TB_Line ON Employee_information_With_Code.Line_Code = TB_Line.Line_Code INNER JOIN
-                         TB_Designation ON Employee_information_With_Code.Designation_Code = TB_Designation.Designation_Code INNER JOIN
-                         z_Test_ID ON Employee_information_With_Code.ID_no = z_Test_ID.ID_No ON techdefendersbd.tb_job_disciption.Designation_Code = TB_Designation.Designation_Code INNER JOIN
-                         Employee_Salary_information_new ON Employee_information_new.ID_no = Employee_Salary_information_new.ID_no INNER JOIN
-                         tb_Education ON Employee_Personal_Information_new.Education = tb_Education.Education_Name INNER JOIN
-                         Brack_Down_System ON Employee_information_new.ID_no = Brack_Down_System.ID_no INNER JOIN
-                         Employee_Nominee_Information_New ON Employee_information_new.ID_no = Employee_Nominee_Information_New.ID_NO INNER JOIN
-                         Employee_Job_Exprience ON Employee_Personal_Information_new.ID_No = Employee_Job_Exprience.ID_no 
-WHERE z_Test_ID.User_ID = @u AND z_Test_ID.From_Code = @f " +
-            "ORDER BY Employee_information_new.ID_no";
+        // z_Test_ID এর টিক দেওয়া কর্মচারীদের সব তথ্য।
+        // সব সম্পর্ক LEFT JOIN: z_Test_ID থেকে শুরু, তাই টিক দেওয়া সবাই আসবে।
+        // কোনো টেবিলে তথ্য না থাকলে ঐ কলামগুলো ফাঁকা (NULL) আসবে, কর্মী বাদ যাবে না।
+        const string SqlEmp = @"
+SELECT
+    z_Test_ID.ID_No AS ID_no,
+    Employee_information_new.Bangla_name, Employee_information_new.Joining_Date,
+    TB_Department.Bangla_Name AS Department_Bangla, TB_Section.Section_bangla_Name,
+    TB_Line.Line_bangla_Name, TB_Designation.Designation_Bangla, TB_Company.Conmany_Bangla,
+    TB_Company.Address, TB_Company.Bangla_Address,
+    Employee_Personal_Information_new.NID,
+    Employee_Personal_Information_new.B_Village, Employee_Personal_Information_new.B_Post,
+    Employee_Personal_Information_new.B_Thana, Employee_Personal_Information_new.B_District,
+    Employee_Personal_Information_new.B_P_Village, Employee_Personal_Information_new.B_P_Post,
+    Employee_Personal_Information_new.B_P_Thana, Employee_Personal_Information_new.B_P_District,
+    Employee_Personal_Information_new.Blood_Group, TB_Company.Company_Logo,
+    Employee_Personal_Information_new.Home_Phone, Emp_Photo.Photo,
+    TB_Designation.Designation_Catagory_Bangla AS Work_Type_Bangla,
+    TB_Company.EMail, TB_Company.Phone, Employee_Personal_Information_new.BID, TB_Designation.Grade,
+    z_Test_ID.User_ID, z_Test_ID.From_Code,
+    techdefendersbd.tb_job_disciption.Purpose_the_work, techdefendersbd.tb_job_disciption.Responsibilities,
+    TB_Designation_1.Designation_Bangla AS Report_to1, TB_Designation_2.Designation_Bangla AS Report_to2,
+    Employee_Personal_Information_new.Fathers, Employee_Personal_Information_new.Fathers_Bangla,
+    Employee_Personal_Information_new.Mothers, Employee_Personal_Information_new.Mothers_Bangla,
+    Employee_Personal_Information_new.Husband, Employee_Personal_Information_new.Husband_Bangla,
+    Employee_Personal_Information_new.Wife, Employee_Personal_Information_new.Wife_Bangla,
+    Employee_Personal_Information_new.Date_of_Birth, Employee_Personal_Information_new.Gender,
+    Employee_Personal_Information_new.Religion, Employee_Personal_Information_new.Marital_Status,
+    Employee_Personal_Information_new.Personal_Phone, Employee_Personal_Information_new.TIN,
+    Employee_Personal_Information_new.Email AS EMp_Email,
+    Employee_Personal_Information_new.Village, Employee_Personal_Information_new.Post,
+    Employee_Personal_Information_new.Thana, Employee_Personal_Information_new.District,
+    Employee_Personal_Information_new.P_Village, Employee_Personal_Information_new.P_Post,
+    Employee_Personal_Information_new.P_Thana, Employee_Personal_Information_new.P_District,
+    Employee_Personal_Information_new.Years, Employee_Personal_Information_new.Division_name,
+    Employee_Personal_Information_new.Division_name_Bangla, Employee_Personal_Information_new.Number_of_Child,
+    Employee_Personal_Information_new.Hight, Employee_Personal_Information_new.House_Holder_name,
+    Employee_Personal_Information_new.House_Hodler_Bangla, Employee_Personal_Information_new.House_Holder_Phone,
+    Employee_Personal_Information_new.DOB, Employee_Personal_Information_new.Weight,
+    Employee_Personal_Information_new.Hight_inchi,
+    Employee_Salary_information_new.OT_Holder, Employee_Salary_information_new.Attendance_Bonus_Holder,
+    Employee_Salary_information_new.Bonus_Amount, Employee_Salary_information_new.Tiffin_Holder,
+    Employee_Salary_information_new.Night_Holder, Employee_Salary_information_new.Holiday_Holder,
+    Employee_Salary_information_new.Gross_Salary, Employee_Salary_information_new.Bank_Salary,
+    Employee_Salary_information_new.Cash_Salary, Employee_Salary_information_new.Tex_Holder,
+    Employee_Salary_information_new.Tex_Amount, Employee_Salary_information_new.Bank_Holder,
+    Employee_Salary_information_new.Bank_Name, Employee_Salary_information_new.A_C_No,
+    Employee_Salary_information_new.Brunch_Name, Employee_Salary_information_new.Brackdown_policy,
+    Employee_Salary_information_new.Salary_Lock, Employee_Salary_information_new.Others_Allow,
+    tb_Education.Education_Name, tb_Education.Education_Bangla,
+    Brack_Down_System.Basic_Salary, Brack_Down_System.Hous_Rant, Brack_Down_System.Food_Allowance,
+    Brack_Down_System.Medicl_Allowance, Brack_Down_System.Transport_Allowance,
+    Brack_Down_System.OT_Rate, Brack_Down_System.Absent_Deduction_Rate,
+    TB_Designation.Designation_Catagory,
+    Employee_Nominee_Information_New.Nominee_Name, Employee_Nominee_Information_New.Relation,
+    Employee_Nominee_Information_New.BID AS N_BID, Employee_Nominee_Information_New.NID AS N_NID,
+    Employee_Nominee_Information_New.Address AS Nominit_Address,
+    Employee_Nominee_Information_New.Nominee_Name_Bangla, Employee_Nominee_Information_New.Relation_Bangla,
+    Employee_Nominee_Information_New.Address_Bangla, Employee_Nominee_Information_New.Nominee_Date_of_Birth,
+    Employee_Nominee_Information_New.N_Village_En, Employee_Nominee_Information_New.N_Village_Ba,
+    Employee_Nominee_Information_New.N_Post_En, Employee_Nominee_Information_New.N_Post_Ba,
+    Employee_Nominee_Information_New.N_Than_En, Employee_Nominee_Information_New.N_Thana_Ba,
+    Employee_Nominee_Information_New.N_District_En, Employee_Nominee_Information_New.N_District_Ba,
+    Employee_Job_Exprience.Factory_Name, Employee_Job_Exprience.Factory_Name_Bangla,
+    Employee_Job_Exprience.Factory_Address, Employee_Job_Exprience.Factory_Address_Bangla,
+    Employee_Job_Exprience.From_Date, Employee_Job_Exprience.To_Date,
+    Employee_Job_Exprience.Total_Exprience, Employee_Job_Exprience.exp_time,
+    Employee_Job_Exprience.Total_Exprience_Month,
+
+    -- কোন টেবিলে তথ্য আছে/নেই বোঝার জন্য (শুধু Notice এর কাজে লাগে)
+    Employee_information_new.ID_no              AS Has_Emp,
+    Employee_information_With_Code.ID_no        AS Has_Code,
+    Employee_Personal_Information_new.ID_No     AS Has_Personal,
+    Emp_Photo.Emp_no                            AS Has_Photo,
+    Employee_Salary_information_new.ID_no       AS Has_Salary,
+    Brack_Down_System.ID_no                     AS Has_Break,
+    Employee_Nominee_Information_New.ID_NO      AS Has_Nominee,
+    Employee_Job_Exprience.ID_no                AS Has_Exp,
+    techdefendersbd.tb_job_disciption.Designation_Code AS Has_JD,
+    tb_Education.Education_Name                 AS Has_Edu
+FROM z_Test_ID
+    LEFT JOIN Employee_information_With_Code      ON Employee_information_With_Code.ID_no = z_Test_ID.ID_No
+    LEFT JOIN Employee_information_new            ON Employee_information_new.ID_no       = z_Test_ID.ID_No
+    LEFT JOIN Employee_Personal_Information_new   ON Employee_Personal_Information_new.ID_No = z_Test_ID.ID_No
+    LEFT JOIN Emp_Photo                           ON Emp_Photo.Emp_no                     = z_Test_ID.ID_No
+    LEFT JOIN TB_Company                          ON TB_Company.Company_Code              = Employee_information_With_Code.Company_Code
+    LEFT JOIN TB_Department                       ON TB_Department.Department_Code        = Employee_information_With_Code.Department_Code
+    LEFT JOIN TB_Section                          ON TB_Section.Section_Code              = Employee_information_With_Code.Section_Code
+    LEFT JOIN TB_Line                             ON TB_Line.Line_Code                    = Employee_information_With_Code.Line_Code
+    LEFT JOIN TB_Designation                      ON TB_Designation.Designation_Code      = Employee_information_With_Code.Designation_Code
+    LEFT JOIN techdefendersbd.tb_job_disciption   ON techdefendersbd.tb_job_disciption.Designation_Code = TB_Designation.Designation_Code
+    LEFT JOIN TB_Designation AS TB_Designation_1  ON TB_Designation_1.Designation_Code    = techdefendersbd.tb_job_disciption.Report_To1
+    LEFT JOIN TB_Designation AS TB_Designation_2  ON TB_Designation_2.Designation_Code    = techdefendersbd.tb_job_disciption.Report_To2
+    LEFT JOIN Employee_Salary_information_new     ON Employee_Salary_information_new.ID_no = z_Test_ID.ID_No
+    LEFT JOIN tb_Education                        ON tb_Education.Education_Name          = Employee_Personal_Information_new.Education
+    LEFT JOIN Brack_Down_System                   ON Brack_Down_System.ID_no              = z_Test_ID.ID_No
+    LEFT JOIN Employee_Nominee_Information_New    ON Employee_Nominee_Information_New.ID_NO = z_Test_ID.ID_No
+    LEFT JOIN Employee_Job_Exprience              ON Employee_Job_Exprience.ID_no         = z_Test_ID.ID_No
+WHERE z_Test_ID.User_ID = @u AND z_Test_ID.From_Code = @f
+ORDER BY z_Test_ID.ID_No";
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -135,15 +184,26 @@ WHERE z_Test_ID.User_ID = @u AND z_Test_ID.From_Code = @f " +
             }
 
             var sb = new StringBuilder();
+            var warn = new StringBuilder();
             var seen = new HashSet<string>();   // Nominee / Experience এর একাধিক সারির জন্য একই কর্মীর পুনরাবৃত্তি বাদ
             int n = 0;
             foreach (DataRow r in dt.Rows)
             {
                 if (!seen.Add(S(r, "ID_no"))) continue;
+
+                string miss = Missing(r);
+                if (miss != "") warn.Append("<li><b>" + Bn(E(S(r, "ID_no"))) + "</b> — " + miss + "</li>");
+
                 sb.Append(def.Render(r));
                 n++;
             }
-            litLetters.Text = sb.ToString();
+
+            // যাদের কিছু তথ্য নেই তাদের তালিকা (শুধু স্ক্রিনে দেখায়, প্রিন্টে আসে না)
+            string note = warn.Length == 0 ? "" :
+                "<div class='no-print' style='max-width:210mm;margin:12px auto;padding:10px 16px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;font-family:Arial,sans-serif;font-size:13px;color:#78350f'>" +
+                "<b>নিচের কর্মীদের কিছু তথ্য ডাটাবেসে পাওয়া যায়নি (ঐ অংশ ফাঁকা দেখাবে):</b><ul style='margin:6px 0 0 18px'>" + warn + "</ul></div>";
+
+            litLetters.Text = note + sb.ToString();
             litCount.Text = n + " employee(s)";
         }
 
@@ -171,6 +231,23 @@ WHERE z_Test_ID.User_ID = @u AND z_Test_ID.From_Code = @f " +
             return Convert.ToString(r[col]).Trim();
         }
         static string E(string s) { return HttpUtility.HtmlEncode(s ?? ""); }
+
+        // কোন কোন তথ্য ডাটাবেসে নেই (LEFT JOIN এ NULL এসেছে)
+        static string Missing(DataRow r)
+        {
+            var l = new List<string>();
+            if (S(r, "Has_Emp") == "") l.Add("Employee Information");
+            if (S(r, "Has_Code") == "") l.Add("Company/Department/Designation");
+            if (S(r, "Has_Personal") == "") l.Add("Personal Information");
+            if (S(r, "Has_Photo") == "" || r["Photo"] == DBNull.Value) l.Add("Photo");
+            if (S(r, "Has_Salary") == "") l.Add("Salary");
+            if (S(r, "Has_Break") == "") l.Add("Salary Break-down");
+            if (S(r, "Has_Nominee") == "") l.Add("Nominee");
+            if (S(r, "Has_Exp") == "") l.Add("Job Experience");
+            if (S(r, "Has_JD") == "") l.Add("Job Description");
+            if (S(r, "Has_Edu") == "") l.Add("Education");
+            return string.Join(", ", l.ToArray());
+        }
 
         static string Bn(string s)
         {

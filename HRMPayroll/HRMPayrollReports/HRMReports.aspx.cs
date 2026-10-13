@@ -177,19 +177,19 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             // ---- নতুন: ডকুমেন্ট সেট (সবগুলো একই পেজ, ?r= দিয়ে কোনটি দেখাবে ঠিক হয়; সবার formCode = 8) ----
             else if (name == "Full File Bangla")
             { page = "HRReports/EmployeeDocuments.aspx?report=Full_File_Bangla"; formCode = 8; needIds = true; }
-            else if (name == "Appointment Letter")
-            { page = "~/HRMPayroll/HRMPayrollReports/HRReports/EmployeeDocuments.aspx?report=Appointment_Letter"; formCode = 8; needIds = true; }
-            else if (name == "ID Card")
+            else if (name == "Appointment Letter" || name == "Appointment Latter")
+            { page = "HRReports/EmployeeDocuments.aspx?report=Appointment_Letter"; formCode = 8; needIds = true; }
+            else if (name == "ID Card" || name == "ID Card Bangla")
             { page = "HRReports/EmployeeDocuments.aspx?report=ID_Card"; formCode = 8; needIds = true; }
-            else if (name == "Background Check")
+            else if (name == "Background Check" || name == "Police Verification Letter")
             { page = "HRReports/EmployeeDocuments.aspx?report=Background_Check"; formCode = 8; needIds = true; }
             else if (name == "Job Description")
             { page = "HRReports/EmployeeDocuments.aspx?report=Job_Description"; formCode = 8; needIds = true; }
-            else if (name == "Nominee Form")
+            else if (name == "Nominee Form" || name == "Nominee From")
             { page = "HRReports/EmployeeDocuments.aspx?report=Nominee_Form"; formCode = 8; needIds = true; }
-            else if (name == "Medical Form")
+            else if (name == "Medical Form" || name == "Medical From")
             { page = "HRReports/EmployeeDocuments.aspx?report=Medical_Form"; formCode = 8; needIds = true; }
-            else if (name == "Joining Letter")
+            else if (name == "Joining Letter" || name == "Joining Latter")
             { page = "HRReports/EmployeeDocuments.aspx?report=Joining_Letter"; formCode = 8; needIds = true; }
             else
                 return false;   // তালিকায় নেই
