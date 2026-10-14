@@ -18,17 +18,6 @@ body{font-family:Calibri,Arial,Helvetica,sans-serif;font-size:8.5pt;color:#000;m
 .head .ttl{font-family:Arial,Helvetica,sans-serif;font-size:8.5pt;font-weight:700;margin-top:.5mm}
 
 /* ===== Table ===== */
-/*table.t{border-collapse:collapse;width:100%;margin-top:3mm;table-layout:fixed}
-table.t th,table.t td{border:1px solid #444;padding:0 1.4mm;font-size:8.5pt;word-wrap:break-word}
-table.t th{font-weight:400;text-align:center;vertical-align:middle;height:12mm;line-height:1.15}
-table.t tbody tr.dr td{height:9mm;vertical-align:middle}
-table.t thead{display:table-header-group}
-table.t tr{page-break-inside:avoid}
-
-table.t td.headCell{border:0;padding:0}
-table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}*/
-
-/* ===== Table ===== */
 table.t{border-collapse:separate;border-spacing:0;width:100%;margin-top:3mm;table-layout:fixed}
 table.t th,table.t td{border:0;border-right:1px solid #444;border-bottom:1px solid #444;padding:0 1.4mm;font-size:8.5pt;word-wrap:break-word}
 table.t th:first-child,table.t td:first-child{border-left:1px solid #444}
@@ -45,9 +34,9 @@ table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}
 table.t td.grp{font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:9pt;background:#e9e9e9;text-align:left;padding:1.5mm 2mm;height:auto}
 table.t tr.grpRow{page-break-after:avoid}
 
-/* Department group heading */
-table.t td.grp{font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:9pt;background:#e9e9e9;text-align:left;padding:1.5mm 2mm;height:auto}
-table.t tr.grpRow{page-break-after:avoid}
+/* Section / Department / Grand Total */
+table.t tr.tot td{background:#f2f2f2;font-weight:700;height:7mm;vertical-align:middle}
+table.t tr.gtot td{background:#d9d9d9;font-weight:700;height:8mm;vertical-align:middle}
 
 .c{text-align:center}.r{text-align:right}.l{text-align:left}
 td.rm{font-family:Arial,Helvetica,sans-serif;font-size:8.5pt}
@@ -119,8 +108,35 @@ td.rm{font-family:Arial,Helvetica,sans-serif;font-size:8.5pt}
                         <td class="l"><%# H(Eval("Gross")) %></td>
                         <td class="c"><%# H(Eval("IncMonth")) %></td>
                         <td class="r"><%# H(Eval("IncAmount")) %></td>
-                        <td class="l rm"><%# H(Eval("Remarks")) %></td>
+                        <td class="l rm"></td>
                     </tr>
+                    <asp:PlaceHolder runat="server" Visible='<%# (bool)Eval("SecEnd") %>'>
+                        <tr class="tot">
+                            <td colspan="8" class="r">Section Total (<%# H(Eval("Section")) %>)</td>
+                            <td class="l"><%# H(Eval("SecGross")) %></td>
+                            <td></td>
+                            <td class="r"><%# H(Eval("SecInc")) %></td>
+                            <td></td>
+                        </tr>
+                    </asp:PlaceHolder>
+                    <asp:PlaceHolder runat="server" Visible='<%# (bool)Eval("DeptEnd") %>'>
+                        <tr class="tot">
+                            <td colspan="8" class="r">Department Total (<%# H(Eval("Department")) %>)</td>
+                            <td class="l"><%# H(Eval("DeptGross")) %></td>
+                            <td></td>
+                            <td class="r"><%# H(Eval("DeptInc")) %></td>
+                            <td></td>
+                        </tr>
+                    </asp:PlaceHolder>
+                    <asp:PlaceHolder runat="server" Visible='<%# (bool)Eval("IsLast") %>'>
+                        <tr class="gtot">
+                            <td colspan="8" class="r">Grand Total</td>
+                            <td class="l"><%# H(Eval("GrandGross")) %></td>
+                            <td></td>
+                            <td class="r"><%# H(Eval("GrandInc")) %></td>
+                            <td></td>
+                        </tr>
+                    </asp:PlaceHolder>
                 </ItemTemplate>
             </asp:Repeater>
         </tbody>

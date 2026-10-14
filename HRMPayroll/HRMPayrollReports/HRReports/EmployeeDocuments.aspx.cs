@@ -10,17 +10,26 @@ using System.Web;
 
 namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
 {
-    // HRMReports এর Report View বাটন নতুন ট্যাবে খোলে:
-    //   EmployeeDocuments.aspx?report=<নাম>
-    // report নাম:
+    // HRMReports এর Report View বাটন নতুন ট্যাবে খোলে (Soft_Reports এর ReportPageLink কলাম থেকে):
+    //   EmployeeDocuments.aspx?report=<নাম>&rc=<ব্যাচ নম্বর>
+    // report নাম (ReportPageLink এ লিখতে হবে):
     //   Full_File_Bangla (সবগুলো পরপর) | Appointment_Letter | ID_Card | Background_Check
     //   Job_Description | Nominee_Form | Medical_Form | Joining_Letter
-    // কর্মচারী আসে z_Test_ID থেকে (HRMReports এ টিক দেওয়া, From_Code = 8)
+    // কর্মচারী আসে z_Test_ID থেকে: HRMReports এ টিক দেওয়া, From_Code = URL এর rc (ব্যাচ নম্বর)
     public partial class EmployeeDocuments : System.Web.UI.Page
     {
         PayrollDB conn = new PayrollDB();
 
-        const int FormCode = 8;                 // HRMReports এর ResolveReport এর formCode এর সঙ্গে মিলতে হবে
+        // ড্যাশবোর্ড URL এ ?rc=<ব্যাচ নম্বর> পাঠায়; না থাকলে 8
+        int FormCode
+        {
+            get
+            {
+                int v;
+                return int.TryParse(Request.QueryString["rc"], out v) ? v : 8;
+            }
+        }
+
         const string LetterPageCss = "@page { size:A4; margin:0; }";
 
         class Def
@@ -29,7 +38,8 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
             public Func<DataRow, string> Render;
         }
 
-        static readonly Dictionary<string, Def> Reports = new Dictionary<string, Def>(StringComparer.Ordinal)
+        // নামের বড়-ছোট হাতের অক্ষর (ID_Card / id_card) আর গুরুত্বপূর্ণ নয়
+        static readonly Dictionary<string, Def> Reports = new Dictionary<string, Def>(StringComparer.OrdinalIgnoreCase)
         {
             { "Appointment_Letter", new Def { Title = "Appointment Letter", Render = AppointmentLetter } },
             { "ID_Card",            new Def { Title = "ID Card",            Render = IdCard } },
@@ -146,12 +156,22 @@ ORDER BY z_Test_ID.ID_No";
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            string report = Request.QueryString["report"] ?? "";
+            string report = (Request.QueryString["report"] ?? "").Trim();
             Def def;
+
+            // লিংকে ?report=... না থাকলে পরিষ্কার বার্তা (Soft_Reports এর ReportPageLink ঠিক করতে হবে)
+            if (report == "")
+            {
+                litLetters.Text = "<div class=\"msg\">লিংকে রিপোর্টের নাম (report) পাওয়া যায়নি।<br/>" +
+                    "Soft_Reports এর <b>ReportPageLink</b> এ এভাবে লিখুন: <b>HRReports/EmployeeDocuments.aspx?report=ID_Card</b><br/>" +
+                    "বৈধ নাম: " + E(string.Join(", ", new List<string>(Reports.Keys).ToArray())) + "</div>";
+                return;
+            }
 
             if (!Reports.TryGetValue(report, out def))
             {
-                litLetters.Text = "<div class=\"msg\">এই রিপোর্টের (" + E(report) + ") লেআউট যোগ করা হয়নি।</div>";
+                litLetters.Text = "<div class=\"msg\">এই রিপোর্টের (" + E(report) + ") লেআউট যোগ করা হয়নি।<br/>" +
+                    "বৈধ নাম: " + E(string.Join(", ", new List<string>(Reports.Keys).ToArray())) + "</div>";
                 return;
             }
 

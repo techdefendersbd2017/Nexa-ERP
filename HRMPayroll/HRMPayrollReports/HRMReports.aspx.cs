@@ -26,6 +26,12 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         const bool ShowDebug = true;
         readonly List<string> debug = new List<string>();
 
+        // Soft_Reports টেবিলে রিপোর্ট পেজের লিংকের কলাম
+        const string LinkColumn = "ReportPageLink";
+
+        // একই request এ বারবার DB তে না গিয়ে লিংকের তালিকা একবারই লোড
+        Dictionary<string, string> reportLinks;
+
         // ---------- মডেল ----------
         public class Emp
         {
@@ -100,7 +106,6 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         }
 
         // Text = Report_Name, Value = Report_Code
-        // Report_Name এর নাম ResolveReport এর নামের সঙ্গে হুবহু মিলতে হবে
         void LoadReportTypes()
         {
             ddRType.Items.Clear();
@@ -134,6 +139,43 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             }
         }
 
+        // ===== Soft_Reports এর ReportPageLink কলাম থেকে: Report_Code -> রিপোর্ট পেজের লিংক =====
+        // লিংক ফাঁকা থাকলে সেই রিপোর্ট ধরা হয় "রিপোর্ট পেজ নেই", তখন আগের মতোই এই পেজে Show এর কাজ করে।
+        // লিংক এই পেজের ফোল্ডারের সাপেক্ষে লিখুন, যেমন: HRReports/ActiveEmployeeListReport.aspx
+        // (অথবা ~/ দিয়ে শুরু করে পুরো পথ)
+        Dictionary<string, string> ReportLinks()
+        {
+            if (reportLinks != null) return reportLinks;
+
+            reportLinks = new Dictionary<string, string>();
+            try
+            {
+                using (SqlConnection con = conn.openConnection())
+                {
+                    if (con.State != ConnectionState.Open) con.Open();
+
+                    using (var cmd = new SqlCommand(
+                        "SELECT Report_Code, [" + LinkColumn + "] AS Link FROM Soft_Reports WHERE Menu=1", con))
+                    {
+                        var dt = new DataTable();
+                        using (var da = new SqlDataAdapter(cmd)) da.Fill(dt);
+
+                        foreach (DataRow r in dt.Rows)
+                        {
+                            string link = Convert.ToString(r["Link"]).Trim();
+                            if (link.Length == 0) continue;
+                            reportLinks[Convert.ToString(r["Report_Code"])] = link;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                loadErrors.Add("reportLink: " + ex.Message);
+            }
+            return reportLinks;
+        }
+
         // নির্বাচিত Report Type এর নাম (Value এখন কোড, তাই Text নিতে হয়)
         string RTypeText()
         {
@@ -153,66 +195,27 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             ShowData();
         }
 
-        // ===== নতুন রিপোর্ট যোগ করতে শুধু এখানে একটি else if বসান =====
-        // page    : রিপোর্ট পেজের পথ
-        // formCode: z_Test_ID এর From_Code
-        // needIds : true হলে গ্রিড থেকে কর্মচারী নির্বাচন লাগবে
-        static bool ResolveReport(string name, out string page, out int formCode, out bool needIds)
-        {
-            page = null; formCode = 0; needIds = true;
-            name = Norm(name);   // বাড়তি/ডবল স্পেস বাদ দিয়ে মেলানো, তাই Soft_Reports এর নামে স্পেসের ভুলে আর আটকাবে না
-
-            if (name == "Active Employee List")
-            { page = "HRReports/ActiveEmployeeListReport.aspx"; formCode = 7; needIds = true; }
-            else if (name == "Full File Bangla")
-            { page = "HRReports/EmployeeDocuments.aspx?report=Full_File_Bangla"; formCode = 8; needIds = true; }
-            else if (name == "Appointment Letter" || name == "Appointment Latter")
-            { page = "HRReports/EmployeeDocuments.aspx?report=Appointment_Letter"; formCode = 8; needIds = true; }
-            else if (name == "ID Card" || name == "ID Card Bangla")
-            { page = "HRReports/EmployeeDocuments.aspx?report=ID_Card"; formCode = 8; needIds = true; }
-            else if (name == "Background Check" || name == "Police Verification Letter")
-            { page = "HRReports/EmployeeDocuments.aspx?report=Background_Check"; formCode = 8; needIds = true; }
-            else if (name == "Job Description")
-            { page = "HRReports/EmployeeDocuments.aspx?report=Job_Description"; formCode = 8; needIds = true; }
-            else if (name == "Nominee Form" || name == "Nominee From")
-            { page = "HRReports/EmployeeDocuments.aspx?report=Nominee_Form"; formCode = 8; needIds = true; }
-            else if (name == "Medical Form" || name == "Medical From")
-            { page = "HRReports/EmployeeDocuments.aspx?report=Medical_Form"; formCode = 8; needIds = true; }
-            else if (name == "Joining Letter" || name == "Joining Latter")
-            { page = "HRReports/EmployeeDocuments.aspx?report=Joining_Letter"; formCode = 8; needIds = true; }
-            else
-                return false;   // তালিকায় নেই
-
-            return true;
-        }
-
-        static string Norm(string s)
-        {
-            return System.Text.RegularExpressions.Regex.Replace((s ?? "").Trim(), @"\s+", " ");
-        }
-
-        // ড্রপডাউনের কোন কোন নাম নতুন ট্যাবে রিপোর্ট খোলে তার তালিকা ResolveReport থেকেই JS এ যায়
-        // (JS এ আলাদা তালিকা রাখতে হয় না, তাই দুই জায়গার নাম আর অমিল হবে না)
+        // কোন কোন Report Type এর লিংক আছে তার তালিকা (Report_Code ধরে) JS এ পাঠানো হয়।
+        // JS এ আলাদা তালিকা রাখতে হয় না: Soft_Reports এ লিংক দিলেই রিপোর্ট নতুন ট্যাবে খুলবে।
         protected void Page_PreRender(object sender, EventArgs e)
         {
+            var links = ReportLinks();
             var map = new Dictionary<string, bool>();
             foreach (ListItem it in ddRType.Items)
-            {
-                string p; int f; bool n;
-                string key = it.Text.Trim();
-                if (ResolveReport(key, out p, out f, out n)) map[key] = n;
-            }
+                if (links.ContainsKey(it.Value)) map[it.Value] = true;   // true = কর্মচারী নির্বাচন লাগবে
+
             ClientScript.RegisterStartupScript(GetType(), "rpts",
                 "window.RESOLVED_REPORTS=" + new JavaScriptSerializer().Serialize(map) + ";", true);
         }
 
         protected void btnReport_Click(object sender, EventArgs e)
         {
-            string page; int formCode; bool needIds;
+            string code = ddRType.SelectedValue;
             string rt = RTypeText();
 
-            if (ResolveReport(rt, out page, out formCode, out needIds))
-                OpenReport(page, formCode, needIds);
+            string link;
+            if (ReportLinks().TryGetValue(code, out link))
+                OpenReport(link, true);
             else if (ShowData())
                 Toast("Report generated successfully! (Type: " + rt + ")");
         }
@@ -226,9 +229,16 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             return hfSelIds.Value ?? "";
         }
 
-        // নির্বাচিত ID z_Test_ID তে সেভ করে পেজ খোলা
-        void OpenReport(string page, int formCode, bool needIds)
+        // নির্বাচিত ID z_Test_ID তে সেভ করে রিপোর্ট পেজে পাঠানো
+        // (ফর্ম আগেই JS দিয়ে নতুন ট্যাবে সাবমিট হয়েছে, তাই Redirect নতুন ট্যাবেই রিপোর্ট খোলে;
+        //  আসল ড্যাশবোর্ড ট্যাব reload হয় না)
+        void OpenReport(string page, bool needIds)
         {
+            // প্রতিবার Report View এর জন্য একটি নতুন "ব্যাচ নম্বর" (কোনো রিপোর্টের ফর্ম কোডের উপর নির্ভর করে না)।
+            // এটি z_Test_ID এর From_Code ঘরে সেভ হয় এবং URL এ ?rc= দিয়ে রিপোর্ট পেজে যায়।
+            // ১০০ কোটি থেকে শুরু, তাই কোনো আসল কোডের সঙ্গে মিলবে না।
+            int token = 1000000000 + (int)(DateTime.Now - new DateTime(2020, 1, 1)).TotalSeconds;
+
             if (UserCode == 0)
             {
                 Toast("User_Code পাওয়া যায়নি (Session)। Login করে আবার চেষ্টা করুন।");
@@ -257,11 +267,13 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                 {
                     if (con.State != ConnectionState.Open) con.Open();
 
+                    // এই ব্যাচ নম্বরের আগের রো (একই সেকেন্ডে আবার চাপলে) এবং ১ দিনের পুরোনো ব্যাচগুলো পরিষ্কার
                     using (var del = new SqlCommand(
-                        "DELETE FROM dbo.z_Test_ID WHERE User_ID=@u AND From_Code=@f", con))
+                        "DELETE FROM dbo.z_Test_ID WHERE User_ID=@u AND (From_Code=@t OR (From_Code>=1000000000 AND From_Code<@old))", con))
                     {
                         del.Parameters.Add("@u", SqlDbType.BigInt).Value = UserCode;
-                        del.Parameters.Add("@f", SqlDbType.BigInt).Value = formCode;
+                        del.Parameters.Add("@t", SqlDbType.BigInt).Value = token;
+                        del.Parameters.Add("@old", SqlDbType.BigInt).Value = token - 86400;
                         del.ExecuteNonQuery();
                     }
 
@@ -269,7 +281,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                     {
                         foreach (long id in ids)
                             HRDb.ExecProc(con, "Pro_z_Test_ID_New",
-                                HRDb.P("@ID_No", id), HRDb.P("@User_ID", UserCode), HRDb.P("@Form_Code", formCode));
+                                HRDb.P("@ID_No", id), HRDb.P("@User_ID", UserCode), HRDb.P("@Form_Code", token));
                     }
                 }
             }
@@ -278,9 +290,11 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                 Toast("Error: " + ex.Message);
                 return;
             }
+
             string url = ResolveClientUrl(page);
-            ClientScript.RegisterStartupScript(GetType(), "openRpt",
-                "window.open(" + new JavaScriptSerializer().Serialize(url) + ", '_blank');", true);
+            string sep = url.Contains("?") ? ((url.EndsWith("?") || url.EndsWith("&")) ? "" : "&") : "?";
+            Response.Redirect(url + sep + "rc=" + token, false);
+            Context.ApplicationInstance.CompleteRequest();
         }
 
         protected void btnClear_Click(object sender, EventArgs e)

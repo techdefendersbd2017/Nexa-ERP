@@ -26,6 +26,12 @@ table.t tr{page-break-inside:avoid}
 table.t td.headCell{border:0;padding:0 0 2mm 0}
 table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}
 
+/* Department / Section group ও Total সারি */
+table.t tr.gDept td{background:#d9d9d9}
+table.t tr.gSec td{background:#efefef}
+table.t tr.sub td{background:#f7f7f7}
+table.t tr.grand td{background:#d9d9d9;font-size:9pt}
+
 .c{text-align:center}.r{text-align:right}
 
 .msg{display:block;text-align:center;font-size:12pt;margin:20mm auto}
@@ -77,9 +83,9 @@ table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}
         </thead>
 
         <tbody>
-            <asp:Repeater ID="rptRows" runat="server">
+            <asp:Repeater ID="rptRows" runat="server" OnItemDataBound="rptRows_ItemDataBound">
                 <ItemTemplate>
-
+                    <asp:Literal ID="litBefore" runat="server" />
                     <tr>
                         <td class="c"><%# H(Eval("Sl")) %></td>
                         <td class="r"><%# H(Eval("IdNo")) %></td>
@@ -91,8 +97,10 @@ table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}
                         <td class="r"><%# H(Eval("Gross")) %></td>
                         <td></td>
                     </tr>
+                    <asp:Literal ID="litAfter" runat="server" />
                 </ItemTemplate>
             </asp:Repeater>
+            <asp:Literal ID="litGrand" runat="server" />
         </tbody>
     </table>
 

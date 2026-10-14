@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.Text;
 using System.Web;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 
 
 // ASPX এর Inherits="Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports.ActiveEmployeeListReport" এর সঙ্গে মিলতে হবে
@@ -24,6 +26,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
         // HRMReports এর ResolveReport এ এই রিপোর্টের formCode এর সঙ্গে মিলতে হবে
         const int ReportFormCode = 7;
 
+        // Department -> Section -> ID_no ক্রমে সাজানো (গ্রুপিংয়ের জন্য)
         const string Sql = @"
 SELECT e.ID_no, e.Name, b.Branch_Name, d.Department_Name, s.Section_Name,
        g.Desigation_name, e.Joining_Date, sal.Gross_Salary
@@ -36,7 +39,7 @@ INNER JOIN dbo.TB_Section s ON ec.Section_Code = s.Section_Code
 INNER JOIN dbo.TB_Designation g ON ec.Designation_Code = g.Designation_Code
 INNER JOIN dbo.Employee_Salary_information_new sal ON e.ID_no = sal.ID_no
 WHERE z.User_ID = @u AND z.From_Code = @f
-ORDER BY e.ID_no asc";
+ORDER BY d.Department_Name, s.Section_Name, e.ID_no asc";
 
         const string LogoSql = @"
 SELECT TOP 1 b.Branch_logo
@@ -46,7 +49,8 @@ INNER JOIN dbo.TB_Branch b ON ec.Branch_Code = b.Branch_Code
 WHERE z.User_ID = @u AND z.From_Code = @f";
 
         long UserCode { get { return SessionLong("User_Code", "UserCode", "User_ID", "UserID", "userid"); } }
-        long FromCode { get { return ReportFormCode; } }
+        // ড্যাশবোর্ড URL এ ?rc=<ব্যাচ নম্বর> পাঠায়; না থাকলে ReportFormCode
+        long FromCode { get { long v; return long.TryParse(Request.QueryString["rc"], out v) ? v : ReportFormCode; } }
 
         long SessionLong(params string[] keys)
         {
@@ -61,6 +65,10 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
 
         string company = "";
 
+        // গ্রুপিং/টোটালের জন্য
+        List<AelRow> pageRows;
+        decimal secTotal, deptTotal;
+
         // ================= Page Load =================
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -71,8 +79,61 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
 
             lblCompany.Text = HttpUtility.HtmlEncode(company);
             litLogo.Text = LogoHtml();
+
+            pageRows = rows;
+
+            decimal grand = 0;
+            foreach (AelRow x in rows) grand += Dec(x.GrossRaw);
+
             rptRows.DataSource = rows;
             rptRows.DataBind();
+
+            litGrand.Text = "<tr class=\"grand\"><td colspan=\"7\" class=\"r\"><b>Grand Total</b></td>"
+                          + "<td class=\"r\"><b>" + grand.ToString("#,##0", Inv) + "</b></td><td></td></tr>";
+        }
+
+        // ================= Department / Section Group + Total =================
+        protected void rptRows_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        {
+            if (e.Item.ItemType != ListItemType.Item && e.Item.ItemType != ListItemType.AlternatingItem) return;
+
+            AelRow r = (AelRow)e.Item.DataItem;
+            int i = e.Item.ItemIndex;
+            AelRow prev = i > 0 ? pageRows[i - 1] : null;
+            AelRow next = i < pageRows.Count - 1 ? pageRows[i + 1] : null;
+
+            bool newDept = prev == null || prev.Department != r.Department;
+            bool newSec = newDept || prev.Section != r.Section;
+
+            var before = new StringBuilder();
+            if (newDept)
+            {
+                deptTotal = 0;
+                before.Append("<tr class=\"gDept\"><td colspan=\"9\"><b>Department: " + H(r.Department) + "</b></td></tr>");
+            }
+            if (newSec)
+            {
+                secTotal = 0;
+                before.Append("<tr class=\"gSec\"><td colspan=\"9\"><b>Section: " + H(r.Section) + "</b></td></tr>");
+            }
+
+            decimal g = Dec(r.GrossRaw);
+            secTotal += g;
+            deptTotal += g;
+
+            bool secEnd = next == null || next.Department != r.Department || next.Section != r.Section;
+            bool deptEnd = next == null || next.Department != r.Department;
+
+            var after = new StringBuilder();
+            if (secEnd)
+                after.Append("<tr class=\"sub\"><td colspan=\"7\" class=\"r\"><b>Section Total (" + H(r.Section) + ")</b></td>"
+                           + "<td class=\"r\"><b>" + secTotal.ToString("#,##0", Inv) + "</b></td><td></td></tr>");
+            if (deptEnd)
+                after.Append("<tr class=\"sub\"><td colspan=\"7\" class=\"r\"><b>Department Total (" + H(r.Department) + ")</b></td>"
+                           + "<td class=\"r\"><b>" + deptTotal.ToString("#,##0", Inv) + "</b></td><td></td></tr>");
+
+            ((Literal)e.Item.FindControl("litBefore")).Text = before.ToString();
+            ((Literal)e.Item.FindControl("litAfter")).Text = after.ToString();
         }
 
         // রো লোড করে; সমস্যা হলে বার্তা দেখিয়ে null ফেরত দেয়

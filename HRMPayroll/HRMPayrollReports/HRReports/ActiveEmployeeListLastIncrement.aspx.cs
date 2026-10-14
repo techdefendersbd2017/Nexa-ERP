@@ -8,10 +8,8 @@ using System.Text;
 using System.Web;
 using System.Web.UI;
 
-// ASPX এর Inherits="Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports.ActiveEmployeeListLastIncrement" এর সঙ্গে মিলতে হবে
 namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
 {
-    // ---------- একটি সারির তথ্য (সব আগে থেকে ফরম্যাট করা) ----------
     public class AelliRow
     {
         public string Sl { get; set; }
@@ -29,6 +27,17 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
         public string IncAmountRaw { get; set; }   // 1000 (Excel এর জন্য)
         public string Remarks { get; set; }
         public string GroupHead { get; set; }      // গ্রুপের প্রথম সারিতে ডিপার্টমেন্টের নাম, বাকিতে খালি
+
+        // ===== Section / Department / Grand Total এর জন্য =====
+        public bool SecEnd { get; set; }           // এই রো Section এর শেষ রো কি না
+        public bool DeptEnd { get; set; }          // এই রো Department এর শেষ রো কি না
+        public bool IsLast { get; set; }           // পুরো রিপোর্টের শেষ রো কি না
+        public string SecGross { get; set; }
+        public string SecInc { get; set; }
+        public string DeptGross { get; set; }
+        public string DeptInc { get; set; }
+        public string GrandGross { get; set; }
+        public string GrandInc { get; set; }
     }
 
     public partial class ActiveEmployeeListLastIncrement : Page
@@ -45,7 +54,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
         // z_Test_ID এর সঙ্গে JOIN: শুধু HRMReports এ টিক দেওয়া কর্মচারীরা আসে।
         // Last Increment টেবিলে একই কর্মচারীর একাধিক রো থাকলেও ROW_NUMBER() দিয়ে শুধু সর্বশেষটি নেওয়া হয়,
         // এবং LEFT JOIN, তাই ইনক্রিমেন্ট না থাকলেও কেউ বাদ পড়ে না।
-        // ডিপার্টমেন্ট অনুযায়ী গ্রুপ করার জন্য Department দিয়ে sort করা।
+        // Department -> Section -> ID_no ক্রমে sort (গ্রুপ ও টোটালের জন্য)।
         const string Sql = @"
 SELECT e.ID_no, e.Name, e.Designation, e.Joining_Date, e.Department, e.Section, e.Line,
        e.Company_Name, sal.Gross_Salary,
@@ -59,7 +68,7 @@ LEFT JOIN (
     FROM dbo.Employee_Information_Last_Increment
 ) li ON e.ID_no = li.ID_no AND li.rn = 1
 WHERE z.User_ID = @u AND z.From_Code = @f
-ORDER BY e.Department, e.ID_no";
+ORDER BY e.Department, e.Section, e.ID_no";
 
         const string LogoSql = @"
 SELECT TOP 1 c.Company_Logo
@@ -69,7 +78,8 @@ INNER JOIN dbo.TB_Company c ON ec.Company_Code = c.Company_Code
 WHERE z.User_ID = @u AND z.From_Code = @f";
 
         long UserCode { get { return SessionLong("User_Code", "UserCode", "User_ID", "UserID", "userid"); } }
-        long FromCode { get { return ReportFormCode; } }
+        // ড্যাশবোর্ড URL এ ?rc=<ব্যাচ নম্বর> পাঠায়; না থাকলে ReportFormCode
+        long FromCode { get { long v; return long.TryParse(Request.QueryString["rc"], out v) ? v : ReportFormCode; } }
 
         long SessionLong(params string[] keys)
         {
@@ -262,6 +272,41 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                     GroupHead = isNew ? grp : ""
                 });
             }
+
+            // ===== Section Total / Department Total / Grand Total হিসাব =====
+            decimal sg = 0, si = 0, dg = 0, di = 0, gg = 0, gi = 0;
+            for (int i = 0; i < list.Count; i++)
+            {
+                AelliRow cur = list[i];
+                AelliRow next = i < list.Count - 1 ? list[i + 1] : null;
+
+                decimal g = Dec(cur.GrossRaw), a = Dec(cur.IncAmountRaw);
+                sg += g; si += a;
+                dg += g; di += a;
+                gg += g; gi += a;
+
+                if (next == null || next.Department != cur.Department || next.Section != cur.Section)
+                {
+                    cur.SecEnd = true;
+                    cur.SecGross = sg.ToString("#,##0.00", Inv);
+                    cur.SecInc = si.ToString("#,##0.##", Inv);
+                    sg = 0; si = 0;
+                }
+                if (next == null || next.Department != cur.Department)
+                {
+                    cur.DeptEnd = true;
+                    cur.DeptGross = dg.ToString("#,##0.00", Inv);
+                    cur.DeptInc = di.ToString("#,##0.##", Inv);
+                    dg = 0; di = 0;
+                }
+                if (next == null)
+                {
+                    cur.IsLast = true;
+                    cur.GrandGross = gg.ToString("#,##0.00", Inv);
+                    cur.GrandInc = gi.ToString("#,##0.##", Inv);
+                }
+            }
+
             return list;
         }
 
@@ -393,6 +438,17 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
             return sb.ToString();
         }
 
+        // Word / Excel এর টোটাল সারি
+        static string TotRow(string label, string gross, string inc)
+        {
+            const string b = "border:1px solid #000;font-weight:bold;background:#f2f2f2;";
+            return "<tr><td colspan=\"8\" style=\"" + b + "text-align:right\">" + Enc(label) + "</td>"
+                 + "<td style=\"" + b + "text-align:left\">" + Enc(gross) + "</td>"
+                 + "<td style=\"" + b + "\"></td>"
+                 + "<td style=\"" + b + "text-align:right\">" + Enc(inc) + "</td>"
+                 + "<td style=\"" + b + "\"></td></tr>";
+        }
+
         static string DataTable(List<AelliRow> rows, bool excel)
         {
             var sb = new StringBuilder();
@@ -431,6 +487,11 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                     sb.Append("<td style=\"border:1px solid #000;text-align:").Append(al).Append(extra).Append("\">").Append(val).Append("</td>");
                 }
                 sb.Append("</tr>");
+
+                // Section / Department / Grand Total
+                if (r.SecEnd) sb.Append(TotRow("Section Total (" + r.Section + ")", r.SecGross, r.SecInc));
+                if (r.DeptEnd) sb.Append(TotRow("Department Total (" + r.Department + ")", r.DeptGross, r.DeptInc));
+                if (r.IsLast) sb.Append(TotRow("Grand Total", r.GrandGross, r.GrandInc));
             }
             sb.Append("</table>");
             return sb.ToString();
@@ -525,8 +586,15 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
         {
             public bool IsGroup;
             public string GroupText;
+            public bool IsTotal;
+            public string TotLabel, TotGross, TotInc;
             public List<string>[] Cells;
             public double H;
+        }
+
+        static Prep MakeTot(string label, string gross, string inc)
+        {
+            return new Prep { IsTotal = true, TotLabel = Ascii(label), TotGross = gross, TotInc = inc, H = 18 };
         }
 
         public static byte[] Pdf(List<AelliRow> rows, string company, string title)
@@ -558,6 +626,11 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                 }
                 p.H = Math.Max(minRowH, maxLines * lineH + 2 * padV);
                 preps.Add(p);
+
+                // Section / Department / Grand Total সারি
+                if (r.SecEnd) preps.Add(MakeTot("Section Total (" + r.Section + ")", r.SecGross, r.SecInc));
+                if (r.DeptEnd) preps.Add(MakeTot("Department Total (" + r.Department + ")", r.DeptGross, r.DeptInc));
+                if (r.IsLast) preps.Add(MakeTot("Grand Total", r.GrandGross, r.GrandInc));
             }
 
             // ২) পাতায় ভাগ করা (গ্রুপ হেডার একা পাতার শেষে পড়বে না)
@@ -624,6 +697,35 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                         cs.Append(F(M)).Append(' ').Append(F(Ht - (top + p.H))).Append(' ')
                           .Append(F(usable)).Append(' ').Append(F(p.H)).Append(" re S\n");
                         Text(cs, "F2", 9, M + 4, Ht - (top + 11.5), p.GroupText);
+                        top += p.H;
+                        continue;
+                    }
+
+                    if (p.IsTotal)
+                    {
+                        // প্রথম ৮ কলাম জুড়ে লেবেল, তারপর Gross / (ফাঁকা) / IncAmount / (ফাঁকা)
+                        double lw = 0;
+                        for (int i = 0; i < 8; i++) lw += cw[i];
+                        double yb = Ht - (top + p.H);
+
+                        cs.Append("0.95 g ").Append(F(M)).Append(' ').Append(F(yb)).Append(' ')
+                          .Append(F(usable)).Append(' ').Append(F(p.H)).Append(" re f 0 g\n");
+                        cs.Append(F(M)).Append(' ').Append(F(yb)).Append(' ')
+                          .Append(F(lw)).Append(' ').Append(F(p.H)).Append(" re S\n");
+
+                        double xx = M + lw;
+                        for (int i = 8; i < Cols; i++)
+                        {
+                            cs.Append(F(xx)).Append(' ').Append(F(yb)).Append(' ')
+                              .Append(F(cw[i])).Append(' ').Append(F(p.H)).Append(" re S\n");
+                            xx += cw[i];
+                        }
+
+                        double ty = Ht - (top + p.H / 2 + 3);
+                        Text(cs, "F2", fs, M + lw - padH - Tw(p.TotLabel, fs, true), ty, p.TotLabel);
+                        Text(cs, "F2", fs, M + lw + padH, ty, p.TotGross);
+                        Text(cs, "F2", fs, M + lw + cw[8] + cw[9] + cw[10] - padH - Tw(p.TotInc, fs, true), ty, p.TotInc);
+
                         top += p.H;
                         continue;
                     }

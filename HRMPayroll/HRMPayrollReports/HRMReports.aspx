@@ -209,22 +209,21 @@ function collectIds() {
     return true;
 }
 
-// Report View: যেসব Report Type এর রিপোর্ট পেজ আছে শুধু সেগুলোই নতুন ট্যাবে খোলে।
-// তালিকাটি সার্ভার (code-behind এর ResolveReport) থেকে আসে: window.RESOLVED_REPORTS = { "রিপোর্টের নাম": কর্মচারী-লাগবে-কিনা }
-// তাই নতুন রিপোর্ট যোগ করলে এখানে কিছু বদলাতে হয় না।
+// Report View: Soft_Reports টেবিলের ReportPageLink কলামে যে রিপোর্টের লিংক দেওয়া আছে সেটি নতুন ট্যাবে খোলে।
+// তালিকাটি সার্ভার (code-behind এর Page_PreRender) থেকে আসে: window.RESOLVED_REPORTS = { "Report_Code": কর্মচারী-লাগবে-কিনা }
+// তাই নতুন রিপোর্ট যোগ করলে এখানে কিছু বদলাতে হয় না, শুধু টেবিলে লিংক দিলেই হয়।
 function onReportClick() {
     collectIds();
     const f = document.forms[0];
     const dd = document.getElementById('ddRType');
-    // Value এখন Report_Code, তাই নাম নিতে হয় নির্বাচিত option এর Text থেকে
-    const rt = (dd.selectedIndex >= 0 ? dd.options[dd.selectedIndex].text : '').trim();
+    const code = dd.value;                       // Report_Code দিয়ে মেলানো হয়
     const map = window.RESOLVED_REPORTS || {};
 
-    // রিপোর্ট পেজ নেই: নতুন ট্যাব নয়, এই পেজেই চলবে (নইলে HRMReports নিজেই নতুন ট্যাবে খুলে যায়)
-    if (!Object.prototype.hasOwnProperty.call(map, rt)) return true;
+    // লিংক নেই: নতুন ট্যাব নয়, এই পেজেই চলবে (নইলে HRMReports নিজেই নতুন ট্যাবে খুলে যায়)
+    if (!Object.prototype.hasOwnProperty.call(map, code)) return true;
 
     // কর্মচারী লাগে এমন রিপোর্টে কমপক্ষে একজন নির্বাচন বাধ্যতামূলক
-    if (map[rt] && !document.getElementById('hfSelIds').value) {
+    if (map[code] && !document.getElementById('hfSelIds').value) {
         showNotification('কমপক্ষে একজন কর্মচারী নির্বাচন করুন।');
         return false;
     }
