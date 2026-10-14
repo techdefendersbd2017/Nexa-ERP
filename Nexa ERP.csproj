@@ -258,9 +258,7 @@
     <Content Include="HRMPayroll\HRMDashboard.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListLastIncrement.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\ActiveEmployeeListReport.aspx" />
-    <Content Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeDocuments.aspx" />
-    <Content Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\LeftyLetterView.aspx" />
     <Content Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveAllocation.aspx" />
     <Content Include="HRMPayroll\LeaveInformation\LeaveReports\LeaveApplicationReport.aspx" />
@@ -598,26 +596,12 @@
       <DependentUpon>ActiveEmployeeListReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="ExportClass\AelExport.cs" />
-    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx.cs">
-      <DependentUpon>AppointmentLetter.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\AppointmentLetter.aspx.designer.cs">
-      <DependentUpon>AppointmentLetter.aspx</DependentUpon>
-    </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeDocuments.aspx.cs">
       <DependentUpon>EmployeeDocuments.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeDocuments.aspx.designer.cs">
       <DependentUpon>EmployeeDocuments.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx.cs">
-      <DependentUpon>JoiningLatter.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\JoiningLatter.aspx.designer.cs">
-      <DependentUpon>JoiningLatter.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\LeftyLetterView.aspx.cs">
       <DependentUpon>LeftyLetterView.aspx</DependentUpon>

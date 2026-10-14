@@ -254,7 +254,7 @@ ORDER BY z_Test_ID.ID_No";
             if (string.IsNullOrEmpty(s)) return s;
             var sb = new StringBuilder();
             foreach (char c in s)
-                sb.Append((c >= '0' && c <= '9') ? (char)('\u09E6' + (c - '0')) : c);
+                sb.Append((c >= '0' && c <= '9') ? (char)('০' + (c - '0')) : c);
             return sb.ToString();
         }
 
@@ -290,6 +290,12 @@ ORDER BY z_Test_ID.ID_No";
             return "<img class='" + css + "' src='data:image/jpeg;base64," + Convert.ToBase64String(b) + "' />";
         }
 
+        static bool HasBytes(DataRow r, string col)
+        {
+            byte[] b = r.Table.Columns.Contains(col) && r[col] != DBNull.Value ? r[col] as byte[] : null;
+            return b != null && b.Length > 0;
+        }
+
         static string Join(params string[] parts)
         {
             var l = new List<string>();
@@ -311,6 +317,25 @@ ORDER BY z_Test_ID.ID_No";
         }
 
         static string Sign(string a, string b) { return "<div class='sign'><div>" + a + "</div><div>" + b + "</div></div>"; }
+
+        // ---- ফরম-৪১ ও ফরম-১৫ এর সাহায্যকারী ----
+        static string Addr(string v, string p, string t, string d)
+        {
+            return "<table class='ad half'><tr><td>গ্রাম ঃ " + E(v) + "</td><td>ডাকঘর ঃ " + E(p) + "</td></tr>" +
+                   "<tr><td>থানা ঃ " + E(t) + "</td><td>জেলা ঃ " + E(d) + "</td></tr></table>";
+        }
+        static string AddrP(DataRow r) { return Addr(S(r, "B_P_Village"), S(r, "B_P_Post"), S(r, "B_P_Thana"), S(r, "B_P_District")); }
+        static string AddrC(DataRow r) { return Addr(S(r, "B_Village"), S(r, "B_Post"), S(r, "B_Thana"), S(r, "B_District")); }
+
+        static string R41(string l, string v)
+        {
+            return "<tr><td class='l'>" + l + "</td><td colspan='2'>ঃ " + v + "</td></tr>";
+        }
+        static string A41(string label, string v, string p, string t, string d)
+        {
+            return "<tr><td class='l' rowspan='2'><u>" + label + "</u></td><td>ঃ গ্রাম - " + E(v) + "</td><td>ডাকঘর - " + E(p) + "</td></tr>" +
+                   "<tr><td style='padding-left:16px'>থানা - " + E(t) + "</td><td>জেলা - " + E(d) + "</td></tr>";
+        }
 
         // ===================== 1. Appointment Letter =====================
         static string AppointmentLetter(DataRow r)
@@ -481,58 +506,110 @@ ORDER BY z_Test_ID.ID_No";
         // ===================== 5. Nominee Form (ফরম-৪১) =====================
         static string NomineeForm(DataRow r)
         {
-            string nomAddr = E(Join(S(r, "N_Village_Ba"), S(r, "N_Post_Ba"), S(r, "N_Thana_Ba"), S(r, "N_District_Ba")));
+            string age = Age(r, "Nominee_Date_of_Birth");
+            string jd = D(r, "Joining_Date");
+            string nm = E(S(r, "Nominee_Name_Bangla"));
+
             var sb = new StringBuilder();
-            sb.Append("<div style='text-align:center'><b>ফরম- ৪১</b><br/><small>[ধারা ১৯,১৩১(১)(ক), ১৫৫(২), ২৩৪,২৬৪,২৬৫ ও ২৭৩ এবং বিধি-১১৮(১),১৩৬,২৩২(২),২৬২(১),২৮৯(১) ও ৩২১(১) দ্রষ্টব্য]</small></div>");
-            sb.Append("<div class='ttl'>জমা ও বিভিন্নখাতে প্রাপ্য অর্থ পরিশোধের ঘোষণা ও মনোনয়নের ফরম</div>");
-            sb.Append("<table class='kv'>");
-            sb.Append(KV("কারখানা/ প্রতিষ্ঠানের নাম", E(S(r, "Conmany_Bangla"))));
-            sb.Append(KV("কারখানা / প্রতিষ্ঠানের ঠিকানা", E(S(r, "Bangla_Address"))));
-            sb.Append(KV("শ্রমিকের নাম", "<b>" + E(S(r, "Bangla_name")) + "</b>"));
-            sb.Append(KV("লিঙ্গ", E(S(r, "Gender"))));
-            sb.Append(KV("পিতার নাম", E(S(r, "Fathers_Bangla"))));
-            sb.Append(KV("মাতার নাম", E(S(r, "Mothers_Bangla"))));
-            sb.Append(KV("স্বামী/স্ত্রীর নাম", Spouse(r)));
-            sb.Append(KV("জন্ম তারিখ", D(r, "Date_of_Birth")));
-            sb.Append(KV("বর্তমান ঠিকানা", Present(r)));
-            sb.Append(KV("স্থায়ী ঠিকানা", Permanent(r)));
-            sb.Append(KV("চাকুরীতে নিযুক্তির তারিখ", D(r, "Joining_Date")));
-            sb.Append(KV("পদের নাম", E(S(r, "Designation_Bangla"))));
-            sb.Append(KV("আই. ডি. নং", Bn(E(S(r, "ID_no")))));
+            sb.Append("<div class='f41h'><div class='t1'>ফরম- ৪১</div><div class='t2'>[ধারা ১৯,১৩১(১)(ক), ১৫৫(২), ২৩৪,২৬৪,২৬৫ ও ২৭৩ এবং বিধি-১১৮(১),১৩৬,২৩২(২),২৬২(১),২৮৯(১) ও ৩২১(১) দ্রষ্টব্য ]</div></div>");
+            sb.Append("<div class='f41ttl'>জমা ও বিভিন্নখাতে প্রাপ্য অর্থ পরিশোধের ঘোষণা ও মনোনয়নের ফরম</div>");
+            sb.Append("<p class='f41p'>কারখানা/ প্রতিষ্ঠানের নাম : " + E(S(r, "Conmany_Bangla")) + "</p>");
+            sb.Append("<p class='f41p'>কারখানা / প্রতিষ্ঠানের ঠিকানা: " + E(S(r, "Bangla_Address")) + "</p>");
+
+            sb.Append("<table class='f41k'>");
+            sb.Append(R41("শ্রমিকের নাম ও ঠিকানা: নাম", E(S(r, "Bangla_name"))));
+            sb.Append(R41("লিঙ্গ", E(S(r, "Gender"))));
+            sb.Append(R41("পিতার নাম", E(S(r, "Fathers_Bangla"))));
+            sb.Append(R41("মাতার নাম", E(S(r, "Mothers_Bangla"))));
+            sb.Append(R41("স্বামীর নাম", E(S(r, "Husband_Bangla"))));
+            sb.Append(R41("স্ত্রীর নাম", E(S(r, "Wife_Bangla"))));
+            sb.Append(R41("জন্ম তারিখ", D(r, "Date_of_Birth")));
+            sb.Append(A41("বর্তমান ঠিকানা", S(r, "B_Village"), S(r, "B_Post"), S(r, "B_Thana"), S(r, "B_District")));
+            sb.Append(A41("স্থায়ী ঠিকানা", S(r, "B_P_Village"), S(r, "B_P_Post"), S(r, "B_P_Thana"), S(r, "B_P_District")));
+            sb.Append(R41("সনাক্তকরণ চিহ্ন (যদি থাকে", ""));
+            sb.Append(R41("চাকরিতে নিযুক্তির তারিখ", jd));
+            sb.Append(R41("পদের নাম", E(S(r, "Designation_Bangla"))));
+            sb.Append(R41("আই. ডি নং", Bn(E(S(r, "ID_no")))));
             sb.Append("</table>");
-            sb.Append("<p class='j' style='margin-top:10px'>আমি এতদ্বারা ঘোষণা করিতেছি যে, আমার মৃত্যু হইলে বা আমার অবর্তমানে, আমার অনুকূলে জমা ও বিভিন্নখাতে প্রাপ্য টাকা গ্রহণের জন্য আমি নির্ধারিত ব্যক্তি/ব্যক্তিগণকে মনোনয়ন দান করিতেছি এবং নির্দেশ দিচ্ছি যে, উক্ত টাকা নির্ধারিত পদ্ধতিতে মনোনীত ব্যক্তিদের মধ্যে বণ্টন করিতে হইবে।</p>");
-            sb.Append("<table class='bd'><tr><th>মনোনীত ব্যক্তির নাম, ঠিকানা ও ছবি</th><th>এন আই ডি নং</th><th>সদস্যদের সহিত সম্পর্ক</th><th>বয়স</th><th>প্রত্যেক মনোনীত ব্যক্তিকে দেওয়া অংশ</th></tr>");
-            sb.Append("<tr><td>" + E(S(r, "Nominee_Name_Bangla")) + "<br/>" + nomAddr + "</td><td>" + Bn(E(S(r, "N_NID"))) + "</td><td>" +
-                      E(S(r, "Relation_Bangla")) + "</td><td>" + Age(r, "Nominee_Date_of_Birth") + " বছর</td><td>১০০%</td></tr></table>");
-            sb.Append("<p class='j' style='margin-top:10px'>প্রত্যয়ন করিতেছি যে, আমার উপস্থিতিতে জনাব/জনাবা <b>" + E(S(r, "Nominee_Name_Bangla")) + "</b> লিপিবদ্ধ বিবরণসমূহ পাঠ করিবার পর উক্ত ঘোষণা পত্রে স্বাক্ষর করিয়াছেন।</p>");
-            sb.Append("<div class='sign' style='margin-top:40px'><div>মনোনয়ন প্রদানকারী শ্রমিকের স্বাক্ষর, টিপসহি ও তারিখ<br/>" + D(r, "Joining_Date") + "</div><div>মালিকের বা অধিকার প্রাপ্ত কর্মকর্তার স্বাক্ষর<br/>তারিখঃ " + D(r, "Joining_Date") + "</div></div>");
+
+            sb.Append("<p class='j' style='margin:16px 0'>আমি এতদ্বারা ঘোষণা করিতেছি যে, আমার মৃত্যু হইলে বা আমার অবর্তমানে, আমার অনুকূলে জমা ও বিভিন্নখাতে প্রাপ্য টাকা গ্রহণের জন্য আমি নিম্ন বর্ণিত ব্যক্তিকে/ ব্যক্তিগণকে মনোনয়ন দান করিতেছি এবং নির্দেশ দিচ্ছি যে, উক্ত টাকা নিম্ন বর্ণিত পদ্ধতিতে মনোনীত ব্যক্তিদের মধ্যে বণ্টন করিতে হইবে ।</p>");
+
+            // মনোনীত ব্যক্তির ঘর
+            string nomCell = "<div>" + nm + "</div><div style='margin:6px 0'>" + Bn(E(S(r, "N_NID"))) + "</div>" +
+                "<table class='ad'><tr><td style='width:30%'>গ্রাম-</td><td>ঃ " + E(S(r, "N_Village_Ba")) + "</td></tr>" +
+                "<tr><td>ডাকঘর</td><td>ঃ " + E(S(r, "N_Post_Ba")) + "</td></tr>" +
+                "<tr><td>থানা</td><td>ঃ " + E(S(r, "N_Thana_Ba")) + "</td></tr>" +
+                "<tr><td>জেলা</td><td>ঃ " + E(S(r, "N_District_Ba")) + "</td></tr></table>";
+            string ageTxt = age != "" ? age + " বছর" : "";
+
+            sb.Append("<table class='bd f41t'>");
+            sb.Append("<tr><th rowspan='2' style='width:40%'>মনোনীত ব্যক্তি বা ব্যক্তিদের নাম, ঠিকানা ও ছবি<br/>(নমিনির ছবি ও স্বাক্ষর শ্রমিক কর্তৃক সত্যায়িত)<br/>এন আই ডি নং</th>" +
+                      "<th rowspan='2' style='width:18%'>সদস্যদের সহিত মনোনীত ব্যক্তিদের সম্পর্ক</th>" +
+                      "<th rowspan='2' style='width:12%'>বয়স</th>" +
+                      "<th colspan='2'>প্রত্যেক মনোনীত ব্যক্তিকে দেওয়া অংশ</th></tr>");
+            sb.Append("<tr><th>জমাখাত</th><th style='width:11%'>অংশ</th></tr>");
+            sb.Append("<tr><td rowspan='6'>" + nomCell + "</td><td rowspan='6' class='c'>" + E(S(r, "Relation_Bangla")) +
+                      "</td><td rowspan='6' class='c'>" + ageTxt + "</td><td>বকেয়া মজুরী</td><td class='c'>১০০%</td></tr>");
+            sb.Append("<tr><td>প্রভিডেন্ট ফান্ড</td><td class='c'>--</td></tr>");
+            sb.Append("<tr><td>বীমা</td><td class='c'>১০০%</td></tr>");
+            sb.Append("<tr><td>দুর্ঘটনার ক্ষতিপূরণ</td><td class='c'>১০০%</td></tr>");
+            sb.Append("<tr><td>লভ্যাংশ</td><td class='c'>--</td></tr>");
+            sb.Append("<tr><td>অন্যান্য</td><td class='c'>যদি থাকে</td></tr>");
+            sb.Append("</table>");
+
+            sb.Append("<p class='j' style='margin-top:8px'>প্রত্যয়ন করছি যে, আমার উপস্থিতিতে জনাব/জনাবা " + nm + " লিপিবদ্ধ বিবরণসমূহ পাঠ করিবার পর উক্ত ঘোষণা পত্র স্বাক্ষর করিয়াছেন ।</p>");
+            sb.Append("<div style='text-align:center;margin-top:24px'>মনোনয়ন প্রদান কারী শ্রমিকের স্বাক্ষর, টিপসহি ও তারিখ<br/>" + jd + "</div>");
+            sb.Append("<div class='f41s'><div>তারিখসহ মনোনীত ব্যক্তিগনের<br/>স্বাক্ষর অথবা টিপসহি<br/>(শ্রমিক কর্তৃক সত্যায়িত ছবি)</div>" +
+                      "<div style='text-align:center'>মালিকের বা প্রধিকার প্রাপ্ত কর্মকর্তার<br/>স্বাক্ষর<br/>তারিখঃ " + jd + "</div></div>");
             return Sheet(sb.ToString());
         }
 
         // ===================== 6. Medical Form (ফরম-১৫) =====================
         static string MedicalForm(DataRow r)
         {
-            var sb = new StringBuilder();
-            sb.Append("<div style='text-align:center'><b>ফরম-১৫</b><br/><small>ধারা ৩৪,৩৬,৩৭ ও ২৭৭ এবং বিধি ৩৪(১) ও ৩৩৬(৪) দ্রষ্টব্য</small></div>");
-            sb.Append("<div class='ttl'>বয়স ও সক্ষমতা প্রত্যয়ন পত্র<br/><small>(রেজিস্টার্ড চিকিৎসকের প্যাড-এ)</small></div>");
-            sb.Append("<table class='kv'>");
-            sb.Append(KV("১। ক্রমিক নং", Bn(E(S(r, "ID_no")))));
-            sb.Append(KV("তারিখ", D(r, "Joining_Date")));
-            sb.Append(KV("২। নাম", "<b>" + E(S(r, "Bangla_name")) + "</b>"));
-            sb.Append(KV("৩। পিতার নাম", E(S(r, "Fathers_Bangla"))));
-            sb.Append(KV("৪। মাতার নাম", E(S(r, "Mothers_Bangla"))));
-            sb.Append(KV("৫। লিঙ্গ", E(S(r, "Gender"))));
-            sb.Append(KV("৬। স্থায়ী ঠিকানা", Permanent(r)));
-            sb.Append(KV("৭। অস্থায়ী / যোগাযোগের ঠিকানা", Present(r)));
-            sb.Append(KV("৮। জন্ম সনদ / জাতীয় পরিচয় পত্র / নাগরিকত্ব সনদ / শিক্ষা সনদ", Bn(E(S(r, "NID")))));
-            sb.Append(KV("৯। দৈহিক সক্ষমতা", "ক্রটিমুক্ত"));
-            sb.Append("</table>");
+            string id = Bn(E(S(r, "ID_no")));
+            string jd = D(r, "Joining_Date");
+            string name = E(S(r, "Bangla_name"));
+            string father = E(S(r, "Fathers_Bangla"));
+            string mother = E(S(r, "Mothers_Bangla"));
             string h = S(r, "Hight"), hi = S(r, "Hight_inchi"), w = S(r, "Weight");
-            sb.Append("<p class='j' style='margin-top:10px'>আমি এই মর্মে প্রত্যয়ন করিতেছি যে, তিনি প্রতিষ্ঠানে নিযুক্ত হইতে ইচ্ছুক এবং আমার পরীক্ষা হইতে এরূপ পাওয়া গিয়াছে যে, তাহার বয়স <b>" + Age(r, "Date_of_Birth") + "</b> বছর এবং তিনি প্রতিষ্ঠানে প্রাপ্তবয়স্ক/ কিশোর হিসাবে নিযুক্ত হইবার যোগ্য।</p>");
-            sb.Append("<p>তাহার সনাক্তকরণের চিহ্নঃ</p>");
-            sb.Append("<p>ডাক্তারী পরীক্ষাঃ উচ্চতাঃ " + Bn(E(h)) + " ফুট " + Bn(E(hi)) + " ইঞ্চি। ওজনঃ " + Bn(E(w)) + " কেজি।</p>");
-            sb.Append("<p>চোখের পরীক্ষাঃ<br/>ক) সঠিকভাবে বর্ণ বা রং চিনতে পারে কিনাঃ হ্যাঁ<br/>খ) ত্রুটিপূর্ণ দৃষ্টিশক্তি কিনাঃ না</p>");
-            sb.Append("<div class='sign' style='margin-top:60px'><div>সংশ্লিষ্ট ব্যক্তির স্বাক্ষর/টিপ সহি</div><div>রেজিস্টার্ড চিকিৎসকের স্বাক্ষর</div></div>");
+            string photo = HasBytes(r, "Photo") ? Img(r, "Photo", "pimg") : "ছবি";
+
+            var sb = new StringBuilder();
+            sb.Append("<div style='text-align:center'><div style='font-size:26px;font-weight:bold'>" + E(S(r, "Conmany_Bangla")) +
+                      "</div><div style='font-size:12px'>" + E(S(r, "Bangla_Address")) + "</div></div>");
+            sb.Append("<div class='f15top'><div class='mid'>ফরম-১৫<br/><span style='font-size:15px'>ধারা ৩৪,৩৬,৩৭ ও ২৭৭ এবং বিধি ৩৪(১) ও ৩৩৬(৪) দ্রষ্টব্য</span><br/>বয়স ও সক্ষমতা প্রত্যায়ন পত্র<br/>রেজিস্টার্ড চিকিৎসকের প্যাড-এ</div>" +
+                      "<div class='pbox'>" + photo + "</div></div>");
+            sb.Append("<div class='ttl' style='font-size:20px;margin:22px 0 12px'>বয়স ও সক্ষমতা প্রত্যয়ন পত্র</div>");
+
+            string head = "<td class='h'>বয়স ও সক্ষমতা প্রত্যয়ন পত্র</td>";
+            string para1 = "আমি এই মর্মে প্রত্যয়ন করিতেছি যে, <b>" + name + "</b><br/>পিতা- " + father + " &nbsp;&nbsp; মাতা- " + mother +
+                           "<br/>গ্রাম ঃ " + E(S(r, "B_P_Village")) + " &nbsp;&nbsp; ডাকঘর ঃ " + E(S(r, "B_P_Post")) +
+                           "<br/>থানা ঃ " + E(S(r, "B_P_Thana")) + " &nbsp;&nbsp; জেলা ঃ " + E(S(r, "B_P_District")) +
+                           "<br/>কে আমি পরীক্ষা করিয়াছি।";
+            string para2 = "তিনি প্রতিষ্ঠানে নিযুক্ত হইতে ইচ্ছুক এবং আমার পরীক্ষা হইতে এরূপ পাওয়া গিয়াছে যে, তাহার বয়স <b>" +
+                           Age(r, "Date_of_Birth") + "</b> বছর এবং তিনি প্রতিষ্ঠানে প্রাপ্তবয়স্ক/ কিশোর হিসাবে নিযুক্ত হইবার যোগ্য।";
+
+            sb.Append("<table class='f15'>");
+            sb.Append("<tr>" + head + head + "</tr>");
+            sb.Append("<tr><td>১। ক্রমিক নং ঃ " + id + "</td><td>১। ক্রমিক নং ঃ " + id + "</td></tr>");
+            sb.Append("<tr><td>তারিখ ঃ " + jd + "</td><td>তারিখ ঃ " + jd + "</td></tr>");
+            sb.Append("<tr><td>২। নাম ঃ " + name + "</td><td></td></tr>");
+            sb.Append("<tr><td>৩। পিতার নাম ঃ " + father + "</td><td>" + para1 + "</td></tr>");
+            sb.Append("<tr><td>৪। মাতার নাম ঃ " + mother + "</td><td></td></tr>");
+            sb.Append("<tr><td>৫। লিঙ্গ ঃ " + E(S(r, "Gender")) + "</td><td>" + para2 + "</td></tr>");
+            sb.Append("<tr><td>৬। স্থায়ী ঠিকানা ঃ" + AddrP(r) + "</td><td></td></tr>");
+            sb.Append("<tr><td>৭। অস্থায়ী / যোগাযোগের ঠিকানা ঃ" + AddrC(r) + "</td><td>তাহার সনাক্ত করণের চিহ্ন ঃ</td></tr>");
+            sb.Append("<tr><td>৮। জন্ম সনদ / জাতীয় পরিচয় পত্র / নাগরিকত্ব সনদ / শিক্ষা সনদ</td><td>" + D(r, "Date_of_Birth") + "</td></tr>");
+            sb.Append("<tr><td>৯। দৈহিক সক্ষমতা ঃ</td><td></td></tr>");
+
+            sb.Append("<tr><td colspan='2'>ডাক্তারী পরীক্ষাঃ<br/>** উচ্চতাঃ " + Bn(E(h)) + " ফুট " + Bn(E(hi)) + " ইঞ্চি। &nbsp; ওজনঃ " + Bn(E(w)) + " কেজি।<br/>চোখের পরীক্ষাঃ" +
+                      "<div class='f15ck'><span>ক) সঠিকভাবে বর্ণ বা রং চিনতে পারে কিনা</span><span>হ্যাঁ <i class='bx'></i> না <i class='bx'></i></span></div>" +
+                      "<div class='f15ck'><span>খ) ত্রুটিপূর্ণ দৃষ্টিশক্তি কিনাঃ</span><span>হ্যাঁ <i class='bx'></i> না <i class='bx'></i></span></div></td></tr>");
+
+            string sg = "<td><div class='f15sg'><div>সংশ্লিষ্ট ব্যক্তির<br/>স্বাক্ষর/টিপ সহি</div><div>রেজিস্টার্ড চিকিৎসকের স্বাক্ষর</div></div></td>";
+            sb.Append("<tr>" + sg + sg + "</tr>");
+            sb.Append("</table>");
             return Sheet(sb.ToString());
         }
 

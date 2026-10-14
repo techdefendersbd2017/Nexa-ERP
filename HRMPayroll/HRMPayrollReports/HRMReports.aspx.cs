@@ -164,17 +164,6 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
 
             if (name == "Active Employee List")
             { page = "HRReports/ActiveEmployeeListReport.aspx"; formCode = 7; needIds = true; }
-            //else if (name == "Appointment Latter")
-            //{ page = "HRReports/AppointmentLetter.aspx"; formCode = 2; needIds = true; }
-            //else if (name == "Active Employee List with Last Increment")
-            //{ page = "HRReports/ActiveEmployeeListLastIncrement.aspx"; formCode = 3; needIds = true; }
-            //else if (name == "Designation Roster")
-            //{ page = "HRReports/DesignationRoster.aspx"; formCode = 4; needIds = true; }
-            //else if (name == "Blood Group Directory")
-            //{ page = "HRReports/BloodGroup.aspx"; formCode = 5; needIds = true; }
-            //else if (name == "Joining Status Report")
-            //{ page = "HRReports/JoiningStatus.aspx"; formCode = 6; needIds = true; }
-            // ---- নতুন: ডকুমেন্ট সেট (সবগুলো একই পেজ, ?r= দিয়ে কোনটি দেখাবে ঠিক হয়; সবার formCode = 8) ----
             else if (name == "Full File Bangla")
             { page = "HRReports/EmployeeDocuments.aspx?report=Full_File_Bangla"; formCode = 8; needIds = true; }
             else if (name == "Appointment Letter" || name == "Appointment Latter")
@@ -289,9 +278,9 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                 Toast("Error: " + ex.Message);
                 return;
             }
-
-            Response.Redirect(page, false);
-            Context.ApplicationInstance.CompleteRequest();
+            string url = ResolveClientUrl(page);
+            ClientScript.RegisterStartupScript(GetType(), "openRpt",
+                "window.open(" + new JavaScriptSerializer().Serialize(url) + ", '_blank');", true);
         }
 
         protected void btnClear_Click(object sender, EventArgs e)

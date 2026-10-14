@@ -50,6 +50,37 @@
         .card .back { display:flex; gap:12px; }
         .card .back > div { flex:1; }
 
+        /* ---- ফরম-৪১ ---- */
+        .f41h{text-align:center;border-bottom:3px solid #000;padding-bottom:6px;margin-bottom:10px}
+        .f41h .t1{font-size:22px;font-weight:bold}
+        .f41h .t2{font-size:13px}
+        .f41ttl{text-align:center;font-weight:bold;font-size:17px;margin:8px 0 14px}
+        .f41p{margin:6px 0}
+        table.f41k{width:100%;border-collapse:collapse;margin-top:8px}
+        table.f41k td{padding:3px 4px;vertical-align:top}
+        table.f41k td.l{width:27%;text-align:right;white-space:nowrap}
+        table.f41t{margin-top:10px}
+        table.f41t th{background:#fff;font-weight:normal;text-align:center}
+        table.f41t td.c{text-align:center}
+        .f41s{display:flex;justify-content:space-between;margin-top:60px}
+
+        /* ---- ফরম-১৫ ---- */
+        .f15top{position:relative;min-height:38mm;margin-top:8px}
+        .f15top .mid{text-align:center;padding-top:12mm;line-height:1.7}
+        .pbox{position:absolute;right:0;top:0;width:34mm;height:36mm;border:1px solid #9a9a9a;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px}
+        .pbox img{width:100%;height:100%;object-fit:cover}
+        table.f15{width:100%;border-collapse:collapse;table-layout:fixed}
+        table.f15 > tbody > tr > td{border:1px solid #000;padding:4px 6px;vertical-align:top}
+        table.f15 td.h{text-align:center;font-size:18px}
+        .f15ck{display:flex;justify-content:space-between;width:72%;margin-top:2px}
+        .bx{display:inline-block;width:11mm;height:7mm;border:1px solid #000;vertical-align:middle;margin:0 6px}
+        .f15sg{display:flex;justify-content:space-between;align-items:flex-end;height:30mm}
+
+        /* ঠিকানার ছোট টেবিল (দুই ফরমেই) */
+        table.ad{border-collapse:collapse;width:100%}
+        table.ad td{border:0!important;padding:2px 4px}
+        table.ad.half td{width:50%}
+
         @media print {
             html,body { background:#fff; }
             .no-print { display:none !important; }
@@ -69,5 +100,3 @@
 </form>
 </body>
 </html>
-
-

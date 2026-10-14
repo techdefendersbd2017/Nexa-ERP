@@ -25,22 +25,24 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
         const int ReportFormCode = 7;
 
         const string Sql = @"
-SELECT e.Employee_ID_No, e.Name, b.Branch_Name, d.Department_Name, s.Section_Name,
-       g.Desigation_name, e.Joining_Date, e.Gross_Salary
-FROM dbo.Employee_Information e
-INNER JOIN dbo.z_Test_ID z ON e.Employee_ID_No = z.ID_No
-INNER JOIN dbo.TB_Branch b ON e.Branch_Code = b.Branch_Code
-INNER JOIN dbo.TB_Department d ON e.Department_Code = d.Department_Code
-INNER JOIN dbo.TB_Section s ON e.Section_Code = s.Section_Code
-INNER JOIN dbo.TB_Designation g ON e.Designation_Code = g.Designation_Code
+SELECT e.ID_no, e.Name, b.Branch_Name, d.Department_Name, s.Section_Name,
+       g.Desigation_name, e.Joining_Date, sal.Gross_Salary
+FROM dbo.Employee_information_new e
+INNER JOIN dbo.Employee_information_With_Code ec ON e.ID_no = ec.ID_no
+INNER JOIN dbo.z_Test_ID z ON e.ID_no = z.ID_No
+INNER JOIN dbo.TB_Branch b ON ec.Branch_Code = b.Branch_Code
+INNER JOIN dbo.TB_Department d ON ec.Department_Code = d.Department_Code
+INNER JOIN dbo.TB_Section s ON ec.Section_Code = s.Section_Code
+INNER JOIN dbo.TB_Designation g ON ec.Designation_Code = g.Designation_Code
+INNER JOIN dbo.Employee_Salary_information_new sal ON e.ID_no = sal.ID_no
 WHERE z.User_ID = @u AND z.From_Code = @f
-ORDER BY e.Employee_ID_No asc";
+ORDER BY e.ID_no asc";
 
         const string LogoSql = @"
 SELECT TOP 1 b.Branch_logo
 FROM dbo.z_Test_ID z
-INNER JOIN dbo.Employee_Information e ON z.ID_No = e.Employee_ID_No
-INNER JOIN dbo.TB_Branch b ON e.Branch_Code = b.Branch_Code
+INNER JOIN dbo.Employee_information_With_Code ec ON z.ID_No = ec.ID_no
+INNER JOIN dbo.TB_Branch b ON ec.Branch_Code = b.Branch_Code
 WHERE z.User_ID = @u AND z.From_Code = @f";
 
         long UserCode { get { return SessionLong("User_Code", "UserCode", "User_ID", "UserID", "userid"); } }
@@ -92,7 +94,7 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
                                 ", z_Test_ID তে ID: " + saved + ")" +
                                 (saved == 0
                                     ? " রিপোর্ট পেজ থেকে কর্মচারী টিক দিয়ে আবার Report View চাপুন।"
-                                    : " ID সেভ আছে, কিন্তু Employee_Information বা Branch/Department/Section/Designation এর সঙ্গে মিলছে না।"));
+                                    : " ID সেভ আছে, কিন্তু Employee_information_new / Employee_information_With_Code / Employee_Salary_information_new বা Branch/Department/Section/Designation এর সঙ্গে মিলছে না।"));
                     return null;
                 }
                 return rows;
@@ -176,7 +178,7 @@ WHERE z.User_ID = @u AND z.From_Code = @f";
             var seen = new HashSet<string>();
             foreach (DataRow r in dt.Rows)
             {
-                string id = S(r, "Employee_ID_No");
+                string id = S(r, "ID_no");
                 if (!seen.Add(id)) continue;   // একই কর্মচারী একবারই
 
                 if (company.Length == 0) company = S(r, "Branch_Name");
