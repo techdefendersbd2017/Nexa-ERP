@@ -324,9 +324,9 @@ namespace Nexa_ERP.HRMPayroll.Common
                 }
             }
 
-            cmd.CommandText =@"SELECT dbo.Employee_information_new.ID_no, dbo.Employee_information_new.Name, dbo.Employee_information_new.Resign_Status, dbo.Employee_information_new.Resign_Date, 
-dbo.Employee_information_With_Code.Branch_Code, dbo.Employee_information_With_Code.Department_Code, dbo.Employee_information_With_Code.Designation_Code
-FROM dbo.Employee_information_new INNER JOIN  dbo.Employee_information_With_Code ON dbo.Employee_information_new.ID_no = dbo.Employee_information_With_Code.ID_no" +
+            cmd.CommandText = @"SELECT dbo.Employee_information_new.ID_no, dbo.Employee_information_new.Name, dbo.Employee_information_new.Resign_Status, dbo.Employee_information_new.Resign_Date, 
+ dbo.Employee_information_With_Code.Branch_Code, dbo.Employee_information_With_Code.Department_Code, dbo.Employee_information_With_Code.Designation_Code, dbo.Employee_information_new.Joining_Date
+FROM dbo.Employee_information_new INNER JOIN dbo.Employee_information_With_Code ON dbo.Employee_information_new.ID_no = dbo.Employee_information_With_Code.ID_no" +
                 (where.Count > 0 ? " WHERE " + string.Join(" AND ", where) : "") +
                 " ORDER BY Employee_information_new.ID_no";
 
