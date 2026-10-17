@@ -5,16 +5,18 @@
 <head runat="server">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Active Employee List</title>
+<title>Employee Report</title>
 <style>
 @page{size:A4;margin:10mm 10mm 10mm 10mm}
 *{box-sizing:border-box}
-body{font-family:Arial,Helvetica,sans-serif;font-size:8pt;color:#000;margin:0}
+body{font-family:Arial,"Nirmala UI",Vrinda,Helvetica,sans-serif;font-size:8pt;color:#000;margin:0}
 
 .head{position:relative;text-align:center;padding-bottom:2mm;border-bottom:1.2px solid #000}
 .head .logo{position:absolute;left:0;top:0;max-height:14mm;max-width:30mm}
 .head .co{font-size:14pt;font-weight:700;line-height:1.3}
-.head .ttl{font-size:9pt;margin-top:1mm}
+.head .adr{font-size:8pt}
+.head .ttl{font-size:9pt;margin-top:1mm;font-weight:700}
+.head .sub{font-size:8pt;margin-top:.5mm}
 
 table.t{border-collapse:collapse;width:100%;margin-top:2mm;table-layout:fixed}
 table.t th,table.t td{border:1px solid #000;padding:1mm 1.1mm;vertical-align:top;font-size:8pt;word-wrap:break-word}
@@ -22,15 +24,14 @@ table.t th{font-weight:400;text-align:center;vertical-align:middle;height:6mm}
 table.t thead{display:table-header-group}
 table.t tr{page-break-inside:avoid}
 
-/* header cell (holds logo + company + report title) — no border, no padding */
 table.t td.headCell{border:0;padding:0 0 2mm 0}
 table.t thead tr.headRow{page-break-inside:avoid;page-break-after:avoid}
 
-/* Department / Section group ও Total সারি */
 table.t tr.gDept td{background:#d9d9d9}
 table.t tr.gSec td{background:#efefef}
 table.t tr.sub td{background:#f7f7f7}
 table.t tr.grand td{background:#d9d9d9;font-size:9pt}
+table.t td img.ph{width:14mm;height:17mm;object-fit:cover;display:block;margin:0 auto}
 
 .c{text-align:center}.r{text-align:right}
 
@@ -48,8 +49,8 @@ table.t tr.grand td{background:#d9d9d9;font-size:9pt}
 <form id="form1" runat="server">
 
 <div class="bar noprint">
-    <button type="button" onclick="window.print()">Print</button>
-    <asp:LinkButton ID="btnPdf" runat="server" OnClick="btnPdf_Click">Download PDF</asp:LinkButton>
+    <!-- Print চাপলে ব্রাউজারের "Save as PDF" দিয়ে PDF করা যাবে -->
+    <button type="button" onclick="window.print()">Print / PDF</button>
     <asp:LinkButton ID="btnWord" runat="server" OnClick="btnWord_Click">Download Word</asp:LinkButton>
     <asp:LinkButton ID="btnExcel" runat="server" OnClick="btnExcel_Click">Download Excel</asp:LinkButton>
 </div>
@@ -57,53 +58,7 @@ table.t tr.grand td{background:#d9d9d9;font-size:9pt}
 <asp:Label ID="lblNone" runat="server" CssClass="msg" Visible="false" />
 
 <asp:Panel ID="pnlReport" runat="server" CssClass="sheet">
-
-    <table class="t">
-        <colgroup>
-            <col style="width:5%" /><col style="width:7%" /><col style="width:15%" /><col style="width:15%" />
-            <col style="width:10%" /><col style="width:15%" /><col style="width:12%" /><col style="width:10%" /><col style="width:11%" />
-        </colgroup>
-
-        <thead>
-            <!-- এই row প্রিন্টের প্রতি পেজে repeat হবে -->
-            <tr class="headRow">
-                <td class="headCell" colspan="9">
-                    <div class="head">
-                        <asp:Literal ID="litLogo" runat="server" />
-                        <div class="co"><asp:Label ID="lblCompany" runat="server" /></div>
-                        <div class="ttl">Active Employee List</div>
-                    </div>
-                </td>
-            </tr>
-            <!-- কলাম হেডারও প্রতি পেজে repeat হবে -->
-            <tr>
-                <th>Sl</th><th>ID No</th><th>Name</th><th>Designation</th><th>Joining Date</th>
-                <th>Department</th><th>Section</th><th>Gross Salary</th><th>Remarks</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            <asp:Repeater ID="rptRows" runat="server" OnItemDataBound="rptRows_ItemDataBound">
-                <ItemTemplate>
-                    <asp:Literal ID="litBefore" runat="server" />
-                    <tr>
-                        <td class="c"><%# H(Eval("Sl")) %></td>
-                        <td class="r"><%# H(Eval("IdNo")) %></td>
-                        <td><%# H(Eval("Name")) %></td>
-                        <td><%# H(Eval("Designation")) %></td>
-                        <td><%# H(Eval("JoinDate")) %></td>
-                        <td><%# H(Eval("Department")) %></td>
-                        <td><%# H(Eval("Section")) %></td>
-                        <td class="r"><%# H(Eval("Gross")) %></td>
-                        <td></td>
-                    </tr>
-                    <asp:Literal ID="litAfter" runat="server" />
-                </ItemTemplate>
-            </asp:Repeater>
-            <asp:Literal ID="litGrand" runat="server" />
-        </tbody>
-    </table>
-
+    <asp:Literal ID="litTable" runat="server" />
 </asp:Panel>
 
 </form>

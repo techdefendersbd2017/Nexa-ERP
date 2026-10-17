@@ -24,15 +24,6 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// btnPdf control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnPdf;
-
-        /// <summary>
         /// btnWord control.
         /// </summary>
         /// <remarks>
@@ -69,39 +60,12 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
         protected global::System.Web.UI.WebControls.Panel pnlReport;
 
         /// <summary>
-        /// litLogo control.
+        /// litTable control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litLogo;
-
-        /// <summary>
-        /// lblCompany control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCompany;
-
-        /// <summary>
-        /// rptRows control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptRows;
-
-        /// <summary>
-        /// litGrand control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litGrand;
+        protected global::System.Web.UI.WebControls.Literal litTable;
     }
 }

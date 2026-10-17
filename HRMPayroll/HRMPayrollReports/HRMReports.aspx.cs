@@ -292,8 +292,22 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             }
 
             string url = ResolveClientUrl(page);
-            string sep = url.Contains("?") ? ((url.EndsWith("?") || url.EndsWith("&")) ? "" : "&") : "?";
-            Response.Redirect(url + sep + "rc=" + token, false);
+
+            // লিংকে আগে থেকে rc / jf / jt থাকলে মুছে ফেলা
+            url = System.Text.RegularExpressions.Regex.Replace(url, @"([?&])(rc|jf|jt)=[^&]*&?", "$1");
+            url = url.TrimEnd('?', '&');
+
+            string sep = url.Contains("?") ? "&" : "?";
+            url = url + sep + "rc=" + token;
+
+            // ড্যাশবোর্ডে From/Till Date দেওয়া থাকলে New Joining রিপোর্টে সেটি যাবে
+            DateTime d1, d2;
+            if (DateTime.TryParse(txtFromDate.Text, out d1))
+                url += "&jf=" + d1.ToString("yyyy-MM-dd");
+            if (DateTime.TryParse(txtTillDate.Text, out d2))
+                url += "&jt=" + d2.ToString("yyyy-MM-dd");
+
+            Response.Redirect(url, false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
