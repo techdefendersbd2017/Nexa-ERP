@@ -28,7 +28,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
 
         const string Sql =
             "SELECT e.ID_no, e.Name, e.Joining_Date, c.Company_Name, c.Address, " +
-            "       a.Work_date, a.in_time, a.out_time, a.att_status, a.Late_min, a.OT_Hours, a.Holiday, " +
+            "       a.Work_date, a.org_in_time, a.org_out_time, a.att_status, a.Late_min, a.OT_Hours, a.Holiday, " +
             "       sh.Shift_Name AS Shift, sh.In_Time AS Shift_In, sh.Out_Time AS Shift_Out, " +
             "       d.Department_Name AS Department, s.Section_Name AS Section, l.Line_Name AS Line, " +
             "       g.Desigation_name AS Designation " +
