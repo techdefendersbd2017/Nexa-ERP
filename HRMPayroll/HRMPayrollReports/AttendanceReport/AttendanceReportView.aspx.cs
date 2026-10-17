@@ -44,7 +44,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
         };
 
         const string BaseSql =
-            "SELECT e.ID_no, e.Name, c.Company_Name, c.Address, a.Work_date, a.in_time, a.out_time, a.att_status, " +
+            "SELECT e.ID_no, e.Name, c.Company_Name, c.Address, a.Work_date, a.org_in_time, a.org_out_time, a.att_status, " +
             "       a.Late_min, a.Remarks, a.Holiday, a.Total_Absent, " +
             "       d.Department_Name AS Department, s.Section_Name AS Section, l.Line_Name AS Line, " +
             "       g.Desigation_name AS Designation, p.Personal_Phone " +
