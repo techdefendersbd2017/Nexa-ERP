@@ -43,11 +43,14 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             { "HolidayAbsent",  new Def { Title = "Holiday Absent Report",  Where = "a.att_status = '" + StatusAbsent  + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Absent", AbsentLayout = true } }
         };
 
+        // OT_Hours = General_OT (ঘণ্টা) : General_Min (মিনিট) → hh:mm
         const string BaseSql =
             "SELECT e.ID_no, e.Name, c.Company_Name, c.Address, a.Work_date, a.in_time, a.out_time, a.att_status, " +
             "       a.Late_min, a.Remarks, a.Holiday, a.Total_Absent, " +
             "       d.Department_Name AS Department, s.Section_Name AS Section, l.Line_Name AS Line, " +
-            "       g.Desigation_name AS Designation, p.Personal_Phone " +
+            "       g.Desigation_name AS Designation, p.Personal_Phone, " +
+            "       CONCAT(RIGHT('0' + CAST(CAST(ISNULL(a.General_OT, 0) AS INT) AS VARCHAR(10)), 2), ':', " +
+            "              RIGHT('0' + CAST(CAST(ISNULL(a.General_Min, 0) AS INT) AS VARCHAR(10)), 2)) AS OT_Hours " +
             "FROM dbo.emp_Attendance a " +
             "INNER JOIN dbo.Employee_information_new e ON a.EMP_NO = e.Emp_no " +
             "INNER JOIN dbo.Employee_information_With_Code ec ON e.ID_no = ec.ID_no " +
@@ -137,7 +140,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
         static void RenderDay(StringBuilder sb, Def def, DateTime day, List<DataRow> rows)
         {
             DataRow first = rows[0];
-            int cols = def.AbsentLayout ? 10 : 9;
+            int cols = 10; // Absent ধাঁচে ১০টি, Present ধাঁচে (OT Hours সহ) ১০টি
 
             sb.Append("<section class=\"page\">");
             sb.Append("<div class=\"co\">" + Enc(Pick(first, "Company_Name")) + "</div>");
@@ -148,7 +151,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             if (def.AbsentLayout)
                 sb.Append("<th>Sl No</th><th>ID No</th><th>Name</th><th>Designation</th><th>In Time</th><th>Line No</th><th>Mobile No</th><th>Status</th><th>Monthly Absent</th><th>Staff Signature</th>");
             else
-                sb.Append("<th>Sl No</th><th>ID No</th><th>Name</th><th>Designation</th><th>In Time</th><th>Out Time</th><th>Status</th><th>Late</th><th>Remarks</th>");
+                sb.Append("<th>Sl No</th><th>ID No</th><th>Name</th><th>Designation</th><th>In Time</th><th>Out Time</th><th>Status</th><th>Late</th><th>OT Hours</th><th>Remarks</th>");
             sb.Append("</tr></thead><tbody>");
 
             string lastGrp = null;
@@ -182,7 +185,8 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
                 else
                 {
                     sb.Append("<td class=\"c\">" + Enc(Tm(r["out_time"])) + "</td><td class=\"c\">" + Enc(st) +
-                              "</td><td class=\"c\">" + Enc(Num(r["Late_min"])) + "</td><td>" + Enc(Pick(r, "Remarks")) + "</td>");
+                              "</td><td class=\"c\">" + Enc(Num(r["Late_min"])) + "</td><td class=\"c\">" + Enc(Pick(r, "OT_Hours")) +
+                              "</td><td>" + Enc(Pick(r, "Remarks")) + "</td>");
                 }
                 sb.Append("</tr>");
             }
