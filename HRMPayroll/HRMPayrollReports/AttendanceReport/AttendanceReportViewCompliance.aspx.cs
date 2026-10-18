@@ -122,7 +122,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             using (SqlConnection con = conn.openConnection())
             {
                 if (con.State != ConnectionState.Open) con.Open();
-                string sql = BaseSql + " AND (" + def.Where + ") ORDER BY a.Work_date, d.Department_Name, s.Section_Name, e.ID_no";
+                string sql = BaseSql.Trim().TrimEnd(';') + " AND (" + def.Where + ") ORDER BY a.Work_date, d.Department_Name, s.Section_Name, e.ID_no";
                 using (var cmd = new SqlCommand(sql, con))
                 {
                     cmd.CommandTimeout = 120;
