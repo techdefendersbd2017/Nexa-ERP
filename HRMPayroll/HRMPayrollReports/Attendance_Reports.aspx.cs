@@ -27,11 +27,15 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         const bool ShowDebug = true;
         readonly List<string> debug = new List<string>();
 
-        // Soft_Reports টেবিলে রিপোর্ট পেজের লিংকের কলাম
-        const string LinkColumn = "ReportPageLink";
+        // Soft_Reports টেবিলে রিপোর্ট পেজের লিংকের কলাম (Report View বাটন = btnReport)
+        const string LinkColumn = "Reports_Name_Comp";
+
+        // Soft_Reports টেবিলে Org Report পেজের লিংকের কলাম (Alt+O দিয়ে দেখানো btnOrgReport বাটন)
+        const string OrgLinkColumn = "ReportPageLink";
 
         // একই request এ বারবার DB তে না গিয়ে লিংকের তালিকা একবারই লোড
         Dictionary<string, string> reportLinks;
+        Dictionary<string, string> orgLinks;
 
         // ---------- মডেল ----------
         public class Emp
@@ -140,15 +144,28 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             }
         }
 
-        // ===== Soft_Reports এর ReportPageLink কলাম থেকে: Report_Code -> রিপোর্ট পেজের লিংক =====
+        // ===== btnReport: Soft_Reports এর Reports_Name_Comp কলাম থেকে: Report_Code -> রিপোর্ট পেজের লিংক =====
         // লিংক ফাঁকা থাকলে সেই রিপোর্ট ধরা হয় "রিপোর্ট পেজ নেই", তখন আগের মতোই এই পেজে Show এর কাজ করে।
         // লিংক এই পেজের ফোল্ডারের সাপেক্ষে লিখুন, যেমন: HRReports/AttendanceReportView.aspx?report=Absent
         // (অথবা ~/ দিয়ে শুরু করে পুরো পথ)
         Dictionary<string, string> ReportLinks()
         {
-            if (reportLinks != null) return reportLinks;
+            if (reportLinks == null) reportLinks = LoadLinks(LinkColumn, "reportLink");
+            return reportLinks;
+        }
 
-            reportLinks = new Dictionary<string, string>();
+        // ===== btnOrgReport: Soft_Reports এর ReportPageLink কলাম থেকে: Report_Code -> Org Report পেজের লিংক =====
+        // লিংক লেখার নিয়ম একই।
+        Dictionary<string, string> OrgLinks()
+        {
+            if (orgLinks == null) orgLinks = LoadLinks(OrgLinkColumn, "orgReportLink");
+            return orgLinks;
+        }
+
+        // Soft_Reports থেকে নির্দিষ্ট কলামের লিংক পড়ে: Report_Code -> লিংক
+        Dictionary<string, string> LoadLinks(string column, string errTag)
+        {
+            var result = new Dictionary<string, string>();
             try
             {
                 using (SqlConnection con = conn.openConnection())
@@ -156,7 +173,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                     if (con.State != ConnectionState.Open) con.Open();
 
                     using (var cmd = new SqlCommand(
-                        "SELECT Report_Code, [" + LinkColumn + "] AS Link FROM Soft_Reports WHERE Menu=2", con))
+                        "SELECT Report_Code, [" + column + "] AS Link FROM Soft_Reports WHERE Menu=2", con))
                     {
                         var dt = new DataTable();
                         using (var da = new SqlDataAdapter(cmd)) da.Fill(dt);
@@ -165,16 +182,16 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                         {
                             string link = Convert.ToString(r["Link"]).Trim();
                             if (link.Length == 0) continue;
-                            reportLinks[Convert.ToString(r["Report_Code"])] = link;
+                            result[Convert.ToString(r["Report_Code"])] = link;
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                loadErrors.Add("reportLink: " + ex.Message);
+                loadErrors.Add(errTag + ": " + ex.Message);
             }
-            return reportLinks;
+            return result;
         }
 
         // নির্বাচিত Report Type এর নাম (Value এখন কোড, তাই Text নিতে হয়)
@@ -198,15 +215,26 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
 
         // কোন কোন Report Type এর লিংক আছে তার তালিকা (Report_Code ধরে) JS এ পাঠানো হয়।
         // JS এ আলাদা তালিকা রাখতে হয় না: Soft_Reports এ লিংক দিলেই রিপোর্ট নতুন ট্যাবে খুলবে।
+        // RESOLVED_REPORTS = Report View বাটনের জন্য, RESOLVED_ORG_REPORTS = Org Report বাটনের জন্য।
         protected void Page_PreRender(object sender, EventArgs e)
         {
+            var ser = new JavaScriptSerializer();
+
             var links = ReportLinks();
             var map = new Dictionary<string, bool>();
             foreach (ListItem it in ddRType.Items)
                 if (links.ContainsKey(it.Value)) map[it.Value] = true;   // true = কর্মচারী নির্বাচন লাগবে
 
             ClientScript.RegisterStartupScript(GetType(), "rpts",
-                "window.RESOLVED_REPORTS=" + new JavaScriptSerializer().Serialize(map) + ";", true);
+                "window.RESOLVED_REPORTS=" + ser.Serialize(map) + ";", true);
+
+            var org = OrgLinks();
+            var omap = new Dictionary<string, bool>();
+            foreach (ListItem it in ddRType.Items)
+                if (org.ContainsKey(it.Value)) omap[it.Value] = true;    // true = কর্মচারী নির্বাচন লাগবে
+
+            ClientScript.RegisterStartupScript(GetType(), "orgrpts",
+                "window.RESOLVED_ORG_REPORTS=" + ser.Serialize(omap) + ";", true);
         }
 
         protected void btnReport_Click(object sender, EventArgs e)
@@ -219,6 +247,16 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                 OpenReport(link, true);
             else if (ShowData())
                 Toast("Report generated successfully! (Type: " + rt + ")");
+        }
+
+        // Org Report: ReportPageLink এর লিংকের পেজ খোলে
+        protected void btnOrgReport_Click(object sender, EventArgs e)
+        {
+            string link;
+            if (OrgLinks().TryGetValue(ddRType.SelectedValue, out link))
+                OpenReport(link, true);
+            else
+                Toast("এই Report Type এর জন্য Org Report পেজের লিংক দেওয়া নেই।");
         }
 
         // টিক দেওয়া ID গুলো: প্রথমে চেকবক্সের name="selId", না পেলে hfSelIds
@@ -481,7 +519,15 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                 if (d.Items.Count > 0) d.SelectedIndex = 0;
 
             hfSelIds.Value = "";
-            txtFromDate.Text = txtTillDate.Text = txtMultiId.Text = "";
+            txtMultiId.Text = "";
+
+            // ডিফল্ট তারিখ: চলতি মাসের ১ তারিখ থেকে মাসের শেষ তারিখ (চাইলে বদলানো যাবে)
+            // yyyy-MM-dd ফরম্যাট দরকার, কারণ ঘরটি date টাইপে রূপান্তর হয়
+            DateTime today = DateTime.Today;
+            DateTime firstDay = new DateTime(today.Year, today.Month, 1);
+            DateTime lastDay = firstDay.AddMonths(1).AddDays(-1);
+            txtFromDate.Text = firstDay.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            txtTillDate.Text = lastDay.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
         }
 
         void ClearGrid()

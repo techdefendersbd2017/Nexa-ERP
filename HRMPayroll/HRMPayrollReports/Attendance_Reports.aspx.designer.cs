@@ -186,6 +186,15 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         protected global::System.Web.UI.WebControls.LinkButton btnReport;
 
         /// <summary>
+        /// btnOrgReport control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnOrgReport;
+
+        /// <summary>
         /// btnClear control.
         /// </summary>
         /// <remarks>

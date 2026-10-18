@@ -171,9 +171,9 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
                 sb.Append("<tr class=\"" + cls + "\">");
                 sb.Append("<td class=\"c\">" + wd.ToString(DateFormat, CultureInfo.InvariantCulture) + "</td>");
                 sb.Append("<td class=\"c\">" + wd.ToString("ddd", CultureInfo.InvariantCulture) + "</td>");
-                sb.Append("<td class=\"c\">" + Enc(Pick(r, "Shift")) + "</td>");
-                sb.Append("<td class=\"c\">" + Enc(Tm(r["in_time"]).ToUpperInvariant()) + "</td>");
-                sb.Append("<td class=\"c\">" + Enc(Tm(r["out_time"]).ToUpperInvariant()) + "</td>");
+                sb.Append("<td class=\"c\">" + Enc(Pick(r, "Shift")) + "</td>"); 
+                sb.Append("<td class=\"c\">" + Enc(Tm(r["org_in_time"]).ToUpperInvariant()) + "</td>");
+                sb.Append("<td class=\"c\">" + Enc(Tm(r["org_out_time"]).ToUpperInvariant()) + "</td>");
                 sb.Append("<td class=\"c\">" + Dec(r["Late_min"]).ToString("0", CultureInfo.InvariantCulture) + "</td>");
                 sb.Append("<td class=\"c\">" + ot.ToString("0.00", CultureInfo.InvariantCulture) + "</td>");
                 sb.Append("<td class=\"c st\">" + Enc(st) + "</td>");

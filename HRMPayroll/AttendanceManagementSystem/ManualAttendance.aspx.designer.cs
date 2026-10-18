@@ -132,6 +132,15 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
         protected global::System.Web.UI.WebControls.Button btnShow;
 
         /// <summary>
+        /// btnOrg control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnOrg;
+
+        /// <summary>
         /// chkIn control.
         /// </summary>
         /// <remarks>

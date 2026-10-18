@@ -111,7 +111,8 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
             LoadGrid();
         }
 
-        void LoadGrid()
+        // org = true হলে Original (btnOrg) কোয়ারি চলবে
+        void LoadGrid(bool org = false)
         {
             try
             {
@@ -121,7 +122,7 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
                 string[] ids = HRFilters.ParseIds(txtEmpIds.Text);
                 if (ids.Length > HRFilters.MaxIds) { ShowError("Too many IDs (max " + HRFilters.MaxIds + ")."); return; }
 
-                BindRows(GetAttendance(from, till, ids));
+                BindRows(GetAttendance(from, till, ids, org));
             }
             catch (Exception ex)
             {
@@ -153,7 +154,7 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
             return true;
         }
 
-        DataTable GetAttendance(DateTime from, DateTime till, string[] ids)
+        DataTable GetAttendance(DateTime from, DateTime till, string[] ids, bool org = false)
         {
             string status = ddStatus.SelectedItem != null ? ddStatus.SelectedItem.Text.Trim() : "";
             if (status == "") throw new Exception("একটি Status নির্বাচন করুন।");
@@ -182,6 +183,18 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
                 foreach (ListItem li in lbAttType.Items)
                     if (li.Selected) types.Add(li.Value);
 
+                // Show বাটন ও btnOrg এর SELECT কলাম আলাদা
+                string selectCols = org
+                    ? @"ID_No, Name, Designation, Work_date, 
+                        CAST(in_time AS time) AS org_in_time, 
+                        CAST(org_out_time AS time) AS out_time, 
+                        Late_min, 
+                        CAST(ISNULL(OT_Hours, 0) AS VARCHAR) + ':' + CAST(ISNULL(OT_Minits, 0) AS VARCHAR) AS OT_Hours, 
+                        att_status"
+                    : @"ID_No, Name, Designation, Work_date, 
+                        CAST(in_time AS time) AS in_time, CAST(out_time AS time) AS out_time, 
+                        Late_min, CAST(ISNULL(General_OT, 0) AS VARCHAR) + ':' + CAST(ISNULL(General_Min, 0) AS VARCHAR) + '' AS OT_Hours, att_status";
+
                 for (int i = 0; i < empIds.Count; i += Chunk)
                 {
                     var part = empIds.Skip(i).Take(Chunk).ToList();
@@ -200,13 +213,9 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
                         cmd.Parameters.Add("@f", SqlDbType.DateTime).Value = from;
                         cmd.Parameters.Add("@t", SqlDbType.DateTime).Value = till.AddDays(1);
 
-                        // View_Manual_Attendance_New_web এর কলাম অনুযায়ী আপডেট করা হয়েছে
-                        string sql =
-                            "SELECT Employee_ID_No, Name, Desigation_name, Work_date, " +
-                            "CAST(in_time AS time) AS in_time, CAST(out_time AS time) AS out_time, " +
-                            "Late_min, General_OT, att_status " +
-                            "FROM View_Manual_Attendance_New_web " +
-                            "WHERE Work_date >= @f AND Work_date < @t AND Employee_ID_No IN (" + string.Join(",", ps) + ")";
+                        string sql = "SELECT " + selectCols +
+                            " FROM View_Manual_Attendance_New " +
+                            " WHERE Work_date >= @f AND Work_date < @t AND ID_No IN (" + string.Join(",", ps) + ")";
 
                         if (types.Count > 0)
                         {
@@ -226,7 +235,7 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
                 }
 
                 if (result.Rows.Count > 0)
-                    result.DefaultView.Sort = "Work_date ASC, Employee_ID_No ASC";
+                    result.DefaultView.Sort = "Work_date ASC, ID_No ASC";
                 return result.DefaultView.ToTable();
             }
         }
@@ -261,25 +270,31 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
 
         void BindRows(DataTable dt)
         {
+            // Show ও Org কোয়ারির কলামের নাম আলাদা, তাই কলাম আছে কি না দেখে নেওয়া হচ্ছে
+            bool hasOrgIn = dt.Columns.Contains("org_in_time");
+            bool hasOrgOt = dt.Columns.Contains("OT_Hours");
+
             var sb = new StringBuilder();
             foreach (DataRow r in dt.Rows)
             {
-                string id = Convert.ToString(r["Employee_ID_No"]);
+                string id = Convert.ToString(r["ID_No"]);
                 DateTime wd = Convert.ToDateTime(r["Work_date"]);
                 // key = ID|yyyy-MM-dd  (Save/Delete এ Request.Form থেকে পড়া হবে)
                 string key = Server.HtmlEncode(id + "|" + wd.ToString("yyyy-MM-dd"));
+
+                string ot = hasOrgOt ? Convert.ToString(r["OT_Hours"]) : Convert.ToString(r["General_OT"]);
 
                 sb.Append("<tr>");
                 sb.Append("<td class='text-center'><input type='checkbox' name='rowChk' checked class='row-checkbox rounded w-4 h-4 cursor-pointer' value='" + key + "' /></td>");
                 sb.Append("<td class='font-medium text-slate-700'>" + Server.HtmlEncode(id) + "</td>");
                 sb.Append("<td>" + Server.HtmlEncode(Convert.ToString(r["Name"])) + "</td>");
-                sb.Append("<td>" + Server.HtmlEncode(Convert.ToString(r["Desigation_name"])) + "</td>");
+                sb.Append("<td>" + Server.HtmlEncode(Convert.ToString(r["Designation"])) + "</td>");
                 sb.Append("<td>" + wd.ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture) + "</td>");
-                sb.Append("<td>" + FmtTime(r["in_time"]) + "</td>");
+                sb.Append("<td>" + FmtTime(hasOrgIn ? r["org_in_time"] : r["in_time"]) + "</td>");
                 sb.Append("<td>" + FmtTime(r["out_time"]) + "</td>");
                 sb.Append("<td>" + Badge(Convert.ToString(r["att_status"])) + "</td>");
                 sb.Append("<td>" + Server.HtmlEncode(Convert.ToString(r["Late_min"])) + "</td>");
-                sb.Append("<td>" + Server.HtmlEncode(Convert.ToString(r["General_OT"])) + "</td>");
+                sb.Append("<td>" + Server.HtmlEncode(ot) + "</td>");
                 sb.Append("</tr>");
             }
             if (dt.Rows.Count == 0)
@@ -290,6 +305,13 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
         // ================= Save / Delete =================
         protected void btnSave_Click(object sender, EventArgs e) { Execute(false); }
         protected void btnDelete_Click(object sender, EventArgs e) { Execute(true); }
+
+        // ================= Alt+O দিয়ে দেখানো লুকানো বাটন =================
+        // Original punch (org) কোয়ারি অনুযায়ী ডাটা দেখায়; ফিল্টার Show বাটনের মতোই
+        protected void btnOrg_Click(object sender, EventArgs e)
+        {
+            LoadGrid(true);
+        }
 
         void Execute(bool isDelete)
         {

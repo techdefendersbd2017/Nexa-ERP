@@ -97,6 +97,11 @@
             <asp:LinkButton ID="btnReport" runat="server" ClientIDMode="Static" OnClick="btnReport_Click" OnClientClick="return onReportClick();" CssClass="h-9 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center gap-2 shadow-sm transition">
                 <i class="fa-solid fa-magnifying-glass text-xs"></i><span>Report View</span>
             </asp:LinkButton>
+            <%-- Org Report: সব সময় লুকানো (display:none)। Alt+O চাপলে দেখায়, আবার চাপলে লুকায়।
+                 Visible="false" দেওয়া যাবে না, নইলে বাটন HTML এ রেন্ডারই হবে না। --%>
+            <asp:LinkButton ID="btnOrgReport" runat="server" ClientIDMode="Static" OnClick="btnOrgReport_Click" OnClientClick="return onOrgReportClick();" style="display:none" CssClass="h-9 px-5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium flex items-center gap-2 shadow-sm transition">
+                <i class="fa-solid fa-building text-xs"></i><span>Org Report</span>
+            </asp:LinkButton>
             <asp:LinkButton ID="btnClear" runat="server" ClientIDMode="Static" OnClick="btnClear_Click" CssClass="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-2 transition">
                 <i class="fa-solid fa-eraser text-xs"></i><span>Clear</span>
             </asp:LinkButton>
@@ -210,15 +215,14 @@ function collectIds() {
     return true;
 }
 
-// Report View: Soft_Reports টেবিলের ReportPageLink কলামে যে রিপোর্টের লিংক দেওয়া আছে সেটি নতুন ট্যাবে খোলে।
-// তালিকাটি সার্ভার (code-behind এর Page_PreRender) থেকে আসে: window.RESOLVED_REPORTS = { "Report_Code": কর্মচারী-লাগবে-কিনা }
+// Report View ও Org Report দুটোর জন্য একই লজিক, শুধু তালিকা (map) আলাদা।
+// map = { "Report_Code": কর্মচারী-লাগবে-কিনা }, সার্ভার (code-behind এর Page_PreRender) থেকে আসে।
 // তাই নতুন রিপোর্ট যোগ করলে এখানে কিছু বদলাতে হয় না, শুধু টেবিলে লিংক দিলেই হয়।
-function onReportClick() {
+function openReportCheck(map) {
     collectIds();
     const f = document.forms[0];
     const dd = document.getElementById('ddRType');
     const code = dd.value;                       // Report_Code দিয়ে মেলানো হয়
-    const map = window.RESOLVED_REPORTS || {};
 
     // লিংক নেই: নতুন ট্যাব নয়, এই পেজেই চলবে (নইলে HRMReports নিজেই নতুন ট্যাবে খুলে যায়)
     if (!Object.prototype.hasOwnProperty.call(map, code)) return true;
@@ -232,6 +236,47 @@ function onReportClick() {
     setTimeout(function () { f.target = ''; }, 1000);      // Show/Clear এর জন্য আগের অবস্থায় ফেরত
     return true;
 }
+
+// Report View: Soft_Reports এর Reports_Name_Comp কলামের লিংক নতুন ট্যাবে খোলে
+function onReportClick() { return openReportCheck(window.RESOLVED_REPORTS || {}); }
+
+// Org Report: Soft_Reports এর ReportPageLink কলামের লিংক নতুন ট্যাবে খোলে
+function onOrgReportClick() { return openReportCheck(window.RESOLVED_ORG_REPORTS || {}); }
+
+// ---------- Org Report বাটন: Alt+O দিয়ে দেখানো/লুকানো, আর অবস্থা মনে রাখা ----------
+// প্রতিটি বাটন ক্লিকে পেজ পোস্টব্যাক হয়ে নতুন করে লোড হয়, তাই বাটনের অবস্থা (দেখা/লুকানো)
+// ব্রাউজারের sessionStorage এ জমা থাকে। পোস্টব্যাকের পর পেজ লোড হওয়ার সময়ই সেটি ফিরিয়ে আনা হয়।
+// আবার Alt+O চাপলে লুকাবে। ট্যাব বন্ধ করলে অবস্থা মুছে যায় (সব সময়ের জন্য মনে রাখতে চাইলে
+// নিচের sessionStorage কে localStorage করুন)।
+var ORG_KEY = 'attRpt_orgBtnVisible';
+
+function setOrgBtn(show) {
+    var b = document.getElementById('btnOrgReport');
+    if (b) b.style.display = show ? 'flex' : 'none';
+    try { sessionStorage.setItem(ORG_KEY, show ? '1' : '0'); } catch (err) { }
+}
+
+function orgBtnVisible() {
+    var b = document.getElementById('btnOrgReport');
+    return !!b && b.style.display !== 'none';
+}
+
+// পেজ লোডের সময় আগের অবস্থা ফেরানো (স্ক্রিপ্ট বডির শেষে, তাই বাটন আগেই আছে, কোনো ঝিলিক দেখা যায় না)
+(function restoreOrgBtn() {
+    var saved = null;
+    try { saved = sessionStorage.getItem(ORG_KEY); } catch (err) { }
+    if (saved === '1') {
+        var b = document.getElementById('btnOrgReport');
+        if (b) b.style.display = 'flex';
+    }
+})();
+
+document.addEventListener('keydown', function (e) {
+    if (e.altKey && !e.ctrlKey && !e.shiftKey && (e.code === 'KeyO' || e.key === 'o' || e.key === 'O')) {
+        e.preventDefault();
+        setOrgBtn(!orgBtnVisible());
+    }
+});
 
 // ---------- Multi-select ড্রপডাউন (ListBox → চেকবক্স প্যানেল) ----------
 function initMulti() {
@@ -355,6 +400,6 @@ function showNotification(message) {
     setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
     setTimeout(() => { toast.classList.add('translate-y-2', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
-</script>
+    </script>
 </body>
 </html>

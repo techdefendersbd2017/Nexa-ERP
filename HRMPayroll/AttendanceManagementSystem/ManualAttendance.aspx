@@ -79,6 +79,8 @@
         .btn-secondary:hover { background: #f8fafc; }
         .btn-danger { background: #e11d48; color: #fff; border: none; }
         .btn-danger:hover { background: #be123c; }
+        .btn-indigo { background: #4f46e5; color: #fff; border: none; }
+        .btn-indigo:hover { background: #4338ca; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased h-screen flex flex-col overflow-hidden">
@@ -169,6 +171,7 @@
                         <div class="w-24"></div>
                         <div class="flex-1 flex gap-2">
                             <asp:Button ID="btnShow" runat="server" Text="Show" CssClass="btn btn-primary flex-1" OnClick="btnShow_Click" />
+                            <asp:Button ID="btnOrg" runat="server" ClientIDMode="Static" Text="Org Action" CssClass="btn btn-indigo flex-1" style="display:none" OnClick="btnOrg_Click" />
                             <button type="button" class="btn btn-secondary flex-1" onclick="selectAllGrid(true)">All</button>
                             <button type="button" class="btn btn-secondary flex-1" onclick="selectAllGrid(false)">None</button>
                         </div>
@@ -184,14 +187,14 @@
                                 <label class="lbl mb-0 cursor-pointer" for="chkIn">In</label>
                             </div>
                             <asp:TextBox ID="txtInTime" runat="server" TextMode="Time" CssClass="fld w-32 px-2" />
-                        </div>
-
-                        <div class="flex items-center gap-3">
                             <div class="w-24 flex items-center justify-end gap-1.5">
                                 <asp:CheckBox ID="chkOut" runat="server" CssClass="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500" />
                                 <label class="lbl mb-0 cursor-pointer" for="chkOut">Out</label>
                             </div>
                             <asp:TextBox ID="txtOutTime" runat="server" TextMode="Time" CssClass="fld w-32 px-2" />
+                        </div>
+
+                        <div class="flex items-center gap-3">
                             <div class="flex items-center gap-1.5 ml-2">
                                 <asp:CheckBox ID="chkFullNight" runat="server" CssClass="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500" />
                                 <label class="lbl mb-0 cursor-pointer" for="chkFullNight">Full Night</label>
@@ -205,6 +208,15 @@
                         <div class="flex-1 flex gap-2">
                             <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-primary flex-1" OnClick="btnSave_Click" />
                             <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn btn-danger flex-1" OnClick="btnDelete_Click" OnClientClick="return confirm('সিলেক্ট করা রো গুলোর Manual Attendance Delete করবেন?');" />
+                        </div>
+                    </div>
+
+                    <!-- Hidden Button: সব সময় লুকানো (display:none)। Alt+O চাপলে দেখায়, আবার চাপলে লুকায়।
+                         Visible="false" দেওয়া যাবে না, নইলে বাটন HTML এ রেন্ডারই হবে না। -->
+                    <div class="flex items-center gap-3 pt-2">
+                        <div class="w-24"></div>
+                        <div class="flex-1 flex gap-2">
+                            
                         </div>
                     </div>
 
@@ -256,6 +268,41 @@ function syncMultiDate() {
     var to = document.getElementById('<%= txtToDate.ClientID %>');
     if (chk && to) to.style.visibility = chk.checked ? 'visible' : 'hidden';
 }
+
+// ---------- Hidden বাটন: Alt+O দিয়ে দেখানো/লুকানো, আর অবস্থা মনে রাখা ----------
+// প্রতিটি বাটন ক্লিকে পেজ পোস্টব্যাক হয়ে নতুন করে লোড হয়, তাই বাটনের অবস্থা (দেখা/লুকানো)
+// ব্রাউজারের sessionStorage এ জমা থাকে। পেজ লোডের সময়ই সেটি ফিরিয়ে আনা হয়।
+// আবার Alt+O চাপলে লুকাবে। ট্যাব বন্ধ করলে অবস্থা মুছে যায় (সব সময়ের জন্য মনে রাখতে চাইলে
+// নিচের sessionStorage কে localStorage করুন)।
+var ORG_KEY = 'manAtt_orgBtnVisible';
+
+function setOrgBtn(show) {
+    var b = document.getElementById('btnOrg');
+    if (b) b.style.display = show ? 'inline-flex' : 'none';
+    try { sessionStorage.setItem(ORG_KEY, show ? '1' : '0'); } catch (err) { }
+}
+
+function orgBtnVisible() {
+    var b = document.getElementById('btnOrg');
+    return !!b && b.style.display !== 'none';
+}
+
+// পেজ লোডের সময় আগের অবস্থা ফেরানো (স্ক্রিপ্ট বডির শেষে, তাই বাটন আগেই আছে, কোনো ঝিলিক দেখা যায় না)
+(function restoreOrgBtn() {
+    var saved = null;
+    try { saved = sessionStorage.getItem(ORG_KEY); } catch (err) { }
+    if (saved === '1') {
+        var b = document.getElementById('btnOrg');
+        if (b) b.style.display = 'inline-flex';
+    }
+})();
+
+document.addEventListener('keydown', function (e) {
+    if (e.altKey && !e.ctrlKey && !e.shiftKey && (e.code === 'KeyO' || e.key === 'o' || e.key === 'O')) {
+        e.preventDefault();
+        setOrgBtn(!orgBtnVisible());
+    }
+});
 
 // ---------- Multi-select ড্রপডাউন (ListBox → চেকবক্স প্যানেল) ----------
 function initMulti() {

@@ -240,8 +240,10 @@
     <Content Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceSummaryView.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReport.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\CompanyInformation.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeePersonalInformationUpdate.aspx" />
@@ -547,6 +549,13 @@
     <Compile Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx.designer.cs">
       <DependentUpon>RandomAbsentAttendance.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx.cs">
+      <DependentUpon>AttendanceReportViewCompliance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx.designer.cs">
+      <DependentUpon>AttendanceReportViewCompliance.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceSummaryView.aspx.cs">
       <DependentUpon>AttendanceSummaryView.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -560,6 +569,13 @@
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReport.aspx.designer.cs">
       <DependentUpon>JobCardReport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx.cs">
+      <DependentUpon>JobCardReportCompliance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx.designer.cs">
+      <DependentUpon>JobCardReportCompliance.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\OrganizationMaster\CompanyInformation.aspx.cs">
       <DependentUpon>CompanyInformation.aspx</DependentUpon>

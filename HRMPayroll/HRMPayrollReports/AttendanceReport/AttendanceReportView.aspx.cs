@@ -1,4 +1,5 @@
-﻿using Nexa_ERP.Connection;
+﻿using CrystalDecisions.Shared.Json;
+using Nexa_ERP.Connection;
 using Nexa_ERP.HRMPayroll.Common;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 
 namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
 {
@@ -43,23 +45,14 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             { "HolidayAbsent",  new Def { Title = "Holiday Absent Report",  Where = "a.att_status = '" + StatusAbsent  + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Absent", AbsentLayout = true } }
         };
 
-        const string BaseSql =
-            "SELECT e.ID_no, e.Name, c.Company_Name, c.Address, a.Work_date, a.org_in_time, a.org_out_time, a.att_status, " +
-            "       a.Late_min, a.Remarks, a.Holiday, a.Total_Absent, " +
-            "       d.Department_Name AS Department, s.Section_Name AS Section, l.Line_Name AS Line, " +
-            "       g.Desigation_name AS Designation, p.Personal_Phone " +
-            "FROM dbo.emp_Attendance a " +
-            "INNER JOIN dbo.Employee_information_new e ON a.EMP_NO = e.Emp_no " +
-            "INNER JOIN dbo.Employee_information_With_Code ec ON e.ID_no = ec.ID_no " +
-            "INNER JOIN dbo.TB_Company c ON ec.Company_Code = c.Company_Code " +
-            "INNER JOIN dbo.TB_Department d ON ec.Department_Code = d.Department_Code " +
-            "INNER JOIN dbo.TB_Section s ON ec.Section_Code = s.Section_Code " +
-            "INNER JOIN dbo.TB_Line l ON ec.Line_Code = l.Line_Code " +
-            "INNER JOIN dbo.TB_Designation g ON ec.Designation_Code = g.Designation_Code " +
-            "INNER JOIN dbo.z_Test_ID z ON e.ID_no = z.ID_No " +
-            "LEFT JOIN dbo.Employee_Personal_Information_new p ON ec.ID_no = p.ID_No " +
-            "WHERE z.User_ID = @u AND z.From_Code = @rc " +
-            "  AND a.Work_date >= @from AND a.Work_date < DATEADD(day, 1, @till) ";
+        const string BaseSql = @"SELECT e.ID_no,e.Name, c.Company_Name, c.Address, a.Work_date, a.org_in_time AS in_time, a.org_out_time AS out_time, a.att_status, 
+a.Late_min, a.Remarks, a.Holiday, a.Total_Absent, d.Department_Name AS Department, s.Section_Name AS Section, l.Line_Name AS Line, g.Desigation_name AS Designation,p.Personal_Phone, 
+CONCAT(RIGHT('0' + CAST(ISNULL(a.OT_Hours, 0) AS VARCHAR(2)), 2), ':', RIGHT('0' + CAST(ISNULL(a.OT_Minits, 0) AS VARCHAR(2)), 2)) AS OT_Hours FROM dbo.emp_Attendance AS a
+INNER JOIN dbo.Employee_information_new AS e ON a.EMP_NO = e.Emp_no INNER JOIN dbo.Employee_information_With_Code AS ec ON e.ID_no = ec.ID_no
+INNER JOIN dbo.TB_Company AS c ON ec.Company_Code = c.Company_Code INNER JOIN dbo.TB_Department AS d ON ec.Department_Code = d.Department_Code INNER JOIN dbo.TB_Section AS s
+ON ec.Section_Code = s.Section_Code INNER JOIN dbo.TB_Line AS l ON ec.Line_Code = l.Line_Code INNER JOIN dbo.TB_Designation AS g ON ec.Designation_Code = g.Designation_Code
+INNER JOIN dbo.z_Test_ID AS z ON e.ID_no = z.ID_No LEFT OUTER JOIN dbo.Employee_Personal_Information_new AS p ON ec.ID_no = p.ID_No 
+WHERE z.User_ID = @u AND z.From_Code = @rc AND a.Work_date >= @from AND a.Work_date<DATEADD(day, 1, @till)";
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -137,7 +130,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
         static void RenderDay(StringBuilder sb, Def def, DateTime day, List<DataRow> rows)
         {
             DataRow first = rows[0];
-            int cols = def.AbsentLayout ? 10 : 9;
+            int cols = 10; // Absent ধাঁচে ১০টি, Present ধাঁচে (OT Hours সহ) ১০টি
 
             sb.Append("<section class=\"page\">");
             sb.Append("<div class=\"co\">" + Enc(Pick(first, "Company_Name")) + "</div>");
@@ -148,7 +141,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             if (def.AbsentLayout)
                 sb.Append("<th>Sl No</th><th>ID No</th><th>Name</th><th>Designation</th><th>In Time</th><th>Line No</th><th>Mobile No</th><th>Status</th><th>Monthly Absent</th><th>Staff Signature</th>");
             else
-                sb.Append("<th>Sl No</th><th>ID No</th><th>Name</th><th>Designation</th><th>In Time</th><th>Out Time</th><th>Status</th><th>Late</th><th>Remarks</th>");
+                sb.Append("<th>Sl No</th><th>ID No</th><th>Name</th><th>Designation</th><th>In Time</th><th>Out Time</th><th>Status</th><th>Late</th><th>OT Hours</th><th>Remarks</th>");
             sb.Append("</tr></thead><tbody>");
 
             string lastGrp = null;
@@ -182,7 +175,8 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
                 else
                 {
                     sb.Append("<td class=\"c\">" + Enc(Tm(r["out_time"])) + "</td><td class=\"c\">" + Enc(st) +
-                              "</td><td class=\"c\">" + Enc(Num(r["Late_min"])) + "</td><td>" + Enc(Pick(r, "Remarks")) + "</td>");
+                              "</td><td class=\"c\">" + Enc(Num(r["Late_min"])) + "</td><td class=\"c\">" + Enc(Pick(r, "OT_Hours")) +
+                              "</td><td>" + Enc(Pick(r, "Remarks")) + "</td>");
                 }
                 sb.Append("</tr>");
             }
