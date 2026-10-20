@@ -18,7 +18,7 @@
         <div class="max-w-[1320px] w-full m-auto rounded-lg border">
 
             <asp:HiddenField ID="hfUserId" runat="server" />
-            <asp:HiddenField ID="hfBuyingAgentId" runat="server" />
+            <asp:HiddenField ID="hfBuyingAgentId" runat="server" Value="0" />
 
             <%-- ============================================================ --%>
             <%-- LIST PANEL : Buying Agent List (opens first, always) --%>
@@ -38,21 +38,50 @@
                 <div class="bg-[#ffffff] shadow-xl rounded-b-lg p-4">
 
                     <%-- search box --%>
-                    <div class="flex items-center gap-2 mb-3"> 
-                        <div class="flex flex-col gap-0.5 w-72"> 
-                            <label class="text-sm font-medium">Search</label> 
-                            <asp:TextBox ID="txtSearchBuyer" placeholder="Search by buyer name..." runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-3 py-1.5 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox> 
-                        </div> 
-                        <div class="w-max pt-5"> 
-                            <asp:LinkButton ID="btnClearFilter" runat="server" CssClass="flex items-center gap-1.5 rounded bg-gray-500 text-white px-4 py-1.5 shadow-sm hover:bg-gray-600 cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center"> 
-                                <i class="fa-solid fa-eraser"></i> <span>Clear</span> 
-                            </asp:LinkButton> 
-                        </div> 
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="flex flex-col gap-0.5 w-72">
+                            <label class="text-sm font-medium">Search</label>
+                            <asp:TextBox ID="txtSearch" placeholder="Search by agent name or code..." runat="server" AutoPostBack="true" OnTextChanged="txtSearch_TextChanged" CssClass="w-full border rounded outline-none border-gray-300 px-3 py-1.5 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                        </div>
+                        <div class="w-max pt-5">
+                            <asp:LinkButton ID="btnClearFilter" runat="server" OnClick="btnClearFilter_Click" CssClass="flex items-center gap-1.5 rounded bg-gray-500 text-white px-4 py-1.5 shadow-sm hover:bg-gray-600 cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
+                                <i class="fa-solid fa-eraser"></i> <span>Clear</span>
+                            </asp:LinkButton>
+                        </div>
                     </div>
 
                     <!--Gridview-->
                     <div class="border border-gray-400 bg-gray-300 rounded w-full h-96 flex-1 overflow-y-auto overflow-x-auto">
-                        <asp:GridView ID="GridView1" runat="server"></asp:GridView>
+                        <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="false" DataKeyNames="AgentID"
+                            CssClass="w-full text-sm bg-white" OnRowCommand="GridView1_RowCommand"
+                            HeaderStyle-CssClass="bg-[#255C8C] text-white text-left" HeaderStyle-Height="32px"
+                            RowStyle-CssClass="border-b hover:bg-gray-50" EmptyDataText="No buying agent found.">
+                            <Columns>
+                                <asp:TemplateField HeaderText="SL" ItemStyle-CssClass="px-2 py-1 w-12" HeaderStyle-CssClass="px-2">
+                                    <ItemTemplate><%# Container.DataItemIndex + 1 %></ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:BoundField DataField="Code" HeaderText="Code" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
+                                <asp:BoundField DataField="Name" HeaderText="Name" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
+                                <asp:BoundField DataField="AgentType" HeaderText="Agent Type" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
+                                <asp:BoundField DataField="ContactPerson" HeaderText="Contact Person" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
+                                <asp:BoundField DataField="Mobile" HeaderText="Mobile" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
+                                <asp:BoundField DataField="Email" HeaderText="Email" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
+                                <asp:BoundField DataField="BuyerCount" HeaderText="Buyers" ItemStyle-CssClass="px-2 py-1 text-center" HeaderStyle-CssClass="px-2" />
+                                <asp:TemplateField HeaderText="Status" ItemStyle-CssClass="px-2 py-1 w-24" HeaderStyle-CssClass="px-2">
+                                    <ItemTemplate>
+                                        <span class='<%# Convert.ToBoolean(Eval("IsActive")) ? "text-green-700 bg-green-100" : "text-red-700 bg-red-100" %> px-2 py-0.5 rounded text-xs font-medium'>
+                                            <%# Convert.ToBoolean(Eval("IsActive")) ? "Active" : "Inactive" %>
+                                        </span>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Action" ItemStyle-CssClass="px-2 py-1 w-28" HeaderStyle-CssClass="px-2">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="lnkEdit" runat="server" CommandName="EditRow" CommandArgument='<%# Eval("AgentID") %>' CssClass="text-blue-600 hover:text-blue-800 mr-3" ToolTip="Edit"><i class="fa-solid fa-pen-to-square"></i></asp:LinkButton>
+                                        <asp:LinkButton ID="lnkDelete" runat="server" CommandName="DeleteRow" CommandArgument='<%# Eval("AgentID") %>' CssClass="text-red-600 hover:text-red-800" ToolTip="Delete" OnClientClick="return confirm('Are you sure you want to delete this buying agent?');"><i class="fa-solid fa-trash"></i></asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                            </Columns>
+                        </asp:GridView>
                     </div>
 
                 </div>
@@ -86,45 +115,44 @@
                             <div class="flex flex-col gap-2">
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Code</label>
-                                    <asp:TextBox ID="txtCode" placeholder="Code" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtCode" placeholder="Code" MaxLength="50" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Name</label>
-                                    <asp:TextBox ID="txtName" placeholder="Name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtName" placeholder="Name" MaxLength="200" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Agent Type</label>
                                     <asp:DropDownList ID="ddlAgentType" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                        <asp:ListItem Value="" Selected="True">--Select Agent Type--</asp:ListItem>
                                     </asp:DropDownList>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Contact Person</label>
-                                    <asp:TextBox ID="txtContactPerson" placeholder="Contact Person" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtContactPerson" placeholder="Contact Person" MaxLength="150" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Mobile</label>
-                                    <asp:TextBox ID="txtMobile" placeholder="Mobile" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtMobile" placeholder="Mobile" MaxLength="50" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Phone</label>
-                                    <asp:TextBox ID="txtPhone" placeholder="Phone" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtPhone" placeholder="Phone" MaxLength="50" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Address</label>
-                                    <asp:TextBox ID="txtAddress" placeholder="Address" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtAddress" placeholder="Address" MaxLength="500" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Fax</label>
-                                    <asp:TextBox ID="txtFax" placeholder="Fax" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtFax" placeholder="Fax" MaxLength="50" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Email</label>
-                                    <asp:TextBox ID="txtEmail" placeholder="Email" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtEmail" placeholder="Email" MaxLength="150" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Web</label>
-                                    <asp:TextBox ID="txtWeb" placeholder="Web" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                    <asp:TextBox ID="txtWeb" placeholder="Web" MaxLength="150" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                                 </div>
 
                                 <div class="flex justify-end mt-1">
@@ -141,7 +169,6 @@
                                 <div class="flex flex-col gap-0.5 w-full">
                                     <label class="text-sm font-medium">Select Buyer</label>
                                     <asp:DropDownList ID="ddlSelectBuyer" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                        <asp:ListItem Value="" Selected="True">--Select Buyer--</asp:ListItem>
                                     </asp:DropDownList>
                                 </div>
                                 <asp:LinkButton ID="btnAddBuyer" runat="server" OnClick="btnAddBuyer_Click" CssClass="flex items-center gap-1.5 rounded bg-[#255C8C] text-white px-4 py-1 shadow-sm hover:bg-[#1a4569] cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline whitespace-nowrap">
@@ -152,7 +179,22 @@
 
                             <%-- Buyers list : GridView --%>
                             <div class="border border-gray-400 bg-gray-300 rounded w-full flex-1 overflow-y-auto overflow-x-auto mt-3" style="min-height:280px;">
-                                <asp:GridView ID="gvBuyers" runat="server"></asp:GridView>
+                                <asp:GridView ID="gvBuyers" runat="server" AutoGenerateColumns="false"
+                                    CssClass="w-full text-sm bg-white" OnRowCommand="gvBuyers_RowCommand"
+                                    HeaderStyle-CssClass="bg-[#255C8C] text-white text-left" HeaderStyle-Height="32px"
+                                    RowStyle-CssClass="border-b hover:bg-gray-50" EmptyDataText="No buyer added.">
+                                    <Columns>
+                                        <asp:TemplateField HeaderText="SL" ItemStyle-CssClass="px-2 py-1 w-12" HeaderStyle-CssClass="px-2">
+                                            <ItemTemplate><%# Container.DataItemIndex + 1 %></ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:BoundField DataField="BuyerName" HeaderText="Buyer" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
+                                        <asp:TemplateField HeaderText="Remove" ItemStyle-CssClass="px-2 py-1 w-20 text-center" HeaderStyle-CssClass="px-2">
+                                            <ItemTemplate>
+                                                <asp:LinkButton ID="lnkRemove" runat="server" CommandName="RemoveBuyer" CommandArgument='<%# Eval("BuyerID") %>' CssClass="text-red-600 hover:text-red-800" ToolTip="Remove"><i class="fa-solid fa-xmark"></i></asp:LinkButton>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                    </Columns>
+                                </asp:GridView>
                             </div>
                         </div>
 

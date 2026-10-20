@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="StyleSetup.aspx.cs" Inherits="Nexa_ERP.MerchandisingMarketing.BasicSetup.StyleSetup" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="StyleSetupClick.aspx.cs" Inherits="Nexa_ERP.MerchandisingMarketing.BasicSetup.StyleSetup" %>
 
 <!DOCTYPE html>
 
