@@ -155,6 +155,8 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                                 hfPayType.Value = rd[34].ToString().Trim();
                                 txtBankGross.Text = rd[35].ToString();
                                 txtCashGross.Text = rd[36].ToString();
+                                txtNonComplianceGross.Text = rd[37].ToString();
+                                txtJoinGross.Text = rd[38].ToString();
                             }
                         }
                     }
@@ -335,6 +337,8 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
                         cmd.Parameters.AddWithValue("@Pay_Type_Name", V(hfPayType));
                         cmd.Parameters.AddWithValue("@Bank_Gross", txtBankGross.Text.Trim());
                         cmd.Parameters.AddWithValue("@Cash_Gross", txtCashGross.Text.Trim());
+                        cmd.Parameters.AddWithValue("@NonComplianceGross", txtNonComplianceGross.Text.Trim());
+                        cmd.Parameters.AddWithValue("@JoiningGross", txtJoinGross.Text.Trim());
                         cmd.ExecuteNonQuery();
                     }
 

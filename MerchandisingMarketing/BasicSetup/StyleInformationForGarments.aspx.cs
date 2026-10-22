@@ -30,7 +30,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
 
         private static readonly string[] WorkflowSteps = { "Draft", "Submitted", "Merchandising Approval", "Management Approval", "Active" };
-        private const string MasterTbl = "techdefendersbd.tbl_Mer_StyleMaster";
+        private const string MasterTbl = "tbl_Mer_StyleMaster";
 
         // ================================================================
         //  PROPERTIES
@@ -285,28 +285,28 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         {
             try
             {
-                DataTable buyers = GetTable("SELECT BuyerID, BuyerName FROM techdefendersbd.vw_BuyerInformation WHERE ISNULL(IsActive,1)=1 ORDER BY BuyerName");
+                DataTable buyers = GetTable("SELECT BuyerID, BuyerName FROM BuyerInformation WHERE ISNULL(IsActive,1)=1 ORDER BY BuyerName");
                 BindDdl(ddlBuyer, buyers, "BuyerName", "BuyerID", "--Select Buyer--");
                 BindDdl(ddlBuyerFilter, buyers, "BuyerName", "BuyerID", "--All Buyers--");
 
-                BindDdl(ddlAgent, GetTable("SELECT AgentID, HouseName FROM dbo.BuyingHouseAgent WHERE ISNULL(IsActive,1)=1 ORDER BY HouseName"), "HouseName", "AgentID", "Direct Buyer");
+                //BindDdl(ddlAgent, GetTable("SELECT AgentID, HouseName FROM BuyingHouseAgent WHERE ISNULL(IsActive,1)=1 ORDER BY HouseName"), "HouseName", "AgentID", "Direct Buyer");
 
-                BindDdl(ddlMerchandiser, GetTable("SELECT user_id, ISNULL(NULLIF(full_name,''), username) AS full_name FROM dbo.vw_User_Information_Top1000 WHERE ISNULL(is_active,1)=1 ORDER BY full_name"), "full_name", "user_id", "--Select Merchandiser--");
+                //BindDdl(ddlMerchandiser, GetTable("SELECT user_id, ISNULL(NULLIF(full_name,''), username) AS full_name FROM vw_User_Information_Top1000 WHERE ISNULL(is_active,1)=1 ORDER BY full_name"), "full_name", "user_id", "--Select Merchandiser--");
 
-                BindDdl(ddlCountry, GetTable("SELECT CountryName FROM dbo.CountryMaster WHERE ISNULL(IsActive,1)=1 ORDER BY CountryName"), "CountryName", "CountryName", "--Select Country--");
+                BindDdl(ddlCountry, GetTable("SELECT CountryName FROM CountryMaster WHERE ISNULL(IsActive,1)=1 ORDER BY CountryName"), "CountryName", "CountryName", "--Select Country--");
 
-                BindDdl(ddlPaymentTerm, GetTable("SELECT TermName FROM techdefendersbd.tbl_PaymentTerm WHERE IsActive=1 ORDER BY TermName"), "TermName", "TermName", "--Select Payment Term--");
+                BindDdl(ddlPaymentTerm, GetTable("SELECT TermName FROM tbl_PaymentTerm WHERE IsActive=1 ORDER BY TermName"), "TermName", "TermName", "--Select Payment Term--");
 
-                DataTable units = GetTable("SELECT ISNULL(NULLIF(ShortCode,''), UnitName) AS U FROM techdefendersbd.tbl_UnitSetup WHERE ISNULL(Status,'Active')='Active' ORDER BY U");
+                DataTable units = GetTable("SELECT ISNULL(NULLIF(ShortCode,''), UnitName) AS U FROM tbl_UnitSetup WHERE ISNULL(Status,'Active')='Active' ORDER BY U");
                 BindDdl(ddlFabUnit, units, "U", "U", null);
                 BindDdl(ddlAccUnit, units, "U", "U", null);
                 if (ddlFabUnit.Items.Count == 0) { ddlFabUnit.Items.Add("Kgs"); ddlFabUnit.Items.Add("Yds"); ddlFabUnit.Items.Add("Mtr"); }
                 if (ddlAccUnit.Items.Count == 0) { ddlAccUnit.Items.Add("Pcs"); ddlAccUnit.Items.Add("Mtr"); ddlAccUnit.Items.Add("Cone"); }
 
-                BindDdl(ddlColor, GetTable("SELECT ColorCode, ColorName FROM dbo.ColorMaster WHERE IsActive=1 ORDER BY ColorName"), "ColorName", "ColorCode", "--Select Color--");
+                BindDdl(ddlColor, GetTable("SELECT ColorCode, ColorName FROM ColorMaster WHERE IsActive=1 ORDER BY ColorName"), "ColorName", "ColorCode", "--Select Color--");
 
                 DataTable sizes = GetTable(@"SELECT s.SizeID, s.SizeName + CASE WHEN g.GroupName IS NULL THEN '' ELSE ' (' + g.GroupName + ')' END AS Txt
-                                             FROM techdefendersbd.Sizes s LEFT JOIN techdefendersbd.SizeGroups g ON g.GroupID = s.GroupID
+                                             FROM Sizes s LEFT JOIN SizeGroups g ON g.GroupID = s.GroupID
                                              ORDER BY g.GroupName, s.SizeID");
                 BindDdl(ddlSize, sizes, "Txt", "SizeID", "--Select Size--");
 
@@ -356,7 +356,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                            LTRIM(ISNULL(m.SeasonName,'') + ' ' + ISNULL(CAST(m.SeasonYear AS VARCHAR(4)),'')) AS Season,
                            m.StyleStatus, RIGHT('00' + CAST(m.RevisionNo AS VARCHAR(5)), 2) AS RevisionNo
                     FROM " + MasterTbl + @" m
-                    LEFT JOIN techdefendersbd.vw_BuyerInformation bi ON bi.BuyerID = m.BuyerID
+                    LEFT JOIN BuyerInformation bi ON bi.BuyerID = m.BuyerID
                     WHERE (@b = 0 OR m.BuyerID = @b)
                       AND (@s = '' OR m.StyleStatus = @s)
                       AND (@q = '' OR m.StyleCode LIKE @l OR m.StyleNo LIKE @l OR m.StyleName LIKE @l)
@@ -424,57 +424,57 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ================================================================
         private void ClearForm()
         {
-            hfStyleId.Value = "0";
-            hfTab.Value = "";
+            //hfStyleId.Value = "0";
+            //hfTab.Value = "";
 
-            txtStyleID.Text = PreviewStyleCode();
-            txtStyleNo.Text = ""; txtStyleName.Text = ""; txtStyleDesc.Text = "";
-            ddlMainStatus.SelectedValue = "Draft";
-            txtRevNo.Text = "00";
+            //txtStyleID.Text = PreviewStyleCode();
+            //txtStyleNo.Text = ""; txtStyleName.Text = ""; txtStyleDesc.Text = "";
+            //ddlMainStatus.SelectedValue = "Draft";
+            //txtRevNo.Text = "00";
 
-            ddlBuyer.SelectedIndex = 0; LoadBrands(0);
-            ddlAgent.SelectedIndex = 0; ddlMerchandiser.SelectedIndex = 0;
-            ddlSeason.SelectedIndex = 0; SetDdl(ddlSeasonYear, DateTime.Now.Year.ToString());
-            ddlProductCategory.SelectedIndex = 0; ddlProductType.SelectedIndex = 0;
-            ddlGarmentType.SelectedIndex = 0; ddlGender.SelectedIndex = 0;
-            txtDepartment.Text = ""; txtDivision.Text = "";
-            txtCreationDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
-            txtRemarks.Text = "";
+            ////ddlBuyer.SelectedIndex = 0; LoadBrands(0);
+            //ddlAgent.SelectedIndex = 0; ddlMerchandiser.SelectedIndex = 0;
+            //ddlSeason.SelectedIndex = 0; SetDdl(ddlSeasonYear, DateTime.Now.Year.ToString());
+            //ddlProductCategory.SelectedIndex = 0; ddlProductType.SelectedIndex = 0;
+            //ddlGarmentType.SelectedIndex = 0; ddlGender.SelectedIndex = 0;
+            //txtDepartment.Text = ""; txtDivision.Text = "";
+            //txtCreationDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
+            //txtRemarks.Text = "";
 
-            txtBuyerStyleNo.Text = ""; txtProductNo.Text = "";
-            ddlCountry.SelectedIndex = 0; ddlCurrency.SelectedIndex = 0;
-            ddlPaymentTerm.SelectedIndex = 0; ddlShipmentMode.SelectedIndex = 0;
-            txtPortLoading.Text = ""; txtPortDischarge.Text = "";
+            //txtBuyerStyleNo.Text = ""; txtProductNo.Text = "";
+            //ddlCountry.SelectedIndex = 0; ddlCurrency.SelectedIndex = 0;
+            //ddlPaymentTerm.SelectedIndex = 0; ddlShipmentMode.SelectedIndex = 0;
+            //txtPortLoading.Text = ""; txtPortDischarge.Text = "";
 
-            txtFabricType.Text = ""; ddlKnitWoven.SelectedIndex = 0; txtConstruction.Text = ""; txtSpecGsm.Text = "";
-            txtSpecComposition.Text = ""; txtFabricWidth.Text = ""; txtFinish.Text = ""; txtWashType.Text = "";
-            txtSleeve.Text = ""; txtNeck.Text = ""; txtClosure.Text = ""; txtPocket.Text = "";
+            //txtFabricType.Text = ""; ddlKnitWoven.SelectedIndex = 0; txtConstruction.Text = ""; txtSpecGsm.Text = "";
+            //txtSpecComposition.Text = ""; txtFabricWidth.Text = ""; txtFinish.Text = ""; txtWashType.Text = "";
+            //txtSleeve.Text = ""; txtNeck.Text = ""; txtClosure.Text = ""; txtPocket.Text = "";
 
-            chkPrinting.Checked = chkEmbroidery.Checked = chkWashing.Checked = chkSpecial.Checked = false;
-            txtPrintingDetails.Text = txtEmbroideryDetails.Text = txtWashingDetails.Text = txtSpecialDetails.Text = "";
+            //chkPrinting.Checked = chkEmbroidery.Checked = chkWashing.Checked = chkSpecial.Checked = false;
+            //txtPrintingDetails.Text = txtEmbroideryDetails.Text = txtWashingDetails.Text = txtSpecialDetails.Text = "";
 
-            ddlTnaTemplate.SelectedIndex = 0;
-            txtSampleDeadline.Text = txtPPMeeting.Text = txtFabricIn.Text = txtShipmentDate.Text = "";
+            //ddlTnaTemplate.SelectedIndex = 0;
+            //txtSampleDeadline.Text = txtPPMeeting.Text = txtFabricIn.Text = txtShipmentDate.Text = "";
 
-            ViewState["dtColors"] = null; ViewState["dtSizes"] = null; ViewState["dtFabric"] = null; ViewState["dtAcc"] = null;
-            BindChildGrids();
+            //ViewState["dtColors"] = null; ViewState["dtSizes"] = null; ViewState["dtFabric"] = null; ViewState["dtAcc"] = null;
+            //BindChildGrids();
 
-            ResetImages();
-            gvDocs.DataSource = null; gvDocs.DataBind();
-            gvCosting.DataSource = null; gvCosting.DataBind();
-            gvApproval.DataSource = null; gvApproval.DataBind();
-            gvHistory.DataSource = null; gvHistory.DataBind();
-            ClearCostingLabels();
-            txtCostTotal.Text = ""; txtCostFob.Text = ""; ddlCostStatus.SelectedIndex = 0;
-            txtApprovalRemarks.Text = "";
-            BuildWorkflow("Draft");
-            txtSubmittedBy.Text = "Not submitted"; txtApprovedBy.Text = "Not submitted";
+            //ResetImages();
+            //gvDocs.DataSource = null; gvDocs.DataBind();
+            //gvCosting.DataSource = null; gvCosting.DataBind();
+            //gvApproval.DataSource = null; gvApproval.DataBind();
+            //gvHistory.DataSource = null; gvHistory.DataBind();
+            //ClearCostingLabels();
+            //txtCostTotal.Text = ""; txtCostFob.Text = ""; ddlCostStatus.SelectedIndex = 0;
+            //txtApprovalRemarks.Text = "";
+            //BuildWorkflow("Draft");
+            //txtSubmittedBy.Text = "Not submitted"; txtApprovedBy.Text = "Not submitted";
 
-            lblCreatedBy.Text = "-"; lblCreatedDate.Text = "-"; lblModified.Text = "-";
-            lblLock.Text = "Unlocked for Editing";
-            SetBadge(bdgPO, "0 Records", "bg-secondary"); SetBadge(bdgCosting, "Pending", "bg-secondary");
-            SetBadge(bdgFabric, "0 Records", "bg-secondary"); SetBadge(bdgAcc, "Pending", "bg-secondary");
-            SetBadge(bdgTna, "Pending", "bg-secondary"); SetBadge(bdgPrint, "Not Req.", "bg-secondary"); SetBadge(bdgEmb, "Not Req.", "bg-secondary");
+            //lblCreatedBy.Text = "-"; lblCreatedDate.Text = "-"; lblModified.Text = "-";
+            //lblLock.Text = "Unlocked for Editing";
+            //SetBadge(bdgPO, "0 Records", "bg-secondary"); SetBadge(bdgCosting, "Pending", "bg-secondary");
+            //SetBadge(bdgFabric, "0 Records", "bg-secondary"); SetBadge(bdgAcc, "Pending", "bg-secondary");
+            //SetBadge(bdgTna, "Pending", "bg-secondary"); SetBadge(bdgPrint, "Not Req.", "bg-secondary"); SetBadge(bdgEmb, "Not Req.", "bg-secondary");
 
             UpdateButtons(false);
         }
@@ -560,7 +560,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 txtRemarks.Text = Str(r["InternalRemarks"]);
 
                 // Commercial
-                DataTable t = GetTable("SELECT * FROM techdefendersbd.tbl_Mer_StyleCommercial WHERE StyleID=@id", P("@id", id));
+                DataTable t = GetTable("SELECT * FROM tbl_Mer_StyleCommercial WHERE StyleID=@id", P("@id", id));
                 if (t.Rows.Count > 0)
                 {
                     DataRow c = t.Rows[0];
@@ -573,7 +573,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
 
                 // Specification
-                t = GetTable("SELECT * FROM techdefendersbd.tbl_Mer_StyleSpecification WHERE StyleID=@id", P("@id", id));
+                t = GetTable("SELECT * FROM tbl_Mer_StyleSpecification WHERE StyleID=@id", P("@id", id));
                 if (t.Rows.Count > 0)
                 {
                     DataRow s = t.Rows[0];
@@ -586,7 +586,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
 
                 // Work Order flags
-                t = GetTable("SELECT * FROM techdefendersbd.tbl_Mer_StyleWorkOrder WHERE StyleID=@id", P("@id", id));
+                t = GetTable("SELECT * FROM tbl_Mer_StyleWorkOrder WHERE StyleID=@id", P("@id", id));
                 if (t.Rows.Count > 0)
                 {
                     DataRow w = t.Rows[0];
@@ -597,7 +597,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
 
                 // TNA
-                t = GetTable("SELECT * FROM techdefendersbd.tbl_Mer_StyleTNA WHERE StyleID=@id", P("@id", id));
+                t = GetTable("SELECT * FROM tbl_Mer_StyleTNA WHERE StyleID=@id", P("@id", id));
                 bool hasTna = t.Rows.Count > 0;
                 if (hasTna)
                 {
@@ -608,10 +608,10 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
 
                 // Color / Size / Fabric / Accessories
-                ColorsDT = GetTable("SELECT ColorCode, ColorName, PantoneCode, IsActive FROM techdefendersbd.tbl_Mer_StyleColors WHERE StyleID=@id ORDER BY ColorRowID", P("@id", id));
-                SizesDT = GetTable("SELECT SizeCode, SizeName, SizeRange, IsActive FROM techdefendersbd.tbl_Mer_StyleSizes WHERE StyleID=@id ORDER BY SizeRowID", P("@id", id));
-                FabricDT = GetTable("SELECT FabricCode, FabricName, Composition, GSM, ColorName, ISNULL(Consumption,0) AS Consumption, ISNULL(WastagePercent,0) AS WastagePercent, Unit FROM techdefendersbd.tbl_Mer_StyleFabric WHERE StyleID=@id ORDER BY FabricRowID", P("@id", id));
-                AccDT = GetTable("SELECT ItemCode, ItemName, ItemType, SizeColor, ISNULL(Consumption,0) AS Consumption, Unit, ISNULL(WastagePercent,0) AS WastagePercent, Supplier FROM techdefendersbd.tbl_Mer_StyleAccessories WHERE StyleID=@id ORDER BY AccessoryRowID", P("@id", id));
+                ColorsDT = GetTable("SELECT ColorCode, ColorName, PantoneCode, IsActive FROM tbl_Mer_StyleColors WHERE StyleID=@id ORDER BY ColorRowID", P("@id", id));
+                SizesDT = GetTable("SELECT SizeCode, SizeName, SizeRange, IsActive FROM tbl_Mer_StyleSizes WHERE StyleID=@id ORDER BY SizeRowID", P("@id", id));
+                FabricDT = GetTable("SELECT FabricCode, FabricName, Composition, GSM, ColorName, ISNULL(Consumption,0) AS Consumption, ISNULL(WastagePercent,0) AS WastagePercent, Unit FROM tbl_Mer_StyleFabric WHERE StyleID=@id ORDER BY FabricRowID", P("@id", id));
+                AccDT = GetTable("SELECT ItemCode, ItemName, ItemType, SizeColor, ISNULL(Consumption,0) AS Consumption, Unit, ISNULL(WastagePercent,0) AS WastagePercent, Supplier FROM tbl_Mer_StyleAccessories WHERE StyleID=@id ORDER BY AccessoryRowID", P("@id", id));
                 BindChildGrids();
 
                 LoadImages(id);
@@ -650,8 +650,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             try
             {
                 string sn = txtStyleNo.Text.Trim(), name = txtStyleName.Text.Trim();
-                DataTable po = GetTable(@"SELECT COUNT(1) FROM techdefendersbd.tbl_POEntryInformation p
-                                          INNER JOIN techdefendersbd.Style_Master sm ON sm.StyleId = p.StyleId
+                DataTable po = GetTable(@"SELECT COUNT(1) FROM tbl_POEntryInformation p
+                                          INNER JOIN Style_Master sm ON sm.StyleId = p.StyleId
                                           WHERE sm.BuyerName = @b AND (sm.StyleName = @sn OR sm.StyleName = @nm)",
                                          P("@b", buyerId), P("@sn", sn), P("@nm", name));
                 int pc = Convert.ToInt32(po.Rows[0][0]);
@@ -798,12 +798,12 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         {
             // ---- Commercial (1:1) ----
             ExecTx(cn, tx, @"
-                UPDATE techdefendersbd.tbl_Mer_StyleCommercial
+                UPDATE tbl_Mer_StyleCommercial
                    SET BuyerStyleNo=@bsn, ProductNo=@pno, DestinationCountry=@dc, Currency=@cur, PaymentTerm=@pt,
                        ShipmentMode=@sm, PortOfLoading=@pol, PortOfDischarge=@pod
                  WHERE StyleID=@sid;
                 IF @@ROWCOUNT = 0
-                    INSERT INTO techdefendersbd.tbl_Mer_StyleCommercial
+                    INSERT INTO tbl_Mer_StyleCommercial
                         (StyleID, BuyerStyleNo, ProductNo, DestinationCountry, Currency, PaymentTerm, ShipmentMode, PortOfLoading, PortOfDischarge)
                     VALUES (@sid, @bsn, @pno, @dc, @cur, @pt, @sm, @pol, @pod);",
                 P("@sid", id), P("@bsn", N(txtBuyerStyleNo.Text)), P("@pno", N(txtProductNo.Text)),
@@ -812,12 +812,12 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
             // ---- Specification (1:1) ----
             ExecTx(cn, tx, @"
-                UPDATE techdefendersbd.tbl_Mer_StyleSpecification
+                UPDATE tbl_Mer_StyleSpecification
                    SET FabricType=@ft, KnitWoven=@kw, Construction=@con, GSM=@gsm, Composition=@comp, FabricWidth=@fw,
                        Finish=@fin, WashType=@wash, SleeveType=@sl, NeckType=@nk, ClosureType=@cl, PocketType=@pk
                  WHERE StyleID=@sid;
                 IF @@ROWCOUNT = 0
-                    INSERT INTO techdefendersbd.tbl_Mer_StyleSpecification
+                    INSERT INTO tbl_Mer_StyleSpecification
                         (StyleID, FabricType, KnitWoven, Construction, GSM, Composition, FabricWidth, Finish, WashType, SleeveType, NeckType, ClosureType, PocketType)
                     VALUES (@sid, @ft, @kw, @con, @gsm, @comp, @fw, @fin, @wash, @sl, @nk, @cl, @pk);",
                 P("@sid", id), P("@ft", N(txtFabricType.Text)), P("@kw", N(ddlKnitWoven.SelectedValue)), P("@con", N(txtConstruction.Text)),
@@ -827,12 +827,12 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
             // ---- Work Order flags (1:1) ----
             ExecTx(cn, tx, @"
-                UPDATE techdefendersbd.tbl_Mer_StyleWorkOrder
+                UPDATE tbl_Mer_StyleWorkOrder
                    SET PrintingRequired=@pr, PrintingDetails=@prd, EmbroideryRequired=@er, EmbroideryDetails=@erd,
                        WashingRequired=@wr, WashingDetails=@wrd, SpecialProcessRequired=@sr, SpecialProcessDetails=@srd
                  WHERE StyleID=@sid;
                 IF @@ROWCOUNT = 0
-                    INSERT INTO techdefendersbd.tbl_Mer_StyleWorkOrder
+                    INSERT INTO tbl_Mer_StyleWorkOrder
                         (StyleID, PrintingRequired, PrintingDetails, EmbroideryRequired, EmbroideryDetails, WashingRequired, WashingDetails, SpecialProcessRequired, SpecialProcessDetails)
                     VALUES (@sid, @pr, @prd, @er, @erd, @wr, @wrd, @sr, @srd);",
                 P("@sid", id), P("@pr", chkPrinting.Checked), P("@prd", N(txtPrintingDetails.Text)),
@@ -842,39 +842,39 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
             // ---- TNA (1:1) ----
             ExecTx(cn, tx, @"
-                UPDATE techdefendersbd.tbl_Mer_StyleTNA
+                UPDATE tbl_Mer_StyleTNA
                    SET TemplateName=@tn, SampleDeadline=@sd, PPMeetingDate=@pp, FabricInDate=@fi, ShipmentDate=@sh
                  WHERE StyleID=@sid;
                 IF @@ROWCOUNT = 0
-                    INSERT INTO techdefendersbd.tbl_Mer_StyleTNA (StyleID, TemplateName, SampleDeadline, PPMeetingDate, FabricInDate, ShipmentDate)
+                    INSERT INTO tbl_Mer_StyleTNA (StyleID, TemplateName, SampleDeadline, PPMeetingDate, FabricInDate, ShipmentDate)
                     VALUES (@sid, @tn, @sd, @pp, @fi, @sh);",
                 P("@sid", id), P("@tn", N(ddlTnaTemplate.SelectedValue)), P("@sd", ParseDate(txtSampleDeadline.Text)),
                 P("@pp", ParseDate(txtPPMeeting.Text)), P("@fi", ParseDate(txtFabricIn.Text)), P("@sh", ParseDate(txtShipmentDate.Text)));
 
             // ---- Colors ----
-            ExecTx(cn, tx, "DELETE FROM techdefendersbd.tbl_Mer_StyleColors WHERE StyleID=@sid", P("@sid", id));
+            ExecTx(cn, tx, "DELETE FROM tbl_Mer_StyleColors WHERE StyleID=@sid", P("@sid", id));
             foreach (DataRow r in ColorsDT.Rows)
-                ExecTx(cn, tx, "INSERT INTO techdefendersbd.tbl_Mer_StyleColors (StyleID, ColorCode, ColorName, PantoneCode, IsActive) VALUES (@sid,@c,@n,@p,@a)",
+                ExecTx(cn, tx, "INSERT INTO tbl_Mer_StyleColors (StyleID, ColorCode, ColorName, PantoneCode, IsActive) VALUES (@sid,@c,@n,@p,@a)",
                     P("@sid", id), P("@c", r["ColorCode"]), P("@n", r["ColorName"]), P("@p", r["PantoneCode"]), P("@a", Convert.ToBoolean(r["IsActive"])));
 
             // ---- Sizes ----
-            ExecTx(cn, tx, "DELETE FROM techdefendersbd.tbl_Mer_StyleSizes WHERE StyleID=@sid", P("@sid", id));
+            ExecTx(cn, tx, "DELETE FROM tbl_Mer_StyleSizes WHERE StyleID=@sid", P("@sid", id));
             foreach (DataRow r in SizesDT.Rows)
-                ExecTx(cn, tx, "INSERT INTO techdefendersbd.tbl_Mer_StyleSizes (StyleID, SizeCode, SizeName, SizeRange, IsActive) VALUES (@sid,@c,@n,@r,@a)",
+                ExecTx(cn, tx, "INSERT INTO tbl_Mer_StyleSizes (StyleID, SizeCode, SizeName, SizeRange, IsActive) VALUES (@sid,@c,@n,@r,@a)",
                     P("@sid", id), P("@c", r["SizeCode"]), P("@n", r["SizeName"]), P("@r", r["SizeRange"]), P("@a", Convert.ToBoolean(r["IsActive"])));
 
             // ---- Fabric ----
-            ExecTx(cn, tx, "DELETE FROM techdefendersbd.tbl_Mer_StyleFabric WHERE StyleID=@sid", P("@sid", id));
+            ExecTx(cn, tx, "DELETE FROM tbl_Mer_StyleFabric WHERE StyleID=@sid", P("@sid", id));
             foreach (DataRow r in FabricDT.Rows)
-                ExecTx(cn, tx, @"INSERT INTO techdefendersbd.tbl_Mer_StyleFabric (StyleID, FabricCode, FabricName, Composition, GSM, ColorName, Consumption, WastagePercent, Unit)
+                ExecTx(cn, tx, @"INSERT INTO tbl_Mer_StyleFabric (StyleID, FabricCode, FabricName, Composition, GSM, ColorName, Consumption, WastagePercent, Unit)
                                  VALUES (@sid,@c,@n,@comp,@gsm,@col,@cons,@w,@u)",
                     P("@sid", id), P("@c", r["FabricCode"]), P("@n", r["FabricName"]), P("@comp", r["Composition"]), P("@gsm", r["GSM"]),
                     P("@col", r["ColorName"]), P("@cons", r["Consumption"]), P("@w", r["WastagePercent"]), P("@u", r["Unit"]));
 
             // ---- Accessories ----
-            ExecTx(cn, tx, "DELETE FROM techdefendersbd.tbl_Mer_StyleAccessories WHERE StyleID=@sid", P("@sid", id));
+            ExecTx(cn, tx, "DELETE FROM tbl_Mer_StyleAccessories WHERE StyleID=@sid", P("@sid", id));
             foreach (DataRow r in AccDT.Rows)
-                ExecTx(cn, tx, @"INSERT INTO techdefendersbd.tbl_Mer_StyleAccessories (StyleID, ItemCode, ItemName, ItemType, SizeColor, Consumption, Unit, WastagePercent, Supplier)
+                ExecTx(cn, tx, @"INSERT INTO tbl_Mer_StyleAccessories (StyleID, ItemCode, ItemName, ItemType, SizeColor, Consumption, Unit, WastagePercent, Supplier)
                                  VALUES (@sid,@c,@n,@t,@sc,@cons,@u,@w,@sup)",
                     P("@sid", id), P("@c", r["ItemCode"]), P("@n", r["ItemName"]), P("@t", r["ItemType"]), P("@sc", r["SizeColor"]),
                     P("@cons", r["Consumption"]), P("@u", r["Unit"]), P("@w", r["WastagePercent"]), P("@sup", r["Supplier"]));
@@ -882,14 +882,14 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
         private void AddHistory(SqlConnection cn, SqlTransaction tx, int styleId, string type, string field, string prev, string now, string remarks)
         {
-            ExecTx(cn, tx, @"INSERT INTO techdefendersbd.tbl_Mer_StyleHistory (StyleID, ActionDateTime, ActionByUser, ActionType, FieldName, PreviousValue, NewValue, Remarks)
+            ExecTx(cn, tx, @"INSERT INTO tbl_Mer_StyleHistory (StyleID, ActionDateTime, ActionByUser, ActionType, FieldName, PreviousValue, NewValue, Remarks)
                              VALUES (@sid, GETDATE(), @u, @t, @f, @p, @n, @r)",
                 P("@sid", styleId), P("@u", CurrentUser), P("@t", type), P("@f", N(field)), P("@p", N(prev)), P("@n", N(now)), P("@r", N(remarks)));
         }
 
         private void LoadHistory(int id)
         {
-            gvHistory.DataSource = GetTable("SELECT TOP 200 * FROM techdefendersbd.tbl_Mer_StyleHistory WHERE StyleID=@id ORDER BY HistoryID DESC", P("@id", id));
+            gvHistory.DataSource = GetTable("SELECT TOP 200 * FROM tbl_Mer_StyleHistory WHERE StyleID=@id ORDER BY HistoryID DESC", P("@id", id));
             gvHistory.DataBind();
         }
 
@@ -938,14 +938,14 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                         SqlParameter s = null;
                         string[] sqls = new string[]
                         {
-                            "INSERT INTO techdefendersbd.tbl_Mer_StyleColors (StyleID,ColorCode,ColorName,PantoneCode,IsActive) SELECT @n,ColorCode,ColorName,PantoneCode,IsActive FROM techdefendersbd.tbl_Mer_StyleColors WHERE StyleID=@s",
-                            "INSERT INTO techdefendersbd.tbl_Mer_StyleSizes (StyleID,SizeCode,SizeName,SizeRange,IsActive) SELECT @n,SizeCode,SizeName,SizeRange,IsActive FROM techdefendersbd.tbl_Mer_StyleSizes WHERE StyleID=@s",
-                            "INSERT INTO techdefendersbd.tbl_Mer_StyleFabric (StyleID,FabricCode,FabricName,Composition,GSM,ColorName,Consumption,WastagePercent,Unit) SELECT @n,FabricCode,FabricName,Composition,GSM,ColorName,Consumption,WastagePercent,Unit FROM techdefendersbd.tbl_Mer_StyleFabric WHERE StyleID=@s",
-                            "INSERT INTO techdefendersbd.tbl_Mer_StyleAccessories (StyleID,ItemCode,ItemName,ItemType,SizeColor,Consumption,Unit,WastagePercent,Supplier) SELECT @n,ItemCode,ItemName,ItemType,SizeColor,Consumption,Unit,WastagePercent,Supplier FROM techdefendersbd.tbl_Mer_StyleAccessories WHERE StyleID=@s",
-                            "INSERT INTO techdefendersbd.tbl_Mer_StyleCommercial (StyleID,BuyerStyleNo,ProductNo,DestinationCountry,Currency,PaymentTerm,ShipmentMode,PortOfLoading,PortOfDischarge) SELECT @n,BuyerStyleNo,ProductNo,DestinationCountry,Currency,PaymentTerm,ShipmentMode,PortOfLoading,PortOfDischarge FROM techdefendersbd.tbl_Mer_StyleCommercial WHERE StyleID=@s",
-                            "INSERT INTO techdefendersbd.tbl_Mer_StyleSpecification (StyleID,FabricType,KnitWoven,Construction,GSM,Composition,FabricWidth,Finish,WashType,SleeveType,NeckType,ClosureType,PocketType) SELECT @n,FabricType,KnitWoven,Construction,GSM,Composition,FabricWidth,Finish,WashType,SleeveType,NeckType,ClosureType,PocketType FROM techdefendersbd.tbl_Mer_StyleSpecification WHERE StyleID=@s",
-                            "INSERT INTO techdefendersbd.tbl_Mer_StyleTNA (StyleID,TemplateName,SampleDeadline,PPMeetingDate,FabricInDate,ShipmentDate) SELECT @n,TemplateName,SampleDeadline,PPMeetingDate,FabricInDate,ShipmentDate FROM techdefendersbd.tbl_Mer_StyleTNA WHERE StyleID=@s",
-                            "INSERT INTO techdefendersbd.tbl_Mer_StyleWorkOrder (StyleID,PrintingRequired,PrintingDetails,EmbroideryRequired,EmbroideryDetails,WashingRequired,WashingDetails,SpecialProcessRequired,SpecialProcessDetails) SELECT @n,PrintingRequired,PrintingDetails,EmbroideryRequired,EmbroideryDetails,WashingRequired,WashingDetails,SpecialProcessRequired,SpecialProcessDetails FROM techdefendersbd.tbl_Mer_StyleWorkOrder WHERE StyleID=@s"
+                            "INSERT INTO tbl_Mer_StyleColors (StyleID,ColorCode,ColorName,PantoneCode,IsActive) SELECT @n,ColorCode,ColorName,PantoneCode,IsActive FROM tbl_Mer_StyleColors WHERE StyleID=@s",
+                            "INSERT INTO tbl_Mer_StyleSizes (StyleID,SizeCode,SizeName,SizeRange,IsActive) SELECT @n,SizeCode,SizeName,SizeRange,IsActive FROM tbl_Mer_StyleSizes WHERE StyleID=@s",
+                            "INSERT INTO tbl_Mer_StyleFabric (StyleID,FabricCode,FabricName,Composition,GSM,ColorName,Consumption,WastagePercent,Unit) SELECT @n,FabricCode,FabricName,Composition,GSM,ColorName,Consumption,WastagePercent,Unit FROM tbl_Mer_StyleFabric WHERE StyleID=@s",
+                            "INSERT INTO tbl_Mer_StyleAccessories (StyleID,ItemCode,ItemName,ItemType,SizeColor,Consumption,Unit,WastagePercent,Supplier) SELECT @n,ItemCode,ItemName,ItemType,SizeColor,Consumption,Unit,WastagePercent,Supplier FROM tbl_Mer_StyleAccessories WHERE StyleID=@s",
+                            "INSERT INTO tbl_Mer_StyleCommercial (StyleID,BuyerStyleNo,ProductNo,DestinationCountry,Currency,PaymentTerm,ShipmentMode,PortOfLoading,PortOfDischarge) SELECT @n,BuyerStyleNo,ProductNo,DestinationCountry,Currency,PaymentTerm,ShipmentMode,PortOfLoading,PortOfDischarge FROM tbl_Mer_StyleCommercial WHERE StyleID=@s",
+                            "INSERT INTO tbl_Mer_StyleSpecification (StyleID,FabricType,KnitWoven,Construction,GSM,Composition,FabricWidth,Finish,WashType,SleeveType,NeckType,ClosureType,PocketType) SELECT @n,FabricType,KnitWoven,Construction,GSM,Composition,FabricWidth,Finish,WashType,SleeveType,NeckType,ClosureType,PocketType FROM tbl_Mer_StyleSpecification WHERE StyleID=@s",
+                            "INSERT INTO tbl_Mer_StyleTNA (StyleID,TemplateName,SampleDeadline,PPMeetingDate,FabricInDate,ShipmentDate) SELECT @n,TemplateName,SampleDeadline,PPMeetingDate,FabricInDate,ShipmentDate FROM tbl_Mer_StyleTNA WHERE StyleID=@s",
+                            "INSERT INTO tbl_Mer_StyleWorkOrder (StyleID,PrintingRequired,PrintingDetails,EmbroideryRequired,EmbroideryDetails,WashingRequired,WashingDetails,SpecialProcessRequired,SpecialProcessDetails) SELECT @n,PrintingRequired,PrintingDetails,EmbroideryRequired,EmbroideryDetails,WashingRequired,WashingDetails,SpecialProcessRequired,SpecialProcessDetails FROM tbl_Mer_StyleWorkOrder WHERE StyleID=@s"
                         };
                         foreach (string q in sqls)
                             ExecTx(cn, tx, q, P("@n", newId), P("@s", src));
@@ -996,7 +996,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             foreach (DataRow r in SizesDT.Rows)
                 if (Str(r["SizeCode"]) == code) { ShowMessage("This size is already added."); return; }
 
-            DataTable s = GetTable("SELECT s.SizeName, ISNULL(g.GroupName,'') AS GroupName FROM techdefendersbd.Sizes s LEFT JOIN techdefendersbd.SizeGroups g ON g.GroupID=s.GroupID WHERE s.SizeID=@id", P("@id", sid));
+            DataTable s = GetTable("SELECT s.SizeName, ISNULL(g.GroupName,'') AS GroupName FROM Sizes s LEFT JOIN SizeGroups g ON g.GroupID=s.GroupID WHERE s.SizeID=@id", P("@id", sid));
             if (s.Rows.Count == 0) return;
             SizesDT.Rows.Add(code, Str(s.Rows[0]["SizeName"]), Str(s.Rows[0]["GroupName"]), true);
             ddlSize.SelectedIndex = 0;
@@ -1079,7 +1079,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         private void LoadImages(int id)
         {
             ResetImages();
-            DataTable dt = GetTable("SELECT ImageType, FilePath, FileName FROM techdefendersbd.tbl_Mer_StyleImages WHERE StyleID=@id ORDER BY ImageID", P("@id", id));
+            DataTable dt = GetTable("SELECT ImageType, FilePath, FileName FROM tbl_Mer_StyleImages WHERE StyleID=@id ORDER BY ImageID", P("@id", id));
             foreach (DataRow r in dt.Rows) SetImageControls(Str(r["ImageType"]), r);
         }
 
@@ -1104,9 +1104,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             string saved = Guid.NewGuid().ToString("N") + ext;
             fu.SaveAs(Path.Combine(phys, saved));
 
-            DataTable old = GetTable("SELECT FilePath FROM techdefendersbd.tbl_Mer_StyleImages WHERE StyleID=@id AND ImageType=@t", P("@id", id), P("@t", type));
-            Exec("DELETE FROM techdefendersbd.tbl_Mer_StyleImages WHERE StyleID=@id AND ImageType=@t", P("@id", id), P("@t", type));
-            Exec(@"INSERT INTO techdefendersbd.tbl_Mer_StyleImages (StyleID, ImageType, FilePath, FileName, UploadedBy, UploadedDate)
+            DataTable old = GetTable("SELECT FilePath FROM tbl_Mer_StyleImages WHERE StyleID=@id AND ImageType=@t", P("@id", id), P("@t", type));
+            Exec("DELETE FROM tbl_Mer_StyleImages WHERE StyleID=@id AND ImageType=@t", P("@id", id), P("@t", type));
+            Exec(@"INSERT INTO tbl_Mer_StyleImages (StyleID, ImageType, FilePath, FileName, UploadedBy, UploadedDate)
                    VALUES (@id, @t, @p, @f, @u, GETDATE())",
                  P("@id", id), P("@t", type), P("@p", virtualDir + "/" + saved), P("@f", Path.GetFileName(fu.FileName)), P("@u", CurrentUser));
 
@@ -1125,8 +1125,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             try
             {
                 string type = Convert.ToString(e.CommandArgument);
-                DataTable old = GetTable("SELECT FilePath FROM techdefendersbd.tbl_Mer_StyleImages WHERE StyleID=@id AND ImageType=@t", P("@id", id), P("@t", type));
-                Exec("DELETE FROM techdefendersbd.tbl_Mer_StyleImages WHERE StyleID=@id AND ImageType=@t", P("@id", id), P("@t", type));
+                DataTable old = GetTable("SELECT FilePath FROM tbl_Mer_StyleImages WHERE StyleID=@id AND ImageType=@t", P("@id", id), P("@t", type));
+                Exec("DELETE FROM tbl_Mer_StyleImages WHERE StyleID=@id AND ImageType=@t", P("@id", id), P("@t", type));
                 foreach (DataRow r in old.Rows) TryDeleteFile(Str(r["FilePath"]));
                 LoadImages(id);
             }
@@ -1138,7 +1138,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ================================================================
         private void LoadDocs(int id)
         {
-            gvDocs.DataSource = GetTable("SELECT DocumentID, DocumentName, DocumentType, FilePath, VersionNo, UploadedBy, UploadedDate FROM techdefendersbd.tbl_Mer_StyleDocuments WHERE StyleID=@id ORDER BY DocumentID DESC", P("@id", id));
+            gvDocs.DataSource = GetTable("SELECT DocumentID, DocumentName, DocumentType, FilePath, VersionNo, UploadedBy, UploadedDate FROM tbl_Mer_StyleDocuments WHERE StyleID=@id ORDER BY DocumentID DESC", P("@id", id));
             gvDocs.DataBind();
         }
 
@@ -1161,7 +1161,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 string saved = Guid.NewGuid().ToString("N") + ext;
                 fuDoc.SaveAs(Path.Combine(phys, saved));
 
-                Exec(@"INSERT INTO techdefendersbd.tbl_Mer_StyleDocuments (StyleID, DocumentName, DocumentType, FilePath, VersionNo, UploadedBy, UploadedDate)
+                Exec(@"INSERT INTO tbl_Mer_StyleDocuments (StyleID, DocumentName, DocumentType, FilePath, VersionNo, UploadedBy, UploadedDate)
                        VALUES (@id, @n, @t, @p, @v, @u, GETDATE())",
                      P("@id", id), P("@n", Path.GetFileName(fuDoc.FileName)), P("@t", ddlDocType.SelectedValue),
                      P("@p", virtualDir + "/" + saved), P("@v", N(txtDocVersion.Text)), P("@u", CurrentUser));
@@ -1178,8 +1178,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             int docId; if (!int.TryParse(Convert.ToString(e.CommandArgument), out docId)) return;
             try
             {
-                DataTable old = GetTable("SELECT FilePath FROM techdefendersbd.tbl_Mer_StyleDocuments WHERE DocumentID=@d AND StyleID=@s", P("@d", docId), P("@s", StyleId));
-                Exec("DELETE FROM techdefendersbd.tbl_Mer_StyleDocuments WHERE DocumentID=@d AND StyleID=@s", P("@d", docId), P("@s", StyleId));
+                DataTable old = GetTable("SELECT FilePath FROM tbl_Mer_StyleDocuments WHERE DocumentID=@d AND StyleID=@s", P("@d", docId), P("@s", StyleId));
+                Exec("DELETE FROM tbl_Mer_StyleDocuments WHERE DocumentID=@d AND StyleID=@s", P("@d", docId), P("@s", StyleId));
                 foreach (DataRow r in old.Rows) TryDeleteFile(Str(r["FilePath"]));
                 LoadDocs(StyleId);
             }
@@ -1196,7 +1196,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
         private void LoadCosting(int id)
         {
-            DataTable all = GetTable("SELECT VersionNo, CostingStatus, TotalCost, FOBPrice, ProfitMarginPercent, CostingDate, IsCurrent FROM techdefendersbd.tbl_Mer_StyleCosting WHERE StyleID=@id ORDER BY VersionNo DESC", P("@id", id));
+            DataTable all = GetTable("SELECT VersionNo, CostingStatus, TotalCost, FOBPrice, ProfitMarginPercent, CostingDate, IsCurrent FROM tbl_Mer_StyleCosting WHERE StyleID=@id ORDER BY VersionNo DESC", P("@id", id));
             gvCosting.DataSource = all;
             gvCosting.DataBind();
 
@@ -1232,9 +1232,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                         if (Convert.ToBoolean(ScalarTx(cn, tx, "SELECT IsLocked FROM " + MasterTbl + " WHERE StyleID=@id", P("@id", id))))
                             throw new ApplicationException("This style is Active (Locked).");
 
-                        int ver = Convert.ToInt32(ScalarTx(cn, tx, "SELECT ISNULL(MAX(VersionNo),0)+1 FROM techdefendersbd.tbl_Mer_StyleCosting WHERE StyleID=@id", P("@id", id)));
-                        ExecTx(cn, tx, "UPDATE techdefendersbd.tbl_Mer_StyleCosting SET IsCurrent=0 WHERE StyleID=@id", P("@id", id));
-                        ExecTx(cn, tx, @"INSERT INTO techdefendersbd.tbl_Mer_StyleCosting (StyleID, VersionNo, CostingStatus, TotalCost, FOBPrice, CostingDate, IsCurrent)
+                        int ver = Convert.ToInt32(ScalarTx(cn, tx, "SELECT ISNULL(MAX(VersionNo),0)+1 FROM tbl_Mer_StyleCosting WHERE StyleID=@id", P("@id", id)));
+                        ExecTx(cn, tx, "UPDATE tbl_Mer_StyleCosting SET IsCurrent=0 WHERE StyleID=@id", P("@id", id));
+                        ExecTx(cn, tx, @"INSERT INTO tbl_Mer_StyleCosting (StyleID, VersionNo, CostingStatus, TotalCost, FOBPrice, CostingDate, IsCurrent)
                                          VALUES (@id, @v, @st, @tc, @fob, CAST(GETDATE() AS DATE), 1)",
                             P("@id", id), P("@v", ver), P("@st", ddlCostStatus.SelectedValue), P("@tc", Dec(txtCostTotal.Text)), P("@fob", Dec(txtCostFob.Text)));
                         AddHistory(cn, tx, id, "Costing", "VersionNo", null, ver.ToString("00"), "Costing created, Total " + Dec(txtCostTotal.Text).ToString("0.00") + " / FOB " + Dec(txtCostFob.Text).ToString("0.00"));
@@ -1254,7 +1254,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ================================================================
         private string CurrentStep(SqlConnection cn, SqlTransaction tx, int id)
         {
-            object o = ScalarTx(cn, tx, "SELECT TOP 1 WorkflowStep FROM techdefendersbd.tbl_Mer_StyleApproval WHERE StyleID=@id ORDER BY ApprovalID DESC", P("@id", id));
+            object o = ScalarTx(cn, tx, "SELECT TOP 1 WorkflowStep FROM tbl_Mer_StyleApproval WHERE StyleID=@id ORDER BY ApprovalID DESC", P("@id", id));
             return (o == null || o == DBNull.Value) ? "Draft" : o.ToString();
         }
 
@@ -1274,7 +1274,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
         private void LoadApproval(int id)
         {
-            DataTable all = GetTable("SELECT ApprovalID, WorkflowStep, ActionTaken, ActionBy, ActionDate, Remarks FROM techdefendersbd.tbl_Mer_StyleApproval WHERE StyleID=@id ORDER BY ApprovalID DESC", P("@id", id));
+            DataTable all = GetTable("SELECT ApprovalID, WorkflowStep, ActionTaken, ActionBy, ActionDate, Remarks FROM tbl_Mer_StyleApproval WHERE StyleID=@id ORDER BY ApprovalID DESC", P("@id", id));
             gvApproval.DataSource = all;
             gvApproval.DataBind();
 
@@ -1350,7 +1350,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                                 break;
                         }
 
-                        ExecTx(cn, tx, @"INSERT INTO techdefendersbd.tbl_Mer_StyleApproval (StyleID, WorkflowStep, ActionTaken, ActionBy, ActionDate, Remarks)
+                        ExecTx(cn, tx, @"INSERT INTO tbl_Mer_StyleApproval (StyleID, WorkflowStep, ActionTaken, ActionBy, ActionDate, Remarks)
                                          VALUES (@id, @st, @a, @u, GETDATE(), @r)",
                             P("@id", id), P("@st", newStep), P("@a", act), P("@u", CurrentUser), P("@r", N(txtApprovalRemarks.Text)));
 

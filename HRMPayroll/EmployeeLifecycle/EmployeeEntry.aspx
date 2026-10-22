@@ -283,6 +283,9 @@
                                 <div data-dd="paytype"></div>
                                 <div class="form-row-custom"><label>Bank Gross</label><asp:TextBox ID="txtBankGross" runat="server" CssClass="form-control form-control-sm w-100" Text="0" /></div>
                                 <div class="form-row-custom"><label>Cash Gross</label><asp:TextBox ID="txtCashGross" runat="server" CssClass="form-control form-control-sm w-100" Text="0" /></div>
+                                <div class="form-row-custom"><label>Non-Compliance Gross</label><asp:TextBox ID="txtNonComplianceGross" runat="server" CssClass="form-control form-control-sm w-100" Text="0" /></div>
+                                <div class="form-row-custom"><label>Joining Gross</label><asp:TextBox ID="txtJoinGross" runat="server" CssClass="form-control form-control-sm w-100" Text="0" /></div>
+
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -494,6 +497,8 @@ function showNotification(message) {
     function num(id) { return parseInt(document.getElementById(id).value, 10) || 0; }
     function calcCash() {
         document.getElementById('<%= txtCashGross.ClientID %>').value = num('<%= txtGross.ClientID %>') - num('<%= txtBankGross.ClientID %>');
+        document.getElementById('<%= txtJoinGross.ClientID %>').value = num('<%= txtGross.ClientID %>');
+        document.getElementById('<%= txtNonComplianceGross.ClientID %>').value = num('<%= txtGross.ClientID %>');
     }
     function payTypeLock() {
         var ro = hfVal('paytype') === 'Bank Or Cash';
