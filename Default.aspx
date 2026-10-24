@@ -19,6 +19,7 @@
             --text:#E9EDF7;
             --muted:#8892A8;
             --card:rgba(255,255,255,0.97);
+            --bar-h:64px;
         }
         *{ margin:0; padding:0; box-sizing:border-box; }
         html,body{ height:100%; overflow:hidden; }
@@ -33,7 +34,7 @@
         /* ===== layout ===== */
         .wrap{
             display:flex;
-            height:100vh;
+            height:calc(100vh - var(--bar-h));
         }
 
         /* ===== left: brand / live system panel ===== */
@@ -227,10 +228,125 @@
             display:block; font-size:12.5px; color:#C43C3C; margin:2px 0 14px;
         }
 
+        /* ===== top company bar ===== */
+        .company-bar{
+            position:relative;
+            height:var(--bar-h);
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            padding:0 24px; text-align:center; overflow:hidden;
+            background:
+                linear-gradient(90deg, rgba(23,227,196,0.10), rgba(10,15,30,0) 50%, rgba(245,165,36,0.10)),
+                var(--bg-deep);
+            background-size:200% 100%, auto;
+            animation:barBg 9s ease-in-out infinite alternate;
+            border-bottom:1px solid var(--line);
+        }
+        @keyframes barBg{ from{ background-position:0% 0, 0 0; } to{ background-position:100% 0, 0 0; } }
+
+        /* bottom line: draws from centre, then a light spark keeps travelling along it */
+        .company-bar::after{
+            content:''; position:absolute; left:0; bottom:-1px;
+            width:100%; height:2px;
+            background:linear-gradient(90deg, transparent, var(--teal), var(--amber), transparent);
+            transform:scaleX(0); transform-origin:center; opacity:.85;
+            animation:barLine 1.3s .2s cubic-bezier(.2,.8,.2,1) forwards;
+        }
+        @keyframes barLine{ to{ transform:scaleX(1); } }
+        .company-bar::before{
+            content:''; position:absolute; bottom:-1px; left:0;
+            width:140px; height:3px; border-radius:3px; z-index:2;
+            background:linear-gradient(90deg, transparent, #fff, transparent);
+            box-shadow:0 0 14px 3px rgba(23,227,196,.75);
+            opacity:0;
+            animation:spark 4.5s 1.6s ease-in-out infinite;
+        }
+        @keyframes spark{
+            0%{ left:-160px; opacity:0; }
+            10%{ opacity:1; }
+            90%{ opacity:1; }
+            100%{ left:100%; opacity:0; }
+        }
+
+        /* company name */
+        .company-name{
+            position:relative;
+            font-family:'Space Grotesk', sans-serif;
+            font-size:clamp(17px, 1.5vw + 4px, 25px);
+            font-weight:700; letter-spacing:.6px; line-height:1.2;
+            color:var(--text); white-space:nowrap; max-width:95%;
+            padding:4px 6px 2px;
+            overflow:hidden; text-overflow:ellipsis;
+        }
+        .company-name .ch{
+            display:inline-block; opacity:0;
+            transform:translateY(16px) scale(.85) rotateX(60deg); filter:blur(6px);
+            animation:
+                chIn .7s cubic-bezier(.2,.8,.2,1) forwards,
+                chWave 6s ease-in-out infinite;
+            animation-delay:
+                calc(var(--i) * 45ms),
+                calc(var(--intro, 1500ms) + var(--i) * 70ms);
+        }
+        @keyframes chIn{
+            55%{ color:var(--teal); text-shadow:0 0 18px rgba(23,227,196,.8); }
+            to{ opacity:1; transform:none; filter:blur(0); color:var(--text); text-shadow:none; }
+        }
+        /* after the intro, a gentle glow-wave runs through the letters again and again */
+        @keyframes chWave{
+            0%,22%,100%{ transform:none; color:var(--text); text-shadow:none; }
+            8%{ transform:translateY(-3px); color:var(--teal); text-shadow:0 0 14px rgba(23,227,196,.7); }
+            15%{ transform:none; color:var(--text); text-shadow:none; }
+        }
+        /* light streak sweeping over the name */
+        .company-name::after{
+            content:''; position:absolute; top:0; bottom:0; left:0; width:35%;
+            background:linear-gradient(100deg, transparent, rgba(255,255,255,.22), transparent);
+            transform:translateX(-160%) skewX(-20deg);
+            pointer-events:none;
+            animation:shine 6s ease-in-out infinite;
+            animation-delay:calc(var(--intro, 1500ms) + 1200ms);
+        }
+        @keyframes shine{
+            0%{ transform:translateX(-160%) skewX(-20deg); }
+            35%,100%{ transform:translateX(420%) skewX(-20deg); }
+        }
+
+        /* address: wipes in left to right, dot keeps pulsing */
+        .company-address{
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            margin-top:2px; max-width:92%;
+            font-size:clamp(10.5px, .35vw + 8px, 12.5px);
+            color:var(--muted); letter-spacing:.4px;
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+            opacity:0; transform:translateY(8px);
+            clip-path:inset(0 100% 0 0);
+            animation:addrIn 1.1s cubic-bezier(.2,.8,.2,1) forwards;
+            animation-delay:var(--addr-delay, .9s);
+        }
+        .company-address::before{
+            content:''; flex:none; width:5px; height:5px; border-radius:50%;
+            background:var(--amber); box-shadow:0 0 8px rgba(245,165,36,.7);
+            animation:dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes addrIn{ to{ opacity:1; transform:none; clip-path:inset(0 0 0 0); } }
+        @keyframes dotPulse{
+            0%,100%{ transform:scale(1); box-shadow:0 0 6px rgba(245,165,36,.5); }
+            50%{ transform:scale(1.5); box-shadow:0 0 14px rgba(245,165,36,.95); }
+        }
+
+        @media (prefers-reduced-motion: reduce){
+            .company-bar, .company-bar::before{ animation:none; }
+            .company-bar::before{ display:none; }
+            .company-bar::after{ animation:none; transform:scaleX(1); }
+            .company-name::after{ display:none; }
+            .company-name .ch, .company-address, .company-address::before{ animation:none; opacity:1; transform:none; filter:none; clip-path:none; }
+        }
+
         /* ===== responsive ===== */
         @media (max-width:900px){
             html,body{ height:auto; overflow:auto; }
-            .wrap{ flex-direction:column; height:auto; min-height:100vh; }
+            .wrap{ flex-direction:column; height:auto; min-height:calc(100vh - var(--bar-h)); }
             .brand-panel{ padding:36px 26px; border-right:none; border-bottom:1px solid var(--line); overflow:visible; }
             .headline{ font-size:26px; }
             .module-wheel-wrap{ max-width:100%; }
@@ -246,6 +362,13 @@
 </head>
 <body>
     <form id="form1" runat="server">
+
+        <!-- ===== Top company bar ===== -->
+        <div class="company-bar">
+            <div class="company-name"><asp:Label ID="lblCompanyName" runat="server" ClientIDMode="Static" /></div>
+            <div class="company-address"><asp:Label ID="lblCompanyAddress" runat="server" ClientIDMode="Static" /></div>
+        </div>
+
         <div class="wrap">
 
             <!-- ===== Left: brand + live ERP snapshot ===== -->
@@ -466,5 +589,31 @@
         </div>
     </form>
 
+    <script>
+(function () {
+    function init() {
+        var el = document.getElementById('lblCompanyName');
+        var bar = document.querySelector('.company-bar');
+        if (!el || !bar) return;
+        var text = el.textContent.trim();
+        if (!text) return;
+        el.parentNode.setAttribute('aria-label', text);
+        el.textContent = '';
+        text.split('').forEach(function (c, i) {
+            var s = document.createElement('span');
+            s.className = 'ch';
+            s.setAttribute('aria-hidden', 'true');
+            s.style.setProperty('--i', i);
+            s.textContent = (c === ' ') ? '\u00A0' : c;
+            el.appendChild(s);
+        });
+        var intro = text.length * 45 + 700;           // নামের intro শেষ হওয়ার সময়
+        bar.style.setProperty('--intro', intro + 'ms');
+        bar.style.setProperty('--addr-delay', (text.length * 45 + 150) + 'ms'); // ঠিকানা নামের শেষের দিকে শুরু
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+})();
+</script>
 </body>
 </html>

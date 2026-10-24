@@ -21,7 +21,41 @@ namespace Nexa_ERP
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!IsPostBack)
+            {
+                LoadCompanyInfo();
+            }
+        }
 
+        private void LoadCompanyInfo()
+        {
+            // ডাটা না পেলে এই ডিফল্ট দেখাবে
+            lblCompanyName.Text = "Nexa ERP";
+            lblCompanyAddress.Text = "";
+
+            try
+            {
+                PayrollDB payrollDb = new PayrollDB();
+                using (SqlConnection c = payrollDb.openConnection())
+                using (SqlCommand cm = new SqlCommand(
+                    "SELECT TOP 1 Branch_Name, Address FROM TB_Branch ORDER BY Branch_Code", c))
+                using (SqlDataReader r = cm.ExecuteReader())
+                {
+                    if (r.Read())
+                    {
+                        string name = r["Branch_Name"] == DBNull.Value ? "" : r["Branch_Name"].ToString().Trim();
+                        string addr = r["Address"] == DBNull.Value ? "" : r["Address"].ToString().Trim();
+
+                        if (name != "") lblCompanyName.Text = Server.HtmlEncode(name);
+                        lblCompanyAddress.Text = Server.HtmlEncode(
+                            System.Text.RegularExpressions.Regex.Replace(addr, @"\s+", " ")); // নতুন লাইন/বাড়তি স্পেস বাদ → এক লাইন
+                    }
+                }
+            }
+            catch
+            {
+                // লগইন পেজ যেন কোনোভাবেই না ভাঙে
+            }
         }
 
         protected void btnLogin_Click(object sender, EventArgs e)
@@ -65,10 +99,6 @@ namespace Nexa_ERP
                 }
                 con.Close();
             }
-
-
-
-
         }
     }
 }

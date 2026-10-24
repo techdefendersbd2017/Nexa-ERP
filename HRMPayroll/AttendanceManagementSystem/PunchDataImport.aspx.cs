@@ -26,6 +26,15 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
             "HH:mm:ss", "H:mm:ss", "HH:mm", "H:mm", "h:mm:ss tt", "hh:mm:ss tt", "h:mm tt", "hh:mm tt"
         };
 
+        // [নতুন] একই কলামে Date ও Time একসাথে থাকলে (যেমন "2026-10-19 20:37:56" - Original Records Report.csv)
+        private static readonly string[] DateTimeFormats =
+        {
+            "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd H:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM-dd H:mm",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "dd-MMM-yyyy HH:mm:ss", "dd/MM/yyyy HH:mm:ss", "d/M/yyyy H:mm:ss",
+            "dd/MM/yyyy hh:mm:ss tt", "d/M/yyyy h:mm:ss tt", "M/d/yyyy h:mm:ss tt"
+        };
+
         protected void Page_Load(object sender, EventArgs e)
         {
         }
@@ -42,6 +51,7 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
                 }
 
                 // Rows sent by the page: [{ No, StaffCode, Name, Department, UserID, Week, Date, Time, MachineID }, ...]
+                // [নতুন] CSV ফরম্যাটে: [{ "Person ID", Name, Department, Time(Date+Time একসাথে), ... }, ...] ও চলবে
                 var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
                 List<Dictionary<string, string>> rows = serializer.Deserialize<List<Dictionary<string, string>>>(json);
 
@@ -164,14 +174,39 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
 
             foreach (var r in rows)
             {
+                // আগের ফরম্যাট: UserID, Date, Time আলাদা কলামে আসে
+                string userId = Get(r, "UserID");
+                string date = Get(r, "Date");
+                string time = Get(r, "Time");
+
+                // [নতুন] CSV ফরম্যাট: "Person ID" (শুরুতে ' থাকে, যেমন '100)
+                if (userId.Length == 0)
+                    userId = Get(r, "PersonID");
+                if (userId.Length == 0)
+                    userId = Get(r, "Person ID");
+                userId = userId.TrimStart('\'', '"', ' ');
+
+                // [নতুন] Date খালি থাকলে এবং Time কলামে Date+Time একসাথে থাকলে ভেঙে নেওয়া হয়
+                // যেমন "2026-10-19 20:37:56" → Date "19-Oct-2026", Time "20:37:56"
+                if (date.Length == 0 && time.Length > 0)
+                {
+                    DateTime dtm;
+                    if (DateTime.TryParseExact(time, DateTimeFormats,
+                            CultureInfo.InvariantCulture, DateTimeStyles.None, out dtm))
+                    {
+                        date = dtm.ToString("dd-MMM-yyyy", CultureInfo.InvariantCulture);
+                        time = dtm.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+                    }
+                }
+
                 dt.Rows.Add(
                     Get(r, "StaffCode"),
                     Get(r, "Name"),
                     Get(r, "Department"),
-                    Get(r, "UserID"),
+                    userId,
                     Get(r, "Week"),
-                    Get(r, "Date"),
-                    Get(r, "Time"),
+                    date,
+                    time,
                     Get(r, "MachineID"));
             }
             return dt;

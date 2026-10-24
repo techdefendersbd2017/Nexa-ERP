@@ -27,6 +27,15 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
         // emp_Attendance.Holiday কলামে এই মানগুলো ছাড়া কিছু থাকলে সেই দিন ছুটির দিন ধরা হয়
         const string IsHoliday = "ISNULL(LTRIM(RTRIM(CAST(a.Holiday AS nvarchar(50)))),'') NOT IN ('','0','No','N/A','--')";
 
+        // গতকালের স্ট্যাটাস এগুলো হলে তারও আগের দিন দেখা হবে
+        const string SkipStatuses = "'WO','CL','SL','EL','FH','GH'";
+
+        // প্রতিটি কর্মচারীর আজকের আগের সর্বশেষ দিন (SkipStatuses বাদে) এর স্ট্যাটাস
+        const string PrevStatus = "(SELECT TOP 1 prv.att_status FROM dbo.emp_Attendance AS prv " +
+                                  "WHERE prv.EMP_NO = a.EMP_NO AND CAST(prv.Work_date AS date) < CAST(a.Work_date AS date) " +
+                                  "AND ISNULL(prv.att_status,'') NOT IN (" + SkipStatuses + ") " +
+                                  "ORDER BY prv.Work_date DESC)";
+
         class Def
         {
             public string Title;        // রিপোর্টের শিরোনাম (তারিখের আগে)
@@ -42,7 +51,8 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             { "Absent",         new Def { Title = "Daily Absent Report",    Where = "a.att_status = '" + StatusAbsent  + "' AND NOT (" + IsHoliday + ")", TotalLabel = "Total Absent", AbsentLayout = true } },
             { "AllStatus",      new Def { Title = "All Status Report",      Where = "1=1", TotalLabel = "Total Employee", AllStatus = true } },
             { "HolidayPresent", new Def { Title = "Holiday Present Report", Where = "a.att_status = '" + StatusPresent + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Present" } },
-            { "HolidayAbsent",  new Def { Title = "Holiday Absent Report",  Where = "a.att_status = '" + StatusAbsent  + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Absent", AbsentLayout = true } }
+            { "HolidayAbsent",  new Def { Title = "Holiday Absent Report",  Where = "a.att_status = '" + StatusAbsent  + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Absent", AbsentLayout = true } },
+            { "TodayPresentYesterdayAbsent", new Def {Title = "Today Present Yesterday Absent Report", Where = "a.att_status = '" + StatusPresent + "' AND NOT (" + IsHoliday + ") AND " + PrevStatus + " = '" + StatusAbsent + "'", TotalLabel = "Total Today Present Yesterday Absent" } }
         };
 
         const string BaseSql = @"SELECT e.ID_no,e.Name, c.Company_Name, c.Address, a.Work_date, a.org_in_time AS in_time, a.org_out_time AS out_time, a.att_status, 

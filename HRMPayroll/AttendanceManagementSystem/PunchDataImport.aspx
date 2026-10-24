@@ -398,15 +398,15 @@
     // Grid columns, in display order. "keys" are accepted header names in the file
     // (compared case-insensitively, ignoring spaces, dots and symbols).
     var COLUMNS = [
-        { name: "No.",        json: "No",         keys: ["no", "sl", "slno", "serial", "sn", "srno"] },
-        { name: "Staff Code", json: "StaffCode",  keys: ["staffcode", "staffid", "empcode", "employeecode", "empid", "employeeid", "cardno"] },
-        { name: "Name",       json: "Name",       keys: ["name", "staffname", "employeename", "empname"] },
+        { name: "No.", json: "No", keys: ["no", "sl", "slno", "serial", "sn", "srno"] },
+        { name: "Staff Code", json: "StaffCode", keys: ["staffcode", "staffid", "empcode", "employeecode", "empid", "employeeid", "cardno"] },
+        { name: "Name", json: "Name", keys: ["name", "staffname", "employeename", "empname"] },
         { name: "Department", json: "Department", keys: ["department", "dept", "departmentname"] },
-        { name: "User ID",    json: "UserID",     keys: ["userid", "user", "userno"] },
-        { name: "Week",       json: "Week",       keys: ["week", "weekday", "day"] },
-        { name: "Date",       json: "Date",       keys: ["date", "punchdate", "attendancedate"] },
-        { name: "Time",       json: "Time",       keys: ["time", "punchtime", "intime"] },
-        { name: "Machine ID", json: "MachineID",  keys: ["machineid", "machine", "machineno", "deviceid", "device"] }
+        { name: "User ID", json: "UserID", keys: ["userid", "user", "userno", "personid", "personno"] },
+        { name: "Week", json: "Week", keys: ["week", "weekday", "day"] },
+        { name: "Date", json: "Date", keys: ["date", "punchdate", "attendancedate"] },
+        { name: "Time", json: "Time", keys: ["time", "punchtime", "intime"] },
+        { name: "Machine ID", json: "MachineID", keys: ["machineid", "machine", "machineno", "deviceid", "device"] }
     ];
     var NCOL = COLUMNS.length;
     var DATE_COL_JSON = "Date";   // which COLUMNS entry gets normalised to dd-MMM-yyyy
@@ -586,15 +586,34 @@
             return false;
         }
 
+        // [new] positions of these columns, used for files such as "Original Records Report.csv"
+        var iUser = -1, iDate = -1, iTime = -1, derivedDate = false;
+        COLUMNS.forEach(function (c, k) {
+            if (c.json === "UserID") iUser = k;
+            else if (c.json === DATE_COL_JSON) iDate = k;
+            else if (c.json === "Time") iTime = k;
+        });
+
         var rows = [];
         for (var r = 1; r < aoa.length; r++) {
             var src = aoa[r], out = [], any = false;
             for (var k = 0; k < NCOL; k++) {
                 var v = m.map[k] === -1 ? "" : (src[m.map[k]] || "");
                 if (COLUMNS[k].json === DATE_COL_JSON && v !== "") v = normalizeDateText(v);
-                if (k !== 0 && v !== "") any = true;
+                // [new] Person ID comes as '100 (leading apostrophe) -> 100
+                if (k === iUser && v !== "") v = v.replace(/^['"\s]+/, "");
                 out.push(v);
             }
+            // [new] No Date column, but Time holds "2026-10-19 20:37:56" -> split into Date + Time
+            if (out[iDate] === "" && out[iTime] !== "") {
+                var dm = out[iTime].match(/^(\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2})[T\s]+(\d{1,2}:\d{2}(?::\d{2})?)/);
+                if (dm) {
+                    out[iDate] = normalizeDateText(dm[1]);
+                    out[iTime] = dm[2];
+                    derivedDate = true;
+                }
+            }
+            for (var j = 1; j < NCOL; j++) { if (out[j] !== "") { any = true; break; } }
             if (!any) continue;
             out[0] = String(rows.length + 1);             // No. is always a running serial
             rows.push({ i: rows.length + 1, v: out, hay: out.join("\u0001").toLowerCase() });
@@ -603,8 +622,8 @@
 
         state.sheetIndex = index;
         state.rows = rows;
-        state.missing = COLUMNS.filter(function (c, k) { return k !== 0 && m.map[k] === -1; })
-                               .map(function (c) { return c.name; });
+        state.missing = COLUMNS.filter(function (c, k) { return k !== 0 && m.map[k] === -1 && !(derivedDate && k === iDate); })
+            .map(function (c) { return c.name; });
         state.loaded = true;
         state.query = ""; $("txtSearch").value = "";
         state.page = 1;
@@ -746,7 +765,7 @@
         var end = Math.min(start + state.pageSize, shown);
         $("pdRange").textContent = !has ? "0 rows"
             : shown === 0 ? "0 rows found"
-            : "Showing " + (start + 1) + "\u2013" + end + " of " + plural(shown, "row") + (filtered ? " (total " + total + ")" : "");
+                : "Showing " + (start + 1) + "\u2013" + end + " of " + plural(shown, "row") + (filtered ? " (total " + total + ")" : "");
         var pages = Math.max(1, Math.ceil(shown / state.pageSize));
         $("pdPageInfo").textContent = "Page " + state.page + " of " + pages;
         $("btnPrev").disabled = state.page <= 1;
