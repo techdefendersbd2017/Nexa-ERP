@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexa_ERP.MasterConfiguration.BuyerManagement
+namespace Nexa_ERP.HRMPayroll.LeaveInformation.LeaveReports
 {
 
 
-    public partial class StyleInformationForGarments
+    public partial class LeaveApplicationReport
     {
 
         /// <summary>
@@ -22,5 +22,14 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+
+        /// <summary>
+        /// rptLines control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptLines;
     }
 }

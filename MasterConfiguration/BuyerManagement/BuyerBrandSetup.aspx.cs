@@ -1,18 +1,46 @@
-﻿using System;
+﻿using Nexa_ERP.Connection;
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Web.UI;
+using System.Web.UI.WebControls;
 
 namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
 {
     public partial class BuyerBrandSetup : System.Web.UI.Page
     {
+        DatabaseConnectionMerchandising conn = new DatabaseConnectionMerchandising();
+
+        // openConnection() যদি shared connection ফেরত দেয়, using দিয়ে Dispose করলে
+        // পরের বার "ConnectionString property has not been initialized" error আসে।
+        // তাই Dispose এর বদলে শুধু Close করা হচ্ছে।
+        private sealed class ConScope : IDisposable
+        {
+            public SqlConnection Con { get; private set; }
+            public ConScope(SqlConnection con) { Con = con; }
+            public void Dispose()
+            {
+                if (Con != null && Con.State != ConnectionState.Closed) Con.Close();
+            }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                // Login user (আপনার project এর Session key অনুযায়ী পরিবর্তন করুন)
+                hfUserId.Value = Session["UserId"] != null ? Session["UserId"].ToString() : "0";
+
+                LoadBuyers(ddlBuyerFilter, "--Select Buyer--");
+                LoadBuyers(ddlBuyer, "--Select Buyer--");
                 ShowList();
-                // TODO: BindDropDowns(); BindGridView();
+                LoadBrandList();
             }
         }
 
+        // ================================================================
+        //  PANEL SWITCH
+        // ================================================================
         private void ShowList()
         {
             pnlList.Visible = true;
@@ -25,69 +53,268 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
             pnlEntry.Visible = true;
         }
 
-        // Set Breakdown List -> "Add New Set Breakdown" clicked
-        protected void btnAddNew_Click(object sender, EventArgs e)
+        // ================================================================
+        //  LOAD BUYER DROPDOWN (filter + entry)
+        // ================================================================
+        private void LoadBuyers(DropDownList ddl, string firstText)
         {
-            hfSetBreakdownId.Value = "";
-            ClearEntryForm();
-            ShowEntry();
+            try
+            {
+                using (ConScope cs = new ConScope(conn.openConnection()))
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT BuyerID, BuyerName FROM BuyerInformation WHERE ISNULL(IsActive, 1) = 1 ORDER BY BuyerName", cs.Con))
+                {
+                    DataTable dt = new DataTable();
+                    new SqlDataAdapter(cmd).Fill(dt);
+
+                    ddl.DataSource = dt;
+                    ddl.DataTextField = "BuyerName";
+                    ddl.DataValueField = "BuyerID";
+                    ddl.DataBind();
+
+                    ddl.Items.Insert(0, new ListItem(firstText, "0"));
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage(ex.Message);
+            }
         }
 
-        // Master Information -> "Back To List" clicked
-        protected void btnBackToList_Click(object sender, EventArgs e)
+        // ================================================================
+        //  LOAD BRAND LIST (Buyer + Brand Name filter)
+        // ================================================================
+        private void LoadBrandList()
         {
-            ShowList();
-            // TODO: BindGridView();
+            try
+            {
+                string query = @"
+                    SELECT  b.BrandID AS BrandId, b.BuyerID, bi.BuyerName, b.BrandName, b.Remarks,
+                            CAST(ISNULL(b.IsActive, 0) AS BIT) AS IsActive
+                    FROM    BuyerBrand b
+                            INNER JOIN BuyerInformation bi ON bi.BuyerID = b.BuyerID
+                    WHERE   1 = 1";
+
+                int buyerFilter = 0;
+                int.TryParse(ddlBuyerFilter.SelectedValue, out buyerFilter);
+                if (buyerFilter > 0)
+                    query += " AND b.BuyerID = @BuyerID";
+
+                string search = txtSearch.Text.Trim();
+                if (search.Length > 0)
+                    query += " AND b.BrandName LIKE @Search";
+
+                query += " ORDER BY bi.BuyerName, b.BrandName";
+
+                using (ConScope cs = new ConScope(conn.openConnection()))
+                using (SqlCommand cmd = new SqlCommand(query, cs.Con))
+                {
+                    if (buyerFilter > 0)
+                        cmd.Parameters.Add("@BuyerID", SqlDbType.Int).Value = buyerFilter;
+
+                    if (search.Length > 0)
+                        cmd.Parameters.Add("@Search", SqlDbType.NVarChar, 200).Value = "%" + search + "%";
+
+                    DataTable dt = new DataTable();
+                    new SqlDataAdapter(cmd).Fill(dt);
+
+                    GridView1.DataSource = dt;
+                    GridView1.DataBind();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage(ex.Message);
+            }
+        }
+
+        // ================================================================
+        //  LIST PANEL EVENTS
+        // ================================================================
+        protected void btnAddNew_Click(object sender, EventArgs e)
+        {
+            ClearForm();
+            ShowEntry();
         }
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {
-            // TODO: filter GridView1 by txtFromDate, txtToDate, ddlBuyerFilter, ddlStyleFilter, ddlPOFilter
+            LoadBrandList();
         }
 
         protected void btnClearFilter_Click(object sender, EventArgs e)
         {
-            txtFromDate.Text = "";
-            txtToDate.Text = "";
             ddlBuyerFilter.SelectedIndex = 0;
-            ddlStyleFilter.SelectedIndex = 0;
-            ddlPOFilter.SelectedIndex = 0;
+            txtSearch.Text = string.Empty;
+            LoadBrandList();
         }
 
-        protected void btnAddPO_Click(object sender, EventArgs e)
+        // ================================================================
+        //  GRIDVIEW : Edit / Delete
+        // ================================================================
+        protected void GridView1_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            // TODO: append selected ddlPONo value as a row into gvPOList
+            int brandId;
+            if (!int.TryParse(Convert.ToString(e.CommandArgument), out brandId)) return;
+
+            if (e.CommandName == "EditRow")
+            {
+                LoadBrandForEdit(brandId);
+            }
+            else if (e.CommandName == "DeleteRow")
+            {
+                DeleteBrand(brandId);
+            }
         }
 
-        protected void btnAddColorLine_Click(object sender, EventArgs e)
+        private void LoadBrandForEdit(int brandId)
         {
-            // TODO: append Main Color / Style No / Color / Ratio / CM (PCS) / FOB (PCS)
-            // as a row into gvColorBreakdown
+            try
+            {
+                using (ConScope cs = new ConScope(conn.openConnection()))
+                using (SqlCommand cmd = new SqlCommand("SELECT * FROM BuyerBrand WHERE BrandID = @BrandID", cs.Con))
+                {
+                    cmd.Parameters.Add("@BrandID", SqlDbType.Int).Value = brandId;
+
+                    using (SqlDataReader r = cmd.ExecuteReader())
+                    {
+                        if (!r.Read())
+                        {
+                            ShowMessage("Brand not found!");
+                            return;
+                        }
+
+                        hfBrandId.Value = r["BrandID"].ToString();
+
+                        string buyerId = r["BuyerID"] != DBNull.Value ? r["BuyerID"].ToString() : "0";
+                        ddlBuyer.SelectedValue = ddlBuyer.Items.FindByValue(buyerId) != null ? buyerId : "0";
+
+                        txtBrandName.Text = r["BrandName"].ToString();
+                        txtRemarks.Text = r["Remarks"].ToString();
+                        chkActive.Checked = r["IsActive"] != DBNull.Value && Convert.ToBoolean(r["IsActive"]);
+                    }
+                }
+
+                ShowEntry();
+            }
+            catch (Exception ex)
+            {
+                ShowMessage(ex.Message);
+            }
         }
 
-        protected void btnSave_Click(object sender, EventArgs e)
+        private void DeleteBrand(int brandId)
         {
-            // TODO: validate + save Master Information (Buyer, Main Style No, PO list,
-            // color breakdown list) using hfSetBreakdownId.Value
+            try
+            {
+                using (ConScope cs = new ConScope(conn.openConnection()))
+                using (SqlCommand cmd = new SqlCommand("Pro_BuyerBrand_Delete", cs.Con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@BrandID", SqlDbType.Int).Value = brandId;
+                    cmd.ExecuteNonQuery();
+                }
+
+                ShowMessage("Deleted Successfully!");
+                LoadBrandList();
+            }
+            catch (SqlException ex)
+            {
+                // 547 = Foreign key conflict (অন্য table এ এই Brand ব্যবহার হচ্ছে)
+                if (ex.Number == 547)
+                    ShowMessage("This brand is already in use. You cannot delete it.");
+                else
+                    ShowMessage(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ShowMessage(ex.Message);
+            }
+        }
+
+        // ================================================================
+        //  ENTRY PANEL EVENTS
+        // ================================================================
+        protected void btnBackToList_Click(object sender, EventArgs e)
+        {
+            ClearForm();
             ShowList();
+            LoadBrandList();
         }
 
         protected void btnClear_Click(object sender, EventArgs e)
         {
-            ClearEntryForm();
+            ClearForm();
         }
 
-        private void ClearEntryForm()
+        protected void btnSave_Click(object sender, EventArgs e)
         {
+            // ---------- Validation ----------
+            if (ddlBuyer.SelectedValue == "0" || ddlBuyer.SelectedValue == "") { ShowMessage("Please select a Buyer!"); return; }
+            if (txtBrandName.Text.Trim() == "") { ShowMessage("Brand Name is required!"); return; }
+
+            int brandId = 0;
+            int.TryParse(hfBrandId.Value, out brandId);
+
+            int userId = 0;
+            int.TryParse(hfUserId.Value, out userId);
+
+            int buyerId = 0;
+            int.TryParse(ddlBuyer.SelectedValue, out buyerId);
+
+            // ---------- Save / Update ----------
+            try
+            {
+                using (ConScope cs = new ConScope(conn.openConnection()))
+                using (SqlCommand cmd = new SqlCommand("Pro_BuyerBrand_SaveUpdate", cs.Con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@BrandID", SqlDbType.Int).Value = brandId;
+                    cmd.Parameters.Add("@BuyerID", SqlDbType.Int).Value = buyerId;
+                    cmd.Parameters.Add("@BrandName", SqlDbType.NVarChar, 150).Value = txtBrandName.Text.Trim();
+                    cmd.Parameters.Add("@Remarks", SqlDbType.NVarChar, 500).Value = txtRemarks.Text.Trim();
+                    cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = chkActive.Checked;
+                    cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                ShowMessage(brandId == 0 ? "Saved Successfully!" : "Updated Successfully!");
+
+                ClearForm();
+                ShowList();
+                LoadBrandList();
+            }
+            catch (Exception ex)
+            {
+                // Duplicate brand এর মত SP error এখানে দেখাবে, form খোলা থাকবে
+                ShowMessage(ex.Message);
+            }
+        }
+
+        // ================================================================
+        //  HELPERS
+        // ================================================================
+        private void ClearForm()
+        {
+            hfBrandId.Value = "0";
+
             ddlBuyer.SelectedIndex = 0;
-            ddlMainStyleNo.SelectedIndex = 0;
-            ddlPONo.SelectedIndex = 0;
-            ddlMainColor.SelectedIndex = 0;
-            ddlStyleNo.SelectedIndex = 0;
-            ddlColor.SelectedIndex = 0;
-            txtRatio.Text = "0";
-            txtCMPcs.Text = "0";
-            txtFOBPcs.Text = "0";
+            txtBrandName.Text = string.Empty;
+            txtRemarks.Text = string.Empty;
+            chkActive.Checked = true;
+        }
+
+        private void ShowMessage(string message)
+        {
+            string safe = (message ?? string.Empty)
+                .Replace("\\", "\\\\")
+                .Replace("'", "\\'")
+                .Replace("\r", " ")
+                .Replace("\n", " ");
+
+            ScriptManager.RegisterStartupScript(this, this.GetType(), Guid.NewGuid().ToString(), "alert('" + safe + "');", true);
         }
     }
 }

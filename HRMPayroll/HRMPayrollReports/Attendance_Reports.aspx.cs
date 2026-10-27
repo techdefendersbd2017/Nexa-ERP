@@ -1,0 +1,548 @@
+﻿using Nexa_ERP.Connection;
+using Nexa_ERP.HRMPayroll.Common;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.Script.Serialization;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
+{
+    public partial class Attendance_Reports : System.Web.UI.Page
+    {
+        PayrollDB conn = new PayrollDB();
+
+        // পাবলিক ফিল্টার ক্লাস
+        HRFilters filters;
+
+        const int MaxIds = HRFilters.MaxIds;
+
+        readonly List<string> loadErrors = new List<string>();
+
+        // সমস্যা মিটে গেলে false করে দিন
+        const bool ShowDebug = true;
+        readonly List<string> debug = new List<string>();
+
+        // Soft_Reports টেবিলে রিপোর্ট পেজের লিংকের কলাম (Report View বাটন = btnReport)
+        const string LinkColumn = "Reports_Name_Comp";
+
+        // Soft_Reports টেবিলে Org Report পেজের লিংকের কলাম (Alt+O দিয়ে দেখানো btnOrgReport বাটন)
+        const string OrgLinkColumn = "ReportPageLink";
+
+        // একই request এ বারবার DB তে না গিয়ে লিংকের তালিকা একবারই লোড
+        Dictionary<string, string> reportLinks;
+        Dictionary<string, string> orgLinks;
+
+        // ---------- মডেল ----------
+        public class Emp
+        {
+            public string Id { get; set; }
+            public string Name { get; set; }
+            public string Designation { get; set; }
+            public string Department { get; set; }
+            public string Branch { get; set; }
+            public string Status { get; set; }
+        }
+
+        // TODO: আপনার Login/Session এর key অনুযায়ী বদলান
+        long UserCode { get { return HRFilters.UserCode; } }
+        long FromCode { get { return HRFilters.SessionLong("From_Code", "FromCode"); } }
+
+        List<string> AllErrors()
+        {
+            return loadErrors.Concat(filters.Errors).ToList();
+        }
+
+        // ================= Page Load =================
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            // ফিল্টার ক্লাস তৈরি: এই পেজে যেসব ফিল্টার আছে সেগুলো Attach করুন
+            filters = new HRFilters()
+                .Attach(HRFilters.Branch, ddBranch)
+                .Attach(HRFilters.Category, ddCategory)
+                .Attach(HRFilters.Dept, ddDept)
+                .Attach(HRFilters.Section, ddSection)
+                .Attach(HRFilters.SubSec, ddSubSec)
+                .Attach(HRFilters.Desig, ddDesig)
+                .Attach(HRFilters.Level, ddLevel)
+                .Attach(HRFilters.Floor, ddFloor);
+            filters.EmptyMeansAll = false;   // কিছু না বাছলে কিছুই insert হবে না
+
+            filters.LoadLookups();           // কোড খোঁজার জন্য প্রতিটি request এ লাগে
+
+            // পোস্টব্যাকের পর আগের টিক ফিরিয়ে আনা
+            if (IsPostBack && !string.IsNullOrEmpty(SelectedIdsRaw()))
+            {
+                string arr = new JavaScriptSerializer().Serialize(SelectedIdsRaw().Split(','));
+                ClientScript.RegisterStartupScript(GetType(), "retick",
+                    "document.addEventListener('DOMContentLoaded',function(){var ids=" + arr +
+                    ";document.querySelectorAll('.row-checkbox').forEach(function(c){" +
+                    "if(ids.indexOf(c.getAttribute('data-id'))>=0)c.checked=true;});});", true);
+            }
+
+            if (!IsPostBack)
+            {
+                FillDropDowns();
+                ResetDefaults();
+                ClearGrid();
+            }
+
+            if (IsPostBack && AllErrors().Count > 0)
+                Toast("Option load error: " + string.Join(" | ", AllErrors()));
+        }
+
+        void FillDropDowns()
+        {
+            filters.FillControls();   // Branch, Category, Dept ... সব ভরে দেয়
+
+            FillStatic(ddBlood, "-- All --", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
+            FillStatic(ddReligion, "-- All --", "Islam", "Hinduism", "Buddhism", "Christianity", "Others");
+            // TODO: comboBox_Resign_Status এর আইটেমের সঙ্গে হুবহু মিলিয়ে নিন (প্রথমটি ডিফল্ট)
+            FillStatic(ddStatus, null, "Active", "New", "Seperation", "All", "Resign", "Left");
+
+            LoadReportTypes();
+
+            if (AllErrors().Count > 0)
+                Toast("Option load error: " + string.Join(" | ", AllErrors()));
+        }
+
+        // Text = Report_Name, Value = Report_Code
+        void LoadReportTypes()
+        {
+            ddRType.Items.Clear();
+            try
+            {
+                using (SqlConnection con = conn.openConnection())
+                {
+                    if (con.State != ConnectionState.Open) con.Open();
+
+                    using (var cmd = new SqlCommand(
+                        "SELECT Report_Code, Report_Name FROM Soft_Reports " +
+                        "WHERE Menu=2   ORDER BY Report_Name ASC", con))// AND user_id=@uid
+                    {
+                        cmd.Parameters.Add("@uid", SqlDbType.NVarChar, 50).Value = UserCode.ToString();
+
+                        var dt = new DataTable();
+                        using (var da = new SqlDataAdapter(cmd)) da.Fill(dt);
+
+                        foreach (DataRow r in dt.Rows)
+                        {
+                            string name = Convert.ToString(r["Report_Name"]);
+                            if (string.IsNullOrWhiteSpace(name)) continue;
+                            ddRType.Items.Add(new ListItem(name.Trim(), Convert.ToString(r["Report_Code"])));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                loadErrors.Add("reportType: " + ex.Message);
+            }
+        }
+
+        // ===== btnReport: Soft_Reports এর Reports_Name_Comp কলাম থেকে: Report_Code -> রিপোর্ট পেজের লিংক =====
+        // লিংক ফাঁকা থাকলে সেই রিপোর্ট ধরা হয় "রিপোর্ট পেজ নেই", তখন আগের মতোই এই পেজে Show এর কাজ করে।
+        // লিংক এই পেজের ফোল্ডারের সাপেক্ষে লিখুন, যেমন: HRReports/AttendanceReportView.aspx?report=Absent
+        // (অথবা ~/ দিয়ে শুরু করে পুরো পথ)
+        Dictionary<string, string> ReportLinks()
+        {
+            if (reportLinks == null) reportLinks = LoadLinks(LinkColumn, "reportLink");
+            return reportLinks;
+        }
+
+        // ===== btnOrgReport: Soft_Reports এর ReportPageLink কলাম থেকে: Report_Code -> Org Report পেজের লিংক =====
+        // লিংক লেখার নিয়ম একই।
+        Dictionary<string, string> OrgLinks()
+        {
+            if (orgLinks == null) orgLinks = LoadLinks(OrgLinkColumn, "orgReportLink");
+            return orgLinks;
+        }
+
+        // Soft_Reports থেকে নির্দিষ্ট কলামের লিংক পড়ে: Report_Code -> লিংক
+        Dictionary<string, string> LoadLinks(string column, string errTag)
+        {
+            var result = new Dictionary<string, string>();
+            try
+            {
+                using (SqlConnection con = conn.openConnection())
+                {
+                    if (con.State != ConnectionState.Open) con.Open();
+
+                    using (var cmd = new SqlCommand(
+                        "SELECT Report_Code, [" + column + "] AS Link FROM Soft_Reports WHERE Menu=2", con))
+                    {
+                        var dt = new DataTable();
+                        using (var da = new SqlDataAdapter(cmd)) da.Fill(dt);
+
+                        foreach (DataRow r in dt.Rows)
+                        {
+                            string link = Convert.ToString(r["Link"]).Trim();
+                            if (link.Length == 0) continue;
+                            result[Convert.ToString(r["Report_Code"])] = link;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                loadErrors.Add(errTag + ": " + ex.Message);
+            }
+            return result;
+        }
+
+        // নির্বাচিত Report Type এর নাম (Value এখন কোড, তাই Text নিতে হয়)
+        string RTypeText()
+        {
+            return ddRType.SelectedItem != null ? ddRType.SelectedItem.Text.Trim() : "";
+        }
+
+        static void FillStatic(DropDownList dd, string blank, params string[] items)
+        {
+            dd.Items.Clear();
+            if (blank != null) dd.Items.Add(new ListItem(blank, ""));
+            foreach (string s in items) dd.Items.Add(new ListItem(s, s));
+        }
+
+        // ================= বাটন ইভেন্ট =================
+        protected void btnShow_Click(object sender, EventArgs e)
+        {
+            ShowData();
+        }
+
+        // কোন কোন Report Type এর লিংক আছে তার তালিকা (Report_Code ধরে) JS এ পাঠানো হয়।
+        // JS এ আলাদা তালিকা রাখতে হয় না: Soft_Reports এ লিংক দিলেই রিপোর্ট নতুন ট্যাবে খুলবে।
+        // RESOLVED_REPORTS = Report View বাটনের জন্য, RESOLVED_ORG_REPORTS = Org Report বাটনের জন্য।
+        protected void Page_PreRender(object sender, EventArgs e)
+        {
+            var ser = new JavaScriptSerializer();
+
+            var links = ReportLinks();
+            var map = new Dictionary<string, bool>();
+            foreach (ListItem it in ddRType.Items)
+                if (links.ContainsKey(it.Value)) map[it.Value] = true;   // true = কর্মচারী নির্বাচন লাগবে
+
+            ClientScript.RegisterStartupScript(GetType(), "rpts",
+                "window.RESOLVED_REPORTS=" + ser.Serialize(map) + ";", true);
+
+            var org = OrgLinks();
+            var omap = new Dictionary<string, bool>();
+            foreach (ListItem it in ddRType.Items)
+                if (org.ContainsKey(it.Value)) omap[it.Value] = true;    // true = কর্মচারী নির্বাচন লাগবে
+
+            ClientScript.RegisterStartupScript(GetType(), "orgrpts",
+                "window.RESOLVED_ORG_REPORTS=" + ser.Serialize(omap) + ";", true);
+        }
+
+        protected void btnReport_Click(object sender, EventArgs e)
+        {
+            string code = ddRType.SelectedValue;
+            string rt = RTypeText();
+
+            string link;
+            if (ReportLinks().TryGetValue(code, out link))
+                OpenReport(link, true);
+            else if (ShowData())
+                Toast("Report generated successfully! (Type: " + rt + ")");
+        }
+
+        // Org Report: ReportPageLink এর লিংকের পেজ খোলে
+        protected void btnOrgReport_Click(object sender, EventArgs e)
+        {
+            string link;
+            if (OrgLinks().TryGetValue(ddRType.SelectedValue, out link))
+                OpenReport(link, true);
+            else
+                Toast("এই Report Type এর জন্য Org Report পেজের লিংক দেওয়া নেই।");
+        }
+
+        // টিক দেওয়া ID গুলো: প্রথমে চেকবক্সের name="selId", না পেলে hfSelIds
+        string SelectedIdsRaw()
+        {
+            string[] fromForm = Request.Form.GetValues("selId");
+            if (fromForm != null && fromForm.Length > 0)
+                return string.Join(",", fromForm);
+            return hfSelIds.Value ?? "";
+        }
+
+        // নির্বাচিত ID z_Test_ID তে সেভ করে রিপোর্ট পেজে পাঠানো
+        // (ফর্ম আগেই JS দিয়ে নতুন ট্যাবে সাবমিট হয়েছে, তাই Redirect নতুন ট্যাবেই রিপোর্ট খোলে;
+        //  আসল ড্যাশবোর্ড ট্যাব reload হয় না)
+        void OpenReport(string page, bool needIds)
+        {
+            int token = 1000000000 + (int)(DateTime.Now - new DateTime(2020, 1, 1)).TotalSeconds;
+
+            if (UserCode == 0)
+            {
+                Toast("User_Code পাওয়া যায়নি (Session)। Login করে আবার চেষ্টা করুন।");
+                return;
+            }
+
+            long[] ids = HRFilters.ParseIds(SelectedIdsRaw())
+                .Select(s => { long x; return long.TryParse(s, out x) ? x : 0; })
+                .Where(x => x != 0).Distinct().ToArray();
+
+            if (needIds && ids.Length == 0)
+            {
+                Toast("কমপক্ষে একজন কর্মচারী নির্বাচন করুন।");
+                return;
+            }
+
+            if (ids.Length > MaxIds)
+            {
+                Toast("Too many IDs (max " + MaxIds + ").");
+                return;
+            }
+
+            try
+            {
+                using (SqlConnection con = conn.openConnection())
+                {
+                    if (con.State != ConnectionState.Open) con.Open();
+
+                    using (var del = new SqlCommand(
+                        "DELETE FROM dbo.z_Test_ID WHERE User_ID=@u AND (From_Code=@t OR (From_Code>=1000000000 AND From_Code<@old))", con))
+                    {
+                        del.Parameters.Add("@u", SqlDbType.BigInt).Value = UserCode;
+                        del.Parameters.Add("@t", SqlDbType.BigInt).Value = token;
+                        del.Parameters.Add("@old", SqlDbType.BigInt).Value = token - 86400;
+                        del.ExecuteNonQuery();
+                    }
+
+                    if (needIds)
+                    {
+                        foreach (long id in ids)
+                            HRDb.ExecProc(con, "Pro_z_Test_ID_New",
+                                HRDb.P("@ID_No", id), HRDb.P("@User_ID", UserCode), HRDb.P("@Form_Code", token));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Toast("Error: " + ex.Message);
+                return;
+            }
+
+            string url = ResolveClientUrl(page);
+            string sep = url.Contains("?") ? ((url.EndsWith("?") || url.EndsWith("&")) ? "" : "&") : "?";
+
+            // রিপোর্ট পেজে ব্যাচ নম্বর (rc), তারিখ (from/till), Report Type এর নাম (rn) ও ছবির ফ্ল্যাগ (photo) পাঠানো
+            string extra = "&from=" + Uri.EscapeDataString((txtFromDate.Text ?? "").Trim()) +
+                           "&till=" + Uri.EscapeDataString((txtTillDate.Text ?? "").Trim()) +
+                           "&rn=" + Uri.EscapeDataString(RTypeText()) +
+                           (chkReportWithPhoto.Checked ? "&photo=1" : "");
+
+            Response.Redirect(url + sep + "rc=" + token + extra, false);
+            Context.ApplicationInstance.CompleteRequest();
+        }
+
+        protected void btnClear_Click(object sender, EventArgs e)
+        {
+            ResetDefaults();
+            ClearGrid();
+            Toast("All filters cleared.");
+        }
+
+        // ================= Show এর মূল লজিক =================
+        bool ShowData()
+        {
+            DataTable dt;
+            string status = string.IsNullOrEmpty(ddStatus.SelectedValue) ? "Active" : ddStatus.SelectedValue;
+
+            try
+            {
+                string[] ids = HRFilters.ParseIds(txtMultiId.Text);
+
+                if (ids.Length > MaxIds)
+                {
+                    Toast("Too many IDs (max " + MaxIds + ").");
+                    return false;
+                }
+
+                using (SqlConnection con = conn.openConnection())
+                {
+                    if (con.State != ConnectionState.Open) con.Open();
+
+                    if (ids.Length > 0)
+                    {
+                        dt = QueryByIds(con, ids, status);
+                    }
+                    else
+                    {
+                        if (UserCode == 0)
+                        {
+                            Toast("User_Code পাওয়া যায়নি (Session)। Login করে আবার চেষ্টা করুন।");
+                            return false;
+                        }
+
+                        // ফিল্টার ক্লাস দিয়ে সব নির্বাচন সেভ
+                        debug.AddRange(filters.SaveSelections(con, UserCode, FromCode));
+
+                        dt = RunStatusProc(con, status);
+                        debug.Add("user=" + UserCode + ", fromCode=" + FromCode + ", status=" + status + ", rows=" + dt.Rows.Count);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Toast("Error: " + ex.Message);
+                return false;
+            }
+
+            if (ShowDebug && debug.Count > 0)
+                Toast("Debug → " + string.Join(", ", debug));
+
+            BindTable(dt, status);
+            return true;
+        }
+
+        DataTable QueryByIds(SqlConnection con, string[] ids, string status)
+        {
+            bool numeric = ids.All(s => { long x; return long.TryParse(s, out x); });
+
+            using (var cmd = new SqlCommand())
+            {
+                cmd.Connection = con;
+                var names = new List<string>();
+                for (int i = 0; i < ids.Length; i++)
+                {
+                    string p = "@id" + i;
+                    names.Add(p);
+                    if (numeric) cmd.Parameters.Add(p, SqlDbType.BigInt).Value = long.Parse(ids[i]);
+                    else cmd.Parameters.Add(p, SqlDbType.NVarChar, 50).Value = ids[i];
+                }
+
+                string sql = "SELECT ID_no, Name, Designation, Resign_Status FROM View_Emp WHERE ID_no IN (" + string.Join(",", names) + ")";
+                if (status != "All")
+                {
+                    sql += " AND Resign_Status = @st";
+                    cmd.Parameters.Add("@st", SqlDbType.NVarChar, 50).Value = status;
+                }
+                cmd.CommandText = sql;
+
+                var dt = new DataTable();
+                using (var da = new SqlDataAdapter(cmd)) da.Fill(dt);
+                return dt;
+            }
+        }
+
+        DataTable RunStatusProc(SqlConnection con, string status)
+        {
+            string proc;
+            switch (status)
+            {
+                case "Active": proc = "Pro_Employee_View_N"; break;
+                case "New": proc = "Pro_Employee_View_N_New"; break;
+                case "Seperation": proc = "Pro_Employee_View_N_Seperation"; break;
+                case "All": proc = "Pro_Employee_View_N_All"; break;
+                default: proc = "Pro_Employee_View_N_Resign_Lefty_Others"; break;
+            }
+
+            string from = string.IsNullOrWhiteSpace(txtFromDate.Text) ? "1900-01-01" : txtFromDate.Text.Trim();
+            string till = string.IsNullOrWhiteSpace(txtTillDate.Text) ? DateTime.Today.ToString("yyyy-MM-dd") : txtTillDate.Text.Trim();
+
+            using (var cmd = new SqlCommand(proc, con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 120;
+                cmd.Parameters.AddWithValue("@Employee_Status", status);
+                cmd.Parameters.AddWithValue("@from_Date", from);
+                cmd.Parameters.AddWithValue("@till_Date", till);
+                cmd.Parameters.AddWithValue("@User_Code", UserCode.ToString());
+                cmd.Parameters.AddWithValue("@From_Code", FromCode.ToString());
+
+                var dt = new DataTable();
+                using (var rd = cmd.ExecuteReader()) dt.Load(rd);
+                return dt;
+            }
+        }
+
+        // ================= ফলাফল দেখানো =================
+        void BindTable(DataTable dt, string status)
+        {
+            var list = new List<Emp>();
+            foreach (DataRow r in dt.Rows)
+            {
+                list.Add(new Emp
+                {
+                    Id = Col(r, "", "ID_no", "Id", "Emp_ID"),
+                    Name = Col(r, "", "Name", "Emp_Name"),
+                    Designation = Col(r, "", "Designation", "Desigation_name"),
+                    Department = Col(r, "", "Department", "Department_Name"),
+                    Branch = Col(r, "", "Branch", "Branch_Name"),
+                    Status = Col(r, status, "Resign_Status", "Status", "Employee_Status")
+                });
+            }
+
+            rptEmployees.DataSource = list;
+            rptEmployees.DataBind();
+            trEmpty.Visible = list.Count == 0;
+
+            lblReportTitle.Text = string.IsNullOrEmpty(RTypeText()) ? "Active Employee List" : RTypeText();
+            lblCount.Text = list.Count + " Records";
+            litPaging.Text = list.Count == 0
+                ? "Showing 0 entries"
+                : "Showing <span class=\"font-medium text-slate-700\">1</span> to <span class=\"font-medium text-slate-700\">" + list.Count +
+                  "</span> of <span class=\"font-medium text-slate-700\">" + list.Count + "</span> entries";
+
+            if (list.Count > 0)
+            {
+                ClientScript.RegisterStartupScript(GetType(), "chkall",
+                    "document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.row-checkbox,#selectAllRows').forEach(function(c){c.checked=true;});});", true);
+            }
+        }
+
+        static string Col(DataRow r, string fallback, params string[] names)
+        {
+            foreach (string n in names)
+            {
+                if (r.Table.Columns.Contains(n) && r[n] != DBNull.Value)
+                    return Convert.ToString(r[n]);
+            }
+            return fallback;
+        }
+
+        // ================= সাহায্যকারী =================
+        void ResetDefaults()
+        {
+            // মাল্টিপল সিলেক্ট ফিল্টার: সব সিলেকশন মোছা
+            filters.ClearSelections();
+
+            // সাধারণ ড্রপডাউন: প্রথম আইটেমে ফেরা
+            foreach (var d in new[] { ddBlood, ddReligion, ddStatus, ddRType })
+                if (d.Items.Count > 0) d.SelectedIndex = 0;
+
+            hfSelIds.Value = "";
+            txtMultiId.Text = "";
+
+            // ডিফল্ট তারিখ: চলতি মাসের ১ তারিখ থেকে মাসের শেষ তারিখ (চাইলে বদলানো যাবে)
+            // yyyy-MM-dd ফরম্যাট দরকার, কারণ ঘরটি date টাইপে রূপান্তর হয়
+            DateTime today = DateTime.Today;
+            DateTime firstDay = new DateTime(today.Year, today.Month, 1);
+            DateTime lastDay = firstDay.AddMonths(1).AddDays(-1);
+            txtFromDate.Text = firstDay.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            txtTillDate.Text = lastDay.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        void ClearGrid()
+        {
+            rptEmployees.DataSource = null;
+            rptEmployees.DataBind();
+            trEmpty.Visible = false;
+
+            lblReportTitle.Text = string.IsNullOrEmpty(RTypeText()) ? "Active Employee List" : RTypeText();
+            lblCount.Text = "0 Records";
+            litPaging.Text = "Showing 0 entries";
+        }
+
+        void Toast(string msg)
+        {
+            string js = "document.addEventListener('DOMContentLoaded',function(){showNotification(" +
+                        new JavaScriptSerializer().Serialize(msg) + ");});";
+            ClientScript.RegisterStartupScript(GetType(), "toast" + Guid.NewGuid().ToString("N"), js, true);
+        }
+    }
+}

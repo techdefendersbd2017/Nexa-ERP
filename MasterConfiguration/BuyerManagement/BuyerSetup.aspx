@@ -18,7 +18,7 @@
         <div class="max-w-[1320px] w-full m-auto rounded-lg border">
 
             <asp:HiddenField ID="hfUserId" runat="server" />
-            <asp:HiddenField ID="hfBuyerId" runat="server" />
+            <asp:HiddenField ID="hfBuyerId" runat="server" Value="0" />
 
             <%-- LIST PANEL : Buyer List (opens first, always) --%>
             <asp:Panel ID="pnlList" runat="server">
@@ -40,12 +40,14 @@
                         <div class="flex items-end gap-3">
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Search</label>
-                                <asp:TextBox ID="txtSearchBuyer" placeholder="Search by buyer name..." runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtSearchBuyer" placeholder="Search by buyer name / code..." runat="server" AutoPostBack="true" OnTextChanged="txtSearchBuyer_TextChanged" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex flex-col gap-0.5 w-56 shrink-0">
                                 <label class="text-sm font-medium">Buyer Type</label>
-                                <asp:DropDownList ID="ddlBuyerType" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
+                                <asp:DropDownList ID="ddlBuyerType" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlBuyerType_SelectedIndexChanged" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
                                     <asp:ListItem Value="" Selected="True">All</asp:ListItem>
+                                    <asp:ListItem Value="1">Local</asp:ListItem>
+                                    <asp:ListItem Value="0">Foreign</asp:ListItem>
                                 </asp:DropDownList>
                             </div>
                             <div class="w-max shrink-0">
@@ -59,7 +61,38 @@
 
                     <!--Gridview-->
                     <div class="border border-gray-400 bg-gray-300 rounded w-full h-96 flex-1 overflow-y-auto overflow-x-auto mt-3">
-                        <asp:GridView ID="GridView1" runat="server"></asp:GridView>
+                        <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="false" DataKeyNames="BuyerID"
+                            OnRowCommand="GridView1_RowCommand"
+                            CssClass="w-full text-sm bg-white border-collapse"
+                            HeaderStyle-CssClass="bg-[#255C8C] text-white text-left sticky top-0"
+                            RowStyle-CssClass="border-b border-gray-200 hover:bg-gray-50"
+                            AlternatingRowStyle-CssClass="bg-[#FBFCFE] border-b border-gray-200 hover:bg-gray-50"
+                            EmptyDataText="No buyer found." EmptyDataRowStyle-CssClass="p-3 text-center text-gray-500">
+                            <Columns>
+                                <asp:TemplateField HeaderText="SL" ItemStyle-CssClass="px-2 py-1 w-12" HeaderStyle-CssClass="px-2 py-1">
+                                    <ItemTemplate><%# Container.DataItemIndex + 1 %></ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:BoundField DataField="BuyerCode" HeaderText="Buyer Code" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2 py-1" />
+                                <asp:BoundField DataField="BuyerName" HeaderText="Buyer Name" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2 py-1" />
+                                <asp:BoundField DataField="DisplayName" HeaderText="Display Name" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2 py-1" />
+                                <asp:BoundField DataField="CountryName" HeaderText="Country" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2 py-1" />
+                                <asp:BoundField DataField="ContactNo" HeaderText="Contact" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2 py-1" />
+                                <asp:BoundField DataField="Email" HeaderText="Email" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2 py-1" />
+                                <asp:BoundField DataField="Commission" HeaderText="Commission (%)" DataFormatString="{0:N2}" ItemStyle-CssClass="px-2 py-1 text-right" HeaderStyle-CssClass="px-2 py-1" />
+                                <asp:BoundField DataField="BuyerTypeName" HeaderText="Type" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2 py-1" />
+                                <asp:BoundField DataField="StatusName" HeaderText="Status" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2 py-1" />
+                                <asp:TemplateField HeaderText="Action" ItemStyle-CssClass="px-2 py-1 whitespace-nowrap" HeaderStyle-CssClass="px-2 py-1">
+                                    <ItemTemplate>
+                                        <asp:LinkButton ID="lnkEdit" runat="server" CommandName="EditBuyer" CommandArgument='<%# Eval("BuyerID") %>' CssClass="text-[#255C8C] hover:underline mr-3 no-underline">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </asp:LinkButton>
+                                        <asp:LinkButton ID="lnkDelete" runat="server" CommandName="DeleteBuyer" CommandArgument='<%# Eval("BuyerID") %>' OnClientClick="return confirm('Are you sure you want to delete this buyer?');" CssClass="text-red-600 hover:underline no-underline">
+                                            <i class="fa-solid fa-trash"></i> Delete
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                            </Columns>
+                        </asp:GridView>
                     </div>
 
                 </div>
@@ -94,48 +127,42 @@
                         <div class="grid grid-cols-3 gap-x-3 gap-y-2">
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Buyer Code<span class="text-red-500">*</span></label>
-                                <asp:TextBox ID="txtBuyerCode" placeholder="Buyer Code" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
-                            </div>
-                            <div class="flex flex-col gap-0.5 w-full">
-                                <label class="text-sm font-medium">Main Buyer</label>
-                                <asp:DropDownList ID="ddlMainBuyer" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                    <asp:ListItem Value="" Selected="True">--Select Main Buyer--</asp:ListItem>
-                                </asp:DropDownList>
+                                <asp:TextBox ID="txtBuyerCode" placeholder="Buyer Code" MaxLength="50" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Knit Outside Buyer Name</label>
-                                <asp:TextBox ID="txtKnitOutsideBuyerName" placeholder="Knit Outside Buyer Name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtKnitOutsideBuyerName" placeholder="Knit Outside Buyer Name" MaxLength="200" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
 
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Buyer Name<span class="text-red-500">*</span></label>
-                                <asp:TextBox ID="txtBuyerName" placeholder="Buyer Name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtBuyerName" placeholder="Buyer Name" MaxLength="200" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Contact</label>
-                                <asp:TextBox ID="txtContact" placeholder="Contact" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtContact" placeholder="Contact" MaxLength="50" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Dyeing Outside Buyer Name</label>
-                                <asp:TextBox ID="txtDyeingOutsideBuyerName" placeholder="Dyeing Outside Buyer Name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtDyeingOutsideBuyerName" placeholder="Dyeing Outside Buyer Name" MaxLength="200" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
 
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Display Name<span class="text-red-500">*</span></label>
-                                <asp:TextBox ID="txtDisplayName" placeholder="Display Name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtDisplayName" placeholder="Display Name" MaxLength="200" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Email</label>
-                                <asp:TextBox ID="txtEmail" placeholder="Email" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtEmail" placeholder="Email" MaxLength="150" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Garments Outside Buyer Name</label>
-                                <asp:TextBox ID="txtGarmentsOutsideBuyerName" placeholder="Garments Outside Buyer Name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtGarmentsOutsideBuyerName" placeholder="Garments Outside Buyer Name" MaxLength="200" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
 
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">LC/SC Name</label>
-                                <asp:TextBox ID="txtLCSCName" placeholder="LC/SC Name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtLCSCName" placeholder="LC/SC Name" MaxLength="200" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Commission (%)</label>
@@ -143,25 +170,26 @@
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Licence No</label>
-                                <asp:TextBox ID="txtLicenceNo" placeholder="Licence No" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtLicenceNo" placeholder="Licence No" MaxLength="100" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
 
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Address</label>
-                                <asp:TextBox ID="txtAddress" placeholder="Address" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <asp:TextBox ID="txtAddress" placeholder="Address" MaxLength="500" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
                                 <label class="text-sm font-medium">Country</label>
                                 <asp:DropDownList ID="ddlCountry" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out">
-                                    <asp:ListItem Value="" Selected="True">--Select Country--</asp:ListItem>
+                                    <asp:ListItem Value="0" Selected="True">--Select Country--</asp:ListItem>
                                 </asp:DropDownList>
                             </div>
+                            <%-- Radio -> CheckBox : একই GroupName এর RadioButton এ দুটো একসাথে select করা যায় না --%>
                             <div class="flex items-center gap-6 pt-5">
                                 <div class="flex items-center gap-1.5">
-                                    <asp:RadioButton ID="rbIsActive" runat="server" GroupName="grpBuyerFlags" Text="Is Active" CssClass="text-sm" />
+                                    <asp:CheckBox ID="chkIsActive" runat="server" Text="Is Active" Checked="true" CssClass="text-sm" />
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <asp:RadioButton ID="rbIsLocal" runat="server" GroupName="grpBuyerFlags" Text="Is Local" CssClass="text-sm" />
+                                    <asp:CheckBox ID="chkIsLocal" runat="server" Text="Is Local" CssClass="text-sm" />
                                 </div>
                             </div>
                         </div>
@@ -190,7 +218,7 @@
                         </div>
                     </div>
 
-                    <%-- footer buttons : Clear + Save (same as before) --%>
+                    <%-- footer buttons : Clear + Save --%>
                     <div class="space-x-3 flex justify-end items-end mt-4">
                         <asp:LinkButton ID="btnClear" runat="server" OnClick="btnClear_Click" CssClass="flex items-center gap-1.5 rounded bg-gray-500 text-white px-4 py-1.5 shadow-sm hover:bg-gray-600 cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
                             <i class="fa-solid fa-eraser"></i>

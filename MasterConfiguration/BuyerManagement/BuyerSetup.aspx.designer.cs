@@ -123,15 +123,6 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         protected global::System.Web.UI.WebControls.TextBox txtBuyerCode;
 
         /// <summary>
-        /// ddlMainBuyer control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlMainBuyer;
-
-        /// <summary>
         /// txtKnitOutsideBuyerName control.
         /// </summary>
         /// <remarks>
@@ -240,22 +231,22 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         protected global::System.Web.UI.WebControls.DropDownList ddlCountry;
 
         /// <summary>
-        /// rbIsActive control.
+        /// chkIsActive control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton rbIsActive;
+        protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
 
         /// <summary>
-        /// rbIsLocal control.
+        /// chkIsLocal control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton rbIsLocal;
+        protected global::System.Web.UI.WebControls.CheckBox chkIsLocal;
 
         /// <summary>
         /// txtAssetLedger control.

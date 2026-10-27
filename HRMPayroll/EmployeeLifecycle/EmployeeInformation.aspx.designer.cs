@@ -33,6 +33,15 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.ScriptManager ScriptManager1;
 
         /// <summary>
+        /// hfTab control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfTab;
+
+        /// <summary>
         /// txtEmpID control.
         /// </summary>
         /// <remarks>
@@ -150,15 +159,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.Button btnSave;
 
         /// <summary>
-        /// btnUpdate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnUpdate;
-
-        /// <summary>
         /// btnClose control.
         /// </summary>
         /// <remarks>
@@ -249,24 +249,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.DropDownList ddlWeekoff;
 
         /// <summary>
-        /// btnIncrementHistory control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnIncrementHistory;
-
-        /// <summary>
-        /// chkIsActive control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
-
-        /// <summary>
         /// txtGrossSalary control.
         /// </summary>
         /// <remarks>
@@ -301,6 +283,24 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtNonTaxableGrossSalary;
+
+        /// <summary>
+        /// txtJoiningGross control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtJoiningGross;
+
+        /// <summary>
+        /// txtNonComplianceGross control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtNonComplianceGross;
 
         /// <summary>
         /// ddlTaxHolder control.
@@ -382,15 +382,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtMotherEnglish;
-
-        /// <summary>
-        /// txtHusbandEnglish control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtHusbandEnglish;
 
         /// <summary>
         /// txtSpouseEnglish control.
@@ -481,15 +472,6 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtMotherBangla;
-
-        /// <summary>
-        /// txtHusbandBangla control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtHusbandBangla;
 
         /// <summary>
         /// txtSpouseBangla control.
@@ -870,6 +852,15 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.TextBox txtFactoryName;
 
         /// <summary>
+        /// txtFactoryNameBangla control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtFactoryNameBangla;
+
+        /// <summary>
         /// txtFactoryAddress control.
         /// </summary>
         /// <remarks>
@@ -879,6 +870,15 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         protected global::System.Web.UI.WebControls.TextBox txtFactoryAddress;
 
         /// <summary>
+        /// txtFactoryAddressBangla control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtFactoryAddressBangla;
+
+        /// <summary>
         /// txtTotalExpYear control.
         /// </summary>
         /// <remarks>
@@ -886,95 +886,5 @@ namespace Nexa_ERP.HRMPayroll.EmployeeLifecycle
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtTotalExpYear;
-
-        /// <summary>
-        /// txtTotalExpMonth control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTotalExpMonth;
-
-        /// <summary>
-        /// chkUseExpDate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkUseExpDate;
-
-        /// <summary>
-        /// txtExpFromDate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtExpFromDate;
-
-        /// <summary>
-        /// txtExpTillDate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtExpTillDate;
-
-        /// <summary>
-        /// txtRefEmpID control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRefEmpID;
-
-        /// <summary>
-        /// txtRefName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRefName;
-
-        /// <summary>
-        /// txtRefDesignation control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRefDesignation;
-
-        /// <summary>
-        /// txtRefCompany control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRefCompany;
-
-        /// <summary>
-        /// txtRefEmail control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRefEmail;
-
-        /// <summary>
-        /// txtRefPhone control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRefPhone;
     }
 }

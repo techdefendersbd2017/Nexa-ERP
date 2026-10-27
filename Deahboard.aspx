@@ -440,6 +440,13 @@
         });
     }
 
+    // ===== [নতুন] মডিউলের নাম => সেই মডিউলের ড্যাশবোর্ড পেজ =====
+    // নতুন মডিউলের ড্যাশবোর্ড বানালে এখানে আরেকটি লাইন যোগ করলেই হবে।
+    // পথটি আপনার ফোল্ডার অনুযায়ী মিলিয়ে নিন।
+    var DASHBOARD_PAGES = {
+        "HRM & Payroll": "HRMPayroll/HRMDashboard.aspx"
+    };
+
     function selectModule(moduleId) {
 
         document.querySelectorAll(".tree-root > li.module-item").forEach(function (li) {
@@ -461,6 +468,15 @@
         document.getElementById("pageTitleBar").innerHTML =
             '<i class="bi bi-info-circle text-primary"></i> Please select a form from the left menu.';
         document.getElementById("mainFrame").src = "about:blank";
+
+        // ===== [নতুন] এই মডিউলের ড্যাশবোর্ড পেজ থাকলে সেটি দেখানো =====
+        var modName = submenu ? (submenu.getAttribute("data-module-name") || "").trim() : "";
+        var dashUrl = DASHBOARD_PAGES[modName];
+        if (dashUrl) {
+            document.getElementById("pageTitleBar").innerHTML =
+                '<i class="bi bi-speedometer2 text-primary"></i> ' + modName + ' / Dashboard';
+            document.getElementById("mainFrame").src = dashUrl;
+        }
     }
 
     function backToModules() {

@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Nexa_ERP.MerchandisingMarketing.OrderInformation
+namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports
 {
 
 
-    public partial class StyleName
+    public partial class ActiveEmployeeListReport
     {
 
         /// <summary>
@@ -24,66 +24,48 @@ namespace Nexa_ERP.MerchandisingMarketing.OrderInformation
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// txtStyleID control.
+        /// btnWord control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtStyleID;
+        protected global::System.Web.UI.WebControls.LinkButton btnWord;
 
         /// <summary>
-        /// ddlBuyer control.
+        /// btnExcel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlBuyer;
+        protected global::System.Web.UI.WebControls.LinkButton btnExcel;
 
         /// <summary>
-        /// txtStyleName control.
+        /// lblNone control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtStyleName;
+        protected global::System.Web.UI.WebControls.Label lblNone;
 
         /// <summary>
-        /// txtArticleNo control.
+        /// pnlReport control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtArticleNo;
+        protected global::System.Web.UI.WebControls.Panel pnlReport;
 
         /// <summary>
-        /// btnSave control.
+        /// litTable control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSave;
-
-        /// <summary>
-        /// btnCancel control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCancel;
-
-        /// <summary>
-        /// gvStyleList control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvStyleList;
+        protected global::System.Web.UI.WebControls.Literal litTable;
     }
 }
