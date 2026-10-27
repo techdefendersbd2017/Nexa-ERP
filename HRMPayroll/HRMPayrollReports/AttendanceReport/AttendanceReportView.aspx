@@ -17,8 +17,9 @@
                padding:10px 20px; background:#fff; border-bottom:1px solid #d1d5db; }
         .bar b { font-size:14px; }
         .bar span { font-size:12px; color:#64748b; }
-        .bar button { height:32px; padding:0 16px; border:0; border-radius:8px; background:#2563eb; color:#fff; font-size:13px; cursor:pointer; }
-        .bar button:hover { background:#1d4ed8; }
+        .bar button, .bar .btn { height:32px; padding:0 16px; border:0; border-radius:8px; background:#2563eb; color:#fff; font-size:13px; cursor:pointer; }
+        .bar button:hover, .bar .btn:hover { background:#1d4ed8; }
+        .bar .btns { display:flex; gap:8px; align-items:center; }
         .msg { max-width:760px; margin:40px auto; padding:18px 22px; background:#fff; border:1px solid #fca5a5; border-radius:10px;
                font-size:14px; color:#7f1d1d; }
 
@@ -39,6 +40,9 @@
         table.rp td.sig { width:70px; }
         tr.grp td { font-weight:700; background:#fafafa; border-top:1.5px solid #000; }
         tr.tot td { font-weight:700; border:0; padding-top:6px; }
+
+        /* কর্মচারীর ছবি (Report With Photo টিক দিলে) */
+        img.ph { width:38px; height:46px; object-fit:cover; display:block; margin:0 auto; border:1px solid #999; }
 
         .summ { margin-top:6px; font-size:11px; }
         .summ span { display:inline-block; margin-right:14px; }
@@ -61,7 +65,17 @@
     <div class="bar no-print">
         <div><b><asp:Literal ID="litTitle" runat="server" Text="Attendance Report" /></b>
              <span>&nbsp;·&nbsp;<asp:Literal ID="litCount" runat="server" /></span></div>
-        <button type="button" onclick="window.print()">Print</button>
+        <div class="btns">
+            <asp:Button ID="btnPdf" runat="server" Text="PDF" CssClass="btn" OnClick="btnPdf_Click" />
+            <asp:Button ID="btnWord" runat="server" Text="Word" CssClass="btn" OnClick="btnWord_Click" />
+            <asp:Button ID="btnExcel" runat="server" Text="Excel" CssClass="btn" OnClick="btnExcel_Click" />
+            <div class="btns">
+            <asp:Button ID="Button1" runat="server" Text="PDF" CssClass="btn" OnClick="btnPdf_Click" />
+            <asp:Button ID="Button2" runat="server" Text="Word" CssClass="btn" OnClick="btnWord_Click" />
+            <asp:Button ID="Button3" runat="server" Text="Excel" CssClass="btn" OnClick="btnExcel_Click" />
+            <button type="button" onclick="window.print()">Print</button>
+        </div>
+        </div>
     </div>
     <asp:Literal ID="litReport" runat="server" />
 </form>

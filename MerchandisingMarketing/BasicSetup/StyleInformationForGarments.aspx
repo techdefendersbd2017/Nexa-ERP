@@ -8,8 +8,6 @@
     <title>Garments ERP - Style Entry Master</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
     <style>
         :root {
@@ -18,6 +16,8 @@
             --erp-bg: #f8fafc;
             --erp-card-bg: #ffffff;
             --erp-border: #e2e8f0;
+            --brand-primary: #3b82f6;
+            --brand-primary-dark: #1d4ed8;
         }
         body { background-color: var(--erp-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 0.875rem; color: #334155; }
         .navbar-erp { background-color: var(--erp-primary); color: #fff; padding: 0.75rem 1.5rem; }
@@ -34,15 +34,74 @@
         .btn-xs { padding: 0.1rem 0.35rem; font-size: 0.75rem; }
         .add-row { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 0.375rem; padding: 0.5rem; margin-bottom: 0.75rem; }
         .img-box { border: 2px dashed #cbd5e1; border-radius: 0.375rem; padding: 1rem; text-align: center; background: #f8fafc; }
+
+        /* =========================================================
+           Searchable Dropdown (Employee Entry পেজের মতো)
+        ========================================================= */
+        .dd-ctl { position: relative; min-width: 0; }
+        .dd-fld { display: flex; align-items: center; gap: 6px; height: 31px; padding: 0 8px 0 10px; border: 1px solid #ced4da; border-radius: 0.25rem;
+                  background: #fff; font-size: 0.8125rem; cursor: pointer; user-select: none; transition: border-color .15s ease, box-shadow .15s ease; }
+        .dd-fld:focus, .dd-fld.open { outline: none; border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        .dd-fld .txt { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #8a93a3; }
+        .dd-fld.has .txt { color: #222; }
+        .dd-fld .clr { display: none; color: #9aa2b1; font-size: 10px; padding: 0 2px; }
+        .dd-fld.has .clr { display: inline; }
+        .dd-fld .clr:hover { color: #dc3545; }
+        .dd-fld .chev { color: #8a93a3; font-size: 12px; }
+        .dd-fld.dis { background: #e9ecef; cursor: not-allowed; opacity: .8; }
+        .dd-fld.dis .clr { display: none !important; }
+
+        .dd-panel { position: absolute; left: 0; top: calc(100% + 4px); z-index: 1050; min-width: 100%; width: max-content; max-width: 22rem;
+                    background: #fff; border: 1px solid #e2e6ee; border-radius: 12px; box-shadow: 0 10px 28px rgba(17, 24, 39, 0.12); overflow: hidden; padding-top: 8px; font-size: 12.5px; }
+        .dd-panel.right { left: auto; right: 0; }
+        .dd-panel .ps { position: relative; padding: 4px 10px 10px 10px; }
+        .dd-panel .ps i { position: absolute; left: 22px; top: 50%; transform: translateY(-55%); color: #9aa2b1; font-size: 13px; pointer-events: none; }
+        .dd-panel .ps input { width: 100%; border: 1px solid #e2e6ee; border-radius: 20px; padding: 6px 12px 6px 32px; font-size: 12.5px; outline: none; background: #f8f9fb; font-family: inherit; }
+        .dd-panel .ps input:focus { border-color: var(--brand-primary); background: #fff; }
+        .dd-panel .pl { max-height: 260px; overflow-y: auto; }
+        .dd-panel .it { display: flex; align-items: center; padding: 8px 16px; color: #333; cursor: pointer; }
+        .dd-panel .it:hover { background: #f1f4fb; color: var(--brand-primary-dark); }
+        .dd-panel .it.sel-single { background: #eef3ff; color: var(--brand-primary-dark); font-weight: 600; }
+        .dd-panel .empty { padding: 12px; text-align: center; color: #8a93a3; }
+
         @media print { .navbar-erp, .nav-tabs, .btn, .col-lg-3 { display: none !important; } .tab-pane { display: block !important; opacity: 1 !important; } }
     </style>
 </head>
 <body>
     <form id="form1" runat="server">
 
-        <asp:HiddenField ID="hfStyleId" runat="server" Value="0" />
-        <asp:HiddenField ID="hfUserId" runat="server" Value="0" />
-        <asp:HiddenField ID="hfTab" runat="server" Value="" />
+        <asp:HiddenField ID="hfStyleId" runat="server" Value="0" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfUserId" runat="server" Value="0" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfTab" runat="server" Value="" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfLocked" runat="server" Value="0" ClientIDMode="Static" />
+
+        <!-- ড্রপডাউনের নির্বাচিত মান (JS এখানে লেখে, Server এখান থেকে পড়ে) -->
+        <asp:HiddenField ID="hfBuyerFilter" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfStatusFilter" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfMainStatus" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfBuyer" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfBrand" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfAgent" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfSeason" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfSeasonYear" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfProductCategory" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfProductType" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfGarmentType" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfGender" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfMerchandiser" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfCountry" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfCurrency" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfPaymentTerm" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfShipmentMode" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfKnitWoven" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfColor" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfSize" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfFabUnit" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfAccType" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfAccUnit" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfCostStatus" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfTnaTemplate" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfDocType" runat="server" ClientIDMode="Static" />
 
         <!-- Top ERP Header -->
         <nav class="navbar navbar-erp navbar-expand-lg">
@@ -67,18 +126,11 @@
                         <div class="row g-2 mb-3 align-items-end">
                             <div class="col-md-3">
                                 <label class="form-label">Buyer</label>
-                                <asp:DropDownList ID="ddlBuyerFilter" runat="server" CssClass="form-select form-select-sm select2" />
+                                <div data-dd="buyerFilter"></div>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Status</label>
-                                <asp:DropDownList ID="ddlStatusFilter" runat="server" CssClass="form-select form-select-sm">
-                                    <asp:ListItem Value="">-- All --</asp:ListItem>
-                                    <asp:ListItem>Draft</asp:ListItem>
-                                    <asp:ListItem>Submitted</asp:ListItem>
-                                    <asp:ListItem>Approved</asp:ListItem>
-                                    <asp:ListItem>Active</asp:ListItem>
-                                    <asp:ListItem>Rejected</asp:ListItem>
-                                </asp:DropDownList>
+                                <div data-dd="statusFilter"></div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Search (Style Code / No / Name)</label>
@@ -135,13 +187,7 @@
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Style Status</label>
-                                <asp:DropDownList ID="ddlMainStatus" runat="server" CssClass="form-select form-select-sm">
-                                    <asp:ListItem>Draft</asp:ListItem>
-                                    <asp:ListItem>Submitted</asp:ListItem>
-                                    <asp:ListItem>Approved</asp:ListItem>
-                                    <asp:ListItem>Active</asp:ListItem>
-                                    <asp:ListItem>Rejected</asp:ListItem>
-                                </asp:DropDownList>
+                                <div data-dd="mainStatus"></div>
                             </div>
                             <div class="col-md-1">
                                 <label class="form-label">Rev. No</label>
@@ -200,54 +246,36 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label required">Buyer</label>
-                                                <asp:DropDownList ID="ddlBuyer" runat="server" CssClass="form-select form-select-sm select2" AutoPostBack="true" OnSelectedIndexChanged="ddlBuyer_SelectedIndexChanged" />
+                                                <div data-dd="buyer"></div>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Brand</label>
-                                                <asp:DropDownList ID="ddlBrand" runat="server" CssClass="form-select form-select-sm select2" />
+                                                <div data-dd="brand"></div>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Agent / Buying House</label>
-                                                <asp:DropDownList ID="ddlAgent" runat="server" CssClass="form-select form-select-sm select2" />
+                                                <div data-dd="agent"></div>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Season / Year</label>
-                                                <div class="input-group input-group-sm">
-                                                    <asp:DropDownList ID="ddlSeason" runat="server" CssClass="form-select">
-                                                        <asp:ListItem>Autumn/Winter</asp:ListItem>
-                                                        <asp:ListItem>Spring/Summer</asp:ListItem>
-                                                    </asp:DropDownList>
-                                                    <asp:DropDownList ID="ddlSeasonYear" runat="server" CssClass="form-select" Style="max-width: 90px;" />
+                                                <div class="d-flex gap-1">
+                                                    <div class="flex-grow-1" data-dd="season"></div>
+                                                    <div style="width: 96px;" data-dd="seasonYear"></div>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Product Category</label>
-                                                <asp:DropDownList ID="ddlProductCategory" runat="server" CssClass="form-select form-select-sm">
-                                                    <asp:ListItem>Knit Outerwear</asp:ListItem>
-                                                    <asp:ListItem>Woven Bottoms</asp:ListItem>
-                                                    <asp:ListItem>Activewear</asp:ListItem>
-                                                </asp:DropDownList>
+                                                <div data-dd="productCategory"></div>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Product Type</label>
-                                                <asp:DropDownList ID="ddlProductType" runat="server" CssClass="form-select form-select-sm">
-                                                    <asp:ListItem>Hoodie &amp; Sweatshirt</asp:ListItem>
-                                                    <asp:ListItem>T-Shirt &amp; Polo</asp:ListItem>
-                                                    <asp:ListItem>Jacket</asp:ListItem>
-                                                </asp:DropDownList>
+                                                <div data-dd="productType"></div>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Garment Type / Gender</label>
-                                                <div class="input-group input-group-sm">
-                                                    <asp:DropDownList ID="ddlGarmentType" runat="server" CssClass="form-select">
-                                                        <asp:ListItem>Pullover</asp:ListItem>
-                                                        <asp:ListItem>Zip-Up</asp:ListItem>
-                                                    </asp:DropDownList>
-                                                    <asp:DropDownList ID="ddlGender" runat="server" CssClass="form-select">
-                                                        <asp:ListItem>Mens</asp:ListItem>
-                                                        <asp:ListItem>Womens</asp:ListItem>
-                                                        <asp:ListItem>Kids</asp:ListItem>
-                                                    </asp:DropDownList>
+                                                <div class="d-flex gap-1">
+                                                    <div class="flex-grow-1" data-dd="garmentType"></div>
+                                                    <div class="flex-grow-1" data-dd="gender"></div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
@@ -259,7 +287,7 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label required">Assigned Merchandiser</label>
-                                                <asp:DropDownList ID="ddlMerchandiser" runat="server" CssClass="form-select form-select-sm select2" />
+                                                <div data-dd="merchandiser"></div>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Creation Date</label>
@@ -285,27 +313,19 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Destination Country</label>
-                                                <asp:DropDownList ID="ddlCountry" runat="server" CssClass="form-select form-select-sm select2" />
+                                                <div data-dd="country"></div>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Currency</label>
-                                                <asp:DropDownList ID="ddlCurrency" runat="server" CssClass="form-select form-select-sm">
-                                                    <asp:ListItem Value="USD">USD ($)</asp:ListItem>
-                                                    <asp:ListItem Value="EUR">EUR (€)</asp:ListItem>
-                                                    <asp:ListItem Value="GBP">GBP (£)</asp:ListItem>
-                                                </asp:DropDownList>
+                                                <div data-dd="currency"></div>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Payment Term</label>
-                                                <asp:DropDownList ID="ddlPaymentTerm" runat="server" CssClass="form-select form-select-sm" />
+                                                <div data-dd="paymentTerm"></div>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Shipment Mode</label>
-                                                <asp:DropDownList ID="ddlShipmentMode" runat="server" CssClass="form-select form-select-sm">
-                                                    <asp:ListItem>Sea Freight (FCL)</asp:ListItem>
-                                                    <asp:ListItem>Air Freight</asp:ListItem>
-                                                    <asp:ListItem>Courier</asp:ListItem>
-                                                </asp:DropDownList>
+                                                <div data-dd="shipmentMode"></div>
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">Port of Loading &amp; Discharge</label>
@@ -376,10 +396,7 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Knit / Woven</label>
-                                                <asp:DropDownList ID="ddlKnitWoven" runat="server" CssClass="form-select form-select-sm">
-                                                    <asp:ListItem>Knit</asp:ListItem>
-                                                    <asp:ListItem>Woven</asp:ListItem>
-                                                </asp:DropDownList>
+                                                <div data-dd="knitWoven"></div>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Construction &amp; GSM</label>
@@ -427,7 +444,7 @@
                                                 <h6 class="text-uppercase text-secondary fw-bold mb-2">Color Configuration</h6>
                                                 <div class="add-row">
                                                     <div class="row g-2">
-                                                        <div class="col-5"><asp:DropDownList ID="ddlColor" runat="server" CssClass="form-select form-select-sm select2" /></div>
+                                                        <div class="col-5"><div data-dd="color"></div></div>
                                                         <div class="col-4"><asp:TextBox ID="txtPantone" runat="server" CssClass="form-control form-control-sm" placeholder="Pantone" MaxLength="50" /></div>
                                                         <div class="col-3"><asp:LinkButton ID="btnAddColor" runat="server" CssClass="btn btn-sm btn-outline-primary w-100" OnClick="btnAddColor_Click"><i class="bi bi-plus-lg"></i> Add</asp:LinkButton></div>
                                                     </div>
@@ -452,7 +469,7 @@
                                                 <h6 class="text-uppercase text-secondary fw-bold mb-2">Size Configuration</h6>
                                                 <div class="add-row">
                                                     <div class="row g-2">
-                                                        <div class="col-9"><asp:DropDownList ID="ddlSize" runat="server" CssClass="form-select form-select-sm select2" /></div>
+                                                        <div class="col-9"><div data-dd="size"></div></div>
                                                         <div class="col-3"><asp:LinkButton ID="btnAddSize" runat="server" CssClass="btn btn-sm btn-outline-primary w-100" OnClick="btnAddSize_Click"><i class="bi bi-plus-lg"></i> Add</asp:LinkButton></div>
                                                     </div>
                                                 </div>
@@ -490,7 +507,7 @@
                                                 <div class="col-md-2"><asp:TextBox ID="txtFabColor" runat="server" CssClass="form-control form-control-sm" placeholder="Color" MaxLength="100" /></div>
                                                 <div class="col-md-2"><asp:TextBox ID="txtFabCons" runat="server" CssClass="form-control form-control-sm" placeholder="Consumption" /></div>
                                                 <div class="col-md-2"><asp:TextBox ID="txtFabWaste" runat="server" CssClass="form-control form-control-sm" placeholder="Wastage %" /></div>
-                                                <div class="col-md-2"><asp:DropDownList ID="ddlFabUnit" runat="server" CssClass="form-select form-select-sm" /></div>
+                                                <div class="col-md-2"><div data-dd="fabUnit"></div></div>
                                                 <div class="col-md-2"><asp:LinkButton ID="btnAddFabric" runat="server" CssClass="btn btn-sm btn-outline-primary w-100" OnClick="btnAddFabric_Click"><i class="bi bi-plus-lg"></i> Add Fabric</asp:LinkButton></div>
                                             </div>
                                         </div>
@@ -523,19 +540,10 @@
                                             <div class="row g-2">
                                                 <div class="col-md-2"><asp:TextBox ID="txtAccCode" runat="server" CssClass="form-control form-control-sm" placeholder="Item Code" MaxLength="20" /></div>
                                                 <div class="col-md-3"><asp:TextBox ID="txtAccName" runat="server" CssClass="form-control form-control-sm" placeholder="Item Name" MaxLength="150" /></div>
-                                                <div class="col-md-2">
-                                                    <asp:DropDownList ID="ddlAccType" runat="server" CssClass="form-select form-select-sm">
-                                                        <asp:ListItem>Label</asp:ListItem>
-                                                        <asp:ListItem>Button</asp:ListItem>
-                                                        <asp:ListItem>Zipper</asp:ListItem>
-                                                        <asp:ListItem>Thread</asp:ListItem>
-                                                        <asp:ListItem>Packing</asp:ListItem>
-                                                        <asp:ListItem>Other</asp:ListItem>
-                                                    </asp:DropDownList>
-                                                </div>
+                                                <div class="col-md-2"><div data-dd="accType"></div></div>
                                                 <div class="col-md-3"><asp:TextBox ID="txtAccSizeColor" runat="server" CssClass="form-control form-control-sm" placeholder="Size / Color" MaxLength="100" /></div>
                                                 <div class="col-md-2"><asp:TextBox ID="txtAccCons" runat="server" CssClass="form-control form-control-sm" placeholder="Consumption" /></div>
-                                                <div class="col-md-2"><asp:DropDownList ID="ddlAccUnit" runat="server" CssClass="form-select form-select-sm" /></div>
+                                                <div class="col-md-2"><div data-dd="accUnit"></div></div>
                                                 <div class="col-md-2"><asp:TextBox ID="txtAccWaste" runat="server" CssClass="form-control form-control-sm" placeholder="Wastage %" /></div>
                                                 <div class="col-md-3"><asp:TextBox ID="txtAccSupplier" runat="server" CssClass="form-control form-control-sm" placeholder="Supplier" MaxLength="150" /></div>
                                                 <div class="col-md-2"><asp:LinkButton ID="btnAddAcc" runat="server" CssClass="btn btn-sm btn-outline-primary w-100" OnClick="btnAddAcc_Click"><i class="bi bi-plus-lg"></i> Add Item</asp:LinkButton></div>
@@ -589,11 +597,7 @@
                                             <div class="row g-2 align-items-end">
                                                 <div class="col-md-3">
                                                     <label class="form-label">Costing Status</label>
-                                                    <asp:DropDownList ID="ddlCostStatus" runat="server" CssClass="form-select form-select-sm">
-                                                        <asp:ListItem>Draft</asp:ListItem>
-                                                        <asp:ListItem>Submitted</asp:ListItem>
-                                                        <asp:ListItem>Approved</asp:ListItem>
-                                                    </asp:DropDownList>
+                                                    <div data-dd="costStatus"></div>
                                                 </div>
                                                 <div class="col-md-3"><label class="form-label">Total Cost</label><asp:TextBox ID="txtCostTotal" runat="server" CssClass="form-control form-control-sm" /></div>
                                                 <div class="col-md-3"><label class="form-label">FOB Price</label><asp:TextBox ID="txtCostFob" runat="server" CssClass="form-control form-control-sm" /></div>
@@ -658,11 +662,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-4">
                                                 <label class="form-label">TNA Template</label>
-                                                <asp:DropDownList ID="ddlTnaTemplate" runat="server" CssClass="form-select form-select-sm">
-                                                    <asp:ListItem>Standard 90 Days Winterwear Template</asp:ListItem>
-                                                    <asp:ListItem>Standard 60 Days Template</asp:ListItem>
-                                                    <asp:ListItem>Standard 120 Days Template</asp:ListItem>
-                                                </asp:DropDownList>
+                                                <div data-dd="tnaTemplate"></div>
                                             </div>
                                             <div class="col-md-2"><label class="form-label">Sample Deadline</label><asp:TextBox ID="txtSampleDeadline" runat="server" TextMode="Date" CssClass="form-control form-control-sm" /></div>
                                             <div class="col-md-2"><label class="form-label">PP Meeting Date</label><asp:TextBox ID="txtPPMeeting" runat="server" TextMode="Date" CssClass="form-control form-control-sm" /></div>
@@ -677,14 +677,7 @@
                                         <div class="add-row">
                                             <div class="row g-2 align-items-end">
                                                 <div class="col-md-4"><asp:FileUpload ID="fuDoc" runat="server" CssClass="form-control form-control-sm" /></div>
-                                                <div class="col-md-3">
-                                                    <asp:DropDownList ID="ddlDocType" runat="server" CssClass="form-select form-select-sm">
-                                                        <asp:ListItem>Tech Pack</asp:ListItem>
-                                                        <asp:ListItem>Sample Approval</asp:ListItem>
-                                                        <asp:ListItem>Buyer Spec</asp:ListItem>
-                                                        <asp:ListItem>Other</asp:ListItem>
-                                                    </asp:DropDownList>
-                                                </div>
+                                                <div class="col-md-3"><div data-dd="docType"></div></div>
                                                 <div class="col-md-2"><asp:TextBox ID="txtDocVersion" runat="server" CssClass="form-control form-control-sm" placeholder="Version (v1.0)" MaxLength="20" /></div>
                                                 <div class="col-md-3"><asp:LinkButton ID="btnUploadDoc" runat="server" CssClass="btn btn-sm btn-primary w-100" OnClick="btnUploadDoc_Click"><i class="bi bi-upload"></i> Upload Document</asp:LinkButton></div>
                                             </div>
@@ -805,10 +798,197 @@
 
         </div>
 
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ১) ড্রপডাউনের অপশন তালিকা (Server থেকে) -->
+    <script>var OPT = {}; try { OPT = JSON.parse('<%= HttpUtility.JavaScriptStringEncode(OptJson) %>'); } catch (e) { window.__optErr = e.message; }</script>
+
+    <!-- ২) Searchable ড্রপডাউন (Employee Entry এর মতো; এখানে value + text আলাদা, Brand নির্ভর করে Buyer এর উপর) -->
+    <script>
+        var FIELDS = [
+            // List panel
+            { id: 'buyerFilter', hf: 'hfBuyerFilter', ph: 'All Buyers' },
+            { id: 'statusFilter', hf: 'hfStatusFilter', ph: 'All' },
+            // Header
+            { id: 'mainStatus', hf: 'hfMainStatus', ph: 'Select' },
+            // Basic
+            { id: 'buyer', hf: 'hfBuyer', ph: 'Select Buyer' },
+            { id: 'brand', hf: 'hfBrand', ph: 'Select Brand', dep: 'buyer', depLabel: 'buyer' },
+            { id: 'agent', hf: 'hfAgent', ph: 'Direct Buyer' },
+            { id: 'season', hf: 'hfSeason', ph: 'Season' },
+            { id: 'seasonYear', hf: 'hfSeasonYear', ph: 'Year' },
+            { id: 'productCategory', hf: 'hfProductCategory', ph: 'Select' },
+            { id: 'productType', hf: 'hfProductType', ph: 'Select' },
+            { id: 'garmentType', hf: 'hfGarmentType', ph: 'Type' },
+            { id: 'gender', hf: 'hfGender', ph: 'Gender' },
+            { id: 'merchandiser', hf: 'hfMerchandiser', ph: 'Select Merchandiser' },
+            // Commercial
+            { id: 'country', hf: 'hfCountry', ph: 'Select Country' },
+            { id: 'currency', hf: 'hfCurrency', ph: 'Select' },
+            { id: 'paymentTerm', hf: 'hfPaymentTerm', ph: 'Select Payment Term' },
+            { id: 'shipmentMode', hf: 'hfShipmentMode', ph: 'Select' },
+            // Specification / Color / Size / Fabric / Accessories / Costing / TNA / Docs
+            { id: 'knitWoven', hf: 'hfKnitWoven', ph: 'Select' },
+            { id: 'color', hf: 'hfColor', ph: 'Select Color' },
+            { id: 'size', hf: 'hfSize', ph: 'Select Size' },
+            { id: 'fabUnit', hf: 'hfFabUnit', ph: 'Unit' },
+            { id: 'accType', hf: 'hfAccType', ph: 'Type' },
+            { id: 'accUnit', hf: 'hfAccUnit', ph: 'Unit' },
+            { id: 'costStatus', hf: 'hfCostStatus', ph: 'Select' },
+            { id: 'tnaTemplate', hf: 'hfTnaTemplate', ph: 'Select Template' },
+            { id: 'docType', hf: 'hfDocType', ph: 'Select Type' }
+        ];
+        FIELDS.forEach(function (f) { f.opts = OPT[f.id] || []; });
+        var state = {};
+
+        var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
+        var fieldOf = function (id) { return FIELDS.filter(function (f) { return f.id === id; })[0]; };
+
+        // value -> দেখানোর text (অপশনে না থাকলে value নিজেই দেখায়)
+        function labelOf(f, v) {
+            for (var i = 0; i < f.opts.length; i++) if (f.opts[i].v === v) return f.opts[i].t;
+            return v;
+        }
+
+        function buildFilters() {
+            FIELDS.forEach(function (f) {
+                var host = document.querySelector('[data-dd="' + f.id + '"]');
+                var hf = document.getElementById(f.hf);
+                if (!host || !hf) return;          // যে Panel দেখা যাচ্ছে না, সেটা বাদ
+                host.id = 'wrap-' + f.id;
+                state[f.id] = hf.value || '';
+                host.innerHTML =
+                    '<div class="dd-ctl">' +
+                      '<div id="fld-' + f.id + '" class="dd-fld" tabindex="0" onclick="toggleDD(\'' + f.id + '\')" ' +
+                          'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleDD(\'' + f.id + '\')}">' +
+                        '<span class="txt"></span>' +
+                        '<span class="clr" onclick="clearField(\'' + f.id + '\',event)" title="Clear"><i class="bi bi-x-lg"></i></span>' +
+                        '<i class="bi bi-chevron-expand chev"></i>' +
+                      '</div>' +
+                      '<div id="panel-' + f.id + '" class="dd-panel d-none" onclick="event.stopPropagation()">' +
+                        '<div class="ps"><i class="bi bi-search"></i>' +
+                          '<input type="text" id="q-' + f.id + '" placeholder="Search..." autocomplete="off" ' +
+                          'oninput="renderList(\'' + f.id + '\')" onkeydown="if(event.key===\'Enter\')return false;"></div>' +
+                        '<div class="pl" id="list-' + f.id + '"></div>' +
+                      '</div>' +
+                    '</div>';
+                refreshField(f.id);
+            });
+        }
+
+        function syncHidden(id) {
+            document.getElementById(fieldOf(id).hf).value = state[id] || '';
+        }
+
+        function refreshField(id) {
+            var f = fieldOf(id), v = state[id] || '';
+            var box = document.getElementById('fld-' + id);
+            box.classList.toggle('has', v !== '');
+            box.querySelector('.txt').textContent = v !== '' ? labelOf(f, v) : f.ph;
+            renderList(id);
+        }
+
+        function renderList(id) {
+            var f = fieldOf(id), cur = state[id] || '';
+            var q = (document.getElementById('q-' + id).value || '').toLowerCase();
+            var list = document.getElementById('list-' + id);
+
+            if (f.dep && !state[f.dep]) {
+                list.innerHTML = '<div class="empty">Select ' + esc(f.depLabel || f.dep) + ' first</div>';
+                return;
+            }
+            var html = f.opts.map(function (o, i) { return { o: o, i: i }; }).filter(function (x) {
+                if (f.dep && String(x.o.p) !== state[f.dep]) return false;
+                return String(x.o.t).toLowerCase().indexOf(q) > -1;
+            }).map(function (x) {
+                var on = x.o.v === cur;
+                return '<div class="it ' + (on ? 'sel-single' : '') + '" onclick="pick(\'' + id + '\',' + x.i + ')"><span>' + esc(x.o.t) + '</span>' +
+                       (on ? '<i class="bi bi-check-lg ms-auto"></i>' : '') + '</div>';
+            }).join('');
+            list.innerHTML = html || '<div class="empty">No results found</div>';
+        }
+
+        function pick(id, i) {
+            state[id] = fieldOf(id).opts[i].v;
+            closeAll();
+            syncHidden(id); refreshField(id);
+            if (window.onFieldChange) window.onFieldChange(id);
+        }
+
+        function clearField(id, ev) {
+            if (ev) ev.stopPropagation();
+            state[id] = '';
+            syncHidden(id); refreshField(id);
+            if (window.onFieldChange) window.onFieldChange(id);
+        }
+
+        function closeAll() {
+            document.querySelectorAll('.dd-panel').forEach(function (p) { p.classList.add('d-none'); });
+            document.querySelectorAll('.dd-fld.open').forEach(function (b) { b.classList.remove('open'); });
+        }
+
+        function toggleDD(id) {
+            var box = document.getElementById('fld-' + id);
+            if (box.classList.contains('dis')) return;
+            var panel = document.getElementById('panel-' + id);
+            var wasOpen = !panel.classList.contains('d-none');
+            closeAll();
+            if (wasOpen) return;
+            panel.classList.remove('d-none');
+            box.classList.add('open');
+            panel.classList.remove('right');
+            if (panel.getBoundingClientRect().right > window.innerWidth - 8) panel.classList.add('right');
+            var q = document.getElementById('q-' + id);
+            q.value = ''; renderList(id);
+            setTimeout(function () { q.focus(); }, 0);
+        }
+
+        document.addEventListener('click', function (e) { if (!e.target.closest('[id^="wrap-"]')) closeAll(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+
+        function setFieldDisabled(id, off) {
+            var box = document.getElementById('fld-' + id);
+            if (box) box.classList.toggle('dis', !!off);
+        }
+    </script>
+
+    <!-- ৩) পেজের নিজস্ব লজিক -->
+    <script>
+        // Buyer বদলালে Brand খালি (Brand তালিকা Buyer অনুযায়ী ফিল্টার হয়)
+        window.onFieldChange = function (id) {
+            if (id === 'buyer') {
+                state['brand'] = '';
+                syncHidden('brand');
+                refreshField('brand');
+            }
+        };
+
+        // Locked (Active) style এ Status ড্রপডাউন বন্ধ
+        function applyLock() {
+            var hl = document.getElementById('hfLocked');
+            if (hl && hl.value === '1') setFieldDisabled('mainStatus', true);
+        }
+
+        // Postback এর পরও আগের Tab খোলা রাখে (hfTab এ মনে রাখে)
+        function initTabs() {
+            var hf = document.getElementById('hfTab');
+            if (!hf) return;
+            document.querySelectorAll('#styleTabs [data-bs-toggle="tab"]').forEach(function (b) {
+                b.addEventListener('shown.bs.tab', function () { hf.value = b.getAttribute('data-bs-target'); });
+            });
+            if (hf.value) {
+                var el = document.querySelector('#styleTabs [data-bs-target="' + hf.value + '"]');
+                if (el) bootstrap.Tab.getOrCreateInstance(el).show();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            buildFilters();
+            applyLock();
+            initTabs();
+        });
+    </script>
 </body>
 </html>

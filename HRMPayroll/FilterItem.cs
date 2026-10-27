@@ -39,6 +39,14 @@ namespace Nexa_ERP.HRMPayroll.Common
 
         public const int MaxIds = 2000;
 
+        // FIX: দুই টেবিলেই ID_no, Resign_Status ইত্যাদি কলাম থাকায় "Ambiguous column name" আসত।
+        // তাই WHERE এর প্রতিটি কলামের আগে টেবিলের নাম বসানো হয়েছে।
+        //   TN = Employee_information_new       (ID_no, Name, Resign_Status, Resign_Date, Joining_Date)
+        //   TC = Employee_information_With_Code (Branch_Code, Department_Code, Designation_Code ... )
+        // কোনো কলাম (যেমন Floor_Code) আসলে TN এ থাকলে, নিচের EmpTableCols এ সেটির মান "TN" করে দিন।
+        const string TN = "dbo.Employee_information_new";
+        const string TC = "dbo.Employee_information_With_Code";
+
         public bool EmptyMeansAll { get; set; }
         public bool ClearUnusedFilters { get; set; }
         public readonly List<string> Errors = new List<string>();
@@ -58,8 +66,10 @@ namespace Nexa_ERP.HRMPayroll.Common
         {
             return new List<FilterDef>
             {
-                new FilterDef{Key=Branch, AltDb=true, Sql="SELECT * FROM Branch_Information ORDER BY Branch_Name",
-                    NameCol="Branch_Name", CodeCol="Branch_ID",
+                // FIX: Branch এখন বাকি ফিল্টারের মতো PayrollDB থেকেই পড়া হয় (আগে AltDb=true ছিল, ফলে অন্য ডাটাবেসের TB_Branch আসত)
+                // যদি আপনার সঠিক TB_Branch আসলে Database_Connection এর ডাটাবেসে থাকে, তাহলে নিচে AltDb=true ফিরিয়ে দিন।
+                new FilterDef{Key=Branch, Sql="SELECT Branch_Code, Branch_Name FROM dbo.TB_Branch ORDER BY Branch_Name",
+                    NameCol="Branch_Name", CodeCol="Branch_Code",
                     DelProc="Pro_Selected_Branch_Delete", InsProc="Pro_Selected_Branch", CodeParam="@Branch_Code"},
 
                 new FilterDef{Key=Category, Sql="SELECT Catagory_Name, Catagory_Code FROM TB_Catagory ORDER BY Catagory_Name",
@@ -220,15 +230,17 @@ namespace Nexa_ERP.HRMPayroll.Common
                                 string.Join(", ", dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName)));
         }
 
+        // ফিল্টারের কলাম (টেবিলের নামসহ, যাতে "Ambiguous column name" না আসে)
+        // যে কলাম Employee_information_new এ থাকে সেটির আগে TN বসান।
         static readonly Dictionary<string, string> EmpTableCols = new Dictionary<string, string>
         {
-            { Branch,   "Branch_Code" },
-            { Category, "Catagory_Code" },
-            { Dept,     "Department_Code" },
-            { Section,  "Section_Code" },
-            { SubSec,   "Line_Code" },
-            { Desig,    "Designation_Code" },
-            { Floor,    "Floor_Code" }   // Employee_Information টেবিলে কলামের নাম মিলিয়ে নিন
+            { Branch,   TC + ".[Branch_Code]" },
+            { Category, TC + ".[Catagory_Code]" },
+            { Dept,     TC + ".[Department_Code]" },
+            { Section,  TC + ".[Section_Code]" },
+            { SubSec,   TC + ".[Line_Code]" },
+            { Desig,    TC + ".[Designation_Code]" },
+            { Floor,    TC + ".[Floor_Code]" }   // কলামের নাম/টেবিল মিলিয়ে নিন
         };
 
         string NameOf(string key, string code)
@@ -266,9 +278,8 @@ namespace Nexa_ERP.HRMPayroll.Common
                     if (numeric) cmd.Parameters.Add(p, SqlDbType.BigInt).Value = long.Parse(id);
                     else cmd.Parameters.Add(p, SqlDbType.NVarChar, 50).Value = id;
                 }
-                // FIX: এখানে আগে "order By ..." ছিল, যা WHERE-এর ভেতরে ঢুকে syntax error দিত।
-                // Ordering নিচে শেষে একবারই দেওয়া আছে।
-                where.Add("[Employee_ID_No] IN (" + string.Join(",", ps) + ")");
+                // FIX: টেবিলের নামসহ (TN.ID_no), নইলে দুই টেবিলে ID_no থাকায় Ambiguous column name আসে
+                where.Add(TN + ".[ID_no] IN (" + string.Join(",", ps) + ")");
             }
             else
             {
@@ -292,11 +303,11 @@ namespace Nexa_ERP.HRMPayroll.Common
                     string col;
                     if (EmpTableCols.TryGetValue(d.Key, out col))
                     {
-                        where.Add("[" + col + "] IN (" + list + ")");
+                        where.Add(col + " IN (" + list + ")");
                     }
                     else if (d.Key == Level)
                     {
-                        where.Add("[Designation_Code] IN (SELECT Designation_Code FROM TB_Designation " +
+                        where.Add(TC + ".[Designation_Code] IN (SELECT Designation_Code FROM TB_Designation " +
                                   "WHERE Designation_Lavel_ID IN (" + list + "))");
                     }
                 }
@@ -305,7 +316,7 @@ namespace Nexa_ERP.HRMPayroll.Common
             // ঐচ্ছিক: ID দিয়ে সার্চে সব status দেখাতে চাইলে নিচের শর্তটি "if (!isAll && !byIds)" করুন।
             if (!isAll)
             {
-                where.Add("[Resign_Status] = @st");
+                where.Add(TN + ".[Resign_Status] = @st");
                 cmd.Parameters.Add("@st", SqlDbType.NVarChar, 50).Value = status;
             }
 
@@ -314,21 +325,21 @@ namespace Nexa_ERP.HRMPayroll.Common
                 DateTime f, t;
                 if (DateTime.TryParse(fromText, out f))
                 {
-                    where.Add("[Resign_Date] >= @fd");
+                    where.Add(TN + ".[Resign_Date] >= @fd");
                     cmd.Parameters.Add("@fd", SqlDbType.DateTime).Value = f.Date;
                 }
                 if (DateTime.TryParse(tillText, out t))
                 {
-                    where.Add("[Resign_Date] < @td");
+                    where.Add(TN + ".[Resign_Date] < @td");
                     cmd.Parameters.Add("@td", SqlDbType.DateTime).Value = t.Date.AddDays(1);
                 }
             }
 
-            cmd.CommandText = @"SELECT dbo.Employee_information_new.ID_no, dbo.Employee_information_new.Name, dbo.Employee_information_new.Resign_Status, dbo.Employee_information_new.Resign_Date, 
- dbo.Employee_information_With_Code.Branch_Code, dbo.Employee_information_With_Code.Department_Code, dbo.Employee_information_With_Code.Designation_Code, dbo.Employee_information_new.Joining_Date
-FROM dbo.Employee_information_new INNER JOIN dbo.Employee_information_With_Code ON dbo.Employee_information_new.ID_no = dbo.Employee_information_With_Code.ID_no" +
+            cmd.CommandText = @"SELECT " + TN + @".ID_no, " + TN + @".Name, " + TN + @".Resign_Status, " + TN + @".Resign_Date, 
+ " + TC + @".Branch_Code, " + TC + @".Department_Code, " + TC + @".Designation_Code, " + TN + @".Joining_Date
+FROM " + TN + @" INNER JOIN " + TC + @" ON " + TN + @".ID_no = " + TC + @".ID_no" +
                 (where.Count > 0 ? " WHERE " + string.Join(" AND ", where) : "") +
-                " ORDER BY Employee_information_new.ID_no";
+                " ORDER BY " + TN + ".ID_no";
 
             var raw = new DataTable();
             using (var da = new SqlDataAdapter(cmd)) da.Fill(raw);

@@ -273,9 +273,6 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
         //  আসল ড্যাশবোর্ড ট্যাব reload হয় না)
         void OpenReport(string page, bool needIds)
         {
-            // প্রতিবার Report View এর জন্য একটি নতুন "ব্যাচ নম্বর" (কোনো রিপোর্টের ফর্ম কোডের উপর নির্ভর করে না)।
-            // এটি z_Test_ID এর From_Code ঘরে সেভ হয় এবং URL এ ?rc= দিয়ে রিপোর্ট পেজে যায়।
-            // ১০০ কোটি থেকে শুরু, তাই কোনো আসল কোডের সঙ্গে মিলবে না।
             int token = 1000000000 + (int)(DateTime.Now - new DateTime(2020, 1, 1)).TotalSeconds;
 
             if (UserCode == 0)
@@ -306,7 +303,6 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
                 {
                     if (con.State != ConnectionState.Open) con.Open();
 
-                    // এই ব্যাচ নম্বরের আগের রো (একই সেকেন্ডে আবার চাপলে) এবং ১ দিনের পুরোনো ব্যাচগুলো পরিষ্কার
                     using (var del = new SqlCommand(
                         "DELETE FROM dbo.z_Test_ID WHERE User_ID=@u AND (From_Code=@t OR (From_Code>=1000000000 AND From_Code<@old))", con))
                     {
@@ -333,10 +329,11 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports
             string url = ResolveClientUrl(page);
             string sep = url.Contains("?") ? ((url.EndsWith("?") || url.EndsWith("&")) ? "" : "&") : "?";
 
-            // রিপোর্ট পেজে ব্যাচ নম্বর (rc), তারিখ (from/till) ও Report Type এর নাম (rn) পাঠানো
+            // রিপোর্ট পেজে ব্যাচ নম্বর (rc), তারিখ (from/till), Report Type এর নাম (rn) ও ছবির ফ্ল্যাগ (photo) পাঠানো
             string extra = "&from=" + Uri.EscapeDataString((txtFromDate.Text ?? "").Trim()) +
                            "&till=" + Uri.EscapeDataString((txtTillDate.Text ?? "").Trim()) +
-                           "&rn=" + Uri.EscapeDataString(RTypeText());
+                           "&rn=" + Uri.EscapeDataString(RTypeText()) +
+                           (chkReportWithPhoto.Checked ? "&photo=1" : "");
 
             Response.Redirect(url + sep + "rc=" + token + extra, false);
             Context.ApplicationInstance.CompleteRequest();

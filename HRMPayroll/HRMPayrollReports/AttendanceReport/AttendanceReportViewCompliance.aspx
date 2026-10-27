@@ -40,6 +40,9 @@
         tr.grp td { font-weight:700; background:#fafafa; border-top:1.5px solid #000; }
         tr.tot td { font-weight:700; border:0; padding-top:6px; }
 
+        /* কর্মচারীর ছবি (Report With Photo টিক দিলে) */
+        img.ph { width:38px; height:46px; object-fit:cover; display:block; margin:0 auto; border:1px solid #999; }
+
         .summ { margin-top:6px; font-size:11px; }
         .summ span { display:inline-block; margin-right:14px; }
 
@@ -67,4 +70,3 @@
 </form>
 </body>
 </html>
-

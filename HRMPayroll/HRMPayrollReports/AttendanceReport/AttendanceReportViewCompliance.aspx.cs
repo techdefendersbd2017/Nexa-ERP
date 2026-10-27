@@ -25,6 +25,15 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
         // emp_Attendance.Holiday কলামে এই মানগুলো ছাড়া কিছু থাকলে সেই দিন ছুটির দিন ধরা হয়
         const string IsHoliday = "ISNULL(LTRIM(RTRIM(CAST(a.Holiday AS nvarchar(50)))),'') NOT IN ('','0','No','N/A','--')";
 
+        // গতকালের স্ট্যাটাস এগুলো হলে তারও আগের দিন দেখা হবে
+        const string SkipStatuses = "'WO','CL','SL','EL','FH','GH'";
+
+        // প্রতিটি কর্মচারীর আজকের আগের সর্বশেষ দিন (SkipStatuses বাদে) এর স্ট্যাটাস
+        const string PrevStatus = "(SELECT TOP 1 prv.att_status FROM dbo.emp_Attendance AS prv " +
+                                  "WHERE prv.EMP_NO = a.EMP_NO AND CAST(prv.Work_date AS date) < CAST(a.Work_date AS date) " +
+                                  "AND ISNULL(prv.att_status,'') NOT IN (" + SkipStatuses + ") " +
+                                  "ORDER BY prv.Work_date DESC)";
+
         class Def
         {
             public string Title;        // রিপোর্টের শিরোনাম (তারিখের আগে)
@@ -40,10 +49,11 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             { "Absent",         new Def { Title = "Daily Absent Report",    Where = "a.att_status = '" + StatusAbsent  + "' AND NOT (" + IsHoliday + ")", TotalLabel = "Total Absent", AbsentLayout = true } },
             { "AllStatus",      new Def { Title = "All Status Report",      Where = "1=1", TotalLabel = "Total Employee", AllStatus = true } },
             { "HolidayPresent", new Def { Title = "Holiday Present Report", Where = "a.att_status = '" + StatusPresent + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Present" } },
-            { "HolidayAbsent",  new Def { Title = "Holiday Absent Report",  Where = "a.att_status = '" + StatusAbsent  + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Absent", AbsentLayout = true } }
+            { "HolidayAbsent",  new Def { Title = "Holiday Absent Report",  Where = "a.att_status = '" + StatusAbsent  + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Absent", AbsentLayout = true } },
+            { "TodayPresentYesterdayAbsent", new Def { Title = "Today Present Yesterday Absent Report", Where = "a.att_status = '" + StatusPresent + "' AND NOT (" + IsHoliday + ") AND " + PrevStatus + " = '" + StatusAbsent + "'", TotalLabel = "Total Today Present Yesterday Absent" } }
         };
 
-        // OT_Hours = General_OT (ঘণ্টা) : General_Min (মিনিট) → hh:mm
+        // Compliance: in_time/out_time এবং OT_Hours = General_OT (ঘণ্টা) : General_Min (মিনিট) → hh:mm
         const string BaseSql =
             "SELECT e.ID_no, e.Name, c.Company_Name, c.Address, a.Work_date, a.in_time, a.out_time, a.att_status, " +
             "       a.Late_min, a.Remarks, a.Holiday, a.Total_Absent, " +
@@ -93,6 +103,9 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             DateTime till = ParseDate(Request.QueryString["till"]);
             if (till < from) { DateTime t = from; from = till; till = t; }
 
+            // Report With Photo টিক দেওয়া থাকলে URL এ photo=1 আসে
+            bool withPhoto = Request.QueryString["photo"] == "1";
+
             DataTable dt;
             try { dt = Load(def, userCode, rc, from, till); }
             catch (Exception ex)
@@ -108,9 +121,21 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
                 return;
             }
 
+            // টিক থাকলে ছবি লোড, নইলে null (null মানে ছবির কলাম থাকবে না)
+            Dictionary<string, string> photos = null;
+            if (withPhoto)
+            {
+                try { photos = LoadPhotos(userCode, rc); }
+                catch (Exception ex)
+                {
+                    litReport.Text = "<div class=\"msg\">Photo Error: " + Enc(ex.Message) + "</div>";
+                    return;
+                }
+            }
+
             var sb = new StringBuilder();
             foreach (var g in dt.AsEnumerable().GroupBy(r => Convert.ToDateTime(r["Work_date"]).Date).OrderBy(g => g.Key))
-                RenderDay(sb, def, g.Key, g.ToList());
+                RenderDay(sb, def, g.Key, g.ToList(), photos);
 
             litReport.Text = sb.ToString();
             litCount.Text = dt.Rows.Count + " record(s)";
@@ -136,11 +161,54 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             return dt;
         }
 
-        // ================= একদিনের পাতা =================
-        static void RenderDay(StringBuilder sb, Def def, DateTime day, List<DataRow> rows)
+        // নির্বাচিত কর্মচারীদের ছবি: ID_no -> data URI (Emp_Photo.Emp_no = ID_no)
+        Dictionary<string, string> LoadPhotos(long user, long rc)
         {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            using (SqlConnection con = conn.openConnection())
+            {
+                if (con.State != ConnectionState.Open) con.Open();
+
+                // Emp_no ও ID_No এর টাইপ আলাদা হলেও যেন এরর না আসে, তাই দুই পাশেই CAST
+                const string sql =
+                    "SELECT p.Emp_no, p.Photo FROM dbo.Emp_Photo AS p " +
+                    "INNER JOIN dbo.z_Test_ID AS z ON CAST(p.Emp_no AS nvarchar(50)) = CAST(z.ID_No AS nvarchar(50)) " +
+                    "WHERE z.User_ID = @u AND z.From_Code = @rc AND p.Photo IS NOT NULL";
+
+                using (var cmd = new SqlCommand(sql, con))
+                {
+                    cmd.CommandTimeout = 120;
+                    cmd.Parameters.Add("@u", SqlDbType.BigInt).Value = user;
+                    cmd.Parameters.Add("@rc", SqlDbType.BigInt).Value = rc;
+                    using (var rd = cmd.ExecuteReader())
+                    {
+                        while (rd.Read())
+                        {
+                            byte[] b = rd["Photo"] as byte[];
+                            if (b == null || b.Length == 0) continue;
+
+                            // ফাইলের শুরুর বাইট দেখে ছবির ধরন বোঝা
+                            string mime = "image/jpeg";
+                            if (b.Length > 4 && b[0] == 0x89 && b[1] == 0x50) mime = "image/png";
+                            else if (b.Length > 3 && b[0] == 0x47 && b[1] == 0x49) mime = "image/gif";
+                            else if (b.Length > 2 && b[0] == 0x42 && b[1] == 0x4D) mime = "image/bmp";
+
+                            map[Convert.ToString(rd["Emp_no"]).Trim()] =
+                                "data:" + mime + ";base64," + Convert.ToBase64String(b);
+                        }
+                    }
+                }
+            }
+            return map;
+        }
+
+        // ================= একদিনের পাতা =================
+        // photos == null হলে ছবির কলাম থাকবে না
+        static void RenderDay(StringBuilder sb, Def def, DateTime day, List<DataRow> rows, Dictionary<string, string> photos)
+        {
+            bool withPhoto = photos != null;
             DataRow first = rows[0];
-            int cols = 10; // Absent ধাঁচে ১০টি, Present ধাঁচে (OT Hours সহ) ১০টি
+            int cols = withPhoto ? 11 : 10;   // ছবি থাকলে একটি কলাম বেশি
 
             sb.Append("<section class=\"page\">");
             sb.Append("<div class=\"co\">" + Enc(Pick(first, "Company_Name")) + "</div>");
@@ -148,10 +216,11 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             sb.Append("<div class=\"ttl\">" + Enc(def.Title) + " On- " + day.ToString(DateFormat, CultureInfo.InvariantCulture) + "</div>");
 
             sb.Append("<table class=\"rp\"><thead><tr>");
+            string phTh = withPhoto ? "<th>Photo</th>" : "";
             if (def.AbsentLayout)
-                sb.Append("<th>Sl No</th><th>ID No</th><th>Name</th><th>Designation</th><th>In Time</th><th>Line No</th><th>Mobile No</th><th>Status</th><th>Monthly Absent</th><th>Staff Signature</th>");
+                sb.Append("<th>Sl No</th><th>ID No</th>" + phTh + "<th>Name</th><th>Designation</th><th>In Time</th><th>Line No</th><th>Mobile No</th><th>Status</th><th>Monthly Absent</th><th>Staff Signature</th>");
             else
-                sb.Append("<th>Sl No</th><th>ID No</th><th>Name</th><th>Designation</th><th>In Time</th><th>Out Time</th><th>Status</th><th>Late</th><th>OT Hours</th><th>Remarks</th>");
+                sb.Append("<th>Sl No</th><th>ID No</th>" + phTh + "<th>Name</th><th>Designation</th><th>In Time</th><th>Out Time</th><th>Status</th><th>Late</th><th>OT Hours</th><th>Remarks</th>");
             sb.Append("</tr></thead><tbody>");
 
             string lastGrp = null;
@@ -174,7 +243,18 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
                     int n; statusCount.TryGetValue(key, out n); statusCount[key] = n + 1;
                 }
 
-                sb.Append("<tr><td class=\"c\">" + sl + "</td><td class=\"c\">" + Enc(Pick(r, "ID_no")) + "</td><td>" + Enc(Pick(r, "Name")) +
+                // ছবির ঘর (শুধু টিক থাকলে); ছবি না পেলে ফাঁকা ঘর
+                string phTd = "";
+                if (withPhoto)
+                {
+                    string src;
+                    phTd = photos.TryGetValue(Pick(r, "ID_no"), out src)
+                        ? "<td class=\"c\"><img class=\"ph\" src=\"" + src + "\" alt=\"\"/></td>"
+                        : "<td class=\"c\"></td>";
+                }
+
+                sb.Append("<tr><td class=\"c\">" + sl + "</td><td class=\"c\">" + Enc(Pick(r, "ID_no")) + "</td>" + phTd +
+                          "<td>" + Enc(Pick(r, "Name")) +
                           "</td><td>" + Enc(Pick(r, "Designation")) + "</td><td class=\"c\">" + Enc(Tm(r["in_time"])) + "</td>");
 
                 if (def.AbsentLayout)

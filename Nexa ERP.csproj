@@ -240,12 +240,14 @@
     <Content Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
+    <Content Include="HRMPayroll\HRMApproval\EmployeeRe_Active_Approval.aspx" />
+    <Content Include="HRMPayroll\HRMApproval\EmployeeSaperationApproval.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceSummaryView.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\CompanyInformation.aspx" />
-    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeePersonalInformationUpdate.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\LeftyLetterIssue.aspx" />
     <Content Include="HRMPayroll\HRMDashboard.aspx" />
@@ -278,7 +280,6 @@
     <Content Include="ERPConfiguration\UserAuthorization\UserToRolePermission.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeBankAccountEntry.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeDelete.aspx" />
-    <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeInformation.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeInformationChange.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeSeperation.aspx" />
@@ -548,6 +549,28 @@
     <Compile Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx.designer.cs">
       <DependentUpon>RandomAbsentAttendance.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.cs">
+      <DependentUpon>EmployeeEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.designer.cs">
+      <DependentUpon>EmployeeEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\EmployeeRe_Active_Approval.aspx.cs">
+      <DependentUpon>EmployeeRe_Active_Approval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\EmployeeRe_Active_Approval.aspx.designer.cs">
+      <DependentUpon>EmployeeRe_Active_Approval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\EmployeeSaperationApproval.aspx.cs">
+      <DependentUpon>EmployeeSaperationApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\EmployeeSaperationApproval.aspx.designer.cs">
+      <DependentUpon>EmployeeSaperationApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReport.cs" />
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx.cs">
       <DependentUpon>AttendanceReportViewCompliance.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -582,13 +605,6 @@
     </Compile>
     <Compile Include="MasterConfiguration\OrganizationMaster\CompanyInformation.aspx.designer.cs">
       <DependentUpon>CompanyInformation.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.cs">
-      <DependentUpon>EmployeeEntry.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.designer.cs">
-      <DependentUpon>EmployeeEntry.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeePersonalInformationUpdate.aspx.cs">
       <DependentUpon>EmployeePersonalInformationUpdate.aspx</DependentUpon>
@@ -814,13 +830,6 @@
     </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeDelete.aspx.designer.cs">
       <DependentUpon>EmployeeDelete.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx.cs">
-      <DependentUpon>EmployeeEntryInformation.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntryInformation.aspx.designer.cs">
-      <DependentUpon>EmployeeEntryInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeInformation.aspx.cs">
       <DependentUpon>EmployeeInformation.aspx</DependentUpon>

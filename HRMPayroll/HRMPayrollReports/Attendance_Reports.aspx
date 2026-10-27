@@ -91,6 +91,7 @@
             </div>
         </div>
         <div class="flex justify-end items-center gap-2 mt-3">
+            <asp:CheckBox ID="chkReportWithPhoto" runat="server" Text="Report With Photo" />
             <asp:LinkButton ID="btnShow" runat="server" ClientIDMode="Static" OnClick="btnShow_Click" CssClass="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-2 transition">
                 <i class="fa-regular fa-eye text-xs"></i><span>Show</span>
             </asp:LinkButton>
