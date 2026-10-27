@@ -13,7 +13,7 @@ namespace Nexa_ERP.Connection
 
         public DatabaseConnectionMerchandising()
         {
-            con = new SqlConnection(@"Server =.; Database = NexaDB; User Id = sa; Password = bip1#;");
+            con = new SqlConnection(@"Server =.; Database = NexaDBs; User Id = sa; Password = bip1#;");
         }
 
         public SqlConnection openConnection()

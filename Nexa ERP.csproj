@@ -217,6 +217,7 @@
     <Content Include="Assets\PersonalInformationUpdate.js" />
     <Content Include="Assets\ReportsHRM.js" />
     <Content Include="Assets\RoleWiseChartOfMenuPermission.js" />
+    <Content Include="Assets\StyleInformationForGarments.js" />
     <Content Include="ERPConfiguration\UserAuthorization\ChartOfMenus.aspx" />
     <Content Include="AccountsModule\MasterData\chequeBookRegistration.aspx" />
     <Content Include="AccountsModule\MasterData\costCenterGroupInfo.aspx" />
@@ -259,7 +260,6 @@
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\LeftyLetterView.aspx" />
     <Content Include="HRMPayroll\LeaveInformation\EmployeeWiseLeaveAllocation.aspx" />
     <Content Include="HRMPayroll\LeaveInformation\LeaveReports\LeaveApplicationReport.aspx" />
-    <Content Include="MerchandisingMarketing\BasicSetup\StyleInformationForGarments.aspx" />
     <Content Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\BranchInformation.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\CustomerSupplier.aspx" />
@@ -331,6 +331,7 @@
     <Content Include="MerchandisingMarketing\BasicSetup\ProductTypeSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\SetBreakdown.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\SizeSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\StyleInformationForGarments.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\StyleSetupClick.aspx" />
     <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\BuyingHouseAgent.aspx" />
@@ -683,13 +684,6 @@
     </Compile>
     <Compile Include="HRMPayroll\LeaveInformation\LeaveReports\LeaveApplicationReport.aspx.designer.cs">
       <DependentUpon>LeaveApplicationReport.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\StyleInformationForGarments.aspx.cs">
-      <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\StyleInformationForGarments.aspx.designer.cs">
-      <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\CommercialMaster\PaymentConfiguration.aspx.cs">
       <DependentUpon>PaymentConfiguration.aspx</DependentUpon>
@@ -1159,6 +1153,13 @@
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\SizeSetup.aspx.designer.cs">
       <DependentUpon>SizeSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\StyleInformationForGarments.aspx.cs">
+      <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\StyleInformationForGarments.aspx.designer.cs">
+      <DependentUpon>StyleInformationForGarments.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\StyleSetupClick.aspx.cs">
       <DependentUpon>StyleSetupClick.aspx</DependentUpon>

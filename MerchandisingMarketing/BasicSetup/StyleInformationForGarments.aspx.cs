@@ -3,11 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Web.Script.Serialization;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -15,1191 +12,1156 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 {
     public partial class StyleInformationForGarments : System.Web.UI.Page
     {
+        SqlConnection con;
         DatabaseConnectionMerchandising conn = new DatabaseConnectionMerchandising();
+        SqlCommand cmd;
 
-        // Shared connection কে Dispose না করে শুধু Close করা হচ্ছে (BuyerBrandSetup এর মতই)
-        private sealed class ConScope : IDisposable
-        {
-            public SqlConnection Con { get; private set; }
-            public ConScope(SqlConnection con)
-            {
-                Con = con;
-                if (Con != null && Con.State == ConnectionState.Closed) Con.Open();
-            }
-            public void Dispose()
-            {
-                if (Con != null && Con.State != ConnectionState.Closed) Con.Close();
-            }
-        }
-
-        // Stored Procedure / Table Type এর Schema (SQL ফাইলের সঙ্গে একই হতে হবে)
-        private const string Sch = "dbo.";
-
-        private static readonly string[] WorkflowSteps = { "Draft", "Submitted", "Merchandising Approval", "Management Approval", "Active" };
-
-        // ================================================================
-        //  DROPDOWN OPTIONS  (Employee Entry এর মতো OptJson -> aspx এর JS)
-        // ================================================================
-        public sealed class Opt
-        {
-            public string v { get; set; }   // value (ID বা text)
-            public string t { get; set; }   // দেখানোর text
-            public string p { get; set; }   // parent value (Brand -> Buyer)
-        }
-
-        protected string OptJson = "{}";
-        private readonly List<string> loadErrors = new List<string>();
-        private Dictionary<string, List<Opt>> _opts;
-
-        // প্রতি request এ একবার লোড হয়; Add Color/Size এর handler ও এটা ব্যবহার করে
-        private Dictionary<string, List<Opt>> Opts
-        {
-            get { if (_opts == null) _opts = LoadOptions(); return _opts; }
-        }
-
-        protected override void OnPreRender(EventArgs e)
-        {
-            base.OnPreRender(e);
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            js.MaxJsonLength = int.MaxValue;
-            OptJson = js.Serialize(Opts);
-            if (loadErrors.Count > 0) ShowMessage("Option load error: " + string.Join(" | ", loadErrors));
-        }
-
-        private static List<Opt> L(params string[] items)
-        {
-            return items.Select(s => new Opt { v = s, t = s }).ToList();
-        }
-
-        private static List<Opt> FromTable(DataTable dt, string valCol, string txtCol, string parentCol)
-        {
-            List<Opt> list = new List<Opt>();
-            HashSet<string> seen = new HashSet<string>();
-            foreach (DataRow r in dt.Rows)
-            {
-                string v = Str(r[valCol]).Trim();
-                string t = Str(r[txtCol]).Trim();
-                if (v == "" || t == "") continue;
-                string p = parentCol == null ? null : Str(r[parentCol]).Trim();
-                if (!seen.Add(v + "|" + p)) continue;
-                list.Add(new Opt { v = v, t = t, p = p });
-            }
-            return list;
-        }
-
-        private Dictionary<string, List<Opt>> LoadOptions()
-        {
-            Dictionary<string, List<Opt>> o = new Dictionary<string, List<Opt>>();
-
-            // ---- Static তালিকা (আগে aspx এর ListItem এ ছিল) ----
-            List<Opt> status = L("Draft", "Submitted", "Approved", "Active", "Rejected");
-            o["mainStatus"] = status;
-            o["statusFilter"] = status;
-            o["season"] = L("Autumn/Winter", "Spring/Summer");
-
-            List<string> years = new List<string>();
-            for (int y = DateTime.Now.Year - 1; y <= DateTime.Now.Year + 2; y++) years.Add(y.ToString());
-            o["seasonYear"] = L(years.ToArray());
-
-            o["productCategory"] = L("Knit Outerwear", "Woven Bottoms", "Activewear");
-            o["productType"] = L("Hoodie & Sweatshirt", "T-Shirt & Polo", "Jacket");
-            o["garmentType"] = L("Pullover", "Zip-Up");
-            o["gender"] = L("Mens", "Womens", "Kids");
-            o["currency"] = new List<Opt>
-            {
-                new Opt { v = "USD", t = "USD ($)" },
-                new Opt { v = "EUR", t = "EUR (€)" },
-                new Opt { v = "GBP", t = "GBP (£)" }
-            };
-            o["shipmentMode"] = L("Sea Freight (FCL)", "Air Freight", "Courier");
-            o["knitWoven"] = L("Knit", "Woven");
-            o["tnaTemplate"] = L("Standard 90 Days Winterwear Template", "Standard 60 Days Template", "Standard 120 Days Template");
-            o["accType"] = L("Label", "Button", "Zipper", "Thread", "Packing", "Other");
-            o["docType"] = L("Tech Pack", "Sample Approval", "Buyer Spec", "Other");
-            o["costStatus"] = L("Draft", "Submitted", "Approved");
-
-            // ---- DB তালিকা (একটি SP, ৯টি result set) ----
-            foreach (string k in new[] { "buyer", "buyerFilter", "brand", "agent", "merchandiser", "country", "paymentTerm", "fabUnit", "accUnit", "color", "size" })
-                o[k] = new List<Opt>();
-
-            try
-            {
-                DataSet ds = GetDataSet("sp_Mer_Style_Lookups");
-
-                List<Opt> buyers = FromTable(ds.Tables[0], "BuyerID", "BuyerName", null);
-                o["buyer"] = buyers;
-                o["buyerFilter"] = buyers;
-                o["brand"] = FromTable(ds.Tables[1], "BrandID", "BrandName", "BuyerID");
-                o["agent"] = FromTable(ds.Tables[2], "AgentID", "HouseName", null);
-                o["merchandiser"] = FromTable(ds.Tables[3], "user_id", "full_name", null);
-                o["country"] = FromTable(ds.Tables[4], "CountryName", "CountryName", null);
-                o["paymentTerm"] = FromTable(ds.Tables[5], "TermName", "TermName", null);
-
-                List<Opt> units = FromTable(ds.Tables[6], "U", "U", null);
-                o["fabUnit"] = units;
-                o["accUnit"] = units;
-
-                o["color"] = FromTable(ds.Tables[7], "ColorCode", "ColorName", null);
-                o["size"] = FromTable(ds.Tables[8], "SizeID", "Txt", null);
-            }
-            catch (Exception ex)
-            {
-                loadErrors.Add("options: " + ex.Message);
-            }
-
-            // Unit খালি থাকলে আগের ডিফল্ট
-            if (o["fabUnit"].Count == 0) o["fabUnit"] = L("Kgs", "Yds", "Mtr");
-            if (o["accUnit"].Count == 0) o["accUnit"] = L("Pcs", "Mtr", "Cone");
-
-            return o;
-        }
-
-        private string First(string key)
-        {
-            List<Opt> l = Opts[key];
-            return l.Count > 0 ? l[0].v : "";
-        }
-
-        // value থেকে দেখানোর text বের করে (Add Color/Size এ লাগে)
-        private string OptText(string key, string value)
-        {
-            foreach (Opt x in Opts[key]) if (x.v == value) return x.t;
-            return value;
-        }
-
-        private static string V(HiddenField hf) { return (hf.Value ?? "").Trim(); }
-
-        // ================================================================
-        //  PROPERTIES
-        // ================================================================
-        private int StyleId
-        {
-            get { int v; int.TryParse(hfStyleId.Value, out v); return v; }
-            set { hfStyleId.Value = value.ToString(); }
-        }
-
-        private string CurrentUser
+        private int CurrentUserId
         {
             get
             {
-                if (Session["UserName"] != null) return Session["UserName"].ToString();
-                if (Session["UserId"] != null) return "User-" + Session["UserId"];
-                return "Admin";
+                if (Session["UserID"] != null) return Convert.ToInt32(Session["UserID"]);
+                return 1;
             }
         }
 
-        private DataTable ColorsDT
+        private string CurrentUserName
         {
             get
             {
-                DataTable dt = ViewState["dtColors"] as DataTable;
-                if (dt == null)
-                {
-                    dt = new DataTable("Colors");
-                    dt.Columns.Add("ColorCode", typeof(string));
-                    dt.Columns.Add("ColorName", typeof(string));
-                    dt.Columns.Add("PantoneCode", typeof(string));
-                    dt.Columns.Add("IsActive", typeof(bool));
-                    ViewState["dtColors"] = dt;
-                }
-                return dt;
+                if (Session["UserName"] != null) return Convert.ToString(Session["UserName"]);
+                return "User";
             }
         }
 
-        private DataTable SizesDT
-        {
-            get
-            {
-                DataTable dt = ViewState["dtSizes"] as DataTable;
-                if (dt == null)
-                {
-                    dt = new DataTable("Sizes");
-                    dt.Columns.Add("SizeCode", typeof(string));
-                    dt.Columns.Add("SizeName", typeof(string));
-                    dt.Columns.Add("SizeRange", typeof(string));
-                    dt.Columns.Add("IsActive", typeof(bool));
-                    ViewState["dtSizes"] = dt;
-                }
-                return dt;
-            }
-        }
-
-        private DataTable FabricDT
-        {
-            get
-            {
-                DataTable dt = ViewState["dtFabric"] as DataTable;
-                if (dt == null)
-                {
-                    dt = new DataTable("Fabric");
-                    dt.Columns.Add("FabricCode", typeof(string));
-                    dt.Columns.Add("FabricName", typeof(string));
-                    dt.Columns.Add("Composition", typeof(string));
-                    dt.Columns.Add("GSM", typeof(string));
-                    dt.Columns.Add("ColorName", typeof(string));
-                    dt.Columns.Add("Consumption", typeof(decimal));
-                    dt.Columns.Add("WastagePercent", typeof(decimal));
-                    dt.Columns.Add("Unit", typeof(string));
-                    ViewState["dtFabric"] = dt;
-                }
-                return dt;
-            }
-        }
-
-        private DataTable AccDT
-        {
-            get
-            {
-                DataTable dt = ViewState["dtAcc"] as DataTable;
-                if (dt == null)
-                {
-                    dt = new DataTable("Acc");
-                    dt.Columns.Add("ItemCode", typeof(string));
-                    dt.Columns.Add("ItemName", typeof(string));
-                    dt.Columns.Add("ItemType", typeof(string));
-                    dt.Columns.Add("SizeColor", typeof(string));
-                    dt.Columns.Add("Consumption", typeof(decimal));
-                    dt.Columns.Add("Unit", typeof(string));
-                    dt.Columns.Add("WastagePercent", typeof(decimal));
-                    dt.Columns.Add("Supplier", typeof(string));
-                    ViewState["dtAcc"] = dt;
-                }
-                return dt;
-            }
-        }
-
-        // DB থেকে আসা ডাটা ViewState এর typed টেবিলে ঢোকায় (TVP এর কলাম ক্রম/টাইপ ঠিক রাখতে)
-        private static void Refill(DataTable target, DataTable src)
-        {
-            target.Rows.Clear();
-            foreach (DataRow s in src.Rows)
-            {
-                DataRow n = target.NewRow();
-                foreach (DataColumn c in target.Columns)
-                {
-                    object v = src.Columns.Contains(c.ColumnName) ? s[c.ColumnName] : DBNull.Value;
-                    if (v == null || v == DBNull.Value)
-                    {
-                        if (c.DataType == typeof(decimal)) n[c] = 0m;
-                        else if (c.DataType == typeof(bool)) n[c] = true;
-                        else n[c] = DBNull.Value;
-                    }
-                    else n[c] = Convert.ChangeType(v, c.DataType, CultureInfo.InvariantCulture);
-                }
-                target.Rows.Add(n);
-            }
-        }
-
-        // ================================================================
-        //  PAGE LOAD
-        // ================================================================
+        // ============================================================
+        // PAGE LOAD
+        // ============================================================
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                hfUserId.Value = Session["UserId"] != null ? Session["UserId"].ToString() : "0";
-                lblUser.Text = CurrentUser;
+                lblUser.Text = CurrentUserName;
+                txtStyleID.Text = "0";
+                txtRevNo.Text = "00";
+                txtCreationDate.Text = DateTime.Today.ToString("yyyy-MM-dd");
 
-                ShowList();
+                pnlList.Visible = true;
+                pnlEntry.Visible = false;
+
+                hfStyleId.Value = "0";
+                hfSetId.Value = "0";
+
                 LoadStyleList();
             }
         }
 
-        // ================================================================
-        //  GENERIC DB HELPERS  (সবই Stored Procedure)
-        // ================================================================
-        private static SqlParameter P(string name, object value)
+        // ============================================================
+        // COMMON HELPERS
+        // ============================================================
+        private void ShowAlert(string msg)
         {
-            return new SqlParameter(name, value ?? DBNull.Value);
+            string safe = msg.Replace("'", "").Replace("\r", "").Replace("\n", " ");
+            ScriptManager.RegisterStartupScript(this, this.GetType(),
+                Guid.NewGuid().ToString("N"),
+                "alert('" + safe + "');", true);
         }
 
-        private static SqlParameter Tvp(string name, string typeName, DataTable dt)
+        private void ResetAllDropdowns()
         {
-            SqlParameter p = new SqlParameter(name, SqlDbType.Structured);
-            p.TypeName = Sch + typeName;
-            p.Value = dt;
-            return p;
+            ScriptManager.RegisterStartupScript(this, this.GetType(),
+                "resetDD_" + Guid.NewGuid().ToString("N"),
+                "if(window.NexaDD){window.NexaDD.resetAll();}", true);
         }
 
-        private static object N(string s)
+        private void CloseConnection()
+        {
+            if (con != null && con.State == ConnectionState.Open) con.Close();
+        }
+
+        private object NullIfEmpty(string s)
         {
             return string.IsNullOrWhiteSpace(s) ? (object)DBNull.Value : s.Trim();
         }
 
-        private static object NI(string s)
+        private object NullIfZero(string s)
         {
             int v;
-            return (int.TryParse(s, out v) && v > 0) ? (object)v : DBNull.Value;
-        }
-
-        private static decimal Dec(string s)
-        {
-            decimal v;
-            if (decimal.TryParse((s ?? "").Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out v)) return v;
-            return 0m;
-        }
-
-        private static object ParseDate(string s)
-        {
-            DateTime d;
-            if (DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.None, out d)) return d.Date;
+            if (int.TryParse(s, out v) && v > 0) return v;
             return DBNull.Value;
         }
 
-        private static string DateStr(object o)
+        private object DateOrNull(string s)
         {
-            return (o == null || o == DBNull.Value) ? "" : Convert.ToDateTime(o).ToString("yyyy-MM-dd");
+            DateTime d;
+            if (DateTime.TryParse(s, out d)) return d;
+            return DBNull.Value;
         }
 
-        private static string Str(object o)
+        private decimal DecOrZero(string s)
         {
-            return (o == null || o == DBNull.Value) ? "" : o.ToString();
+            decimal d;
+            return decimal.TryParse(s, out d) ? d : 0m;
         }
 
-        private static bool Bool(object o)
-        {
-            return o != null && o != DBNull.Value && Convert.ToBoolean(o);
-        }
-
-        private static SqlCommand NewCmd(string sp, SqlConnection cn, SqlParameter[] ps)
-        {
-            SqlCommand cmd = new SqlCommand(Sch + sp, cn);
-            cmd.CommandType = CommandType.StoredProcedure;
-            if (ps != null && ps.Length > 0) cmd.Parameters.AddRange(ps);
-            return cmd;
-        }
-
-        // একটি result set
-        private DataTable GetTable(string sp, params SqlParameter[] ps)
-        {
-            DataTable dt = new DataTable();
-            using (ConScope cs = new ConScope(conn.openConnection()))
-            using (SqlCommand cmd = NewCmd(sp, cs.Con, ps))
-            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                da.Fill(dt);
-            return dt;
-        }
-
-        // একাধিক result set  (Tables[0], Tables[1] ...)
-        private DataSet GetDataSet(string sp, params SqlParameter[] ps)
-        {
-            DataSet ds = new DataSet();
-            using (ConScope cs = new ConScope(conn.openConnection()))
-            using (SqlCommand cmd = NewCmd(sp, cs.Con, ps))
-            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                da.Fill(ds);
-            return ds;
-        }
-
-        private void Exec(string sp, params SqlParameter[] ps)
-        {
-            using (ConScope cs = new ConScope(conn.openConnection()))
-            using (SqlCommand cmd = NewCmd(sp, cs.Con, ps))
-                cmd.ExecuteNonQuery();
-        }
-
-        private void ShowMessage(string message)
-        {
-            string safe = (message ?? string.Empty)
-                .Replace("\\", "\\\\")
-                .Replace("'", "\\'")
-                .Replace("\r", " ")
-                .Replace("\n", " ");
-            ClientScript.RegisterStartupScript(this.GetType(), Guid.NewGuid().ToString(), "alert('" + safe + "');", true);
-        }
-
-        // ================================================================
-        //  PANEL SWITCH + LIST
-        // ================================================================
-        private void ShowList() { pnlList.Visible = true; pnlEntry.Visible = false; }
-        private void ShowEntry() { pnlList.Visible = false; pnlEntry.Visible = true; }
-
+        // ============================================================
+        // LIST LOAD & SEARCH
+        // ============================================================
         private void LoadStyleList()
         {
             try
             {
-                int buyer; int.TryParse(V(hfBuyerFilter), out buyer);
-                DataTable dt = GetTable("sp_Mer_Style_GetList",
-                    P("@BuyerID", buyer), P("@Status", V(hfStatusFilter)), P("@Search", txtSearch.Text.Trim()));
-                gvStyles.DataSource = dt;
-                gvStyles.DataBind();
+                con = conn.openConnection();
+                string query = @"
+                    SELECT  s.StyleID,
+                            s.StyleNo AS StyleCode,
+                            s.StyleNo,
+                            s.StyleName,
+                            ISNULL(b.BuyerName,'') AS BuyerName,
+                            ISNULL(sn.SeasonName,'') AS Season,
+                            CASE s.StyleStatus
+                                 WHEN 'D' THEN 'Draft'
+                                 WHEN 'A' THEN 'Active'
+                                 WHEN 'I' THEN 'Inactive'
+                                 WHEN 'C' THEN 'Closed'
+                                 ELSE s.StyleStatus END AS StyleStatus,
+                            s.RevisionNo
+                    FROM    dbo.StyleMaster s
+                    LEFT JOIN dbo.Buyer  b  ON b.BuyerID  = s.BuyerID
+                    LEFT JOIN dbo.Season sn ON sn.SeasonID = s.SeasonID
+                    WHERE   s.IsActive = 1";
+
+                if (!string.IsNullOrEmpty(hfBuyerFilter.Value))
+                    query += " AND s.BuyerID = @BuyerID";
+
+                if (!string.IsNullOrEmpty(hfStatusFilter.Value))
+                    query += " AND s.StyleStatus = @Status";
+
+                if (!string.IsNullOrEmpty(txtSearch.Text.Trim()))
+                    query += " AND (s.StyleNo LIKE @Q OR s.StyleName LIKE @Q)";
+
+                query += " ORDER BY s.StyleID DESC";
+
+                using (SqlCommand c = new SqlCommand(query, con))
+                {
+                    if (!string.IsNullOrEmpty(hfBuyerFilter.Value))
+                        c.Parameters.AddWithValue("@BuyerID", Convert.ToInt32(hfBuyerFilter.Value));
+                    if (!string.IsNullOrEmpty(hfStatusFilter.Value))
+                        c.Parameters.AddWithValue("@Status", hfStatusFilter.Value);
+                    if (!string.IsNullOrEmpty(txtSearch.Text.Trim()))
+                        c.Parameters.AddWithValue("@Q", "%" + txtSearch.Text.Trim() + "%");
+
+                    SqlDataAdapter da = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvStyles.DataSource = dt;
+                    gvStyles.DataBind();
+                }
+                CloseConnection();
             }
-            catch (Exception ex) { ShowMessage(ex.Message); }
+            catch (Exception ex)
+            {
+                CloseConnection();
+                ShowAlert("List load error: " + ex.Message);
+            }
         }
 
         protected void btnSearch_Click(object sender, EventArgs e) { LoadStyleList(); }
 
         protected void btnClearFilter_Click(object sender, EventArgs e)
         {
+            txtSearch.Text = "";
             hfBuyerFilter.Value = "";
             hfStatusFilter.Value = "";
-            txtSearch.Text = "";
+            ResetAllDropdowns();
             LoadStyleList();
         }
 
+        // ============================================================
+        // ADD NEW / RESET / CLOSE / COPY
+        // ============================================================
         protected void btnAddNew_Click(object sender, EventArgs e)
         {
             ClearForm();
-            hfTab.Value = "";
-            ShowEntry();
-        }
-
-        protected void gvStyles_RowCommand(object sender, GridViewCommandEventArgs e)
-        {
-            int id;
-            if (!int.TryParse(Convert.ToString(e.CommandArgument), out id)) return;
-
-            if (e.CommandName == "EditRow") { hfTab.Value = ""; LoadStyle(id); }
-            else if (e.CommandName == "DeleteRow") DeleteStyle(id);
-        }
-
-        private void DeleteStyle(int id)
-        {
-            try
-            {
-                Exec("sp_Mer_Style_Delete", P("@StyleID", id));   // child table গুলো ON DELETE CASCADE
-                TryDeleteDir("~/Uploads/StyleImages/" + id);
-                TryDeleteDir("~/Uploads/StyleDocs/" + id);
-                ShowMessage("Deleted Successfully!");
-                LoadStyleList();
-            }
-            catch (Exception ex) { ShowMessage(ex.Message); }
-        }
-
-        private void TryDeleteDir(string virtualPath)
-        {
-            try { string p = Server.MapPath(virtualPath); if (Directory.Exists(p)) Directory.Delete(p, true); } catch { }
-        }
-
-        // ================================================================
-        //  CLEAR FORM  (আগে comment করা ছিল - এখন HiddenField দিয়ে চালু)
-        // ================================================================
-        private void ClearForm()
-        {
-            hfStyleId.Value = "0";
-
-            txtStyleID.Text = PreviewStyleCode();
-            txtStyleNo.Text = ""; txtStyleName.Text = ""; txtStyleDesc.Text = "";
-            hfMainStatus.Value = "Draft";
+            ResetAllDropdowns();
+            pnlList.Visible = false;
+            pnlEntry.Visible = true;
+            btnSave.Visible = true;
+            btnUpdate.Visible = false;
+            txtStyleID.Text = "0";
             txtRevNo.Text = "00";
-            hfLocked.Value = "0";
-
-            hfBuyer.Value = ""; hfBrand.Value = ""; hfAgent.Value = ""; hfMerchandiser.Value = "";
-            hfSeason.Value = First("season");
-            hfSeasonYear.Value = DateTime.Now.Year.ToString();
-            hfProductCategory.Value = First("productCategory");
-            hfProductType.Value = First("productType");
-            hfGarmentType.Value = First("garmentType");
-            hfGender.Value = First("gender");
-            txtDepartment.Text = ""; txtDivision.Text = "";
-            txtCreationDate.Text = DateTime.Now.ToString("yyyy-MM-dd");
-            txtRemarks.Text = "";
-
-            txtBuyerStyleNo.Text = ""; txtProductNo.Text = "";
-            hfCountry.Value = "";
-            hfCurrency.Value = First("currency");
-            hfPaymentTerm.Value = "";
-            hfShipmentMode.Value = First("shipmentMode");
-            txtPortLoading.Text = ""; txtPortDischarge.Text = "";
-
-            txtFabricType.Text = ""; hfKnitWoven.Value = First("knitWoven"); txtConstruction.Text = ""; txtSpecGsm.Text = "";
-            txtSpecComposition.Text = ""; txtFabricWidth.Text = ""; txtFinish.Text = ""; txtWashType.Text = "";
-            txtSleeve.Text = ""; txtNeck.Text = ""; txtClosure.Text = ""; txtPocket.Text = "";
-
-            chkPrinting.Checked = chkEmbroidery.Checked = chkWashing.Checked = chkSpecial.Checked = false;
-            txtPrintingDetails.Text = txtEmbroideryDetails.Text = txtWashingDetails.Text = txtSpecialDetails.Text = "";
-
-            hfTnaTemplate.Value = First("tnaTemplate");
-            txtSampleDeadline.Text = txtPPMeeting.Text = txtFabricIn.Text = txtShipmentDate.Text = "";
-
-            hfColor.Value = ""; hfSize.Value = "";
-            hfFabUnit.Value = First("fabUnit"); hfAccUnit.Value = First("accUnit");
-            hfAccType.Value = First("accType"); hfDocType.Value = First("docType"); hfCostStatus.Value = First("costStatus");
-            txtPantone.Text = "";
-            txtFabCode.Text = txtFabName.Text = txtFabComp.Text = txtFabGsm.Text = txtFabColor.Text = txtFabCons.Text = txtFabWaste.Text = "";
-            txtAccCode.Text = txtAccName.Text = txtAccSizeColor.Text = txtAccCons.Text = txtAccWaste.Text = txtAccSupplier.Text = "";
-
-            ViewState["dtColors"] = null; ViewState["dtSizes"] = null; ViewState["dtFabric"] = null; ViewState["dtAcc"] = null;
-            BindChildGrids();
-
-            ResetImages();
-            gvDocs.DataSource = null; gvDocs.DataBind();
-            gvCosting.DataSource = null; gvCosting.DataBind();
-            gvApproval.DataSource = null; gvApproval.DataBind();
-            gvHistory.DataSource = null; gvHistory.DataBind();
-            ClearCostingLabels();
-            txtCostTotal.Text = ""; txtCostFob.Text = "";
-            txtApprovalRemarks.Text = "";
-            BuildWorkflow("Draft");
-            txtSubmittedBy.Text = "Not submitted"; txtApprovedBy.Text = "Not submitted";
-            txtDocVersion.Text = "";
-
-            lblCreatedBy.Text = "-"; lblCreatedDate.Text = "-"; lblModified.Text = "-";
-            lblLock.Text = "Unlocked for Editing";
-            SetBadge(bdgPO, "0 Records", "bg-secondary"); SetBadge(bdgCosting, "Pending", "bg-secondary");
-            SetBadge(bdgFabric, "0 Records", "bg-secondary"); SetBadge(bdgAcc, "Pending", "bg-secondary");
-            SetBadge(bdgTna, "Pending", "bg-secondary"); SetBadge(bdgPrint, "Not Req.", "bg-secondary"); SetBadge(bdgEmb, "Not Req.", "bg-secondary");
-
-            UpdateButtons(false);
+            ViewState["StyleID"] = null;
+            ShowAlert("New Style Entry Form Opened.");
         }
 
-        private void UpdateButtons(bool locked)
-        {
-            bool isNew = StyleId == 0;
-            btnSave.Visible = isNew;
-            btnUpdate.Visible = !isNew && !locked;
-            btnCopyStyle.Visible = !isNew;
-        }
-
-        private void BindChildGrids()
-        {
-            gvColors.DataSource = ColorsDT; gvColors.DataBind();
-            gvSizes.DataSource = SizesDT; gvSizes.DataBind();
-            gvFabric.DataSource = FabricDT; gvFabric.DataBind();
-            gvAcc.DataSource = AccDT; gvAcc.DataBind();
-        }
-
-        private void SetBadge(Label lbl, string text, string css)
-        {
-            lbl.Text = text;
-            lbl.CssClass = "badge " + css;
-        }
-
-        // ================================================================
-        //  STYLE CODE  (ST-2026-0001)  - শুধু Preview; আসল কোড Save SP তৈরি করে
-        // ================================================================
-        private string PreviewStyleCode()
-        {
-            try
-            {
-                SqlParameter o = new SqlParameter("@Code", SqlDbType.NVarChar, 30);
-                o.Direction = ParameterDirection.Output;
-                Exec("sp_Mer_Style_GenCode", o);
-                return Convert.ToString(o.Value);
-            }
-            catch { return "(Auto)"; }
-        }
-
-        // ================================================================
-        //  LOAD STYLE (Edit)
-        // ================================================================
-        private void LoadStyle(int id)
-        {
-            try
-            {
-                DataSet d = GetDataSet("sp_Mer_Style_GetDetails", P("@StyleID", id));
-                if (d.Tables[0].Rows.Count == 0) { ShowMessage("Style not found!"); return; }
-                DataRow r = d.Tables[0].Rows[0];
-
-                ClearForm();
-                StyleId = id;
-
-                txtStyleID.Text = Str(r["StyleCode"]);
-                txtStyleNo.Text = Str(r["StyleNo"]);
-                txtStyleName.Text = Str(r["StyleName"]);
-                txtStyleDesc.Text = Str(r["StyleDescription"]);
-
-                int buyerId; int.TryParse(Str(r["BuyerID"]), out buyerId);
-                hfBuyer.Value = Str(r["BuyerID"]);
-                hfBrand.Value = Str(r["BrandID"]);
-                hfAgent.Value = Str(r["AgentID"]);
-                hfMerchandiser.Value = Str(r["MerchandiserID"]);
-                hfSeason.Value = Str(r["SeasonName"]);
-                hfSeasonYear.Value = Str(r["SeasonYear"]);
-                hfProductCategory.Value = Str(r["ProductCategory"]);
-                hfProductType.Value = Str(r["ProductType"]);
-                hfGarmentType.Value = Str(r["GarmentType"]);
-                hfGender.Value = Str(r["Gender"]);
-                txtDepartment.Text = Str(r["Department"]);
-                txtDivision.Text = Str(r["Division"]);
-                txtCreationDate.Text = DateStr(r["CreationDate"]);
-                txtRemarks.Text = Str(r["InternalRemarks"]);
-
-                // Commercial
-                DataTable t = d.Tables[1];
-                if (t.Rows.Count > 0)
-                {
-                    DataRow c = t.Rows[0];
-                    txtBuyerStyleNo.Text = Str(c["BuyerStyleNo"]); txtProductNo.Text = Str(c["ProductNo"]);
-                    hfCountry.Value = Str(c["DestinationCountry"]);
-                    hfCurrency.Value = Str(c["Currency"]);
-                    hfPaymentTerm.Value = Str(c["PaymentTerm"]);
-                    hfShipmentMode.Value = Str(c["ShipmentMode"]);
-                    txtPortLoading.Text = Str(c["PortOfLoading"]); txtPortDischarge.Text = Str(c["PortOfDischarge"]);
-                }
-
-                // Specification
-                t = d.Tables[2];
-                if (t.Rows.Count > 0)
-                {
-                    DataRow s = t.Rows[0];
-                    txtFabricType.Text = Str(s["FabricType"]); hfKnitWoven.Value = Str(s["KnitWoven"]);
-                    txtConstruction.Text = Str(s["Construction"]); txtSpecGsm.Text = Str(s["GSM"]);
-                    txtSpecComposition.Text = Str(s["Composition"]); txtFabricWidth.Text = Str(s["FabricWidth"]);
-                    txtFinish.Text = Str(s["Finish"]); txtWashType.Text = Str(s["WashType"]);
-                    txtSleeve.Text = Str(s["SleeveType"]); txtNeck.Text = Str(s["NeckType"]);
-                    txtClosure.Text = Str(s["ClosureType"]); txtPocket.Text = Str(s["PocketType"]);
-                }
-
-                // Work Order flags
-                t = d.Tables[3];
-                if (t.Rows.Count > 0)
-                {
-                    DataRow w = t.Rows[0];
-                    chkPrinting.Checked = Bool(w["PrintingRequired"]); txtPrintingDetails.Text = Str(w["PrintingDetails"]);
-                    chkEmbroidery.Checked = Bool(w["EmbroideryRequired"]); txtEmbroideryDetails.Text = Str(w["EmbroideryDetails"]);
-                    chkWashing.Checked = Bool(w["WashingRequired"]); txtWashingDetails.Text = Str(w["WashingDetails"]);
-                    chkSpecial.Checked = Bool(w["SpecialProcessRequired"]); txtSpecialDetails.Text = Str(w["SpecialProcessDetails"]);
-                }
-
-                // TNA
-                t = d.Tables[4];
-                bool hasTna = t.Rows.Count > 0;
-                if (hasTna)
-                {
-                    DataRow n = t.Rows[0];
-                    hfTnaTemplate.Value = Str(n["TemplateName"]);
-                    txtSampleDeadline.Text = DateStr(n["SampleDeadline"]); txtPPMeeting.Text = DateStr(n["PPMeetingDate"]);
-                    txtFabricIn.Text = DateStr(n["FabricInDate"]); txtShipmentDate.Text = DateStr(n["ShipmentDate"]);
-                }
-
-                // Color / Size / Fabric / Accessories
-                DataSet ch = GetDataSet("sp_Mer_Style_GetChildren", P("@StyleID", id));
-                Refill(ColorsDT, ch.Tables[0]);
-                Refill(SizesDT, ch.Tables[1]);
-                Refill(FabricDT, ch.Tables[2]);
-                Refill(AccDT, ch.Tables[3]);
-                BindChildGrids();
-
-                LoadImages(id);
-                LoadDocs(id);
-                LoadCosting(id);
-                LoadApproval(id);
-                LoadHistory(id);
-                LoadSummary(id);
-                LoadSidebar(id, buyerId, hasTna);
-
-                ShowEntry();
-            }
-            catch (Exception ex) { ShowMessage(ex.Message); }
-        }
-
-        // Header status, rev, summary, lock
-        private void LoadSummary(int id)
-        {
-            DataTable m = GetTable("sp_Mer_Style_GetSummary", P("@StyleID", id));
-            if (m.Rows.Count == 0) return;
-            DataRow r = m.Rows[0];
-            hfMainStatus.Value = Str(r["StyleStatus"]);
-            txtRevNo.Text = Convert.ToInt32(r["RevisionNo"]).ToString("00");
-            bool locked = Bool(r["IsLocked"]);
-
-            lblCreatedBy.Text = Str(r["CreatedBy"]);
-            lblCreatedDate.Text = DateStr(r["CreatedDate"]);
-            lblModified.Text = r["ModifiedDate"] == DBNull.Value ? "-" : Convert.ToDateTime(r["ModifiedDate"]).ToString("yyyy-MM-dd HH:mm") + " (" + Str(r["ModifiedBy"]) + ")";
-            lblLock.Text = locked ? "Locked (Active)" : "Unlocked for Editing";
-            hfLocked.Value = locked ? "1" : "0";     // JS এ Status ড্রপডাউন বন্ধ করে
-            UpdateButtons(locked);
-        }
-
-        private void LoadSidebar(int id, int buyerId, bool hasTna)
-        {
-            try
-            {
-                DataTable po = GetTable("sp_Mer_Style_POCount",
-                    P("@BuyerID", buyerId), P("@StyleNo", txtStyleNo.Text.Trim()), P("@StyleName", txtStyleName.Text.Trim()));
-                int pc = Convert.ToInt32(po.Rows[0][0]);
-                SetBadge(bdgPO, pc + " Records", pc > 0 ? "bg-success" : "bg-secondary");
-            }
-            catch { }
-
-            SetBadge(bdgFabric, FabricDT.Rows.Count + " Records", FabricDT.Rows.Count > 0 ? "bg-warning text-dark" : "bg-secondary");
-            if (AccDT.Rows.Count > 0) SetBadge(bdgAcc, AccDT.Rows.Count + " Records", "bg-warning text-dark"); else SetBadge(bdgAcc, "Pending", "bg-secondary");
-            if (hasTna) SetBadge(bdgTna, "Active", "bg-success"); else SetBadge(bdgTna, "Pending", "bg-secondary");
-            if (chkPrinting.Checked) SetBadge(bdgPrint, "Required", "bg-success"); else SetBadge(bdgPrint, "Not Req.", "bg-secondary");
-            if (chkEmbroidery.Checked) SetBadge(bdgEmb, "Required", "bg-success"); else SetBadge(bdgEmb, "Not Req.", "bg-secondary");
-        }
-
-        // ================================================================
-        //  SAVE / UPDATE
-        // ================================================================
-        protected void btnSave_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(txtStyleNo.Text)) { ShowMessage("Style No is required!"); return; }
-            if (string.IsNullOrWhiteSpace(txtStyleName.Text)) { ShowMessage("Style Name is required!"); return; }
-            if (string.IsNullOrEmpty(V(hfBuyer))) { ShowMessage("Please select a Buyer!"); return; }
-            if (string.IsNullOrEmpty(V(hfMerchandiser))) { ShowMessage("Please select Assigned Merchandiser!"); return; }
-
-            bool wasNew = StyleId == 0;
-            try
-            {
-                int id = SaveStyle();
-                SaveImages(id);
-                LoadStyle(id);
-                ShowMessage(wasNew ? "Saved Successfully!" : "Updated Successfully!");
-            }
-            catch (Exception ex) { ShowMessage(ex.Message); }
-        }
-
-        private int SaveStyle()
-        {
-            string status = V(hfMainStatus);
-            if (status == "") status = "Draft";
-
-            SqlParameter outId = new SqlParameter("@OutStyleID", SqlDbType.Int);
-            outId.Direction = ParameterDirection.Output;
-
-            List<SqlParameter> ps = new List<SqlParameter>
-            {
-                P("@StyleID", StyleId),
-
-                // Master
-                P("@StyleNo", txtStyleNo.Text.Trim()),
-                P("@StyleName", txtStyleName.Text.Trim()),
-                P("@StyleDescription", N(txtStyleDesc.Text)),
-                P("@BuyerID", NI(V(hfBuyer))),
-                P("@BrandID", NI(V(hfBrand))),
-                P("@AgentID", NI(V(hfAgent))),
-                P("@SeasonName", N(V(hfSeason))),
-                P("@SeasonYear", NI(V(hfSeasonYear))),
-                P("@ProductCategory", N(V(hfProductCategory))),
-                P("@ProductType", N(V(hfProductType))),
-                P("@GarmentType", N(V(hfGarmentType))),
-                P("@Gender", N(V(hfGender))),
-                P("@Department", N(txtDepartment.Text)),
-                P("@Division", N(txtDivision.Text)),
-                P("@MerchandiserID", NI(V(hfMerchandiser))),
-                P("@CreationDate", ParseDate(txtCreationDate.Text)),
-                P("@InternalRemarks", N(txtRemarks.Text)),
-                P("@StyleStatus", status),
-                P("@IsLocked", status == "Active"),
-
-                // Commercial
-                P("@BuyerStyleNo", N(txtBuyerStyleNo.Text)),
-                P("@ProductNo", N(txtProductNo.Text)),
-                P("@DestinationCountry", N(V(hfCountry))),
-                P("@Currency", N(V(hfCurrency))),
-                P("@PaymentTerm", N(V(hfPaymentTerm))),
-                P("@ShipmentMode", N(V(hfShipmentMode))),
-                P("@PortOfLoading", N(txtPortLoading.Text)),
-                P("@PortOfDischarge", N(txtPortDischarge.Text)),
-
-                // Specification
-                P("@FabricType", N(txtFabricType.Text)),
-                P("@KnitWoven", N(V(hfKnitWoven))),
-                P("@Construction", N(txtConstruction.Text)),
-                P("@GSM", N(txtSpecGsm.Text)),
-                P("@Composition", N(txtSpecComposition.Text)),
-                P("@FabricWidth", N(txtFabricWidth.Text)),
-                P("@Finish", N(txtFinish.Text)),
-                P("@WashType", N(txtWashType.Text)),
-                P("@SleeveType", N(txtSleeve.Text)),
-                P("@NeckType", N(txtNeck.Text)),
-                P("@ClosureType", N(txtClosure.Text)),
-                P("@PocketType", N(txtPocket.Text)),
-
-                // Work Order
-                P("@PrintingRequired", chkPrinting.Checked),
-                P("@PrintingDetails", N(txtPrintingDetails.Text)),
-                P("@EmbroideryRequired", chkEmbroidery.Checked),
-                P("@EmbroideryDetails", N(txtEmbroideryDetails.Text)),
-                P("@WashingRequired", chkWashing.Checked),
-                P("@WashingDetails", N(txtWashingDetails.Text)),
-                P("@SpecialRequired", chkSpecial.Checked),
-                P("@SpecialDetails", N(txtSpecialDetails.Text)),
-
-                // TNA
-                P("@TemplateName", N(V(hfTnaTemplate))),
-                P("@SampleDeadline", ParseDate(txtSampleDeadline.Text)),
-                P("@PPMeetingDate", ParseDate(txtPPMeeting.Text)),
-                P("@FabricInDate", ParseDate(txtFabricIn.Text)),
-                P("@ShipmentDate", ParseDate(txtShipmentDate.Text)),
-
-                // Grids (Table-Valued Parameter)
-                Tvp("@Colors", "tt_Mer_StyleColor", ColorsDT),
-                Tvp("@Sizes", "tt_Mer_StyleSize", SizesDT),
-                Tvp("@Fabric", "tt_Mer_StyleFabric", FabricDT),
-                Tvp("@Acc", "tt_Mer_StyleAccessory", AccDT),
-
-                P("@User", CurrentUser),
-                outId
-            };
-
-            Exec("sp_Mer_Style_Save", ps.ToArray());
-            return Convert.ToInt32(outId.Value);
-        }
-
-        private void LoadHistory(int id)
-        {
-            gvHistory.DataSource = GetTable("sp_Mer_Style_History_List", P("@StyleID", id));
-            gvHistory.DataBind();
-        }
-
-        // ================================================================
-        //  TOP BUTTONS : Reset / Close / Copy
-        // ================================================================
         protected void btnReset_Click(object sender, EventArgs e)
         {
-            int id = StyleId;
-            if (id > 0) LoadStyle(id); else ClearForm();
+            ClearForm();
+            ResetAllDropdowns();
+            ShowAlert("Form reset completed.");
         }
 
         protected void btnClose_Click(object sender, EventArgs e)
         {
-            ClearForm();
-            hfTab.Value = "";
-            ShowList();
+            pnlEntry.Visible = false;
+            pnlList.Visible = true;
             LoadStyleList();
         }
 
         protected void btnCopyStyle_Click(object sender, EventArgs e)
         {
-            int src = StyleId;
-            if (src == 0) { ShowMessage("Please save the style first."); return; }
-            try
+            if (ViewState["StyleID"] == null)
             {
-                SqlParameter outId = new SqlParameter("@NewStyleID", SqlDbType.Int);
-                outId.Direction = ParameterDirection.Output;
-                Exec("sp_Mer_Style_Copy", P("@SourceStyleID", src), P("@User", CurrentUser), outId);
-
-                LoadStyle(Convert.ToInt32(outId.Value));
-                ShowMessage("Style copied. Please change Style No / Name and Save.");
+                ShowAlert("Please select a style first.");
+                return;
             }
-            catch (Exception ex) { ShowMessage(ex.Message); }
+            int srcId = Convert.ToInt32(ViewState["StyleID"]);
+            LoadStyleById(srcId);
+            // Copy: reset ID so it becomes new
+            ViewState["StyleID"] = null;
+            txtStyleID.Text = "0";
+            txtStyleNo.Text = txtStyleNo.Text + "-COPY";
+            hfStyleId.Value = "0";
+            pnlList.Visible = false;
+            pnlEntry.Visible = true;
+            btnSave.Visible = true;
+            btnUpdate.Visible = false;
+            ShowAlert("Style copied. Modify and Save as new.");
         }
 
-        // ================================================================
-        //  COLOR / SIZE / FABRIC / ACCESSORIES  (grid add / delete)
-        // ================================================================
+        // ============================================================
+        // SAVE (INSERT)
+        // ============================================================
+        protected void btnSave_Click(object sender, EventArgs e)
+        {
+            if (!ValidateForm()) return;
+
+            try
+            {
+                con = conn.openConnection();
+                using (SqlCommand c = new SqlCommand("sp_SaveUpdateStyleMaster", con))
+                {
+                    c.CommandType = CommandType.StoredProcedure;
+                    c.Parameters.Add("@StyleID", SqlDbType.Int).Value = 0;
+                    AddStyleParams(c);
+                    c.Parameters.Add("@CreatedBy", SqlDbType.Int).Value = CurrentUserId;
+
+                    SqlParameter outId = new SqlParameter("@NewStyleID", SqlDbType.Int);
+                    outId.Direction = ParameterDirection.Output;
+                    c.Parameters.Add(outId);
+
+                    c.ExecuteNonQuery();
+
+                    int newId = Convert.ToInt32(outId.Value);
+                    ViewState["StyleID"] = newId;
+                    hfStyleId.Value = newId.ToString();
+                    txtStyleID.Text = newId.ToString();
+
+                    // Save child tables (color/size/fabric/acc from GridView)
+                    SaveStyleColors(newId);
+                    SaveStyleSizes(newId);
+                    SaveStyleFabrics(newId);
+                    SaveStyleAccessories(newId);
+
+                    ShowAlert("Style saved successfully. ID = " + newId);
+                    btnSave.Visible = false;
+                    btnUpdate.Visible = true;
+                }
+                CloseConnection();
+                LoadStyleList();
+            }
+            catch (Exception ex)
+            {
+                CloseConnection();
+                ShowAlert("Save error: " + ex.Message);
+            }
+        }
+
+        // ============================================================
+        // UPDATE
+        // ============================================================
+        protected void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if (ViewState["StyleID"] == null)
+            {
+                ShowAlert("No style loaded for update.");
+                return;
+            }
+
+            if (!ValidateForm()) return;
+
+            try
+            {
+                int styleId = Convert.ToInt32(ViewState["StyleID"]);
+
+                con = conn.openConnection();
+                using (SqlCommand c = new SqlCommand("sp_SaveUpdateStyleMaster", con))
+                {
+                    c.CommandType = CommandType.StoredProcedure;
+                    c.Parameters.Add("@StyleID", SqlDbType.Int).Value = styleId;
+                    AddStyleParams(c);
+                    c.Parameters.Add("@CreatedBy", SqlDbType.Int).Value = CurrentUserId;
+
+                    SqlParameter outId = new SqlParameter("@NewStyleID", SqlDbType.Int);
+                    outId.Direction = ParameterDirection.Output;
+                    c.Parameters.Add(outId);
+
+                    c.ExecuteNonQuery();
+                }
+                CloseConnection();
+
+                // Replace child rows (simple approach)
+                SaveStyleColors(styleId);
+                SaveStyleSizes(styleId);
+                SaveStyleFabrics(styleId);
+                SaveStyleAccessories(styleId);
+
+                ShowAlert("Style updated successfully.");
+                LoadStyleList();
+            }
+            catch (Exception ex)
+            {
+                CloseConnection();
+                ShowAlert("Update error: " + ex.Message);
+            }
+        }
+
+        private void AddStyleParams(SqlCommand c)
+        {
+            c.Parameters.AddWithValue("@StyleNo", txtStyleNo.Text.Trim());
+            c.Parameters.AddWithValue("@StyleName", txtStyleName.Text.Trim());
+            c.Parameters.AddWithValue("@StyleDescription", NullIfEmpty(txtStyleDesc.Text));
+            c.Parameters.AddWithValue("@RevisionNo", txtRevNo.Text.Trim());
+            c.Parameters.AddWithValue("@StyleStatus", string.IsNullOrEmpty(hfMainStatus.Value) ? "D" : hfMainStatus.Value);
+
+            c.Parameters.AddWithValue("@BuyerID", NullIfZero(hfBuyer.Value));
+            c.Parameters.AddWithValue("@BrandID", NullIfZero(hfBrand.Value));
+            c.Parameters.AddWithValue("@AgentID", NullIfZero(hfAgent.Value));
+            c.Parameters.AddWithValue("@SeasonID", NullIfZero(hfSeason.Value));
+            c.Parameters.AddWithValue("@SeasonYear", NullIfEmpty(hfSeasonYear.Value));
+            c.Parameters.AddWithValue("@ProductCategoryID", NullIfZero(hfProductCategory.Value));
+            c.Parameters.AddWithValue("@ProductTypeID", NullIfZero(hfProductType.Value));
+            c.Parameters.AddWithValue("@GarmentTypeID", NullIfZero(hfGarmentType.Value));
+            c.Parameters.AddWithValue("@GenderID", NullIfZero(hfGender.Value));
+
+            c.Parameters.AddWithValue("@Department", NullIfEmpty(txtDepartment.Text));
+            c.Parameters.AddWithValue("@Division", NullIfEmpty(txtDivision.Text));
+            c.Parameters.AddWithValue("@MerchandiserID", NullIfZero(hfMerchandiser.Value));
+            c.Parameters.AddWithValue("@CreationDate", DateOrNull(txtCreationDate.Text));
+
+            c.Parameters.AddWithValue("@BuyerStyleRef", NullIfEmpty(txtBuyerStyleRef.Text));
+            c.Parameters.AddWithValue("@FitType", NullIfEmpty(ddlFit.SelectedValue));
+            c.Parameters.AddWithValue("@TargetPrice", NullIfEmpty(txtTargetPrice.Text));
+            c.Parameters.AddWithValue("@Currency", NullIfEmpty(ddlCurrency.SelectedValue));
+            c.Parameters.AddWithValue("@DeliveryDate", DateOrNull(txtDeliveryDate.Text));
+            c.Parameters.AddWithValue("@HSCode", NullIfEmpty(txtHSCode.Text));
+            c.Parameters.AddWithValue("@CountryOfOrigin", NullIfEmpty(txtCountryOrigin.Text));
+            c.Parameters.AddWithValue("@LeadTime", NullIfEmpty(txtLeadTime.Text));
+            c.Parameters.AddWithValue("@MOQ", NullIfEmpty(txtMOQ.Text));
+            c.Parameters.AddWithValue("@SMV", NullIfEmpty(txtSMV.Text));
+            c.Parameters.AddWithValue("@SampleType", NullIfEmpty(ddlSampleType.SelectedValue));
+            c.Parameters.AddWithValue("@GarmentWeight", NullIfEmpty(txtGarmentWeight.Text));
+            c.Parameters.AddWithValue("@PackingType", NullIfEmpty(txtPacking.Text));
+            c.Parameters.AddWithValue("@Remarks", NullIfEmpty(txtRemarks.Text));
+
+            c.Parameters.AddWithValue("@FabricType", NullIfEmpty(txtFabricType.Text));
+            c.Parameters.AddWithValue("@KnitWoven", NullIfEmpty(hfKnitWoven.Value));
+            c.Parameters.AddWithValue("@Construction", NullIfEmpty(txtConstruction.Text));
+            c.Parameters.AddWithValue("@SpecGSM", NullIfEmpty(txtSpecGsm.Text));
+            c.Parameters.AddWithValue("@SpecComposition", NullIfEmpty(txtSpecComposition.Text));
+            c.Parameters.AddWithValue("@FabricWidth", NullIfEmpty(txtFabricWidth.Text));
+            c.Parameters.AddWithValue("@Finish", NullIfEmpty(txtFinish.Text));
+            c.Parameters.AddWithValue("@WashType", NullIfEmpty(txtWashType.Text));
+            c.Parameters.AddWithValue("@Sleeve", NullIfEmpty(txtSleeve.Text));
+            c.Parameters.AddWithValue("@Neck", NullIfEmpty(txtNeck.Text));
+            c.Parameters.AddWithValue("@Closure", NullIfEmpty(txtClosure.Text));
+            c.Parameters.AddWithValue("@Pocket", NullIfEmpty(txtPocket.Text));
+            c.Parameters.AddWithValue("@PrintEmbroidery", NullIfEmpty(txtPrintEmb.Text));
+            c.Parameters.AddWithValue("@MainLabel", NullIfEmpty(txtMainLabel.Text));
+            c.Parameters.AddWithValue("@CareLabel", NullIfEmpty(txtCareLabel.Text));
+            c.Parameters.AddWithValue("@StitchType", NullIfEmpty(txtStitchType.Text));
+            c.Parameters.AddWithValue("@SPI", NullIfEmpty(txtSPI.Text));
+            c.Parameters.AddWithValue("@HemType", NullIfEmpty(txtHemType.Text));
+            c.Parameters.AddWithValue("@CareInstruction", NullIfEmpty(txtCareInstr.Text));
+        }
+
+        // ============================================================
+        // LOAD STYLE BY ID (for Edit)
+        // ============================================================
+        private void LoadStyleById(int styleId)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string sql = "SELECT * FROM dbo.StyleMaster WHERE StyleID = @ID";
+                using (SqlCommand c = new SqlCommand(sql, con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    SqlDataReader r = c.ExecuteReader();
+                    if (r.Read())
+                    {
+                        ViewState["StyleID"] = styleId;
+                        hfStyleId.Value = styleId.ToString();
+                        txtStyleID.Text = styleId.ToString();
+                        txtStyleNo.Text = r["StyleNo"].ToString();
+                        txtStyleName.Text = r["StyleName"].ToString();
+                        txtStyleDesc.Text = r["StyleDescription"].ToString();
+                        txtRevNo.Text = r["RevisionNo"].ToString();
+
+                        hfMainStatus.Value = r["StyleStatus"].ToString();
+                        hfBuyer.Value = r["BuyerID"].ToString();
+                        hfBrand.Value = r["BrandID"].ToString();
+                        hfAgent.Value = r["AgentID"].ToString();
+                        hfSeason.Value = r["SeasonID"].ToString();
+                        hfSeasonYear.Value = r["SeasonYear"].ToString();
+                        hfProductCategory.Value = r["ProductCategoryID"].ToString();
+                        hfProductType.Value = r["ProductTypeID"].ToString();
+                        hfGarmentType.Value = r["GarmentTypeID"].ToString();
+                        hfGender.Value = r["GenderID"].ToString();
+                        hfMerchandiser.Value = r["MerchandiserID"].ToString();
+                        hfKnitWoven.Value = r["KnitWoven"].ToString();
+
+                        txtDepartment.Text = r["Department"].ToString();
+                        txtDivision.Text = r["Division"].ToString();
+                        txtCreationDate.Text = r["CreationDate"] != DBNull.Value
+                            ? Convert.ToDateTime(r["CreationDate"]).ToString("yyyy-MM-dd") : "";
+                        txtBuyerStyleRef.Text = r["BuyerStyleRef"].ToString();
+                        ddlFit.SelectedValue = r["FitType"].ToString();
+                        txtTargetPrice.Text = r["TargetPrice"].ToString();
+                        ddlCurrency.SelectedValue = r["Currency"].ToString();
+                        txtDeliveryDate.Text = r["DeliveryDate"] != DBNull.Value
+                            ? Convert.ToDateTime(r["DeliveryDate"]).ToString("yyyy-MM-dd") : "";
+                        txtHSCode.Text = r["HSCode"].ToString();
+                        txtCountryOrigin.Text = r["CountryOfOrigin"].ToString();
+                        txtLeadTime.Text = r["LeadTime"].ToString();
+                        txtMOQ.Text = r["MOQ"].ToString();
+                        txtSMV.Text = r["SMV"].ToString();
+                        ddlSampleType.SelectedValue = r["SampleType"].ToString();
+                        txtGarmentWeight.Text = r["GarmentWeight"].ToString();
+                        txtPacking.Text = r["PackingType"].ToString();
+                        txtRemarks.Text = r["Remarks"].ToString();
+
+                        txtFabricType.Text = r["FabricType"].ToString();
+                        txtConstruction.Text = r["Construction"].ToString();
+                        txtSpecGsm.Text = r["SpecGSM"].ToString();
+                        txtSpecComposition.Text = r["SpecComposition"].ToString();
+                        txtFabricWidth.Text = r["FabricWidth"].ToString();
+                        txtFinish.Text = r["Finish"].ToString();
+                        txtWashType.Text = r["WashType"].ToString();
+                        txtSleeve.Text = r["Sleeve"].ToString();
+                        txtNeck.Text = r["Neck"].ToString();
+                        txtClosure.Text = r["Closure"].ToString();
+                        txtPocket.Text = r["Pocket"].ToString();
+                        txtPrintEmb.Text = r["PrintEmbroidery"].ToString();
+                        txtMainLabel.Text = r["MainLabel"].ToString();
+                        txtCareLabel.Text = r["CareLabel"].ToString();
+                        txtStitchType.Text = r["StitchType"].ToString();
+                        txtSPI.Text = r["SPI"].ToString();
+                        txtHemType.Text = r["HemType"].ToString();
+                        txtCareInstr.Text = r["CareInstruction"].ToString();
+
+                        r.Close();
+
+                        // Restore dropdown display texts via JS
+                        RestoreDropdownsFromHidden();
+
+                        // Load child grids
+                        LoadStyleColors(styleId);
+                        LoadStyleSizes(styleId);
+                        LoadStyleFabrics(styleId);
+                        LoadStyleAccessories(styleId);
+                        LoadStyleSets(styleId);
+                        LoadHistory(styleId);
+                    }
+                    else
+                    {
+                        r.Close();
+                        ClearForm();
+                    }
+                }
+                CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                CloseConnection();
+                ShowAlert("Load error: " + ex.Message);
+            }
+        }
+
+        private void RestoreDropdownsFromHidden()
+        {
+            string script = @"
+                (function(){
+                    if(!window.NexaDD) return;
+                    function set(k){ var hf=document.getElementById('hf'+k.charAt(0).toUpperCase()+k.slice(1)); if(hf && hf.value) window.NexaDD.setValue(k,hf.value); }
+                    ['buyer','brand','agent','season','seasonYear','productCategory','productType',
+                     'garmentType','gender','merchandiser','mainStatus','knitWoven'].forEach(set);
+                })();";
+            ScriptManager.RegisterStartupScript(this, this.GetType(),
+                "restoreDD_" + Guid.NewGuid().ToString("N"), script, true);
+        }
+
+        // ============================================================
+        // GRIDVIEW — EDIT / DELETE
+        // ============================================================
+        protected void gvStyles_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            if (e.CommandName == "EditRow")
+            {
+                int styleId = Convert.ToInt32(e.CommandArgument);
+                pnlList.Visible = false;
+                pnlEntry.Visible = true;
+                btnSave.Visible = false;
+                btnUpdate.Visible = true;
+
+                LoadStyleById(styleId);
+                ShowAlert("Style loaded for editing.");
+            }
+            else if (e.CommandName == "DeleteRow")
+            {
+                int styleId = Convert.ToInt32(e.CommandArgument);
+                try
+                {
+                    con = conn.openConnection();
+                    using (SqlCommand c = new SqlCommand("UPDATE dbo.StyleMaster SET IsActive=0, ModifiedBy=@U, ModifiedDate=GETDATE() WHERE StyleID=@ID", con))
+                    {
+                        c.Parameters.AddWithValue("@U", CurrentUserId);
+                        c.Parameters.AddWithValue("@ID", styleId);
+                        c.ExecuteNonQuery();
+                    }
+                    CloseConnection();
+                    ShowAlert("Style deactivated.");
+                    LoadStyleList();
+                }
+                catch (Exception ex)
+                {
+                    CloseConnection();
+                    ShowAlert("Delete error: " + ex.Message);
+                }
+            }
+        }
+
+        // ============================================================
+        // COLOR GRID
+        // ============================================================
         protected void btnAddColor_Click(object sender, EventArgs e)
         {
-            string code = V(hfColor);
-            if (string.IsNullOrEmpty(code)) { ShowMessage("Please select a color!"); return; }
-            foreach (DataRow r in ColorsDT.Rows)
-                if (Str(r["ColorCode"]) == code) { ShowMessage("This color is already added."); return; }
-
-            ColorsDT.Rows.Add(code, OptText("color", code), txtPantone.Text.Trim(), true);
-            txtPantone.Text = "";
+            if (string.IsNullOrEmpty(hfColor.Value)) { ShowAlert("Select a color."); return; }
+            DataTable dt = GetGridTable(gvColors, new[] { "ColorCode", "ColorName", "PantoneCode", "IsActive" });
+            DataRow dr = dt.NewRow();
+            dr["ColorCode"] = hfColor.Value;
+            dr["ColorName"] = hfColor.Value; // will be looked up
+            dr["PantoneCode"] = txtPantone.Text.Trim();
+            dr["IsActive"] = true;
+            dt.Rows.Add(dr);
+            gvColors.DataSource = dt;
+            gvColors.DataBind();
             hfColor.Value = "";
-            gvColors.DataSource = ColorsDT; gvColors.DataBind();
+            txtPantone.Text = "";
         }
 
         protected void gvColors_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            int i; if (e.CommandName == "DelRow" && int.TryParse(Convert.ToString(e.CommandArgument), out i) && i >= 0 && i < ColorsDT.Rows.Count)
-            { ColorsDT.Rows.RemoveAt(i); gvColors.DataSource = ColorsDT; gvColors.DataBind(); }
+            if (e.CommandName == "DelRow")
+            {
+                int idx = Convert.ToInt32(e.CommandArgument);
+                DataTable dt = GetGridTable(gvColors, new[] { "ColorCode", "ColorName", "PantoneCode", "IsActive" });
+                dt.Rows.RemoveAt(idx);
+                gvColors.DataSource = dt;
+                gvColors.DataBind();
+            }
         }
 
+        private void SaveStyleColors(int styleId)
+        {
+            if (gvColors.Rows.Count == 0) return;
+            try
+            {
+                con = conn.openConnection();
+                using (SqlCommand c = new SqlCommand("DELETE FROM dbo.StyleColor WHERE StyleID=@ID", con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    c.ExecuteNonQuery();
+                }
+                foreach (GridViewRow row in gvColors.Rows)
+                {
+                    string code = ((Label)row.FindControl("lblColorCode"))?.Text;
+                    // Alternatively read from Cells if BoundField
+                    code = row.Cells[0].Text;
+                    string name = row.Cells[1].Text;
+                    string pant = row.Cells[2].Text;
+                    using (SqlCommand c = new SqlCommand(
+                        @"INSERT INTO dbo.StyleColor (StyleID, ColorCode, ColorName, PantoneCode, IsActive, CreatedDate)
+                          VALUES (@S, @C, @N, @P, 1, GETDATE())", con))
+                    {
+                        c.Parameters.AddWithValue("@S", styleId);
+                        c.Parameters.AddWithValue("@C", code);
+                        c.Parameters.AddWithValue("@N", name);
+                        c.Parameters.AddWithValue("@P", pant);
+                        c.ExecuteNonQuery();
+                    }
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
+        }
+
+        private void LoadStyleColors(int styleId)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string sql = "SELECT ColorCode, ColorName, PantoneCode, IsActive FROM dbo.StyleColor WHERE StyleID=@ID ORDER BY SortOrder, StyleColorID";
+                using (SqlCommand c = new SqlCommand(sql, con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    SqlDataAdapter da = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvColors.DataSource = dt;
+                    gvColors.DataBind();
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
+        }
+
+        // ============================================================
+        // SIZE GRID
+        // ============================================================
         protected void btnAddSize_Click(object sender, EventArgs e)
         {
-            int sid;
-            if (!int.TryParse(V(hfSize), out sid) || sid <= 0) { ShowMessage("Please select a size!"); return; }
-            string code = "S" + sid.ToString("00");
-            foreach (DataRow r in SizesDT.Rows)
-                if (Str(r["SizeCode"]) == code) { ShowMessage("This size is already added."); return; }
-
-            DataTable s = GetTable("sp_Mer_Style_GetSizeInfo", P("@SizeID", sid));
-            if (s.Rows.Count == 0) return;
-            SizesDT.Rows.Add(code, Str(s.Rows[0]["SizeName"]), Str(s.Rows[0]["GroupName"]), true);
+            if (string.IsNullOrEmpty(hfSize.Value)) { ShowAlert("Select a size."); return; }
+            DataTable dt = GetGridTable(gvSizes, new[] { "SizeCode", "SizeName", "SizeRange", "IsActive" });
+            DataRow dr = dt.NewRow();
+            dr["SizeCode"] = hfSize.Value;
+            dr["SizeName"] = hfSize.Value;
+            dr["SizeRange"] = "";
+            dr["IsActive"] = true;
+            dt.Rows.Add(dr);
+            gvSizes.DataSource = dt;
+            gvSizes.DataBind();
             hfSize.Value = "";
-            gvSizes.DataSource = SizesDT; gvSizes.DataBind();
         }
 
         protected void gvSizes_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            int i; if (e.CommandName == "DelRow" && int.TryParse(Convert.ToString(e.CommandArgument), out i) && i >= 0 && i < SizesDT.Rows.Count)
-            { SizesDT.Rows.RemoveAt(i); gvSizes.DataSource = SizesDT; gvSizes.DataBind(); }
+            if (e.CommandName == "DelRow")
+            {
+                int idx = Convert.ToInt32(e.CommandArgument);
+                DataTable dt = GetGridTable(gvSizes, new[] { "SizeCode", "SizeName", "SizeRange", "IsActive" });
+                dt.Rows.RemoveAt(idx);
+                gvSizes.DataSource = dt;
+                gvSizes.DataBind();
+            }
         }
 
+        private void SaveStyleSizes(int styleId)
+        {
+            if (gvSizes.Rows.Count == 0) return;
+            try
+            {
+                con = conn.openConnection();
+                using (SqlCommand c = new SqlCommand("DELETE FROM dbo.StyleSize WHERE StyleID=@ID", con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    c.ExecuteNonQuery();
+                }
+                int sort = 0;
+                foreach (GridViewRow row in gvSizes.Rows)
+                {
+                    sort++;
+                    using (SqlCommand c = new SqlCommand(
+                        @"INSERT INTO dbo.StyleSize (StyleID, SizeCode, SizeName, SizeRange, SortOrder, IsActive, CreatedDate)
+                          VALUES (@S, @C, @N, @R, @O, 1, GETDATE())", con))
+                    {
+                        c.Parameters.AddWithValue("@S", styleId);
+                        c.Parameters.AddWithValue("@C", row.Cells[0].Text);
+                        c.Parameters.AddWithValue("@N", row.Cells[1].Text);
+                        c.Parameters.AddWithValue("@R", row.Cells[2].Text);
+                        c.Parameters.AddWithValue("@O", sort);
+                        c.ExecuteNonQuery();
+                    }
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
+        }
+
+        private void LoadStyleSizes(int styleId)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string sql = "SELECT SizeCode, SizeName, SizeRange, IsActive FROM dbo.StyleSize WHERE StyleID=@ID ORDER BY SortOrder, StyleSizeID";
+                using (SqlCommand c = new SqlCommand(sql, con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    SqlDataAdapter da = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvSizes.DataSource = dt;
+                    gvSizes.DataBind();
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
+        }
+
+        // ============================================================
+        // FABRIC GRID
+        // ============================================================
         protected void btnAddFabric_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtFabCode.Text) || string.IsNullOrWhiteSpace(txtFabName.Text)) { ShowMessage("Fabric Code and Fabric Name are required!"); return; }
-            FabricDT.Rows.Add(txtFabCode.Text.Trim(), txtFabName.Text.Trim(), txtFabComp.Text.Trim(), txtFabGsm.Text.Trim(), txtFabColor.Text.Trim(),
-                              Dec(txtFabCons.Text), Dec(txtFabWaste.Text), V(hfFabUnit));
-            txtFabCode.Text = txtFabName.Text = txtFabComp.Text = txtFabGsm.Text = txtFabColor.Text = txtFabCons.Text = txtFabWaste.Text = "";
-            gvFabric.DataSource = FabricDT; gvFabric.DataBind();
+            DataTable dt = GetGridTable(gvFabric,
+                new[] { "FabricCode", "FabricName", "Composition", "GSM", "ColorName", "Consumption", "WastagePercent", "Unit" });
+            DataRow dr = dt.NewRow();
+            dr["FabricCode"] = txtFabCode.Text.Trim();
+            dr["FabricName"] = txtFabName.Text.Trim();
+            dr["Composition"] = txtFabComp.Text.Trim();
+            dr["GSM"] = txtFabGsm.Text.Trim();
+            dr["ColorName"] = txtFabColor.Text.Trim();
+            dr["Consumption"] = DecOrZero(txtFabCons.Text);
+            dr["WastagePercent"] = DecOrZero(txtFabWaste.Text);
+            dr["Unit"] = hfFabUnit.Value;
+            dt.Rows.Add(dr);
+            gvFabric.DataSource = dt;
+            gvFabric.DataBind();
+
+            txtFabCode.Text = ""; txtFabName.Text = ""; txtFabComp.Text = "";
+            txtFabGsm.Text = ""; txtFabColor.Text = ""; txtFabCons.Text = "";
+            txtFabWaste.Text = ""; hfFabUnit.Value = "";
         }
 
         protected void gvFabric_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            int i; if (e.CommandName == "DelRow" && int.TryParse(Convert.ToString(e.CommandArgument), out i) && i >= 0 && i < FabricDT.Rows.Count)
-            { FabricDT.Rows.RemoveAt(i); gvFabric.DataSource = FabricDT; gvFabric.DataBind(); }
+            if (e.CommandName == "DelRow")
+            {
+                int idx = Convert.ToInt32(e.CommandArgument);
+                DataTable dt = GetGridTable(gvFabric,
+                    new[] { "FabricCode", "FabricName", "Composition", "GSM", "ColorName", "Consumption", "WastagePercent", "Unit" });
+                dt.Rows.RemoveAt(idx);
+                gvFabric.DataSource = dt;
+                gvFabric.DataBind();
+            }
         }
 
+        private void SaveStyleFabrics(int styleId)
+        {
+            if (gvFabric.Rows.Count == 0) return;
+            try
+            {
+                con = conn.openConnection();
+                using (SqlCommand c = new SqlCommand("DELETE FROM dbo.StyleFabric WHERE StyleID=@ID", con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    c.ExecuteNonQuery();
+                }
+                int sort = 0;
+                foreach (GridViewRow row in gvFabric.Rows)
+                {
+                    sort++;
+                    using (SqlCommand c = new SqlCommand(
+                        @"INSERT INTO dbo.StyleFabric
+                          (StyleID, FabricCode, FabricName, Composition, GSM, ColorName, Consumption, WastagePercent, UnitCode, SortOrder, IsActive, CreatedDate)
+                          VALUES (@S, @C, @N, @Comp, @G, @Col, @Cons, @W, @U, @O, 1, GETDATE())", con))
+                    {
+                        c.Parameters.AddWithValue("@S", styleId);
+                        c.Parameters.AddWithValue("@C", row.Cells[0].Text);
+                        c.Parameters.AddWithValue("@N", row.Cells[1].Text);
+                        c.Parameters.AddWithValue("@Comp", row.Cells[2].Text);
+                        c.Parameters.AddWithValue("@G", row.Cells[3].Text);
+                        c.Parameters.AddWithValue("@Col", row.Cells[4].Text);
+                        c.Parameters.AddWithValue("@Cons", DecOrZero(row.Cells[5].Text));
+                        c.Parameters.AddWithValue("@W", DecOrZero(row.Cells[6].Text));
+                        c.Parameters.AddWithValue("@U", row.Cells[7].Text);
+                        c.Parameters.AddWithValue("@O", sort);
+                        c.ExecuteNonQuery();
+                    }
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
+        }
+
+        private void LoadStyleFabrics(int styleId)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string sql = @"SELECT FabricCode, FabricName, Composition, GSM, ColorName,
+                                      Consumption, WastagePercent, UnitCode AS Unit
+                               FROM dbo.StyleFabric WHERE StyleID=@ID ORDER BY SortOrder, StyleFabricID";
+                using (SqlCommand c = new SqlCommand(sql, con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    SqlDataAdapter da = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvFabric.DataSource = dt;
+                    gvFabric.DataBind();
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
+        }
+
+        // ============================================================
+        // ACCESSORIES GRID
+        // ============================================================
         protected void btnAddAcc_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtAccCode.Text) || string.IsNullOrWhiteSpace(txtAccName.Text)) { ShowMessage("Item Code and Item Name are required!"); return; }
-            AccDT.Rows.Add(txtAccCode.Text.Trim(), txtAccName.Text.Trim(), V(hfAccType), txtAccSizeColor.Text.Trim(),
-                           Dec(txtAccCons.Text), V(hfAccUnit), Dec(txtAccWaste.Text), txtAccSupplier.Text.Trim());
-            txtAccCode.Text = txtAccName.Text = txtAccSizeColor.Text = txtAccCons.Text = txtAccWaste.Text = txtAccSupplier.Text = "";
-            gvAcc.DataSource = AccDT; gvAcc.DataBind();
+            DataTable dt = GetGridTable(gvAcc,
+                new[] { "ItemCode", "ItemName", "ItemType", "SizeColor", "Consumption", "Unit", "WastagePercent", "Supplier" });
+            DataRow dr = dt.NewRow();
+            dr["ItemCode"] = txtAccCode.Text.Trim();
+            dr["ItemName"] = txtAccName.Text.Trim();
+            dr["ItemType"] = hfAccType.Value;
+            dr["SizeColor"] = txtAccSizeColor.Text.Trim();
+            dr["Consumption"] = DecOrZero(txtAccCons.Text);
+            dr["Unit"] = hfAccUnit.Value;
+            dr["WastagePercent"] = DecOrZero(txtAccWaste.Text);
+            dr["Supplier"] = txtAccSupplier.Text.Trim();
+            dt.Rows.Add(dr);
+            gvAcc.DataSource = dt;
+            gvAcc.DataBind();
+
+            txtAccCode.Text = ""; txtAccName.Text = ""; txtAccSizeColor.Text = "";
+            txtAccCons.Text = ""; txtAccWaste.Text = ""; txtAccSupplier.Text = "";
+            hfAccType.Value = ""; hfAccUnit.Value = "";
         }
 
         protected void gvAcc_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            int i; if (e.CommandName == "DelRow" && int.TryParse(Convert.ToString(e.CommandArgument), out i) && i >= 0 && i < AccDT.Rows.Count)
-            { AccDT.Rows.RemoveAt(i); gvAcc.DataSource = AccDT; gvAcc.DataBind(); }
-        }
-
-        // ================================================================
-        //  IMAGES
-        // ================================================================
-        private void ResetImages()
-        {
-            foreach (string t in new[] { "Front", "Back", "Technical" }) SetImageControls(t, null);
-        }
-
-        private void SetImageControls(string type, DataRow r)
-        {
-            Image img; Label lbl; HyperLink lnk; LinkButton del;
-            switch (type)
+            if (e.CommandName == "DelRow")
             {
-                case "Front": img = imgFront; lbl = lblFrontName; lnk = lnkFrontZoom; del = btnDelFront; break;
-                case "Back": img = imgBack; lbl = lblBackName; lnk = lnkBackZoom; del = btnDelBack; break;
-                default: img = imgTech; lbl = lblTechName; lnk = lnkTechZoom; del = btnDelTech; break;
+                int idx = Convert.ToInt32(e.CommandArgument);
+                DataTable dt = GetGridTable(gvAcc,
+                    new[] { "ItemCode", "ItemName", "ItemType", "SizeColor", "Consumption", "Unit", "WastagePercent", "Supplier" });
+                dt.Rows.RemoveAt(idx);
+                gvAcc.DataSource = dt;
+                gvAcc.DataBind();
             }
+        }
 
-            if (r == null)
+        private void SaveStyleAccessories(int styleId)
+        {
+            if (gvAcc.Rows.Count == 0) return;
+            try
             {
-                img.Visible = false; lnk.Visible = false; del.Visible = false;
-                lbl.Text = "No file selected";
+                con = conn.openConnection();
+                using (SqlCommand c = new SqlCommand("DELETE FROM dbo.StyleAccessories WHERE StyleID=@ID", con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    c.ExecuteNonQuery();
+                }
+                int sort = 0;
+                foreach (GridViewRow row in gvAcc.Rows)
+                {
+                    sort++;
+                    using (SqlCommand c = new SqlCommand(
+                        @"INSERT INTO dbo.StyleAccessories
+                          (StyleID, ItemCode, ItemName, AccTypeName, SizeColor, Consumption, UnitCode, WastagePercent, Supplier, SortOrder, IsActive, CreatedDate)
+                          VALUES (@S, @C, @N, @T, @SC, @Cons, @U, @W, @Sup, @O, 1, GETDATE())", con))
+                    {
+                        c.Parameters.AddWithValue("@S", styleId);
+                        c.Parameters.AddWithValue("@C", row.Cells[0].Text);
+                        c.Parameters.AddWithValue("@N", row.Cells[1].Text);
+                        c.Parameters.AddWithValue("@T", row.Cells[2].Text);
+                        c.Parameters.AddWithValue("@SC", row.Cells[3].Text);
+                        c.Parameters.AddWithValue("@Cons", DecOrZero(row.Cells[4].Text));
+                        c.Parameters.AddWithValue("@U", row.Cells[5].Text);
+                        c.Parameters.AddWithValue("@W", DecOrZero(row.Cells[6].Text));
+                        c.Parameters.AddWithValue("@Sup", row.Cells[7].Text);
+                        c.Parameters.AddWithValue("@O", sort);
+                        c.ExecuteNonQuery();
+                    }
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
+        }
+
+        private void LoadStyleAccessories(int styleId)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string sql = @"SELECT ItemCode, ItemName, AccTypeName AS ItemType, SizeColor,
+                                      Consumption, UnitCode AS Unit, WastagePercent, Supplier
+                               FROM dbo.StyleAccessories WHERE StyleID=@ID ORDER BY SortOrder, StyleAccID";
+                using (SqlCommand c = new SqlCommand(sql, con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    SqlDataAdapter da = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvAcc.DataSource = dt;
+                    gvAcc.DataBind();
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
+        }
+
+        // ============================================================
+        // SET (simplified Save)
+        // ============================================================
+        protected void btnSetSave_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtSetName.Text.Trim()))
+            {
+                ShowAlert("Enter Set Name.");
                 return;
             }
+            try
+            {
+                con = conn.openConnection();
+                int setId;
+                using (SqlCommand c = new SqlCommand("sp_SaveUpdateStyleSet", con))
+                {
+                    c.CommandType = CommandType.StoredProcedure;
+                    c.Parameters.Add("@SetID", SqlDbType.Int).Value =
+                        string.IsNullOrEmpty(hfSetId.Value) ? 0 : Convert.ToInt32(hfSetId.Value);
+                    c.Parameters.Add("@StyleID", SqlDbType.Int).Value = Convert.ToInt32(ViewState["StyleID"]);
+                    c.Parameters.Add("@SetName", SqlDbType.NVarChar, 100).Value = txtSetName.Text.Trim();
+                    c.Parameters.Add("@SetRemarks", SqlDbType.NVarChar, 300).Value = (object)txtSetRemarks.Text.Trim() ?? DBNull.Value;
 
-            string url = ResolveUrl(Str(r["FilePath"]));
-            string fn = Str(r["FileName"]);
-            bool isImg = false;
-            string ext = Path.GetExtension(fn).ToLowerInvariant();
-            if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".webp" || ext == ".bmp") isImg = true;
-
-            img.Visible = isImg; if (isImg) img.ImageUrl = url;
-            lnk.Visible = true; lnk.NavigateUrl = url;
-            del.Visible = true;
-            lbl.Text = fn;
+                    SqlParameter outId = new SqlParameter("@NewSetID", SqlDbType.Int);
+                    outId.Direction = ParameterDirection.Output;
+                    c.Parameters.Add(outId);
+                    c.ExecuteNonQuery();
+                    setId = Convert.ToInt32(outId.Value);
+                }
+                CloseConnection();
+                hfSetId.Value = setId.ToString();
+                LoadStyleSets(Convert.ToInt32(ViewState["StyleID"]));
+                ShowAlert("Set saved.");
+            }
+            catch (Exception ex)
+            {
+                CloseConnection();
+                ShowAlert("Set save error: " + ex.Message);
+            }
         }
 
-        private void LoadImages(int id)
+        private void LoadStyleSets(int styleId)
         {
-            ResetImages();
-            DataTable dt = GetTable("sp_Mer_Style_Image_List", P("@StyleID", id));
-            foreach (DataRow r in dt.Rows) SetImageControls(Str(r["ImageType"]), r);
+            try
+            {
+                con = conn.openConnection();
+                string sql = "SELECT SetID, SetName FROM dbo.StyleSet WHERE StyleID=@ID AND IsActive=1";
+                using (SqlCommand c = new SqlCommand(sql, con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    SqlDataAdapter da = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvSets.DataSource = dt;
+                    gvSets.DataBind();
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
         }
 
-        private void SaveImages(int id)
+        protected void btnSetNew_Click(object sender, EventArgs e)
         {
-            SaveOneImage(id, "Front", fuFront, new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp" });
-            SaveOneImage(id, "Back", fuBack, new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp" });
-            SaveOneImage(id, "Technical", fuTech, new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".pdf", ".svg", ".dxf", ".ai" });
+            hfSetId.Value = "0";
+            txtSetName.Text = "";
+            txtSetRemarks.Text = "";
+            txtCompName.Text = "";
+            txtCompQty.Text = "1";
+            txtCompStyle.Text = "";
+            txtMapSet.Text = "";
+            txtMapComp.Text = "";
+            ShowAlert("New Set form is ready.");
         }
 
-        private void SaveOneImage(int id, string type, FileUpload fu, string[] allowed)
+        protected void btnAddSetComp_Click(object sender, EventArgs e)
         {
-            if (!fu.HasFile) return;
-            string ext = Path.GetExtension(fu.FileName).ToLowerInvariant();
-            if (Array.IndexOf(allowed, ext) < 0) throw new ApplicationException(type + ": file type " + ext + " is not allowed.");
-            if (fu.PostedFile.ContentLength > 10 * 1024 * 1024) throw new ApplicationException(type + ": file size must be under 10 MB.");
-
-            string virtualDir = "~/Uploads/StyleImages/" + id;
-            string phys = Server.MapPath(virtualDir);
-            if (!Directory.Exists(phys)) Directory.CreateDirectory(phys);
-
-            string saved = Guid.NewGuid().ToString("N") + ext;
-            fu.SaveAs(Path.Combine(phys, saved));
-
-            // SP পুরোনো FilePath গুলো ফেরত দেয়, তারপর নতুনটা বসায়
-            DataTable old = GetTable("sp_Mer_Style_Image_Save",
-                P("@StyleID", id), P("@ImageType", type), P("@FilePath", virtualDir + "/" + saved),
-                P("@FileName", Path.GetFileName(fu.FileName)), P("@User", CurrentUser));
-
-            foreach (DataRow r in old.Rows) TryDeleteFile(Str(r["FilePath"]));
+            ShowAlert("Add Set Component: implement per your workflow.");
         }
 
-        private void TryDeleteFile(string virtualPath)
+        protected void gvSetComp_RowCommand(object sender, GridViewCommandEventArgs e) { }
+        protected void btnAddSetMap_Click(object sender, EventArgs e) { }
+        protected void gvSetMap_RowCommand(object sender, GridViewCommandEventArgs e) { }
+
+        protected void gvSets_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            try { string p = Server.MapPath(virtualPath); if (File.Exists(p)) File.Delete(p); } catch { }
+            if (e.CommandName == "LoadSet")
+            {
+                hfSetId.Value = Convert.ToString(e.CommandArgument);
+                ShowAlert("Set loaded.");
+            }
+            else if (e.CommandName == "OffSet")
+            {
+                try
+                {
+                    int setId = Convert.ToInt32(e.CommandArgument);
+                    con = conn.openConnection();
+                    using (SqlCommand c = new SqlCommand("UPDATE dbo.StyleSet SET IsActive=0 WHERE SetID=@ID", con))
+                    {
+                        c.Parameters.AddWithValue("@ID", setId);
+                        c.ExecuteNonQuery();
+                    }
+                    CloseConnection();
+                    LoadStyleSets(Convert.ToInt32(ViewState["StyleID"]));
+                    ShowAlert("Set deactivated.");
+                }
+                catch (Exception ex) { CloseConnection(); ShowAlert(ex.Message); }
+            }
         }
 
+        private void LoadHistory(int styleId)
+        {
+            try
+            {
+                con = conn.openConnection();
+                string sql = @"SELECT ActionDateTime, ActionByUser, ActionType, FieldName, PreviousValue, NewValue, Remarks
+                               FROM dbo.StyleHistory WHERE StyleID=@ID ORDER BY HistoryID DESC";
+                using (SqlCommand c = new SqlCommand(sql, con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    SqlDataAdapter da = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    gvHistory.DataSource = dt;
+                    gvHistory.DataBind();
+                }
+                CloseConnection();
+            }
+            catch { CloseConnection(); }
+        }
+
+        // ============================================================
+        // IMAGE DELETE
+        // ============================================================
         protected void DeleteImage_Command(object sender, CommandEventArgs e)
         {
-            int id = StyleId;
-            if (id == 0) return;
-            try
-            {
-                string type = Convert.ToString(e.CommandArgument);
-                DataTable old = GetTable("sp_Mer_Style_Image_Delete", P("@StyleID", id), P("@ImageType", type));
-                foreach (DataRow r in old.Rows) TryDeleteFile(Str(r["FilePath"]));
-                LoadImages(id);
-            }
-            catch (Exception ex) { ShowMessage(ex.Message); }
+            ShowAlert(e.CommandArgument + " image delete event.");
         }
 
-        // ================================================================
-        //  DOCUMENTS
-        // ================================================================
-        private void LoadDocs(int id)
+        // ============================================================
+        // VALIDATION & CLEAR
+        // ============================================================
+        private bool ValidateForm()
         {
-            gvDocs.DataSource = GetTable("sp_Mer_Style_Doc_List", P("@StyleID", id));
-            gvDocs.DataBind();
+            if (string.IsNullOrWhiteSpace(txtStyleNo.Text)) { ShowAlert("Style No is required."); return false; }
+            if (string.IsNullOrWhiteSpace(txtStyleName.Text)) { ShowAlert("Style Name is required."); return false; }
+            return true;
         }
 
-        protected void btnUploadDoc_Click(object sender, EventArgs e)
+        private void ClearForm()
         {
-            int id = StyleId;
-            if (id == 0) { ShowMessage("Please save the style first, then upload documents."); return; }
-            if (!fuDoc.HasFile) { ShowMessage("Please choose a file."); return; }
+            txtStyleID.Text = "0";
+            txtStyleNo.Text = "";
+            txtStyleName.Text = "";
+            txtStyleDesc.Text = "";
+            txtRevNo.Text = "00";
+            txtDepartment.Text = "";
+            txtDivision.Text = "";
+            txtCreationDate.Text = DateTime.Today.ToString("yyyy-MM-dd");
+            txtRemarks.Text = "";
 
-            try
-            {
-                string ext = Path.GetExtension(fuDoc.FileName).ToLowerInvariant();
-                string[] allowed = { ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".jpg", ".jpeg", ".png", ".zip", ".rar", ".txt", ".csv" };
-                if (Array.IndexOf(allowed, ext) < 0) { ShowMessage("File type " + ext + " is not allowed."); return; }
-                if (fuDoc.PostedFile.ContentLength > 20 * 1024 * 1024) { ShowMessage("File size must be under 20 MB."); return; }
+            txtBuyerStyleRef.Text = "";
+            ddlFit.SelectedIndex = 0;
+            txtTargetPrice.Text = "";
+            ddlCurrency.SelectedIndex = 0;
+            txtDeliveryDate.Text = "";
+            txtHSCode.Text = "";
+            txtCountryOrigin.Text = "Bangladesh";
+            txtLeadTime.Text = "";
+            txtMOQ.Text = "";
+            txtSMV.Text = "";
+            ddlSampleType.SelectedIndex = 0;
+            txtGarmentWeight.Text = "";
+            txtPacking.Text = "";
 
-                string virtualDir = "~/Uploads/StyleDocs/" + id;
-                string phys = Server.MapPath(virtualDir);
-                if (!Directory.Exists(phys)) Directory.CreateDirectory(phys);
-                string saved = Guid.NewGuid().ToString("N") + ext;
-                fuDoc.SaveAs(Path.Combine(phys, saved));
+            txtFabricType.Text = "";
+            txtConstruction.Text = "";
+            txtSpecGsm.Text = "";
+            txtSpecComposition.Text = "";
+            txtFabricWidth.Text = "";
+            txtFinish.Text = "";
+            txtWashType.Text = "";
+            txtSleeve.Text = "";
+            txtNeck.Text = "";
+            txtClosure.Text = "";
+            txtPocket.Text = "";
+            txtPrintEmb.Text = "";
+            txtMainLabel.Text = "";
+            txtCareLabel.Text = "";
+            txtStitchType.Text = "";
+            txtSPI.Text = "";
+            txtHemType.Text = "";
+            txtCareInstr.Text = "";
 
-                Exec("sp_Mer_Style_Doc_Save",
-                    P("@StyleID", id), P("@DocumentName", Path.GetFileName(fuDoc.FileName)), P("@DocumentType", V(hfDocType)),
-                    P("@FilePath", virtualDir + "/" + saved), P("@VersionNo", N(txtDocVersion.Text)), P("@User", CurrentUser));
+            txtPantone.Text = "";
+            txtFabCode.Text = "";
+            txtFabName.Text = "";
+            txtFabComp.Text = "";
+            txtFabGsm.Text = "";
+            txtFabColor.Text = "";
+            txtFabCons.Text = "";
+            txtFabWaste.Text = "";
+            txtAccCode.Text = "";
+            txtAccName.Text = "";
+            txtAccSizeColor.Text = "";
+            txtAccCons.Text = "";
+            txtAccWaste.Text = "";
+            txtAccSupplier.Text = "";
+            txtSetName.Text = "";
+            txtSetRemarks.Text = "";
+            txtCompName.Text = "";
+            txtCompQty.Text = "1";
+            txtCompStyle.Text = "";
+            txtMapSet.Text = "";
+            txtMapComp.Text = "";
 
-                txtDocVersion.Text = "";
-                LoadDocs(id);
-            }
-            catch (Exception ex) { ShowMessage(ex.Message); }
+            hfStyleId.Value = "0";
+            hfSetId.Value = "0";
+            hfBuyer.Value = ""; hfBrand.Value = ""; hfAgent.Value = "";
+            hfSeason.Value = ""; hfSeasonYear.Value = ""; hfProductCategory.Value = "";
+            hfProductType.Value = ""; hfGarmentType.Value = ""; hfGender.Value = "";
+            hfMerchandiser.Value = ""; hfKnitWoven.Value = ""; hfMainStatus.Value = "";
+            hfColor.Value = ""; hfSize.Value = ""; hfFabUnit.Value = "";
+            hfAccType.Value = ""; hfAccUnit.Value = ""; hfMapComp.Value = ""; hfMapType.Value = "";
+            hfBuyerFilter.Value = ""; hfStatusFilter.Value = "";
+
+            ViewState["StyleID"] = null;
+
+            gvColors.DataSource = null; gvColors.DataBind();
+            gvSizes.DataSource = null; gvSizes.DataBind();
+            gvFabric.DataSource = null; gvFabric.DataBind();
+            gvAcc.DataSource = null; gvAcc.DataBind();
+            gvSets.DataSource = null; gvSets.DataBind();
+            gvHistory.DataSource = null; gvHistory.DataBind();
         }
 
-        protected void gvDocs_RowCommand(object sender, GridViewCommandEventArgs e)
+        // ============================================================
+        // GRID HELPERS
+        // ============================================================
+        private DataTable GetGridTable(GridView gv, string[] columns)
         {
-            if (e.CommandName != "DelDoc") return;
-            int docId; if (!int.TryParse(Convert.ToString(e.CommandArgument), out docId)) return;
-            try
+            DataTable dt = new DataTable();
+            foreach (string col in columns) dt.Columns.Add(col, typeof(object));
+
+            if (gv.DataSource is DataTable)
             {
-                DataTable old = GetTable("sp_Mer_Style_Doc_Delete", P("@DocumentID", docId), P("@StyleID", StyleId));
-                foreach (DataRow r in old.Rows) TryDeleteFile(Str(r["FilePath"]));
-                LoadDocs(StyleId);
+                dt = (DataTable)gv.DataSource;
             }
-            catch (Exception ex) { ShowMessage(ex.Message); }
-        }
-
-        // ================================================================
-        //  COSTING
-        // ================================================================
-        private void ClearCostingLabels()
-        {
-            lblCostStatus.Text = "-"; lblCostVer.Text = "-"; lblTotalCost.Text = "-"; lblFob.Text = "-"; lblProfit.Text = "-";
-        }
-
-        private void LoadCosting(int id)
-        {
-            DataTable all = GetTable("sp_Mer_Style_Costing_List", P("@StyleID", id));
-            gvCosting.DataSource = all;
-            gvCosting.DataBind();
-
-            ClearCostingLabels();
-            DataRow cur = null;
-            foreach (DataRow r in all.Rows) if (Bool(r["IsCurrent"])) { cur = r; break; }
-            if (cur == null && all.Rows.Count > 0) cur = all.Rows[0];
-            if (cur == null) { SetBadge(bdgCosting, "Pending", "bg-secondary"); return; }
-
-            string cc = V(hfCurrency);
-            lblCostStatus.Text = Str(cur["CostingStatus"]);
-            lblCostVer.Text = "Ver " + Convert.ToInt32(cur["VersionNo"]).ToString("00") + " (" + DateStr(cur["CostingDate"]) + ")";
-            lblTotalCost.Text = cur["TotalCost"] == DBNull.Value ? "-" : cc + " " + Convert.ToDecimal(cur["TotalCost"]).ToString("0.00");
-            lblFob.Text = cur["FOBPrice"] == DBNull.Value ? "-" : cc + " " + Convert.ToDecimal(cur["FOBPrice"]).ToString("0.00");
-            lblProfit.Text = cur["ProfitMarginPercent"] == DBNull.Value ? "-" : Convert.ToDecimal(cur["ProfitMarginPercent"]).ToString("0.00") + "%";
-            SetBadge(bdgCosting, Str(cur["CostingStatus"]) == "Approved" ? "Completed" : Str(cur["CostingStatus"]), Str(cur["CostingStatus"]) == "Approved" ? "bg-primary" : "bg-warning text-dark");
-        }
-
-        protected void btnCreateCosting_Click(object sender, EventArgs e)
-        {
-            int id = StyleId;
-            if (id == 0) { ShowMessage("Please save the style first."); return; }
-            if (Dec(txtCostTotal.Text) <= 0) { ShowMessage("Please enter Total Cost."); return; }
-
-            try
+            else if (gv.Rows.Count > 0)
             {
-                string cs = V(hfCostStatus);
-                if (cs == "") cs = "Draft";
-                Exec("sp_Mer_Style_Costing_Create",
-                    P("@StyleID", id), P("@CostingStatus", cs),
-                    P("@TotalCost", Dec(txtCostTotal.Text)), P("@FOBPrice", Dec(txtCostFob.Text)), P("@User", CurrentUser));
-
-                txtCostTotal.Text = ""; txtCostFob.Text = "";
-                LoadCosting(id);
-                LoadHistory(id);
+                foreach (GridViewRow row in gv.Rows)
+                {
+                    DataRow dr = dt.NewRow();
+                    for (int i = 0; i < columns.Length && i < row.Cells.Count; i++)
+                        dr[i] = row.Cells[i].Text;
+                    dt.Rows.Add(dr);
+                }
             }
-            catch (Exception ex) { ShowMessage(ex.Message); }
-        }
-
-        // ================================================================
-        //  APPROVAL WORKFLOW
-        // ================================================================
-        private void BuildWorkflow(string current)
-        {
-            int ci = Array.IndexOf(WorkflowSteps, current);
-            if (ci < 0) ci = 0;
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < WorkflowSteps.Length; i++)
-            {
-                string cls = i < ci ? "done" : (i == ci ? "active" : "");
-                string label = WorkflowSteps[i] == "Active" ? "Active (Locked)" : WorkflowSteps[i];
-                sb.Append("<div class=\"col\"><div class=\"workflow-step " + cls + "\">" + Server.HtmlEncode(label) + "</div></div>");
-            }
-            ltWorkflow.Text = sb.ToString();
-        }
-
-        private void LoadApproval(int id)
-        {
-            DataTable all = GetTable("sp_Mer_Style_Approval_List", P("@StyleID", id));
-            gvApproval.DataSource = all;
-            gvApproval.DataBind();
-
-            string step = all.Rows.Count > 0 ? Str(all.Rows[0]["WorkflowStep"]) : "Draft";
-            BuildWorkflow(step);
-
-            txtSubmittedBy.Text = "Not submitted";
-            txtApprovedBy.Text = step == "Draft" ? "Not submitted" : "Pending";
-            foreach (DataRow r in all.Rows)
-            {
-                if (Str(r["ActionTaken"]) == "Submitted") { txtSubmittedBy.Text = Str(r["ActionBy"]) + " (" + Convert.ToDateTime(r["ActionDate"]).ToString("yyyy-MM-dd") + ")"; break; }
-            }
-            bool approved = false;
-            foreach (DataRow r in all.Rows)
-            {
-                if (Str(r["ActionTaken"]) == "Approved") { txtApprovedBy.Text = Str(r["ActionBy"]) + " (" + Convert.ToDateTime(r["ActionDate"]).ToString("yyyy-MM-dd") + ")"; approved = true; break; }
-            }
-            if (!approved && step != "Draft")
-            {
-                int idx = Array.IndexOf(WorkflowSteps, step);
-                txtApprovedBy.Text = idx >= 0 && idx < WorkflowSteps.Length - 1 ? "Pending " + WorkflowSteps[idx + 1] : "Pending";
-            }
-        }
-
-        protected void btnSubmit_Click(object sender, EventArgs e) { DoApproval("Submit"); }
-        protected void btnApprove_Click(object sender, EventArgs e) { DoApproval("Approve"); }
-        protected void btnReject_Click(object sender, EventArgs e) { DoApproval("Reject"); }
-        protected void btnForward_Click(object sender, EventArgs e) { DoApproval("Forward"); }
-
-        private void DoApproval(string action)
-        {
-            int id = StyleId;
-            if (id == 0) { ShowMessage("Please save the style first."); return; }
-
-            try
-            {
-                // সব শর্ত (Draft/Locked/Step) SP নিজেই যাচাই করে, ভুল হলে error message ফেরত দেয়
-                Exec("sp_Mer_Style_Approval_Action",
-                    P("@StyleID", id), P("@Action", action), P("@Remarks", N(txtApprovalRemarks.Text)), P("@User", CurrentUser));
-
-                txtApprovalRemarks.Text = "";
-                LoadSummary(id);
-                LoadApproval(id);
-                LoadHistory(id);
-            }
-            catch (Exception ex) { ShowMessage(ex.Message); }
+            return dt;
         }
     }
 }

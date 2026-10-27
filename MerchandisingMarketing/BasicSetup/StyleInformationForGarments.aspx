@@ -8,7 +8,7 @@
     <title>Garments ERP - Style Entry Master</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-
+    <script src="../../Assets/StyleInformationForGarments.js"></script>
     <style>
         :root {
             --erp-primary: #0f172a;
@@ -27,17 +27,12 @@
         .required::after { content: " *"; color: #ef4444; }
         .nav-tabs .nav-link { color: #64748b; font-weight: 500; border: none; padding: 0.75rem 1rem; }
         .nav-tabs .nav-link.active { color: var(--erp-secondary); background-color: transparent; border-bottom: 2px solid var(--erp-secondary); }
-        .quick-action-btn { text-align: left; margin-bottom: 0.5rem; font-size: 0.8rem; }
-        .workflow-step { text-align: center; padding: 0.5rem; background: #f1f5f9; border-radius: 0.25rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .workflow-step.done { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-        .workflow-step.active { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
         .btn-xs { padding: 0.1rem 0.35rem; font-size: 0.75rem; }
         .add-row { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 0.375rem; padding: 0.5rem; margin-bottom: 0.75rem; }
         .img-box { border: 2px dashed #cbd5e1; border-radius: 0.375rem; padding: 1rem; text-align: center; background: #f8fafc; }
+        .sec-title { border-bottom: 1px solid var(--erp-border); padding-bottom: 0.25rem; margin-top: 0.5rem; }
 
-        /* =========================================================
-           Searchable Dropdown (Employee Entry পেজের মতো)
-        ========================================================= */
+        /* Searchable Dropdown */
         .dd-ctl { position: relative; min-width: 0; }
         .dd-fld { display: flex; align-items: center; gap: 6px; height: 31px; padding: 0 8px 0 10px; border: 1px solid #ced4da; border-radius: 0.25rem;
                   background: #fff; font-size: 0.8125rem; cursor: pointer; user-select: none; transition: border-color .15s ease, box-shadow .15s ease; }
@@ -74,6 +69,7 @@
         <asp:HiddenField ID="hfUserId" runat="server" Value="0" ClientIDMode="Static" />
         <asp:HiddenField ID="hfTab" runat="server" Value="" ClientIDMode="Static" />
         <asp:HiddenField ID="hfLocked" runat="server" Value="0" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfSetId" runat="server" Value="0" ClientIDMode="Static" />
 
         <!-- ড্রপডাউনের নির্বাচিত মান (JS এখানে লেখে, Server এখান থেকে পড়ে) -->
         <asp:HiddenField ID="hfBuyerFilter" runat="server" ClientIDMode="Static" />
@@ -89,19 +85,14 @@
         <asp:HiddenField ID="hfGarmentType" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfGender" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfMerchandiser" runat="server" ClientIDMode="Static" />
-        <asp:HiddenField ID="hfCountry" runat="server" ClientIDMode="Static" />
-        <asp:HiddenField ID="hfCurrency" runat="server" ClientIDMode="Static" />
-        <asp:HiddenField ID="hfPaymentTerm" runat="server" ClientIDMode="Static" />
-        <asp:HiddenField ID="hfShipmentMode" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfKnitWoven" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfColor" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfSize" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfFabUnit" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfAccType" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfAccUnit" runat="server" ClientIDMode="Static" />
-        <asp:HiddenField ID="hfCostStatus" runat="server" ClientIDMode="Static" />
-        <asp:HiddenField ID="hfTnaTemplate" runat="server" ClientIDMode="Static" />
-        <asp:HiddenField ID="hfDocType" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfMapComp" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfMapType" runat="server" ClientIDMode="Static" />
 
         <!-- Top ERP Header -->
         <nav class="navbar navbar-erp navbar-expand-lg">
@@ -196,7 +187,7 @@
                             <div class="col-md-2 text-end mt-3 mt-md-0">
                                 <div class="btn-group btn-group-sm">
                                     <asp:LinkButton ID="btnSave" runat="server" CssClass="btn btn-primary" OnClick="btnSave_Click" ToolTip="Save Record"><i class="bi bi-save"></i> Save</asp:LinkButton>
-                                    <asp:LinkButton ID="btnUpdate" runat="server" CssClass="btn btn-success" OnClick="btnSave_Click" ToolTip="Update Record" Visible="false"><i class="bi bi-arrow-clockwise"></i> Update</asp:LinkButton>
+                                    <asp:LinkButton ID="btnUpdate" runat="server" CssClass="btn btn-success" OnClick="btnUpdate_Click" ToolTip="Update Record" Visible="false"><i class="bi bi-arrow-clockwise"></i> Update</asp:LinkButton>
                                     <asp:LinkButton ID="btnReset" runat="server" CssClass="btn btn-outline-secondary" OnClick="btnReset_Click" ToolTip="Reset Form"><i class="bi bi-x-lg"></i></asp:LinkButton>
                                     <button type="button" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown"></button>
                                     <ul class="dropdown-menu dropdown-menu-end">
@@ -218,17 +209,12 @@
                             <div class="card-header bg-white pb-0 pt-2 border-bottom-0">
                                 <ul class="nav nav-tabs card-header-tabs" id="styleTabs" role="tablist">
                                     <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic-tab" type="button"><i class="bi bi-info-circle me-1"></i> Basic Info</button></li>
-                                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#commercial-tab" type="button"><i class="bi bi-cash-coin me-1"></i> Commercial</button></li>
                                     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#image-tab" type="button"><i class="bi bi-images me-1"></i> Images</button></li>
                                     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#spec-tab" type="button"><i class="bi bi-sliders me-1"></i> Specification</button></li>
                                     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#colorsize-tab" type="button"><i class="bi bi-grid-3x3 me-1"></i> Color &amp; Size</button></li>
                                     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#fabric-tab" type="button"><i class="bi bi-layers me-1"></i> Fabric</button></li>
                                     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#accessories-tab" type="button"><i class="bi bi-tag me-1"></i> Accessories</button></li>
-                                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#costing-tab" type="button"><i class="bi bi-calculator me-1"></i> Costing</button></li>
-                                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#workorder-tab" type="button"><i class="bi bi-tools me-1"></i> Work Order</button></li>
-                                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tna-tab" type="button"><i class="bi bi-calendar-check me-1"></i> TNA</button></li>
-                                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#docs-tab" type="button"><i class="bi bi-file-earmark-text me-1"></i> Documents</button></li>
-                                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#approval-tab" type="button"><i class="bi bi-shield-check me-1"></i> Approval</button></li>
+                                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#set-tab" type="button"><i class="bi bi-collection me-1"></i> Set</button></li>
                                     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#history-tab" type="button"><i class="bi bi-clock-history me-1"></i> History</button></li>
                                 </ul>
                             </div>
@@ -293,6 +279,78 @@
                                                 <label class="form-label">Creation Date</label>
                                                 <asp:TextBox ID="txtCreationDate" runat="server" TextMode="Date" CssClass="form-control form-control-sm" />
                                             </div>
+
+                                            <!-- ===== Additional Commercial / Planning Fields ===== -->
+                                            <div class="col-12"><h6 class="text-uppercase text-secondary fw-bold sec-title">Commercial &amp; Planning</h6></div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Buyer Style Ref</label>
+                                                <asp:TextBox ID="txtBuyerStyleRef" runat="server" CssClass="form-control form-control-sm" MaxLength="50" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Fit Type</label>
+                                                <asp:DropDownList ID="ddlFit" runat="server" CssClass="form-select form-select-sm">
+                                                    <asp:ListItem Value="">-- Select --</asp:ListItem>
+                                                    <asp:ListItem>Regular</asp:ListItem>
+                                                    <asp:ListItem>Slim</asp:ListItem>
+                                                    <asp:ListItem>Relaxed</asp:ListItem>
+                                                    <asp:ListItem>Oversized</asp:ListItem>
+                                                </asp:DropDownList>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Target Price &amp; Currency</label>
+                                                <div class="input-group input-group-sm">
+                                                    <asp:TextBox ID="txtTargetPrice" runat="server" CssClass="form-control" placeholder="FOB Price" MaxLength="20" />
+                                                    <asp:DropDownList ID="ddlCurrency" runat="server" CssClass="form-select" Style="max-width: 90px">
+                                                        <asp:ListItem>USD</asp:ListItem>
+                                                        <asp:ListItem>EUR</asp:ListItem>
+                                                        <asp:ListItem>GBP</asp:ListItem>
+                                                        <asp:ListItem>BDT</asp:ListItem>
+                                                    </asp:DropDownList>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Delivery Date</label>
+                                                <asp:TextBox ID="txtDeliveryDate" runat="server" TextMode="Date" CssClass="form-control form-control-sm" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">HS Code</label>
+                                                <asp:TextBox ID="txtHSCode" runat="server" CssClass="form-control form-control-sm" MaxLength="30" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Country of Origin</label>
+                                                <asp:TextBox ID="txtCountryOrigin" runat="server" CssClass="form-control form-control-sm" Text="Bangladesh" MaxLength="50" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Lead Time (Days) / MOQ</label>
+                                                <div class="input-group input-group-sm">
+                                                    <asp:TextBox ID="txtLeadTime" runat="server" CssClass="form-control" placeholder="Lead Time" MaxLength="10" />
+                                                    <asp:TextBox ID="txtMOQ" runat="server" CssClass="form-control" placeholder="MOQ" MaxLength="10" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">SMV</label>
+                                                <asp:TextBox ID="txtSMV" runat="server" CssClass="form-control form-control-sm" MaxLength="10" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Sample Type</label>
+                                                <asp:DropDownList ID="ddlSampleType" runat="server" CssClass="form-select form-select-sm">
+                                                    <asp:ListItem Value="">-- Select --</asp:ListItem>
+                                                    <asp:ListItem>Proto</asp:ListItem>
+                                                    <asp:ListItem>Fit</asp:ListItem>
+                                                    <asp:ListItem>Size Set</asp:ListItem>
+                                                    <asp:ListItem>PP</asp:ListItem>
+                                                    <asp:ListItem>Shipment</asp:ListItem>
+                                                </asp:DropDownList>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Garment Weight (g/pc)</label>
+                                                <asp:TextBox ID="txtGarmentWeight" runat="server" CssClass="form-control form-control-sm" MaxLength="10" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Packing Type</label>
+                                                <asp:TextBox ID="txtPacking" runat="server" CssClass="form-control form-control-sm" MaxLength="100" />
+                                            </div>
+
                                             <div class="col-12">
                                                 <label class="form-label">Internal Remarks / Notes</label>
                                                 <asp:TextBox ID="txtRemarks" runat="server" TextMode="MultiLine" Rows="2" CssClass="form-control form-control-sm" placeholder="Enter remarks..." MaxLength="500" />
@@ -300,44 +358,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- TAB 2: BUYER & COMMERCIAL -->
-                                    <div class="tab-pane fade" id="commercial-tab">
-                                        <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-cash-coin"></i> Buyer &amp; Commercial Terms</h6>
-                                        <div class="row g-3">
-                                            <div class="col-md-4">
-                                                <label class="form-label">Buyer Style No / Product No</label>
-                                                <div class="input-group input-group-sm">
-                                                    <asp:TextBox ID="txtBuyerStyleNo" runat="server" CssClass="form-control" placeholder="Buyer Style No" MaxLength="50" />
-                                                    <asp:TextBox ID="txtProductNo" runat="server" CssClass="form-control" placeholder="Product No" MaxLength="50" />
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Destination Country</label>
-                                                <div data-dd="country"></div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Currency</label>
-                                                <div data-dd="currency"></div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Payment Term</label>
-                                                <div data-dd="paymentTerm"></div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Shipment Mode</label>
-                                                <div data-dd="shipmentMode"></div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label class="form-label">Port of Loading &amp; Discharge</label>
-                                                <div class="input-group input-group-sm">
-                                                    <asp:TextBox ID="txtPortLoading" runat="server" CssClass="form-control" placeholder="Port of Loading" MaxLength="100" />
-                                                    <asp:TextBox ID="txtPortDischarge" runat="server" CssClass="form-control" placeholder="Port of Discharge" MaxLength="100" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- TAB 3: STYLE IMAGE & DESIGN -->
+                                    <!-- TAB 2: STYLE IMAGE & DESIGN -->
                                     <div class="tab-pane fade" id="image-tab">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-secondary fw-bold m-0"><i class="bi bi-images"></i> Style Image &amp; Technical Sketch Repository</h6>
@@ -386,7 +407,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- TAB 4: PRODUCT SPECIFICATION -->
+                                    <!-- TAB 3: PRODUCT SPECIFICATION -->
                                     <div class="tab-pane fade" id="spec-tab">
                                         <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-sliders"></i> Garment Specifications &amp; Construction</h6>
                                         <div class="row g-3">
@@ -434,10 +455,38 @@
                                                     <asp:TextBox ID="txtPocket" runat="server" CssClass="form-control" placeholder="Pocket" MaxLength="100" />
                                                 </div>
                                             </div>
+
+                                            <!-- ===== Additional Specification Fields ===== -->
+                                            <div class="col-md-3">
+                                                <label class="form-label">Print / Embroidery</label>
+                                                <asp:TextBox ID="txtPrintEmb" runat="server" CssClass="form-control form-control-sm" MaxLength="150" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Main Label / Care Label</label>
+                                                <div class="input-group input-group-sm">
+                                                    <asp:TextBox ID="txtMainLabel" runat="server" CssClass="form-control" placeholder="Main Label" MaxLength="100" />
+                                                    <asp:TextBox ID="txtCareLabel" runat="server" CssClass="form-control" placeholder="Care Label" MaxLength="100" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Stitch Type &amp; SPI</label>
+                                                <div class="input-group input-group-sm">
+                                                    <asp:TextBox ID="txtStitchType" runat="server" CssClass="form-control" placeholder="Stitch" MaxLength="100" />
+                                                    <asp:TextBox ID="txtSPI" runat="server" CssClass="form-control" placeholder="SPI" MaxLength="10" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Hem Type</label>
+                                                <asp:TextBox ID="txtHemType" runat="server" CssClass="form-control form-control-sm" MaxLength="100" />
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label class="form-label">Care Instruction</label>
+                                                <asp:TextBox ID="txtCareInstr" runat="server" CssClass="form-control form-control-sm" MaxLength="300" />
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <!-- TAB 5: COLOR & SIZE -->
+                                    <!-- TAB 4: COLOR & SIZE -->
                                     <div class="tab-pane fade" id="colorsize-tab">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -492,7 +541,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- TAB 6: FABRIC -->
+                                    <!-- TAB 5: FABRIC -->
                                     <div class="tab-pane fade" id="fabric-tab">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-secondary fw-bold m-0"><i class="bi bi-layers"></i> Style Fabric Requirements Master</h6>
@@ -530,7 +579,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- TAB 7: ACCESSORIES -->
+                                    <!-- TAB 6: ACCESSORIES -->
                                     <div class="tab-pane fade" id="accessories-tab">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="text-uppercase text-secondary fw-bold m-0"><i class="bi bi-tag"></i> Trims &amp; Accessories Requirements</h6>
@@ -568,179 +617,77 @@
                                         </div>
                                     </div>
 
-                                    <!-- TAB 8: COSTING -->
-                                    <div class="tab-pane fade" id="costing-tab">
-                                        <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-calculator"></i> Costing Summary Overview</h6>
-                                        <div class="row g-3 mb-3">
-                                            <div class="col-md-3">
-                                                <div class="p-3 border rounded bg-light"><span class="text-muted small">Costing Status</span>
-                                                    <h5 class="text-success mb-0 mt-1"><asp:Label ID="lblCostStatus" runat="server" Text="-" /></h5></div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="p-3 border rounded bg-light"><span class="text-muted small">Latest Version &amp; Date</span>
-                                                    <h5 class="mb-0 mt-1"><asp:Label ID="lblCostVer" runat="server" Text="-" /></h5></div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="p-3 border rounded bg-light"><span class="text-muted small">Total Cost</span>
-                                                    <h5 class="text-primary mb-0 mt-1"><asp:Label ID="lblTotalCost" runat="server" Text="-" /></h5></div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="p-3 border rounded bg-light"><span class="text-muted small">FOB / Buyer Price</span>
-                                                    <h5 class="text-dark mb-0 mt-1"><asp:Label ID="lblFob" runat="server" Text="-" /></h5></div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="p-3 border rounded bg-light"><span class="text-muted small">Profit Margin</span>
-                                                    <h5 class="text-success mb-0 mt-1"><asp:Label ID="lblProfit" runat="server" Text="-" /></h5></div>
-                                            </div>
-                                        </div>
-                                        <div class="add-row">
-                                            <div class="row g-2 align-items-end">
-                                                <div class="col-md-3">
-                                                    <label class="form-label">Costing Status</label>
-                                                    <div data-dd="costStatus"></div>
-                                                </div>
-                                                <div class="col-md-3"><label class="form-label">Total Cost</label><asp:TextBox ID="txtCostTotal" runat="server" CssClass="form-control form-control-sm" /></div>
-                                                <div class="col-md-3"><label class="form-label">FOB Price</label><asp:TextBox ID="txtCostFob" runat="server" CssClass="form-control form-control-sm" /></div>
-                                                <div class="col-md-3"><asp:LinkButton ID="btnCreateCosting" runat="server" CssClass="btn btn-sm btn-primary w-100" OnClick="btnCreateCosting_Click"><i class="bi bi-plus-circle"></i> Create Costing (New Version)</asp:LinkButton></div>
-                                            </div>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <asp:GridView ID="gvCosting" runat="server" AutoGenerateColumns="false" CssClass="table table-bordered table-sm align-middle" HeaderStyle-CssClass="table-light" GridLines="None" EmptyDataText="No costing created yet.">
+                                    <!-- TAB 7: SET (Set Item = ২..N Component; Component-wise Size/Color Mapping) -->
+                                    <div class="tab-pane fade" id="set-tab">
+                                        <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-collection"></i> Set Configuration</h6>
+                                        <div class="table-responsive mb-3">
+                                            <asp:GridView ID="gvSets" runat="server" AutoGenerateColumns="false" CssClass="table table-bordered table-sm align-middle" HeaderStyle-CssClass="table-light" GridLines="None" OnRowCommand="gvSets_RowCommand" EmptyDataText="No set configured for this style.">
                                                 <Columns>
-                                                    <asp:BoundField DataField="VersionNo" HeaderText="Ver" />
-                                                    <asp:BoundField DataField="CostingStatus" HeaderText="Status" />
-                                                    <asp:BoundField DataField="TotalCost" HeaderText="Total Cost" DataFormatString="{0:0.00}" />
-                                                    <asp:BoundField DataField="FOBPrice" HeaderText="FOB" DataFormatString="{0:0.00}" />
-                                                    <asp:BoundField DataField="ProfitMarginPercent" HeaderText="Profit %" DataFormatString="{0:0.00}" />
-                                                    <asp:BoundField DataField="CostingDate" HeaderText="Date" DataFormatString="{0:yyyy-MM-dd}" />
-                                                    <asp:TemplateField HeaderText="Current">
-                                                        <ItemTemplate><%# Convert.ToBoolean(Eval("IsCurrent")) ? "<span class='badge bg-success'>Current</span>" : "" %></ItemTemplate>
-                                                    </asp:TemplateField>
-                                                </Columns>
-                                            </asp:GridView>
-                                        </div>
-                                    </div>
-
-                                    <!-- TAB 9: WORK ORDER -->
-                                    <div class="tab-pane fade" id="workorder-tab">
-                                        <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-tools"></i> Embellishment &amp; Special Process Work Orders</h6>
-                                        <div class="row g-3">
-                                            <div class="col-md-3">
-                                                <div class="card p-3 border">
-                                                    <asp:CheckBox ID="chkPrinting" runat="server" Text=" Printing Required" CssClass="fw-bold mb-2" />
-                                                    <asp:TextBox ID="txtPrintingDetails" runat="server" CssClass="form-control form-control-sm mb-2" placeholder="e.g. Chest Print" MaxLength="200" />
-                                                    <button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-plus"></i> Printing Work Order</button>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="card p-3 border">
-                                                    <asp:CheckBox ID="chkEmbroidery" runat="server" Text=" Embroidery Required" CssClass="fw-bold mb-2" />
-                                                    <asp:TextBox ID="txtEmbroideryDetails" runat="server" CssClass="form-control form-control-sm mb-2" placeholder="Details" MaxLength="200" />
-                                                    <button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-plus"></i> Embroidery Work Order</button>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="card p-3 border">
-                                                    <asp:CheckBox ID="chkWashing" runat="server" Text=" Washing Required" CssClass="fw-bold mb-2" />
-                                                    <asp:TextBox ID="txtWashingDetails" runat="server" CssClass="form-control form-control-sm mb-2" placeholder="e.g. Enzyme" MaxLength="200" />
-                                                    <button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-plus"></i> Wash Work Order</button>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="card p-3 border">
-                                                    <asp:CheckBox ID="chkSpecial" runat="server" Text=" Special Process" CssClass="fw-bold mb-2" />
-                                                    <asp:TextBox ID="txtSpecialDetails" runat="server" CssClass="form-control form-control-sm mb-2" placeholder="Details" MaxLength="200" />
-                                                    <button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-plus"></i> Special Work Order</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- TAB 10: TNA -->
-                                    <div class="tab-pane fade" id="tna-tab">
-                                        <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-calendar-check"></i> TNA Milestones Summary</h6>
-                                        <div class="row g-3">
-                                            <div class="col-md-4">
-                                                <label class="form-label">TNA Template</label>
-                                                <div data-dd="tnaTemplate"></div>
-                                            </div>
-                                            <div class="col-md-2"><label class="form-label">Sample Deadline</label><asp:TextBox ID="txtSampleDeadline" runat="server" TextMode="Date" CssClass="form-control form-control-sm" /></div>
-                                            <div class="col-md-2"><label class="form-label">PP Meeting Date</label><asp:TextBox ID="txtPPMeeting" runat="server" TextMode="Date" CssClass="form-control form-control-sm" /></div>
-                                            <div class="col-md-2"><label class="form-label">Fabric In Date</label><asp:TextBox ID="txtFabricIn" runat="server" TextMode="Date" CssClass="form-control form-control-sm" /></div>
-                                            <div class="col-md-2"><label class="form-label">Shipment Date</label><asp:TextBox ID="txtShipmentDate" runat="server" TextMode="Date" CssClass="form-control form-control-sm" /></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- TAB 11: DOCUMENTS -->
-                                    <div class="tab-pane fade" id="docs-tab">
-                                        <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-file-earmark-text"></i> Document Management</h6>
-                                        <div class="add-row">
-                                            <div class="row g-2 align-items-end">
-                                                <div class="col-md-4"><asp:FileUpload ID="fuDoc" runat="server" CssClass="form-control form-control-sm" /></div>
-                                                <div class="col-md-3"><div data-dd="docType"></div></div>
-                                                <div class="col-md-2"><asp:TextBox ID="txtDocVersion" runat="server" CssClass="form-control form-control-sm" placeholder="Version (v1.0)" MaxLength="20" /></div>
-                                                <div class="col-md-3"><asp:LinkButton ID="btnUploadDoc" runat="server" CssClass="btn btn-sm btn-primary w-100" OnClick="btnUploadDoc_Click"><i class="bi bi-upload"></i> Upload Document</asp:LinkButton></div>
-                                            </div>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <asp:GridView ID="gvDocs" runat="server" AutoGenerateColumns="false" CssClass="table table-bordered table-sm align-middle" HeaderStyle-CssClass="table-light" GridLines="None" OnRowCommand="gvDocs_RowCommand" EmptyDataText="No document uploaded.">
-                                                <Columns>
-                                                    <asp:BoundField DataField="DocumentName" HeaderText="Document Name" />
-                                                    <asp:BoundField DataField="DocumentType" HeaderText="Type" />
-                                                    <asp:BoundField DataField="UploadedDate" HeaderText="Upload Date" DataFormatString="{0:yyyy-MM-dd}" />
-                                                    <asp:BoundField DataField="UploadedBy" HeaderText="Uploaded By" />
-                                                    <asp:BoundField DataField="VersionNo" HeaderText="Version" />
+                                                    <asp:BoundField DataField="SetName" HeaderText="Set Name" />
                                                     <asp:TemplateField HeaderText="Action">
                                                         <ItemTemplate>
-                                                            <asp:HyperLink runat="server" NavigateUrl='<%# ResolveUrl(Eval("FilePath").ToString()) %>' Target="_blank" CssClass="btn btn-xs btn-outline-secondary"><i class="bi bi-download"></i></asp:HyperLink>
-                                                            <asp:LinkButton runat="server" CommandName="DelDoc" CommandArgument='<%# Eval("DocumentID") %>' CssClass="btn btn-xs btn-outline-danger" OnClientClick="return confirm('Delete this document?');"><i class="bi bi-trash"></i></asp:LinkButton>
+                                                            <asp:LinkButton runat="server" CommandName="LoadSet" CommandArgument='<%# Eval("SetID") %>' CssClass="btn btn-xs btn-outline-primary"><i class="bi bi-folder2-open"></i> Load</asp:LinkButton>
+                                                            <asp:LinkButton runat="server" CommandName="OffSet" CommandArgument='<%# Eval("SetID") %>' CssClass="btn btn-xs btn-outline-danger" OnClientClick="return confirm('Deactivate this set?');"><i class="bi bi-slash-circle"></i></asp:LinkButton>
                                                         </ItemTemplate>
                                                     </asp:TemplateField>
                                                 </Columns>
                                             </asp:GridView>
                                         </div>
-                                    </div>
-
-                                    <!-- TAB 12: APPROVAL -->
-                                    <div class="tab-pane fade" id="approval-tab">
-                                        <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-shield-check"></i> Workflow &amp; Approval Status</h6>
-                                        <div class="row mb-4">
-                                            <asp:Literal ID="ltWorkflow" runat="server" />
-                                        </div>
-                                        <div class="row g-3">
-                                            <div class="col-md-3">
-                                                <label class="form-label">Submitted By / Date</label>
-                                                <asp:TextBox ID="txtSubmittedBy" runat="server" CssClass="form-control form-control-sm bg-light" ReadOnly="true" />
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label">Approved By / Date</label>
-                                                <asp:TextBox ID="txtApprovedBy" runat="server" CssClass="form-control form-control-sm bg-light" ReadOnly="true" />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Approval Remarks</label>
-                                                <asp:TextBox ID="txtApprovalRemarks" runat="server" CssClass="form-control form-control-sm" placeholder="Enter remarks" MaxLength="500" />
-                                            </div>
-                                            <div class="col-12 mt-3">
-                                                <asp:LinkButton ID="btnApprove" runat="server" CssClass="btn btn-sm btn-success me-2" OnClick="btnApprove_Click"><i class="bi bi-check-circle"></i> Approve</asp:LinkButton>
-                                                <asp:LinkButton ID="btnReject" runat="server" CssClass="btn btn-sm btn-danger me-2" OnClick="btnReject_Click"><i class="bi bi-x-circle"></i> Reject</asp:LinkButton>
-                                                <asp:LinkButton ID="btnForward" runat="server" CssClass="btn btn-sm btn-warning me-2" OnClick="btnForward_Click"><i class="bi bi-arrow-right-circle"></i> Forward</asp:LinkButton>
-                                                <asp:LinkButton ID="btnSubmit" runat="server" CssClass="btn btn-sm btn-secondary" OnClick="btnSubmit_Click"><i class="bi bi-send"></i> Submit</asp:LinkButton>
-                                            </div>
-                                            <div class="col-12">
-                                                <asp:GridView ID="gvApproval" runat="server" AutoGenerateColumns="false" CssClass="table table-bordered table-sm align-middle mt-2" HeaderStyle-CssClass="table-light" GridLines="None" EmptyDataText="No approval activity yet.">
-                                                    <Columns>
-                                                        <asp:BoundField DataField="ActionDate" HeaderText="Date &amp; Time" DataFormatString="{0:yyyy-MM-dd hh:mm tt}" />
-                                                        <asp:BoundField DataField="WorkflowStep" HeaderText="Step" />
-                                                        <asp:BoundField DataField="ActionTaken" HeaderText="Action" />
-                                                        <asp:BoundField DataField="ActionBy" HeaderText="By" />
-                                                        <asp:BoundField DataField="Remarks" HeaderText="Remarks" />
-                                                    </Columns>
-                                                </asp:GridView>
+                                        <div class="add-row">
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-md-4"><label class="form-label">Set Name</label><asp:TextBox ID="txtSetName" runat="server" CssClass="form-control form-control-sm" MaxLength="100" /></div>
+                                                <div class="col-md-5"><label class="form-label">Remarks</label><asp:TextBox ID="txtSetRemarks" runat="server" CssClass="form-control form-control-sm" MaxLength="300" /></div>
+                                                <div class="col-md-3"><div class="btn-group btn-group-sm w-100">
+                                                    <asp:LinkButton ID="btnSetSave" runat="server" CssClass="btn btn-primary" OnClick="btnSetSave_Click"><i class="bi bi-save"></i> Save Set</asp:LinkButton>
+                                                    <asp:LinkButton ID="btnSetNew" runat="server" CssClass="btn btn-outline-secondary" OnClick="btnSetNew_Click"><i class="bi bi-file-earmark-plus"></i> New</asp:LinkButton>
+                                                </div></div>
                                             </div>
                                         </div>
+                                        <div class="add-row">
+                                            <div class="row g-2">
+                                                <div class="col-md-4"><asp:TextBox ID="txtCompName" runat="server" CssClass="form-control form-control-sm" placeholder="Component name (Top / Bottom / Inner)" MaxLength="100" /></div>
+                                                <div class="col-md-2"><asp:TextBox ID="txtCompQty" runat="server" CssClass="form-control form-control-sm" placeholder="Qty per Set" Text="1" /></div>
+                                                <div class="col-md-3"><asp:TextBox ID="txtCompStyle" runat="server" CssClass="form-control form-control-sm" placeholder="Component Style ID (optional)" /></div>
+                                                <div class="col-md-3"><asp:LinkButton ID="btnAddSetComp" runat="server" CssClass="btn btn-sm btn-outline-primary w-100" OnClick="btnAddSetComp_Click"><i class="bi bi-plus-lg"></i> Add Component</asp:LinkButton></div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive mb-3">
+                                            <asp:GridView ID="gvSetComp" runat="server" AutoGenerateColumns="false" CssClass="table table-bordered table-sm align-middle" HeaderStyle-CssClass="table-light" GridLines="None" OnRowCommand="gvSetComp_RowCommand" EmptyDataText="No components.">
+                                                <Columns>
+                                                    <asp:BoundField DataField="ComponentName" HeaderText="Component" />
+                                                    <asp:BoundField DataField="ComponentStyleID" HeaderText="Style ID" />
+                                                    <asp:BoundField DataField="QtyPerSet" HeaderText="Qty / Set" DataFormatString="{0:0.###}" />
+                                                    <asp:TemplateField HeaderText="Action">
+                                                        <ItemTemplate><asp:LinkButton runat="server" CommandName="DelRow" CommandArgument='<%# Container.DataItemIndex %>' CssClass="btn btn-xs btn-outline-danger"><i class="bi bi-trash"></i></asp:LinkButton></ItemTemplate>
+                                                    </asp:TemplateField>
+                                                </Columns>
+                                            </asp:GridView>
+                                        </div>
+                                        <div class="add-row">
+                                            <div class="row g-2">
+                                                <div class="col-md-3"><div data-dd="mapComp"></div></div>
+                                                <div class="col-md-2"><div data-dd="mapType"></div></div>
+                                                <div class="col-md-2"><asp:TextBox ID="txtMapSet" runat="server" CssClass="form-control form-control-sm" placeholder="Set code (e.g. L)" MaxLength="50" /></div>
+                                                <div class="col-md-2"><asp:TextBox ID="txtMapComp" runat="server" CssClass="form-control form-control-sm" placeholder="Component code (e.g. 32)" MaxLength="50" /></div>
+                                                <div class="col-md-3"><asp:LinkButton ID="btnAddSetMap" runat="server" CssClass="btn btn-sm btn-outline-primary w-100" OnClick="btnAddSetMap_Click"><i class="bi bi-link-45deg"></i> Add Mapping</asp:LinkButton></div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <asp:GridView ID="gvSetMap" runat="server" AutoGenerateColumns="false" CssClass="table table-bordered table-sm align-middle" HeaderStyle-CssClass="table-light" GridLines="None" OnRowCommand="gvSetMap_RowCommand" EmptyDataText="No size/color mapping (same codes are used).">
+                                                <Columns>
+                                                    <asp:BoundField DataField="ComponentName" HeaderText="Component" />
+                                                    <asp:BoundField DataField="MapType" HeaderText="Type" />
+                                                    <asp:BoundField DataField="SetCode" HeaderText="Set Code" />
+                                                    <asp:BoundField DataField="ComponentCode" HeaderText="Component Code" />
+                                                    <asp:TemplateField HeaderText="Action">
+                                                        <ItemTemplate><asp:LinkButton runat="server" CommandName="DelRow" CommandArgument='<%# Container.DataItemIndex %>' CssClass="btn btn-xs btn-outline-danger"><i class="bi bi-trash"></i></asp:LinkButton></ItemTemplate>
+                                                    </asp:TemplateField>
+                                                </Columns>
+                                            </asp:GridView>
+                                        </div>
                                     </div>
 
-                                    <!-- TAB 13: HISTORY -->
+                                    <!-- TAB 8: HISTORY -->
                                     <div class="tab-pane fade" id="history-tab">
                                         <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-clock-history"></i> Audit Trail &amp; Activity Log</h6>
                                         <div class="table-responsive">
@@ -767,22 +714,6 @@
 
                     <!-- Right Sidebar -->
                     <div class="col-lg-3">
-                        <div class="card card-erp mb-3">
-                            <div class="card-header-erp"><i class="bi bi-lightning-charge"></i> Quick Actions / Related Links</div>
-                            <div class="card-body d-grid gap-2 p-2">
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-cart-check me-2"></i> PO Entry</span><asp:Label ID="bdgPO" runat="server" CssClass="badge bg-secondary" Text="0 Records" /></button>
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-calculator me-2"></i> Costing</span><asp:Label ID="bdgCosting" runat="server" CssClass="badge bg-secondary" Text="Pending" /></button>
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-layers me-2"></i> Fabric Booking</span><asp:Label ID="bdgFabric" runat="server" CssClass="badge bg-secondary" Text="0 Records" /></button>
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-tag me-2"></i> Accessories Booking</span><asp:Label ID="bdgAcc" runat="server" CssClass="badge bg-secondary" Text="Pending" /></button>
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-calendar-range me-2"></i> TNA Schedule</span><asp:Label ID="bdgTna" runat="server" CssClass="badge bg-secondary" Text="Pending" /></button>
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-tools me-2"></i> Printing Work Order</span><asp:Label ID="bdgPrint" runat="server" CssClass="badge bg-secondary" Text="Not Req." /></button>
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-tools me-2"></i> Embroidery W/O</span><asp:Label ID="bdgEmb" runat="server" CssClass="badge bg-secondary" Text="Not Req." /></button>
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-gear me-2"></i> Production Order</span><span class="badge bg-secondary">Pending</span></button>
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-kanban me-2"></i> Production Plan</span><span class="badge bg-secondary">Not Scheduled</span></button>
-                                <button type="button" class="btn btn-outline-primary btn-sm quick-action-btn d-flex justify-content-between align-items-center"><span><i class="bi bi-truck me-2"></i> Shipment Module</span><span class="badge bg-secondary">Pending</span></button>
-                            </div>
-                        </div>
-
                         <div class="card card-erp">
                             <div class="card-header-erp"><i class="bi bi-info-square"></i> System Summary</div>
                             <div class="card-body small">
@@ -802,193 +733,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ১) ড্রপডাউনের অপশন তালিকা (Server থেকে) -->
-    <script>var OPT = {}; try { OPT = JSON.parse('<%= HttpUtility.JavaScriptStringEncode(OptJson) %>'); } catch (e) { window.__optErr = e.message; }</script>
-
-    <!-- ২) Searchable ড্রপডাউন (Employee Entry এর মতো; এখানে value + text আলাদা, Brand নির্ভর করে Buyer এর উপর) -->
-    <script>
-        var FIELDS = [
-            // List panel
-            { id: 'buyerFilter', hf: 'hfBuyerFilter', ph: 'All Buyers' },
-            { id: 'statusFilter', hf: 'hfStatusFilter', ph: 'All' },
-            // Header
-            { id: 'mainStatus', hf: 'hfMainStatus', ph: 'Select' },
-            // Basic
-            { id: 'buyer', hf: 'hfBuyer', ph: 'Select Buyer' },
-            { id: 'brand', hf: 'hfBrand', ph: 'Select Brand', dep: 'buyer', depLabel: 'buyer' },
-            { id: 'agent', hf: 'hfAgent', ph: 'Direct Buyer' },
-            { id: 'season', hf: 'hfSeason', ph: 'Season' },
-            { id: 'seasonYear', hf: 'hfSeasonYear', ph: 'Year' },
-            { id: 'productCategory', hf: 'hfProductCategory', ph: 'Select' },
-            { id: 'productType', hf: 'hfProductType', ph: 'Select' },
-            { id: 'garmentType', hf: 'hfGarmentType', ph: 'Type' },
-            { id: 'gender', hf: 'hfGender', ph: 'Gender' },
-            { id: 'merchandiser', hf: 'hfMerchandiser', ph: 'Select Merchandiser' },
-            // Commercial
-            { id: 'country', hf: 'hfCountry', ph: 'Select Country' },
-            { id: 'currency', hf: 'hfCurrency', ph: 'Select' },
-            { id: 'paymentTerm', hf: 'hfPaymentTerm', ph: 'Select Payment Term' },
-            { id: 'shipmentMode', hf: 'hfShipmentMode', ph: 'Select' },
-            // Specification / Color / Size / Fabric / Accessories / Costing / TNA / Docs
-            { id: 'knitWoven', hf: 'hfKnitWoven', ph: 'Select' },
-            { id: 'color', hf: 'hfColor', ph: 'Select Color' },
-            { id: 'size', hf: 'hfSize', ph: 'Select Size' },
-            { id: 'fabUnit', hf: 'hfFabUnit', ph: 'Unit' },
-            { id: 'accType', hf: 'hfAccType', ph: 'Type' },
-            { id: 'accUnit', hf: 'hfAccUnit', ph: 'Unit' },
-            { id: 'costStatus', hf: 'hfCostStatus', ph: 'Select' },
-            { id: 'tnaTemplate', hf: 'hfTnaTemplate', ph: 'Select Template' },
-            { id: 'docType', hf: 'hfDocType', ph: 'Select Type' }
-        ];
-        FIELDS.forEach(function (f) { f.opts = OPT[f.id] || []; });
-        var state = {};
-
-        var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
-        var fieldOf = function (id) { return FIELDS.filter(function (f) { return f.id === id; })[0]; };
-
-        // value -> দেখানোর text (অপশনে না থাকলে value নিজেই দেখায়)
-        function labelOf(f, v) {
-            for (var i = 0; i < f.opts.length; i++) if (f.opts[i].v === v) return f.opts[i].t;
-            return v;
-        }
-
-        function buildFilters() {
-            FIELDS.forEach(function (f) {
-                var host = document.querySelector('[data-dd="' + f.id + '"]');
-                var hf = document.getElementById(f.hf);
-                if (!host || !hf) return;          // যে Panel দেখা যাচ্ছে না, সেটা বাদ
-                host.id = 'wrap-' + f.id;
-                state[f.id] = hf.value || '';
-                host.innerHTML =
-                    '<div class="dd-ctl">' +
-                      '<div id="fld-' + f.id + '" class="dd-fld" tabindex="0" onclick="toggleDD(\'' + f.id + '\')" ' +
-                          'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleDD(\'' + f.id + '\')}">' +
-                        '<span class="txt"></span>' +
-                        '<span class="clr" onclick="clearField(\'' + f.id + '\',event)" title="Clear"><i class="bi bi-x-lg"></i></span>' +
-                        '<i class="bi bi-chevron-expand chev"></i>' +
-                      '</div>' +
-                      '<div id="panel-' + f.id + '" class="dd-panel d-none" onclick="event.stopPropagation()">' +
-                        '<div class="ps"><i class="bi bi-search"></i>' +
-                          '<input type="text" id="q-' + f.id + '" placeholder="Search..." autocomplete="off" ' +
-                          'oninput="renderList(\'' + f.id + '\')" onkeydown="if(event.key===\'Enter\')return false;"></div>' +
-                        '<div class="pl" id="list-' + f.id + '"></div>' +
-                      '</div>' +
-                    '</div>';
-                refreshField(f.id);
-            });
-        }
-
-        function syncHidden(id) {
-            document.getElementById(fieldOf(id).hf).value = state[id] || '';
-        }
-
-        function refreshField(id) {
-            var f = fieldOf(id), v = state[id] || '';
-            var box = document.getElementById('fld-' + id);
-            box.classList.toggle('has', v !== '');
-            box.querySelector('.txt').textContent = v !== '' ? labelOf(f, v) : f.ph;
-            renderList(id);
-        }
-
-        function renderList(id) {
-            var f = fieldOf(id), cur = state[id] || '';
-            var q = (document.getElementById('q-' + id).value || '').toLowerCase();
-            var list = document.getElementById('list-' + id);
-
-            if (f.dep && !state[f.dep]) {
-                list.innerHTML = '<div class="empty">Select ' + esc(f.depLabel || f.dep) + ' first</div>';
-                return;
-            }
-            var html = f.opts.map(function (o, i) { return { o: o, i: i }; }).filter(function (x) {
-                if (f.dep && String(x.o.p) !== state[f.dep]) return false;
-                return String(x.o.t).toLowerCase().indexOf(q) > -1;
-            }).map(function (x) {
-                var on = x.o.v === cur;
-                return '<div class="it ' + (on ? 'sel-single' : '') + '" onclick="pick(\'' + id + '\',' + x.i + ')"><span>' + esc(x.o.t) + '</span>' +
-                       (on ? '<i class="bi bi-check-lg ms-auto"></i>' : '') + '</div>';
-            }).join('');
-            list.innerHTML = html || '<div class="empty">No results found</div>';
-        }
-
-        function pick(id, i) {
-            state[id] = fieldOf(id).opts[i].v;
-            closeAll();
-            syncHidden(id); refreshField(id);
-            if (window.onFieldChange) window.onFieldChange(id);
-        }
-
-        function clearField(id, ev) {
-            if (ev) ev.stopPropagation();
-            state[id] = '';
-            syncHidden(id); refreshField(id);
-            if (window.onFieldChange) window.onFieldChange(id);
-        }
-
-        function closeAll() {
-            document.querySelectorAll('.dd-panel').forEach(function (p) { p.classList.add('d-none'); });
-            document.querySelectorAll('.dd-fld.open').forEach(function (b) { b.classList.remove('open'); });
-        }
-
-        function toggleDD(id) {
-            var box = document.getElementById('fld-' + id);
-            if (box.classList.contains('dis')) return;
-            var panel = document.getElementById('panel-' + id);
-            var wasOpen = !panel.classList.contains('d-none');
-            closeAll();
-            if (wasOpen) return;
-            panel.classList.remove('d-none');
-            box.classList.add('open');
-            panel.classList.remove('right');
-            if (panel.getBoundingClientRect().right > window.innerWidth - 8) panel.classList.add('right');
-            var q = document.getElementById('q-' + id);
-            q.value = ''; renderList(id);
-            setTimeout(function () { q.focus(); }, 0);
-        }
-
-        document.addEventListener('click', function (e) { if (!e.target.closest('[id^="wrap-"]')) closeAll(); });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
-
-        function setFieldDisabled(id, off) {
-            var box = document.getElementById('fld-' + id);
-            if (box) box.classList.toggle('dis', !!off);
-        }
-    </script>
-
-    <!-- ৩) পেজের নিজস্ব লজিক -->
-    <script>
-        // Buyer বদলালে Brand খালি (Brand তালিকা Buyer অনুযায়ী ফিল্টার হয়)
-        window.onFieldChange = function (id) {
-            if (id === 'buyer') {
-                state['brand'] = '';
-                syncHidden('brand');
-                refreshField('brand');
-            }
-        };
-
-        // Locked (Active) style এ Status ড্রপডাউন বন্ধ
-        function applyLock() {
-            var hl = document.getElementById('hfLocked');
-            if (hl && hl.value === '1') setFieldDisabled('mainStatus', true);
-        }
-
-        // Postback এর পরও আগের Tab খোলা রাখে (hfTab এ মনে রাখে)
-        function initTabs() {
-            var hf = document.getElementById('hfTab');
-            if (!hf) return;
-            document.querySelectorAll('#styleTabs [data-bs-toggle="tab"]').forEach(function (b) {
-                b.addEventListener('shown.bs.tab', function () { hf.value = b.getAttribute('data-bs-target'); });
-            });
-            if (hf.value) {
-                var el = document.querySelector('#styleTabs [data-bs-target="' + hf.value + '"]');
-                if (el) bootstrap.Tab.getOrCreateInstance(el).show();
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            buildFilters();
-            applyLock();
-            initTabs();
-        });
-    </script>
 </body>
 </html>
