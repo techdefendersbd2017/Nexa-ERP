@@ -64,7 +64,7 @@
 </head>
 <body>
     <form id="form1" runat="server">
-
+        <asp:HiddenField ID="hfActiveTab" runat="server" ClientIDMode="Static" Value="basic-tab" />
         <asp:HiddenField ID="hfStyleId" runat="server" Value="0" ClientIDMode="Static" />
         <asp:HiddenField ID="hfUserId" runat="server" Value="0" ClientIDMode="Static" />
         <asp:HiddenField ID="hfTab" runat="server" Value="" ClientIDMode="Static" />
@@ -505,7 +505,9 @@
                                                             <asp:BoundField DataField="ColorName" HeaderText="Color Name" />
                                                             <asp:BoundField DataField="PantoneCode" HeaderText="Pantone" />
                                                             <asp:TemplateField HeaderText="Active">
-                                                                <ItemTemplate><span class='badge <%# Convert.ToBoolean(Eval("IsActive")) ? "bg-success" : "bg-secondary" %>'><%# Convert.ToBoolean(Eval("IsActive")) ? "Yes" : "No" %></span></ItemTemplate>
+                                                                <ItemTemplate>
+                                                                    <span class='badge <%# GetActiveCss(Eval("IsActive")) %>'><%# GetActiveText(Eval("IsActive")) %></span>
+                                                                </ItemTemplate>
                                                             </asp:TemplateField>
                                                             <asp:TemplateField HeaderText="Action">
                                                                 <ItemTemplate><asp:LinkButton runat="server" CommandName="DelRow" CommandArgument='<%# Container.DataItemIndex %>' CssClass="btn btn-xs btn-outline-danger"><i class="bi bi-trash"></i></asp:LinkButton></ItemTemplate>
@@ -529,7 +531,9 @@
                                                             <asp:BoundField DataField="SizeName" HeaderText="Size Name" />
                                                             <asp:BoundField DataField="SizeRange" HeaderText="Range" />
                                                             <asp:TemplateField HeaderText="Active">
-                                                                <ItemTemplate><span class='badge <%# Convert.ToBoolean(Eval("IsActive")) ? "bg-success" : "bg-secondary" %>'><%# Convert.ToBoolean(Eval("IsActive")) ? "Yes" : "No" %></span></ItemTemplate>
+                                                                <ItemTemplate>
+                                                                    <span class='badge <%# GetActiveCss(Eval("IsActive")) %>'><%# GetActiveText(Eval("IsActive")) %></span>
+                                                                </ItemTemplate>
                                                             </asp:TemplateField>
                                                             <asp:TemplateField HeaderText="Action">
                                                                 <ItemTemplate><asp:LinkButton runat="server" CommandName="DelRow" CommandArgument='<%# Container.DataItemIndex %>' CssClass="btn btn-xs btn-outline-danger"><i class="bi bi-trash"></i></asp:LinkButton></ItemTemplate>
@@ -617,7 +621,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- TAB 7: SET (Set Item = ২..N Component; Component-wise Size/Color Mapping) -->
+                                    <!-- TAB 7: SET -->
                                     <div class="tab-pane fade" id="set-tab">
                                         <h6 class="text-uppercase text-secondary fw-bold mb-3"><i class="bi bi-collection"></i> Set Configuration</h6>
                                         <div class="table-responsive mb-3">

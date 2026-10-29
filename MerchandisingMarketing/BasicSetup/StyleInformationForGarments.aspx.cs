@@ -51,7 +51,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
                 hfStyleId.Value = "0";
                 hfSetId.Value = "0";
-
+                hfActiveTab.Value = "basic-tab";
                 LoadStyleList();
             }
         }
@@ -65,6 +65,20 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             ScriptManager.RegisterStartupScript(this, this.GetType(),
                 Guid.NewGuid().ToString("N"),
                 "alert('" + safe + "');", true);
+        }
+        private void PreserveTab(string tabId)
+        {
+            hfActiveTab.Value = tabId;
+            ScriptManager.RegisterStartupScript(this, this.GetType(),
+                "setTab_" + Guid.NewGuid().ToString("N"),
+                @"(function(){
+            if(!window.bootstrap || !bootstrap.Tab) return;
+            var btn=document.querySelector('#styleTabs [data-bs-target=""#" + tabId + @"""]');
+            if(btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+            var hf=document.getElementById('hfActiveTab');
+            if(hf) hf.value='" + tabId + @"';
+        })();",
+                true);
         }
 
         private void ResetAllDropdowns()
@@ -102,6 +116,35 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         {
             decimal d;
             return decimal.TryParse(s, out d) ? d : 0m;
+        }
+
+        // ============================================================
+        // GRIDVIEW BOOLEAN HELPERS
+        // (fixes "String was not recognized as a valid Boolean")
+        // ============================================================
+        protected string GetActiveCss(object value)
+        {
+            return IsActiveValue(value) ? "bg-success" : "bg-secondary";
+        }
+
+        protected string GetActiveText(object value)
+        {
+            return IsActiveValue(value) ? "Yes" : "No";
+        }
+
+        private bool IsActiveValue(object value)
+        {
+            if (value == null || value == DBNull.Value) return false;
+
+            if (value is bool) return (bool)value;
+            if (value is int) return (int)value == 1;
+
+            string s = value.ToString().Trim();
+            if (s.Length == 0) return false;
+            if (s.Equals("1") || s.Equals("true", StringComparison.OrdinalIgnoreCase)
+                || s.Equals("yes", StringComparison.OrdinalIgnoreCase)) return true;
+
+            return false;
         }
 
         // ============================================================
@@ -217,7 +260,6 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             }
             int srcId = Convert.ToInt32(ViewState["StyleID"]);
             LoadStyleById(srcId);
-            // Copy: reset ID so it becomes new
             ViewState["StyleID"] = null;
             txtStyleID.Text = "0";
             txtStyleNo.Text = txtStyleNo.Text + "-COPY";
@@ -257,7 +299,6 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                     hfStyleId.Value = newId.ToString();
                     txtStyleID.Text = newId.ToString();
 
-                    // Save child tables (color/size/fabric/acc from GridView)
                     SaveStyleColors(newId);
                     SaveStyleSizes(newId);
                     SaveStyleFabrics(newId);
@@ -310,7 +351,6 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
                 CloseConnection();
 
-                // Replace child rows (simple approach)
                 SaveStyleColors(styleId);
                 SaveStyleSizes(styleId);
                 SaveStyleFabrics(styleId);
@@ -462,10 +502,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
                         r.Close();
 
-                        // Restore dropdown display texts via JS
                         RestoreDropdownsFromHidden();
 
-                        // Load child grids
                         LoadStyleColors(styleId);
                         LoadStyleSizes(styleId);
                         LoadStyleFabrics(styleId);
@@ -547,17 +585,23 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         protected void btnAddColor_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(hfColor.Value)) { ShowAlert("Select a color."); return; }
-            DataTable dt = GetGridTable(gvColors, new[] { "ColorCode", "ColorName", "PantoneCode", "IsActive" });
+
+            DataTable dt = GetGridTable(gvColors,
+                new[] { "ColorCode", "ColorName", "PantoneCode", "IsActive" },
+                new[] { "IsActive" });
+
             DataRow dr = dt.NewRow();
             dr["ColorCode"] = hfColor.Value;
-            dr["ColorName"] = hfColor.Value; // will be looked up
+            dr["ColorName"] = hfColor.Value;
             dr["PantoneCode"] = txtPantone.Text.Trim();
             dr["IsActive"] = true;
             dt.Rows.Add(dr);
+
             gvColors.DataSource = dt;
             gvColors.DataBind();
             hfColor.Value = "";
             txtPantone.Text = "";
+            PreserveTab("colorsize-tab");
         }
 
         protected void gvColors_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -565,10 +609,13 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             if (e.CommandName == "DelRow")
             {
                 int idx = Convert.ToInt32(e.CommandArgument);
-                DataTable dt = GetGridTable(gvColors, new[] { "ColorCode", "ColorName", "PantoneCode", "IsActive" });
+                DataTable dt = GetGridTable(gvColors,
+                    new[] { "ColorCode", "ColorName", "PantoneCode", "IsActive" },
+                    new[] { "IsActive" });
                 dt.Rows.RemoveAt(idx);
                 gvColors.DataSource = dt;
                 gvColors.DataBind();
+                PreserveTab("colorsize-tab");
             }
         }
 
@@ -585,9 +632,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
                 foreach (GridViewRow row in gvColors.Rows)
                 {
-                    string code = ((Label)row.FindControl("lblColorCode"))?.Text;
-                    // Alternatively read from Cells if BoundField
-                    code = row.Cells[0].Text;
+                    string code = row.Cells[0].Text;
                     string name = row.Cells[1].Text;
                     string pant = row.Cells[2].Text;
                     using (SqlCommand c = new SqlCommand(
@@ -632,16 +677,22 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         protected void btnAddSize_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(hfSize.Value)) { ShowAlert("Select a size."); return; }
-            DataTable dt = GetGridTable(gvSizes, new[] { "SizeCode", "SizeName", "SizeRange", "IsActive" });
+
+            DataTable dt = GetGridTable(gvSizes,
+                new[] { "SizeCode", "SizeName", "SizeRange", "IsActive" },
+                new[] { "IsActive" });
+
             DataRow dr = dt.NewRow();
             dr["SizeCode"] = hfSize.Value;
             dr["SizeName"] = hfSize.Value;
             dr["SizeRange"] = "";
             dr["IsActive"] = true;
             dt.Rows.Add(dr);
+
             gvSizes.DataSource = dt;
             gvSizes.DataBind();
             hfSize.Value = "";
+            PreserveTab("colorsize-tab");
         }
 
         protected void gvSizes_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -649,10 +700,13 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             if (e.CommandName == "DelRow")
             {
                 int idx = Convert.ToInt32(e.CommandArgument);
-                DataTable dt = GetGridTable(gvSizes, new[] { "SizeCode", "SizeName", "SizeRange", "IsActive" });
+                DataTable dt = GetGridTable(gvSizes,
+                    new[] { "SizeCode", "SizeName", "SizeRange", "IsActive" },
+                    new[] { "IsActive" });
                 dt.Rows.RemoveAt(idx);
                 gvSizes.DataSource = dt;
                 gvSizes.DataBind();
+                PreserveTab("colorsize-tab");
             }
         }
 
@@ -731,6 +785,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             txtFabCode.Text = ""; txtFabName.Text = ""; txtFabComp.Text = "";
             txtFabGsm.Text = ""; txtFabColor.Text = ""; txtFabCons.Text = "";
             txtFabWaste.Text = ""; hfFabUnit.Value = "";
+            PreserveTab("colorsize-tab");
         }
 
         protected void gvFabric_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -743,6 +798,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 dt.Rows.RemoveAt(idx);
                 gvFabric.DataSource = dt;
                 gvFabric.DataBind();
+                PreserveTab("colorsize-tab");
             }
         }
 
@@ -829,6 +885,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             txtAccCode.Text = ""; txtAccName.Text = ""; txtAccSizeColor.Text = "";
             txtAccCons.Text = ""; txtAccWaste.Text = ""; txtAccSupplier.Text = "";
             hfAccType.Value = ""; hfAccUnit.Value = "";
+            PreserveTab("colorsize-tab");
         }
 
         protected void gvAcc_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -841,6 +898,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 dt.Rows.RemoveAt(idx);
                 gvAcc.DataSource = dt;
                 gvAcc.DataBind();
+                PreserveTab("colorsize-tab");
             }
         }
 
@@ -905,13 +963,18 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
 
         // ============================================================
-        // SET (simplified Save)
+        // SET
         // ============================================================
         protected void btnSetSave_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtSetName.Text.Trim()))
             {
                 ShowAlert("Enter Set Name.");
+                return;
+            }
+            if (ViewState["StyleID"] == null)
+            {
+                ShowAlert("Save the style first before adding a set.");
                 return;
             }
             try
@@ -925,7 +988,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                         string.IsNullOrEmpty(hfSetId.Value) ? 0 : Convert.ToInt32(hfSetId.Value);
                     c.Parameters.Add("@StyleID", SqlDbType.Int).Value = Convert.ToInt32(ViewState["StyleID"]);
                     c.Parameters.Add("@SetName", SqlDbType.NVarChar, 100).Value = txtSetName.Text.Trim();
-                    c.Parameters.Add("@SetRemarks", SqlDbType.NVarChar, 300).Value = (object)txtSetRemarks.Text.Trim() ?? DBNull.Value;
+                    c.Parameters.Add("@SetRemarks", SqlDbType.NVarChar, 300).Value =
+                        string.IsNullOrWhiteSpace(txtSetRemarks.Text) ? (object)DBNull.Value : txtSetRemarks.Text.Trim();
 
                     SqlParameter outId = new SqlParameter("@NewSetID", SqlDbType.Int);
                     outId.Direction = ParameterDirection.Output;
@@ -976,15 +1040,20 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             txtMapSet.Text = "";
             txtMapComp.Text = "";
             ShowAlert("New Set form is ready.");
+            PreserveTab("colorsize-tab");
         }
 
         protected void btnAddSetComp_Click(object sender, EventArgs e)
         {
             ShowAlert("Add Set Component: implement per your workflow.");
+            PreserveTab("set-tab");
         }
 
         protected void gvSetComp_RowCommand(object sender, GridViewCommandEventArgs e) { }
-        protected void btnAddSetMap_Click(object sender, EventArgs e) { }
+        protected void btnAddSetMap_Click(object sender, EventArgs e) 
+        {
+            PreserveTab("set-tab");
+        }
         protected void gvSetMap_RowCommand(object sender, GridViewCommandEventArgs e) { }
 
         protected void gvSets_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -1006,7 +1075,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                         c.ExecuteNonQuery();
                     }
                     CloseConnection();
-                    LoadStyleSets(Convert.ToInt32(ViewState["StyleID"]));
+                    if (ViewState["StyleID"] != null)
+                        LoadStyleSets(Convert.ToInt32(ViewState["StyleID"]));
                     ShowAlert("Set deactivated.");
                 }
                 catch (Exception ex) { CloseConnection(); ShowAlert(ex.Message); }
@@ -1140,26 +1210,53 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
 
         // ============================================================
-        // GRID HELPERS
+        // GRID HELPERS (typed bool support)
         // ============================================================
-        private DataTable GetGridTable(GridView gv, string[] columns)
+        private DataTable GetGridTable(GridView gv, string[] columns, string[] boolColumns = null)
         {
-            DataTable dt = new DataTable();
-            foreach (string col in columns) dt.Columns.Add(col, typeof(object));
+            boolColumns = boolColumns ?? new string[0];
 
-            if (gv.DataSource is DataTable)
+            DataTable dt = new DataTable();
+            foreach (string col in columns)
             {
-                dt = (DataTable)gv.DataSource;
+                if (Array.IndexOf(boolColumns, col) >= 0)
+                    dt.Columns.Add(col, typeof(bool));
+                else
+                    dt.Columns.Add(col, typeof(object));
             }
-            else if (gv.Rows.Count > 0)
+
+            DataTable src = gv.DataSource as DataTable;
+            if (src != null)
             {
-                foreach (GridViewRow row in gv.Rows)
+                foreach (DataRow r in src.Rows)
                 {
                     DataRow dr = dt.NewRow();
-                    for (int i = 0; i < columns.Length && i < row.Cells.Count; i++)
-                        dr[i] = row.Cells[i].Text;
+                    for (int i = 0; i < columns.Length; i++)
+                    {
+                        string col = columns[i];
+                        if (Array.IndexOf(boolColumns, col) >= 0)
+                            dr[col] = IsActiveValue(r[col]);
+                        else
+                            dr[col] = r[col];
+                    }
                     dt.Rows.Add(dr);
                 }
+                return dt;
+            }
+
+            foreach (GridViewRow row in gv.Rows)
+            {
+                DataRow dr = dt.NewRow();
+                for (int i = 0; i < columns.Length && i < row.Cells.Count; i++)
+                {
+                    string col = columns[i];
+                    string txt = row.Cells[i].Text;
+                    if (Array.IndexOf(boolColumns, col) >= 0)
+                        dr[col] = IsActiveValue(txt);
+                    else
+                        dr[col] = txt;
+                }
+                dt.Rows.Add(dr);
             }
             return dt;
         }

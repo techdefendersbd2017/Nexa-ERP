@@ -238,16 +238,22 @@
     <Content Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\AttendanceProcess.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\ContinuousAbsence.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\LatePermissionEntry.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
+    <Content Include="HRMPayroll\HRMApproval\AttendanceDeleteApproval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\EmployeeRe_Active_Approval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\EmployeeSaperationApproval.aspx" />
+    <Content Include="HRMPayroll\HRMApproval\LatePermissionApproval.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceSummaryView.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\GarmentType.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\ProductCategory.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\Season.aspx" />
     <Content Include="MasterConfiguration\OrganizationMaster\CompanyInformation.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeePersonalInformationUpdate.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\LeftyLetterIssue.aspx" />
@@ -324,13 +330,14 @@
     <Content Include="MasterConfiguration\BuyerManagement\BuyerBrandSetup.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\BuyerSetup.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\BuyingAgentSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\ColorSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx" />
     <Content Include="MasterConfiguration\ProductMaster\ItemTypeSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\JobSerialFormat.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ProductDepartmentSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ProductTypeSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\SetBreakdown.aspx" />
-    <Content Include="MerchandisingMarketing\BasicSetup\SizeSetup.aspx" />
+    <Content Include="MasterConfiguration\BuyerManagement\SizeSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\StyleInformationForGarments.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\StyleSetupClick.aspx" />
     <Content Include="MerchandisingMarketing\BuyerPurchaseOrder\colorSetup.aspx" />
@@ -529,6 +536,13 @@
     <Compile Include="HRMPayroll\AttendanceManagementSystem\ContinuousAbsence.aspx.designer.cs">
       <DependentUpon>ContinuousAbsence.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\LatePermissionEntry.aspx.cs">
+      <DependentUpon>LatePermissionEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\LatePermissionEntry.aspx.designer.cs">
+      <DependentUpon>LatePermissionEntry.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx.cs">
       <DependentUpon>ManualAttendance.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -557,6 +571,13 @@
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.designer.cs">
       <DependentUpon>EmployeeEntry.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\AttendanceDeleteApproval.aspx.cs">
+      <DependentUpon>AttendanceDeleteApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\AttendanceDeleteApproval.aspx.designer.cs">
+      <DependentUpon>AttendanceDeleteApproval.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\HRMApproval\EmployeeRe_Active_Approval.aspx.cs">
       <DependentUpon>EmployeeRe_Active_Approval.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -570,6 +591,13 @@
     </Compile>
     <Compile Include="HRMPayroll\HRMApproval\EmployeeSaperationApproval.aspx.designer.cs">
       <DependentUpon>EmployeeSaperationApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\LatePermissionApproval.aspx.cs">
+      <DependentUpon>LatePermissionApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\LatePermissionApproval.aspx.designer.cs">
+      <DependentUpon>LatePermissionApproval.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReport.cs" />
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx.cs">
@@ -599,6 +627,27 @@
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx.designer.cs">
       <DependentUpon>JobCardReportCompliance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\GarmentType.aspx.cs">
+      <DependentUpon>GarmentType.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\GarmentType.aspx.designer.cs">
+      <DependentUpon>GarmentType.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\ProductCategory.aspx.cs">
+      <DependentUpon>ProductCategory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\ProductCategory.aspx.designer.cs">
+      <DependentUpon>ProductCategory.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\Season.aspx.cs">
+      <DependentUpon>Season.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MasterConfiguration\BuyerManagement\Season.aspx.designer.cs">
+      <DependentUpon>Season.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\OrganizationMaster\CompanyInformation.aspx.cs">
       <DependentUpon>CompanyInformation.aspx</DependentUpon>
@@ -1105,6 +1154,13 @@
     <Compile Include="MasterConfiguration\BuyerManagement\BuyingAgentSetup.aspx.designer.cs">
       <DependentUpon>BuyingAgentSetup.aspx</DependentUpon>
     </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\ColorSetup.aspx.cs">
+      <DependentUpon>ColorSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\ColorSetup.aspx.designer.cs">
+      <DependentUpon>ColorSetup.aspx</DependentUpon>
+    </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx.cs">
       <DependentUpon>EmbCategorySetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1147,11 +1203,11 @@
     <Compile Include="MerchandisingMarketing\BasicSetup\SetBreakdown.aspx.designer.cs">
       <DependentUpon>SetBreakdown.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\SizeSetup.aspx.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\SizeSetup.aspx.cs">
       <DependentUpon>SizeSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MerchandisingMarketing\BasicSetup\SizeSetup.aspx.designer.cs">
+    <Compile Include="MasterConfiguration\BuyerManagement\SizeSetup.aspx.designer.cs">
       <DependentUpon>SizeSetup.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\StyleInformationForGarments.aspx.cs">
