@@ -215,6 +215,7 @@
     <Content Include="Assets\EmployeeSeperations.js" />
     <Content Include="Assets\ManualAttendanceJs.js" />
     <Content Include="Assets\PersonalInformationUpdate.js" />
+    <Content Include="Assets\POEntry.js" />
     <Content Include="Assets\ReportsHRM.js" />
     <Content Include="Assets\RoleWiseChartOfMenuPermission.js" />
     <Content Include="Assets\StyleInformationForGarments.js" />
@@ -251,6 +252,7 @@
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceSummaryView.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\Payroll_Reports.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\GarmentType.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\ProductCategory.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\Season.aspx" />
@@ -334,6 +336,7 @@
     <Content Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx" />
     <Content Include="MasterConfiguration\ProductMaster\ItemTypeSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\JobSerialFormat.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\POEntry.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ProductDepartmentSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ProductTypeSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\SetBreakdown.aspx" />
@@ -347,7 +350,7 @@
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ProductDepartmentInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\YarnCountInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx" />
-    <Content Include="MasterConfiguration\BuyerManagement\POEntryInformation.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\POEntryInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInfo.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\StyleInformation.aspx" />
@@ -627,6 +630,13 @@
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx.designer.cs">
       <DependentUpon>JobCardReportCompliance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\Payroll_Reports.aspx.cs">
+      <DependentUpon>Payroll_Reports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\Payroll_Reports.aspx.designer.cs">
+      <DependentUpon>Payroll_Reports.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\BuyerManagement\GarmentType.aspx.cs">
       <DependentUpon>GarmentType.aspx</DependentUpon>
@@ -1182,6 +1192,12 @@
     <Compile Include="MerchandisingMarketing\BasicSetup\JobSerialFormat.aspx.designer.cs">
       <DependentUpon>JobSerialFormat.aspx</DependentUpon>
     </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\POEntry.aspx.cs">
+      <DependentUpon>POEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\POEntry.aspx.designer.cs">
+      <DependentUpon>POEntry.aspx</DependentUpon>
+    </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\ProductDepartmentSetup.aspx.cs">
       <DependentUpon>ProductDepartmentSetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1273,11 +1289,11 @@
     <Compile Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx.designer.cs">
       <DependentUpon>CreateStyleBuyerWise.aspx</DependentUpon>
     </Compile>
-    <Compile Include="MasterConfiguration\BuyerManagement\POEntryInformation.aspx.cs">
+    <Compile Include="MerchandisingMarketing\BasicSetup\POEntryInformation.aspx.cs">
       <DependentUpon>POEntryInformation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="MasterConfiguration\BuyerManagement\POEntryInformation.aspx.designer.cs">
+    <Compile Include="MerchandisingMarketing\BasicSetup\POEntryInformation.aspx.designer.cs">
       <DependentUpon>POEntryInformation.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx.cs">

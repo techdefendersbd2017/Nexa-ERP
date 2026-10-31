@@ -231,6 +231,15 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         protected global::System.Web.UI.WebControls.HiddenField hfFabUnit;
 
         /// <summary>
+        /// hfFabCat control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfFabCat;
+
+        /// <summary>
         /// hfAccType control.
         /// </summary>
         /// <remarks>

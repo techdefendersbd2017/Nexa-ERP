@@ -59,6 +59,38 @@
         .dd-panel .it.sel-single { background: #eef3ff; color: var(--brand-primary-dark); font-weight: 600; }
         .dd-panel .empty { padding: 12px; text-align: center; color: #8a93a3; }
 
+        /* ===== Fabric Name Builder ===== */
+        .fnb-card { border: 1px solid var(--erp-border); border-radius: .5rem; background: #fff; margin-bottom: 1rem; overflow: hidden; }
+        .fnb-head { display: flex; align-items: center; justify-content: space-between; padding: .6rem 1rem; cursor: pointer;
+                    background: linear-gradient(90deg, #eef2ff, #f5f3ff); border-bottom: 1px solid var(--erp-border); }
+        .fnb-head .ttl { font-weight: 600; color: #3730a3; }
+        .fnb-head .ttl i { margin-right: .4rem; }
+        .fnb-head .chev { transition: transform .2s ease; color: #6366f1; }
+        .fnb-card.collapsed .fnb-head .chev { transform: rotate(-90deg); }
+        .fnb-card.collapsed .fnb-body { display: none; }
+        .fnb-card.collapsed .fnb-head { border-bottom: 0; }
+        .fnb-body { padding: 1rem; }
+        .fnb-lbl { font-size: .6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #64748b; margin-bottom: .25rem; display: block; }
+        .fnb-lbl i { color: #6366f1; margin-right: .2rem; }
+        .fnb-preview { position: relative; overflow: hidden; border-radius: .75rem; padding: 1rem; color: #fff; height: 100%; min-height: 230px;
+                       background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #4c1d95 100%); display: flex; flex-direction: column; justify-content: space-between; }
+        .fnb-preview::before { content: ""; position: absolute; right: -50px; top: -50px; width: 150px; height: 150px; border-radius: 50%; background: rgba(99,102,241,.25); filter: blur(40px); }
+        .fnb-preview .cap { font-size: .625rem; letter-spacing: .12em; text-transform: uppercase; color: #a5b4fc; display: flex; justify-content: space-between; align-items: center;
+                            border-bottom: 1px solid rgba(255,255,255,.12); padding-bottom: .5rem; margin-bottom: .75rem; position: relative; }
+        .fnb-preview .code { font-family: Consolas, monospace; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 99px; padding: 1px 10px; color: #c7d2fe; font-size: .6875rem; letter-spacing: 0; }
+        .fnb-preview .name { font-size: 1rem; font-weight: 700; line-height: 1.45; word-break: break-word; position: relative; }
+        .fnb-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: .75rem 0; position: relative; }
+        .fnb-tags span { font-size: .6875rem; padding: 2px 9px; border-radius: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); }
+        .fnb-actions { display: grid; gap: 6px; position: relative; }
+        .fnb-actions .btn-copy { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.18); }
+        .fnb-actions .btn-copy:hover { background: rgba(255,255,255,.22); color: #fff; }
+        .fnb-actions .btn-use { background: linear-gradient(90deg, #6366f1, #7c3aed); color: #fff; border: 0; font-weight: 600; }
+        .fnb-actions .btn-use:hover { filter: brightness(1.1); color: #fff; }
+        .fnb-cat { display: inline-block; padding: .3rem .7rem; border-radius: .375rem; font-weight: 600; font-size: .8125rem; border: 1px solid #e2e8f0; background: #f8fafc; }
+        .fnb-cat.knit { color: #0d9488; } .fnb-cat.woven { color: #4f46e5; }
+        .fnb-flash { animation: fnbFlash 1.2s ease; }
+        @keyframes fnbFlash { 0% { background: #dcfce7; box-shadow: 0 0 0 3px rgba(34,197,94,.35); } 100% { background: #fff; box-shadow: none; } }
+
         @media print { .navbar-erp, .nav-tabs, .btn, .col-lg-3 { display: none !important; } .tab-pane { display: block !important; opacity: 1 !important; } }
     </style>
 </head>
@@ -89,6 +121,7 @@
         <asp:HiddenField ID="hfColor" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfSize" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfFabUnit" runat="server" ClientIDMode="Static" />
+        <asp:HiddenField ID="hfFabCat" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfAccType" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfAccUnit" runat="server" ClientIDMode="Static" />
         <asp:HiddenField ID="hfMapComp" runat="server" ClientIDMode="Static" />
@@ -551,6 +584,102 @@
                                             <h6 class="text-uppercase text-secondary fw-bold m-0"><i class="bi bi-layers"></i> Style Fabric Requirements Master</h6>
                                             <button type="button" class="btn btn-sm btn-success"><i class="bi bi-box-arrow-up-right"></i> Go to Fabric Booking</button>
                                         </div>
+
+                                        <!-- ===== Fabric Name Builder ===== -->
+                                        <div class="fnb-card" id="fnbCard">
+                                            <div class="fnb-head" onclick="document.getElementById('fnbCard').classList.toggle('collapsed')">
+                                                <span class="ttl"><i class="bi bi-magic"></i> Fabric Name Builder <small class="text-muted fw-normal">— ড্রপডাউন থেকে নির্বাচন করে স্ট্যান্ডার্ড নাম তৈরি করুন</small></span>
+                                                <i class="bi bi-chevron-down chev"></i>
+                                            </div>
+                                            <div class="fnb-body">
+                                                <div class="row g-3">
+                                                    <div class="col-lg-8">
+                                                        <div class="row g-2">
+                                                            <div class="col-md-4">
+                                                                <label class="fnb-lbl"><i class="bi bi-flask"></i> Composition *</label>
+                                                                <select id="fnbComp" class="form-select form-select-sm">
+                                                                    <option value="100% Cotton">100% Cotton</option>
+                                                                    <option value="100% Polyester">100% Polyester</option>
+                                                                    <option value="60% Cotton 40% Polyester">CVC (60/40)</option>
+                                                                    <option value="65% Polyester 35% Cotton">TC (65/35)</option>
+                                                                    <option value="95% Cotton 5% Spandex">Cotton Elastane (95/5)</option>
+                                                                    <option value="100% Viscose">100% Viscose</option>
+                                                                    <option value="100% Linen">100% Linen</option>
+                                                                    <option value="80% Cotton 20% Polyester">80/20 CVC</option>
+                                                                    <option value="50% Cotton 50% Polyester">50/50 Blend</option>
+                                                                    <option value="100% Nylon">100% Nylon</option>
+                                                                    <option value="__custom">✏️ Custom...</option>
+                                                                </select>
+                                                                <input type="text" id="fnbCompCustom" class="form-control form-control-sm mt-1 d-none" placeholder="Custom composition" maxlength="150" />
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fnb-lbl"><i class="bi bi-layers"></i> Construction *</label>
+                                                                <select id="fnbConst" class="form-select form-select-sm">
+                                                                    <optgroup label="🧶 Knit">
+                                                                        <option>Single Jersey</option><option>1x1 Rib</option><option>2x2 Rib</option><option>Interlock</option>
+                                                                        <option>Pique</option><option>French Terry</option><option>Fleece</option><option>Jacquard Knit</option>
+                                                                    </optgroup>
+                                                                    <optgroup label="🪡 Woven">
+                                                                        <option>Twill</option><option>Canvas</option><option>Oxford</option><option>Poplin</option>
+                                                                        <option>Satin</option><option>Chiffon</option><option>Denim</option><option>Corduroy</option>
+                                                                    </optgroup>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fnb-lbl"><i class="bi bi-speedometer2"></i> GSM *</label>
+                                                                <div class="input-group input-group-sm">
+                                                                    <input type="number" id="fnbGsm" class="form-control" value="180" min="50" max="800" />
+                                                                    <span class="input-group-text">GSM</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fnb-lbl"><i class="bi bi-record-circle"></i> Yarn Count</label>
+                                                                <select id="fnbYarn" class="form-select form-select-sm">
+                                                                    <option value="20s/1">20s/1</option><option value="24s/1">24s/1</option><option value="26s/1">26s/1</option>
+                                                                    <option value="30s/1" selected>30s/1</option><option value="36s/1">36s/1</option><option value="40s/1">40s/1</option>
+                                                                    <option value="20/2">20/2</option><option value="30/2">30/2</option><option value="40/2">40/2</option>
+                                                                    <option value="">N/A</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fnb-lbl"><i class="bi bi-palette"></i> Dyeing Type</label>
+                                                                <select id="fnbDye" class="form-select form-select-sm">
+                                                                    <option>Solid Dyed</option><option>Yarn Dyed</option><option>Melange</option>
+                                                                    <option>AOP Printed</option><option>Greige / RFD</option><option>Tie Dye</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fnb-lbl"><i class="bi bi-stars"></i> Finishing</label>
+                                                                <select id="fnbFinish" class="form-select form-select-sm">
+                                                                    <option>Bio-Wash</option><option>Peach Finish</option><option>Mercerized</option>
+                                                                    <option>Brushed / Silicon</option><option>Waterproof / DWR</option><option>Regular Wash</option><option>Enzyme Wash</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="fnb-lbl">Category (Auto)</label>
+                                                                <div><span id="fnbCat" class="fnb-cat knit">🧶 Knit Fabric</span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-4">
+                                                        <div class="fnb-preview">
+                                                            <div>
+                                                                <div class="cap"><span><i class="bi bi-eye"></i> Live Preview</span><span class="code" id="fnbCode">FAB-000</span></div>
+                                                                <div class="name" id="fnbName">—</div>
+                                                                <div class="fnb-tags" id="fnbTags"></div>
+                                                            </div>
+                                                            <div class="fnb-actions">
+                                                                <button type="button" class="btn btn-sm btn-copy" id="fnbCopyBtn"><i class="bi bi-clipboard me-1"></i> Copy Name</button>
+                                                                <button type="button" class="btn btn-sm btn-use" id="fnbUseBtn"><i class="bi bi-arrow-down-circle me-1"></i> Use in Fabric Row</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- ===== /Fabric Name Builder ===== -->
+
                                         <div class="add-row">
                                             <div class="row g-2">
                                                 <div class="col-md-2"><asp:TextBox ID="txtFabCode" runat="server" CssClass="form-control form-control-sm" placeholder="Code (FAB-001)" MaxLength="20" /></div>
@@ -575,6 +704,7 @@
                                                     <asp:BoundField DataField="Consumption" HeaderText="Consumption" DataFormatString="{0:0.000}" />
                                                     <asp:BoundField DataField="WastagePercent" HeaderText="Wastage %" DataFormatString="{0:0.00}" />
                                                     <asp:BoundField DataField="Unit" HeaderText="Unit" />
+                                                    <asp:BoundField DataField="Category" HeaderText="Type" />
                                                     <asp:TemplateField HeaderText="Action">
                                                         <ItemTemplate><asp:LinkButton runat="server" CommandName="DelRow" CommandArgument='<%# Container.DataItemIndex %>' CssClass="btn btn-xs btn-outline-danger"><i class="bi bi-trash"></i></asp:LinkButton></ItemTemplate>
                                                     </asp:TemplateField>
@@ -736,6 +866,76 @@
     </form>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ===== Fabric Name Builder script ===== -->
+    <script>
+(function () {
+    var KNIT = ['Single Jersey', '1x1 Rib', '2x2 Rib', 'Interlock', 'Pique', 'French Terry', 'Fleece', 'Jacquard Knit'];
+    function $(id) { return document.getElementById(id); }
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+    function comp() {
+        var v = $('fnbComp').value;
+        if (v === '__custom') return ($('fnbCompCustom').value || '').trim() || 'Custom Blend';
+        return v;
+    }
+    function isKnit() { return KNIT.indexOf($('fnbConst').value) >= 0; }
+    function fullName() {
+        var p = [comp(), $('fnbConst').value, ($('fnbGsm').value || '180') + ' GSM', $('fnbYarn').value, $('fnbDye').value, $('fnbFinish').value];
+        return p.filter(function (x) { return x; }).join(' ');
+    }
+    function nextCode() { return 'FAB-' + String(Math.floor(100 + Math.random() * 900)); }
+
+    function update() {
+        if (!$('fnbName')) return;
+        $('fnbCompCustom').classList.toggle('d-none', $('fnbComp').value !== '__custom');
+        $('fnbName').textContent = fullName();
+
+        var cat = $('fnbCat');
+        cat.textContent = isKnit() ? '🧶 Knit Fabric' : '🪡 Woven Fabric';
+        cat.className = 'fnb-cat ' + (isKnit() ? 'knit' : 'woven');
+
+        $('fnbTags').innerHTML =
+            '<span>' + esc(comp()) + '</span><span>' + esc($('fnbConst').value) + '</span>' +
+            '<span>' + esc($('fnbGsm').value || '180') + ' GSM</span><span>' + esc($('fnbFinish').value) + '</span>';
+    }
+
+    function flash(el) {
+        if (!el) return;
+        el.classList.remove('fnb-flash'); void el.offsetWidth; el.classList.add('fnb-flash');
+    }
+
+    function useInRow() {
+        var name = fullName();
+        var code = $('txtFabCode');
+        if (!code.value.trim()) code.value = $('fnbCode').textContent;
+        $('txtFabName').value = name.length > 150 ? name.substring(0, 150) : name;
+        $('txtFabComp').value = comp();
+        $('txtFabGsm').value = $('fnbGsm').value || '';
+        $('hfFabCat').value = isKnit() ? 'Knit' : 'Woven';
+        ['txtFabCode', 'txtFabName', 'txtFabComp', 'txtFabGsm'].forEach(function (id) { flash($(id)); });
+        $('txtFabColor').focus();
+    }
+
+    function copyName() {
+        var t = fullName(), btn = $('fnbCopyBtn'), old = btn.innerHTML;
+        function done() { btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Copied!'; setTimeout(function () { btn.innerHTML = old; }, 1400); }
+        if (navigator.clipboard) navigator.clipboard.writeText(t).then(done);
+        else { var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }
+    }
+
+    function init() {
+        if (!$('fnbCard')) return;
+        ['fnbComp', 'fnbConst', 'fnbYarn', 'fnbDye', 'fnbFinish'].forEach(function (id) { $(id).addEventListener('change', update); });
+        ['fnbGsm', 'fnbCompCustom'].forEach(function (id) { $(id).addEventListener('input', update); });
+        $('fnbUseBtn').addEventListener('click', useInRow);
+        $('fnbCopyBtn').addEventListener('click', copyName);
+        $('fnbCode').textContent = nextCode();
+        update();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
 
 </body>
 </html>

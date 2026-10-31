@@ -26,8 +26,15 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
         // ---- ডাটার মান অনুযায়ী এখানেই বদলান ----
         const string StatusPresent = "Present";
         const string StatusAbsent = "Absent";
+
         // emp_Attendance.Holiday কলামে এই মানগুলো ছাড়া কিছু থাকলে সেই দিন ছুটির দিন ধরা হয়
         const string IsHoliday = "ISNULL(LTRIM(RTRIM(CAST(a.Holiday AS nvarchar(50)))),'') NOT IN ('','0','No','N/A','--')";
+
+        // ছুটির দিনের স্ট্যাটাস (WO = Weekly Off, FH = Festival Holiday, GH = Govt Holiday)
+        const string HolidayStatuses = "'WO','FH','GH'";
+
+        // পাঞ্চ আছে = In Time ফাঁকা নয় এবং 00:00 নয় (time / datetime যেকোনো টাইপে কাজ করবে)
+        const string HasPunch = "(a.org_in_time IS NOT NULL AND CAST(a.org_in_time AS time) <> '00:00:00')";
 
         // গতকালের স্ট্যাটাস এগুলো হলে তারও আগের দিন দেখা হবে
         const string SkipStatuses = "'WO','CL','SL','EL','FH','GH'";
@@ -52,8 +59,20 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             { "Present",        new Def { Title = "Present Report",         Where = "a.att_status = '" + StatusPresent + "' AND NOT (" + IsHoliday + ")", TotalLabel = "Total Present" } },
             { "Absent",         new Def { Title = "Daily Absent Report",    Where = "a.att_status = '" + StatusAbsent  + "' AND NOT (" + IsHoliday + ")", TotalLabel = "Total Absent", AbsentLayout = true } },
             { "AllStatus",      new Def { Title = "All Status Report",      Where = "1=1", TotalLabel = "Total Employee", AllStatus = true } },
-            { "HolidayPresent", new Def { Title = "Holiday Present Report", Where = "a.att_status = '" + StatusPresent + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Present" } },
-            { "HolidayAbsent",  new Def { Title = "Holiday Absent Report",  Where = "a.att_status = '" + StatusAbsent  + "' AND (" + IsHoliday + ")", TotalLabel = "Total Holiday Absent", AbsentLayout = true } },
+
+            // ছুটির দিনে (WO/FH/GH) যাদের পাঞ্চ আছে => Holiday Present
+            // (ছুটির দিনে সিস্টেম যদি Present স্ট্যাটাস বসিয়ে দেয় এবং Holiday কলামে মান থাকে, সেটাও ধরা হবে)
+            { "HolidayPresent", new Def { Title = "Holiday Present Report",
+                Where = "((ISNULL(a.att_status,'') IN (" + HolidayStatuses + ") AND " + HasPunch + ") " +
+                        "OR (a.att_status = '" + StatusPresent + "' AND (" + IsHoliday + ")))",
+                TotalLabel = "Total Holiday Present" } },
+
+            // ছুটির দিনে (WO/FH/GH) যাদের পাঞ্চ নেই => Holiday Absent
+            { "HolidayAbsent",  new Def { Title = "Holiday Absent Report",
+                Where = "((ISNULL(a.att_status,'') IN (" + HolidayStatuses + ") AND NOT " + HasPunch + ") " +
+                        "OR (a.att_status = '" + StatusAbsent + "' AND (" + IsHoliday + ")))",
+                TotalLabel = "Total Holiday Absent", AbsentLayout = true } },
+
             { "TodayPresentYesterdayAbsent", new Def { Title = "Today Present Yesterday Absent Report", Where = "a.att_status = '" + StatusPresent + "' AND NOT (" + IsHoliday + ") AND " + PrevStatus + " = '" + StatusAbsent + "'", TotalLabel = "Total Today Present Yesterday Absent" } }
         };
 
@@ -199,7 +218,7 @@ WHERE z.User_ID = @u AND z.From_Code = @rc AND a.Work_date >= @from AND a.Work_d
         }
 
         // ================= Download (PDF / Word / Excel) =================
-        // বাটন চাপলে পেজ আবার লোড হয় (URL এর query একই থাকে), তাই exportSecs Page_Load এই ভরা থাকে
+        // বাটন চাপলে পেজ আবার লোড হয় (URL এর query একই থাকে), তাই exportSecs Page_Load এ ভরা থাকে
         protected void btnPdf_Click(object sender, EventArgs e)
         {
             if (exportSecs == null || exportSecs.Count == 0) return;
