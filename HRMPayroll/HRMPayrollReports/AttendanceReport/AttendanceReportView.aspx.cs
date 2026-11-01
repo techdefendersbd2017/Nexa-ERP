@@ -260,8 +260,8 @@ WHERE z.User_ID = @u AND z.From_Code = @rc AND a.Work_date >= @from AND a.Work_d
                     ? new[] { 1, 1, 0, 0, 1, 1, 1, 1, 1, 1 }
                     : new[] { 1, 1, 0, 0, 1, 1, 1, 1, 1, 0 },
                 Weights = def.AbsentLayout
-                    ? new double[] { 4, 7, 17, 15, 8, 8, 11, 8, 8, 14 }
-                    : new double[] { 4, 7, 17, 15, 8, 8, 8, 6, 8, 19 }
+                    ? new double[] { 4, 10, 16, 14, 8, 8, 11, 8, 8, 13 }
+                    : new double[] { 4, 10, 16, 14, 8, 8, 8, 6, 8, 18 }
             };
 
             sb.Append("<section class=\"page\">");
