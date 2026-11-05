@@ -62,7 +62,7 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
             {
                 using (ConScope cs = new ConScope(conn.openConnection()))
                 using (SqlCommand cmd = new SqlCommand(
-                    "SELECT BuyerID, BuyerName FROM BuyerInformation WHERE ISNULL(IsActive, 1) = 1 ORDER BY BuyerName", cs.Con))
+                    "SELECT BuyerID, BuyerName FROM Buyer WHERE ISNULL(IsActive, 1) = 1 ORDER BY BuyerName", cs.Con))
                 {
                     DataTable dt = new DataTable();
                     new SqlDataAdapter(cmd).Fill(dt);
@@ -82,17 +82,17 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         }
 
         // ================================================================
-        //  LOAD BRAND LIST (Buyer + Brand Name filter)
+        //  LOAD BRAND LIST (Buyer + Brand Code/Name filter)
         // ================================================================
         private void LoadBrandList()
         {
             try
             {
                 string query = @"
-                    SELECT  b.BrandID AS BrandId, b.BuyerID, bi.BuyerName, b.BrandName, b.Remarks,
+                    SELECT  b.BrandID AS BrandId, b.BuyerID, bu.BuyerName, b.BrandCode, b.BrandName,
                             CAST(ISNULL(b.IsActive, 0) AS BIT) AS IsActive
-                    FROM    BuyerBrand b
-                            INNER JOIN BuyerInformation bi ON bi.BuyerID = b.BuyerID
+                    FROM    Brand b
+                            INNER JOIN Buyer bu ON bu.BuyerID = b.BuyerID
                     WHERE   1 = 1";
 
                 int buyerFilter = 0;
@@ -102,9 +102,9 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
 
                 string search = txtSearch.Text.Trim();
                 if (search.Length > 0)
-                    query += " AND b.BrandName LIKE @Search";
+                    query += " AND (b.BrandName LIKE @Search OR b.BrandCode LIKE @Search)";
 
-                query += " ORDER BY bi.BuyerName, b.BrandName";
+                query += " ORDER BY bu.BuyerName, b.BrandName";
 
                 using (ConScope cs = new ConScope(conn.openConnection()))
                 using (SqlCommand cmd = new SqlCommand(query, cs.Con))
@@ -172,7 +172,8 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
             try
             {
                 using (ConScope cs = new ConScope(conn.openConnection()))
-                using (SqlCommand cmd = new SqlCommand("SELECT * FROM BuyerBrand WHERE BrandID = @BrandID", cs.Con))
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT BrandID, BrandCode, BrandName, BuyerID, IsActive FROM Brand WHERE BrandID = @BrandID", cs.Con))
                 {
                     cmd.Parameters.Add("@BrandID", SqlDbType.Int).Value = brandId;
 
@@ -189,8 +190,8 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
                         string buyerId = r["BuyerID"] != DBNull.Value ? r["BuyerID"].ToString() : "0";
                         ddlBuyer.SelectedValue = ddlBuyer.Items.FindByValue(buyerId) != null ? buyerId : "0";
 
+                        txtBrandCode.Text = r["BrandCode"] != DBNull.Value ? r["BrandCode"].ToString() : string.Empty;
                         txtBrandName.Text = r["BrandName"].ToString();
-                        txtRemarks.Text = r["Remarks"].ToString();
                         chkActive.Checked = r["IsActive"] != DBNull.Value && Convert.ToBoolean(r["IsActive"]);
                     }
                 }
@@ -208,7 +209,7 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
             try
             {
                 using (ConScope cs = new ConScope(conn.openConnection()))
-                using (SqlCommand cmd = new SqlCommand("Pro_BuyerBrand_Delete", cs.Con))
+                using (SqlCommand cmd = new SqlCommand("Pro_Brand_Delete", cs.Con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add("@BrandID", SqlDbType.Int).Value = brandId;
@@ -251,6 +252,7 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         {
             // ---------- Validation ----------
             if (ddlBuyer.SelectedValue == "0" || ddlBuyer.SelectedValue == "") { ShowMessage("Please select a Buyer!"); return; }
+            if (txtBrandCode.Text.Trim() == "") { ShowMessage("Brand Code is required!"); return; }
             if (txtBrandName.Text.Trim() == "") { ShowMessage("Brand Name is required!"); return; }
 
             int brandId = 0;
@@ -266,14 +268,14 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
             try
             {
                 using (ConScope cs = new ConScope(conn.openConnection()))
-                using (SqlCommand cmd = new SqlCommand("Pro_BuyerBrand_SaveUpdate", cs.Con))
+                using (SqlCommand cmd = new SqlCommand("Pro_Brand_SaveUpdate", cs.Con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@BrandID", SqlDbType.Int).Value = brandId;
-                    cmd.Parameters.Add("@BuyerID", SqlDbType.Int).Value = buyerId;
+                    cmd.Parameters.Add("@BrandCode", SqlDbType.NVarChar, 50).Value = txtBrandCode.Text.Trim();
                     cmd.Parameters.Add("@BrandName", SqlDbType.NVarChar, 150).Value = txtBrandName.Text.Trim();
-                    cmd.Parameters.Add("@Remarks", SqlDbType.NVarChar, 500).Value = txtRemarks.Text.Trim();
+                    cmd.Parameters.Add("@BuyerID", SqlDbType.Int).Value = buyerId;
                     cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = chkActive.Checked;
                     cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
 
@@ -301,8 +303,8 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
             hfBrandId.Value = "0";
 
             ddlBuyer.SelectedIndex = 0;
+            txtBrandCode.Text = string.Empty;
             txtBrandName.Text = string.Empty;
-            txtRemarks.Text = string.Empty;
             chkActive.Checked = true;
         }
 

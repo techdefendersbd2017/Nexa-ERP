@@ -69,12 +69,7 @@
             <asp:Button ID="btnPdf" runat="server" Text="PDF" CssClass="btn" OnClick="btnPdf_Click" />
             <asp:Button ID="btnWord" runat="server" Text="Word" CssClass="btn" OnClick="btnWord_Click" />
             <asp:Button ID="btnExcel" runat="server" Text="Excel" CssClass="btn" OnClick="btnExcel_Click" />
-            <div class="btns">
-            <asp:Button ID="Button1" runat="server" Text="PDF" CssClass="btn" OnClick="btnPdf_Click" />
-            <asp:Button ID="Button2" runat="server" Text="Word" CssClass="btn" OnClick="btnWord_Click" />
-            <asp:Button ID="Button3" runat="server" Text="Excel" CssClass="btn" OnClick="btnExcel_Click" />
             <button type="button" onclick="window.print()">Print</button>
-        </div>
         </div>
     </div>
     <asp:Literal ID="litReport" runat="server" />

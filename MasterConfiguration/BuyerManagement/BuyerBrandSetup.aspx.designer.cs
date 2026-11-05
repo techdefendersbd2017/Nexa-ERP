@@ -132,6 +132,15 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         protected global::System.Web.UI.WebControls.DropDownList ddlBuyer;
 
         /// <summary>
+        /// txtBrandCode control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtBrandCode;
+
+        /// <summary>
         /// txtBrandName control.
         /// </summary>
         /// <remarks>
@@ -139,15 +148,6 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtBrandName;
-
-        /// <summary>
-        /// txtRemarks control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRemarks;
 
         /// <summary>
         /// chkActive control.

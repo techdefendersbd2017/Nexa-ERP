@@ -1,6 +1,5 @@
 ﻿using Nexa_ERP.Connection;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
@@ -25,17 +24,6 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
             }
         }
 
-        // Entry panel এ যোগ করা Buyer গুলো ("BuyerID|BuyerName") ViewState এ থাকে
-        private List<string> BuyerItems
-        {
-            get
-            {
-                if (ViewState["BuyerItems"] == null) ViewState["BuyerItems"] = new List<string>();
-                return (List<string>)ViewState["BuyerItems"];
-            }
-            set { ViewState["BuyerItems"] = value; }
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -43,8 +31,6 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
                 // Login user (আপনার project এর Session key অনুযায়ী পরিবর্তন করুন)
                 hfUserId.Value = Session["UserId"] != null ? Session["UserId"].ToString() : "0";
 
-                LoadAgentTypes();
-                LoadBuyers();
                 ShowList();
                 LoadAgentList();
             }
@@ -66,60 +52,7 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         }
 
         // ================================================================
-        //  LOAD DROPDOWNS
-        // ================================================================
-        private void LoadAgentTypes()
-        {
-            try
-            {
-                // TODO: BuyingHouseType এর column নাম (HouseTypeName) মিলিয়ে নিন
-                using (ConScope cs = new ConScope(conn.openConnection()))
-                using (SqlCommand cmd = new SqlCommand("SELECT HouseTypeID, HouseTypeName FROM BuyingHouseType ORDER BY HouseTypeName", cs.Con))
-                {
-                    DataTable dt = new DataTable();
-                    new SqlDataAdapter(cmd).Fill(dt);
-
-                    ddlAgentType.DataSource = dt;
-                    ddlAgentType.DataTextField = "HouseTypeName";
-                    ddlAgentType.DataValueField = "HouseTypeID";
-                    ddlAgentType.DataBind();
-
-                    ddlAgentType.Items.Insert(0, new ListItem("--Select Agent Type--", "0"));
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowMessage(ex.Message);
-            }
-        }
-
-        private void LoadBuyers()
-        {
-            try
-            {
-                using (ConScope cs = new ConScope(conn.openConnection()))
-                using (SqlCommand cmd = new SqlCommand(
-                    "SELECT BuyerID, BuyerName FROM BuyerInformation WHERE ISNULL(IsActive, 1) = 1 ORDER BY BuyerName", cs.Con))
-                {
-                    DataTable dt = new DataTable();
-                    new SqlDataAdapter(cmd).Fill(dt);
-
-                    ddlSelectBuyer.DataSource = dt;
-                    ddlSelectBuyer.DataTextField = "BuyerName";
-                    ddlSelectBuyer.DataValueField = "BuyerID";
-                    ddlSelectBuyer.DataBind();
-
-                    ddlSelectBuyer.Items.Insert(0, new ListItem("--Select Buyer--", "0"));
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowMessage(ex.Message);
-            }
-        }
-
-        // ================================================================
-        //  LOAD AGENT LIST (Search by name / code)
+        //  LOAD AGENT LIST (Search by code / name / country)
         // ================================================================
         private void LoadAgentList()
         {
@@ -127,23 +60,20 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
             {
                 string query = @"
                     SELECT  a.AgentID,
-                            ISNULL(a.Prefix, '')        AS Code,
-                            a.HouseName                 AS Name,
-                            ISNULL(t.HouseTypeName, '') AS AgentType,
+                            ISNULL(a.AgentCode, '')     AS AgentCode,
+                            ISNULL(a.AgentName, '')     AS AgentName,
+                            ISNULL(a.Country, '')       AS Country,
                             ISNULL(a.ContactPerson, '') AS ContactPerson,
-                            ISNULL(a.Mobile, '')        AS Mobile,
-                            ISNULL(a.Email, '')         AS Email,
-                            (SELECT COUNT(*) FROM BuyingHouseAgentBuyer ab WHERE ab.AgentID = a.AgentID) AS BuyerCount,
+                            ISNULL(a.ContactEmail, '')  AS ContactEmail,
                             CAST(ISNULL(a.IsActive, 0) AS BIT) AS IsActive
-                    FROM    BuyingHouseAgent a
-                            LEFT JOIN BuyingHouseType t ON t.HouseTypeID = a.HouseTypeID
+                    FROM    dbo.Agent a
                     WHERE   1 = 1";
 
                 string search = txtSearch.Text.Trim();
                 if (search.Length > 0)
-                    query += " AND (a.HouseName LIKE @Search OR a.Prefix LIKE @Search)";
+                    query += " AND (a.AgentName LIKE @Search OR a.AgentCode LIKE @Search OR a.Country LIKE @Search)";
 
-                query += " ORDER BY a.HouseName";
+                query += " ORDER BY a.AgentName";
 
                 using (ConScope cs = new ConScope(conn.openConnection()))
                 using (SqlCommand cmd = new SqlCommand(query, cs.Con))
@@ -209,7 +139,9 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
                 ClearForm();
 
                 using (ConScope cs = new ConScope(conn.openConnection()))
-                using (SqlCommand cmd = new SqlCommand("SELECT * FROM BuyingHouseAgent WHERE AgentID = @AgentID", cs.Con))
+                using (SqlCommand cmd = new SqlCommand(
+                    @"SELECT AgentID, AgentCode, AgentName, Country, ContactPerson, ContactEmail, IsActive
+                      FROM dbo.Agent WHERE AgentID = @AgentID", cs.Con))
                 {
                     cmd.Parameters.Add("@AgentID", SqlDbType.BigInt).Value = agentId;
 
@@ -223,43 +155,14 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
 
                         hfBuyingAgentId.Value = r["AgentID"].ToString();
 
-                        txtCode.Text = r["Prefix"].ToString();
-                        txtName.Text = r["HouseName"].ToString();
-
-                        string typeId = r["HouseTypeID"] != DBNull.Value ? r["HouseTypeID"].ToString() : "0";
-                        ddlAgentType.SelectedValue = ddlAgentType.Items.FindByValue(typeId) != null ? typeId : "0";
-
+                        txtCode.Text = r["AgentCode"].ToString();
+                        txtName.Text = r["AgentName"].ToString();
+                        txtCountry.Text = r["Country"].ToString();
                         txtContactPerson.Text = r["ContactPerson"].ToString();
-                        txtMobile.Text = r["Mobile"].ToString();
-                        txtPhone.Text = r["Phone"].ToString();
-                        txtAddress.Text = r["Address"].ToString();
-                        txtFax.Text = r["Fax"].ToString();
-                        txtEmail.Text = r["Email"].ToString();
-                        txtWeb.Text = r["Web"].ToString();
+                        txtContactEmail.Text = r["ContactEmail"].ToString();
                         chkIsActive.Checked = r["IsActive"] != DBNull.Value && Convert.ToBoolean(r["IsActive"]);
                     }
                 }
-
-                // এই Agent এর Buyer তালিকা
-                List<string> items = new List<string>();
-                using (ConScope cs = new ConScope(conn.openConnection()))
-                using (SqlCommand cmd = new SqlCommand(@"
-                    SELECT bi.BuyerID, bi.BuyerName
-                    FROM   BuyingHouseAgentBuyer ab
-                           INNER JOIN BuyerInformation bi ON bi.BuyerID = ab.BuyerID
-                    WHERE  ab.AgentID = @AgentID
-                    ORDER BY bi.BuyerName", cs.Con))
-                {
-                    cmd.Parameters.Add("@AgentID", SqlDbType.BigInt).Value = agentId;
-
-                    using (SqlDataReader r = cmd.ExecuteReader())
-                    {
-                        while (r.Read())
-                            items.Add(r["BuyerID"].ToString() + "|" + r["BuyerName"].ToString());
-                    }
-                }
-                BuyerItems = items;
-                BindBuyerGrid();
 
                 ShowEntry();
             }
@@ -299,64 +202,6 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         }
 
         // ================================================================
-        //  BUYERS GRID (Add / Remove, Save এর আগ পর্যন্ত ViewState এ)
-        // ================================================================
-        private void BindBuyerGrid()
-        {
-            DataTable dt = new DataTable();
-            dt.Columns.Add("BuyerID", typeof(string));
-            dt.Columns.Add("BuyerName", typeof(string));
-
-            foreach (string item in BuyerItems)
-            {
-                string[] p = item.Split(new char[] { '|' }, 2);
-                dt.Rows.Add(p[0], p.Length > 1 ? p[1] : "");
-            }
-
-            gvBuyers.DataSource = dt;
-            gvBuyers.DataBind();
-        }
-
-        protected void btnAddBuyer_Click(object sender, EventArgs e)
-        {
-            if (ddlSelectBuyer.SelectedValue == "0" || ddlSelectBuyer.SelectedValue == "")
-            {
-                ShowMessage("Please select a Buyer!");
-                return;
-            }
-
-            string buyerId = ddlSelectBuyer.SelectedValue;
-            List<string> items = BuyerItems;
-
-            foreach (string item in items)
-            {
-                if (item.StartsWith(buyerId + "|"))
-                {
-                    ShowMessage("This buyer is already added!");
-                    return;
-                }
-            }
-
-            items.Add(buyerId + "|" + ddlSelectBuyer.SelectedItem.Text);
-            BuyerItems = items;
-
-            ddlSelectBuyer.SelectedIndex = 0;
-            BindBuyerGrid();
-        }
-
-        protected void gvBuyers_RowCommand(object sender, GridViewCommandEventArgs e)
-        {
-            if (e.CommandName != "RemoveBuyer") return;
-
-            string buyerId = Convert.ToString(e.CommandArgument);
-            List<string> items = BuyerItems;
-            items.RemoveAll(x => x.StartsWith(buyerId + "|"));
-            BuyerItems = items;
-
-            BindBuyerGrid();
-        }
-
-        // ================================================================
         //  ENTRY PANEL EVENTS
         // ================================================================
         protected void btnBackToList_Click(object sender, EventArgs e)
@@ -374,20 +219,11 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
         protected void btnSave_Click(object sender, EventArgs e)
         {
             // ---------- Validation ----------
-            if (txtCode.Text.Trim() == "") { ShowMessage("Code is required!"); return; }
-            if (txtName.Text.Trim() == "") { ShowMessage("Name is required!"); return; }
+            if (txtCode.Text.Trim() == "") { ShowMessage("Agent Code is required!"); return; }
+            if (txtName.Text.Trim() == "") { ShowMessage("Agent Name is required!"); return; }
 
             long agentId = 0;
             long.TryParse(hfBuyingAgentId.Value, out agentId);
-
-            int typeId = 0;
-            int.TryParse(ddlAgentType.SelectedValue, out typeId);
-
-            // Buyer ID গুলো comma separated string হিসেবে SP তে যাবে
-            List<string> ids = new List<string>();
-            foreach (string item in BuyerItems)
-                ids.Add(item.Split('|')[0]);
-            string buyerIds = string.Join(",", ids.ToArray());
 
             // ---------- Save / Update ----------
             try
@@ -398,18 +234,13 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add("@AgentID", SqlDbType.BigInt).Value = agentId;
-                    cmd.Parameters.Add("@Prefix", SqlDbType.VarChar, 50).Value = txtCode.Text.Trim();
-                    cmd.Parameters.Add("@HouseName", SqlDbType.VarChar, 200).Value = txtName.Text.Trim();
-                    cmd.Parameters.Add("@HouseTypeID", SqlDbType.Int).Value = typeId == 0 ? (object)DBNull.Value : typeId;
+                    cmd.Parameters.Add("@AgentCode", SqlDbType.VarChar, 50).Value = txtCode.Text.Trim();
+                    cmd.Parameters.Add("@AgentName", SqlDbType.VarChar, 200).Value = txtName.Text.Trim();
+                    cmd.Parameters.Add("@Country", SqlDbType.VarChar, 100).Value = txtCountry.Text.Trim();
                     cmd.Parameters.Add("@ContactPerson", SqlDbType.VarChar, 150).Value = txtContactPerson.Text.Trim();
-                    cmd.Parameters.Add("@Mobile", SqlDbType.VarChar, 50).Value = txtMobile.Text.Trim();
-                    cmd.Parameters.Add("@Phone", SqlDbType.VarChar, 50).Value = txtPhone.Text.Trim();
-                    cmd.Parameters.Add("@Address", SqlDbType.VarChar, 500).Value = txtAddress.Text.Trim();
-                    cmd.Parameters.Add("@Fax", SqlDbType.VarChar, 50).Value = txtFax.Text.Trim();
-                    cmd.Parameters.Add("@Email", SqlDbType.VarChar, 150).Value = txtEmail.Text.Trim();
-                    cmd.Parameters.Add("@Web", SqlDbType.VarChar, 150).Value = txtWeb.Text.Trim();
+                    cmd.Parameters.Add("@ContactEmail", SqlDbType.VarChar, 150).Value = txtContactEmail.Text.Trim();
                     cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = chkIsActive.Checked;
-                    cmd.Parameters.Add("@BuyerIDs", SqlDbType.VarChar, -1).Value = buyerIds;
+                    cmd.Parameters.Add("@UserID", SqlDbType.VarChar, 50).Value = hfUserId.Value;
 
                     cmd.ExecuteNonQuery();
                 }
@@ -436,19 +267,10 @@ namespace Nexa_ERP.MerchandisingMarketing.BasicSetup
 
             txtCode.Text = string.Empty;
             txtName.Text = string.Empty;
-            ddlAgentType.SelectedIndex = 0;
+            txtCountry.Text = string.Empty;
             txtContactPerson.Text = string.Empty;
-            txtMobile.Text = string.Empty;
-            txtPhone.Text = string.Empty;
-            txtAddress.Text = string.Empty;
-            txtFax.Text = string.Empty;
-            txtEmail.Text = string.Empty;
-            txtWeb.Text = string.Empty;
+            txtContactEmail.Text = string.Empty;
             chkIsActive.Checked = true;
-
-            ddlSelectBuyer.SelectedIndex = 0;
-            BuyerItems = new List<string>();
-            BindBuyerGrid();
         }
 
         private void ShowMessage(string message)

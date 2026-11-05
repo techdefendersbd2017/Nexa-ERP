@@ -1,4 +1,52 @@
-﻿/* ============================================================
+﻿// ============================================================
+// Bootstrap Tab — server postback এ tab ধরে রাখা
+// ============================================================
+(function () {
+    function getTabButtons() {
+        return document.querySelectorAll('#styleTabs [data-bs-toggle="tab"], #styleTabs [data-toggle="tab"]');
+    }
+
+    // ট্যাব ক্লিক করলে hidden field-এ save
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('#styleTabs [data-bs-toggle="tab"], #styleTabs [data-toggle="tab"]');
+        if (!btn) return;
+
+        var target = btn.getAttribute('data-bs-target') || btn.getAttribute('data-target');
+        if (!target) return;
+
+        var id = target.replace('#', '');
+        var hf = document.getElementById('hfActiveTab');
+        if (hf) hf.value = id;
+    }, true);
+
+    // পেজ load হলে server-এর hfActiveTab অনুযায়ী সঠিক tab দেখাও
+    document.addEventListener('DOMContentLoaded', function () {
+        var hf = document.getElementById('hfActiveTab');
+        if (!hf || !hf.value) return;
+
+        var targetId = hf.value;
+        var btn = document.querySelector('#styleTabs [data-bs-target="#' + targetId + '"], #styleTabs [data-target="#' + targetId + '"]');
+        if (!btn) return;
+
+        // Bootstrap 5
+        if (window.bootstrap && bootstrap.Tab) {
+            var tab = bootstrap.Tab.getOrCreateInstance(btn);
+            tab.show();
+        }
+        // Bootstrap 4 fallback
+        else if (window.jQuery) {
+            jQuery(btn).tab('show');
+        }
+
+        // hfActiveTab আবার ঠিক রাখো
+        if (hf) hf.value = targetId;
+    });
+})();
+
+
+
+
+/* ============================================================
    StyleInformationForGarments.js
    Searchable Dropdown Engine for Nexa ERP Style Entry Master
    ============================================================ */

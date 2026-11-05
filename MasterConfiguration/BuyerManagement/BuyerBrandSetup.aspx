@@ -53,8 +53,8 @@
                                 </asp:DropDownList>
                             </div>
                             <div class="flex flex-col gap-0.5 w-full">
-                                <label class="text-sm font-medium">Brand Name</label>
-                                <asp:TextBox ID="txtSearch" placeholder="Search brand name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <label class="text-sm font-medium">Brand Code / Name</label>
+                                <asp:TextBox ID="txtSearch" placeholder="Search brand code or name" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 py-1 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
                             <div class="flex items-end justify-end gap-3">
                                 <asp:LinkButton ID="btnClearFilter" runat="server" OnClick="btnClearFilter_Click" CssClass="flex items-center gap-1.5 rounded bg-gray-500 text-white px-4 py-1.5 shadow-sm hover:bg-gray-600 cursor-pointer transition duration-200 ease-in-out font-medium text-sm no-underline justify-center">
@@ -80,8 +80,8 @@
                                     <ItemTemplate><%# Container.DataItemIndex + 1 %></ItemTemplate>
                                 </asp:TemplateField>
                                 <asp:BoundField DataField="BuyerName" HeaderText="Buyer" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
+                                <asp:BoundField DataField="BrandCode" HeaderText="Brand Code" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
                                 <asp:BoundField DataField="BrandName" HeaderText="Brand Name" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
-                                <asp:BoundField DataField="Remarks" HeaderText="Remarks" ItemStyle-CssClass="px-2 py-1" HeaderStyle-CssClass="px-2" />
                                 <asp:TemplateField HeaderText="Status" ItemStyle-CssClass="px-2 py-1 w-24" HeaderStyle-CssClass="px-2">
                                     <ItemTemplate>
                                         <span class='<%# Convert.ToBoolean(Eval("IsActive")) ? "text-green-700 bg-green-100" : "text-red-700 bg-red-100" %> px-2 py-0.5 rounded text-xs font-medium'>
@@ -133,13 +133,13 @@
                             </div>
 
                             <div class="grid grid-cols-[170px_1fr] items-center gap-2">
-                                <label class="text-sm">Brand Name</label>
-                                <asp:TextBox ID="txtBrandName" runat="server" placeholder="Brand Name" MaxLength="150" CssClass="w-full border border-gray-400 rounded-lg bg-green-50/60 outline-none px-3 py-1.5 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <label class="text-sm">Brand Code</label>
+                                <asp:TextBox ID="txtBrandCode" runat="server" placeholder="Brand Code" MaxLength="50" CssClass="w-full border border-gray-400 rounded-lg bg-green-50/60 outline-none px-3 py-1.5 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
 
                             <div class="grid grid-cols-[170px_1fr] items-center gap-2">
-                                <label class="text-sm">Remarks</label>
-                                <asp:TextBox ID="txtRemarks" runat="server" placeholder="Remarks" MaxLength="500" CssClass="w-full border border-gray-400 rounded-lg bg-green-50/60 outline-none px-3 py-1.5 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
+                                <label class="text-sm">Brand Name</label>
+                                <asp:TextBox ID="txtBrandName" runat="server" placeholder="Brand Name" MaxLength="150" CssClass="w-full border border-gray-400 rounded-lg bg-green-50/60 outline-none px-3 py-1.5 focus:border-[#255C8C] shadow-sm transition duration-200 ease-in-out"></asp:TextBox>
                             </div>
 
                             <div class="grid grid-cols-[170px_1fr] items-start gap-2">
