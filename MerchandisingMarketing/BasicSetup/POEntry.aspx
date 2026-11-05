@@ -40,6 +40,17 @@
         .matrix-tbl thead th { white-space:nowrap; background:#f1f5f9; }
         .emb-tbl .form-select, .emb-tbl .form-control { min-width:110px; }
         .emb-tbl input.grid-input { width:90px; text-align:right; }
+        .emb-tbl th { white-space:nowrap; }
+        .fab-in .input-group .form-control { min-width:0; }
+
+        /* fabric booking grid (wide) */
+        .fab-tbl .form-select, .fab-tbl .form-control { min-width:0; }
+        .fab-tbl select.form-select { min-width:84px; }
+        .fab-tbl input.grid-input { width:72px; text-align:right; }
+        .fab-tbl input.fab-txt { width:80px; text-align:left; }
+        .fab-tbl th { white-space:nowrap; font-size:.78rem; }
+        .fab-tbl td { font-size:.8rem; }
+        .part-badge { font-size:.7rem; }
     </style>
 </head>
 <body>
@@ -460,59 +471,426 @@
                             <div class="text-end fw-bold">Total Amount: <asp:Label ID="lblEmbTotal" runat="server" CssClass="emb-total" Text="0.00" /></div>
                         </div>
 
-                        <!-- FABRIC -->
+                        <!-- FABRIC BOOKING -->
                         <div class="tab-pane fade" id="fabric-tab">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase text-secondary fw-bold m-0"><i class="bi bi-layers"></i> Fabric Requirement (auto from Style)</h6>
-                                <span class="stock-note"><i class="bi bi-info-circle"></i> Consumption Style থেকে — শুধু "Book" টিক দিন</span>
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+                                <h6 class="text-uppercase text-secondary fw-bold m-0"><i class="bi bi-layers"></i> Fabric Booking (Color × Part × Size wise)</h6>
+                                <span class="stock-note"><i class="bi bi-info-circle"></i> Color, Fabric ও Part সিলেক্ট করুন। Size ফাঁকা = সব সাইজ (ALL); সাইজ সিলেক্ট করলে প্রতি সাইজে আলাদা লাইন হবে (আলাদা Cons / Dia)। Dzn দিলে Pc, Pc দিলে Dzn নিজে হবে</span>
                             </div>
+
+                            <div class="d-flex flex-wrap gap-2 align-items-end mb-2 fab-in">
+                                <div style="width:190px" class="ms-dd dropdown">
+                                    <label class="form-label">Style Colors</label>
+                                    <button type="button" class="form-select form-select-sm ms-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-ph="Select colors">Select colors</button>
+                                    <div class="dropdown-menu">
+                                        <label class="d-block border-bottom pb-1 mb-1 fw-semibold"><input type="checkbox" class="ms-all me-1" />Select All</label>
+                                        <asp:CheckBoxList ID="cblFabColors" runat="server" CssClass="ms-list" RepeatLayout="Flow" />
+                                    </div>
+                                </div>
+
+                                <div style="width:230px" class="ms-dd dropdown">
+                                    <label class="form-label">Style Fabrics</label>
+                                    <button type="button" class="form-select form-select-sm ms-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-ph="Select fabrics">Select fabrics</button>
+                                    <div class="dropdown-menu">
+                                        <label class="d-block border-bottom pb-1 mb-1 fw-semibold"><input type="checkbox" class="ms-all me-1" />Select All</label>
+                                        <asp:CheckBoxList ID="cblFabrics" runat="server" CssClass="ms-list" RepeatLayout="Flow" />
+                                    </div>
+                                </div>
+
+                                <div style="width:150px">
+                                    <label class="form-label required">Part</label>
+                                    <asp:DropDownList ID="ddlFabPart" runat="server" CssClass="form-select form-select-sm">
+                                        <asp:ListItem>Body</asp:ListItem>
+                                        <asp:ListItem>Sleeve</asp:ListItem>
+                                        <asp:ListItem>Collar</asp:ListItem>
+                                        <asp:ListItem>Cuff</asp:ListItem>
+                                        <asp:ListItem>Flat Knit Bottom</asp:ListItem>
+                                        <asp:ListItem>Rib</asp:ListItem>
+                                        <asp:ListItem>Pocket</asp:ListItem>
+                                        <asp:ListItem>Other</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+
+                                <div style="width:170px" class="ms-dd dropdown">
+                                    <label class="form-label">Sizes <span class="text-muted">(ফাঁকা = ALL)</span></label>
+                                    <button type="button" class="form-select form-select-sm ms-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-ph="All sizes">All sizes</button>
+                                    <div class="dropdown-menu">
+                                        <label class="d-block border-bottom pb-1 mb-1 fw-semibold"><input type="checkbox" class="ms-all me-1" />Select All</label>
+                                        <asp:CheckBoxList ID="cblFabSizes" runat="server" CssClass="ms-list" RepeatLayout="Flow" />
+                                    </div>
+                                </div>
+
+                                <div style="width:105px">
+                                    <label class="form-label">Fabric Form</label>
+                                    <asp:DropDownList ID="ddlFabForm" runat="server" CssClass="form-select form-select-sm">
+                                        <asp:ListItem Value="">-- Select --</asp:ListItem>
+                                        <asp:ListItem>Open</asp:ListItem>
+                                        <asp:ListItem>Tube</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+
+                                <div style="width:80px">
+                                    <label class="form-label">Dia (inch)</label>
+                                    <asp:TextBox ID="txtFabDia" runat="server" CssClass="form-control form-control-sm" MaxLength="20" placeholder="e.g. 32" autocomplete="off" />
+                                </div>
+
+                                <div style="width:130px">
+                                    <label class="form-label">Part Size</label>
+                                    <asp:TextBox ID="txtFabPartSize" runat="server" CssClass="form-control form-control-sm" MaxLength="50" placeholder="Collar/Cuff/Btm size" autocomplete="off" />
+                                </div>
+
+                                <div style="width:105px">
+                                    <label class="form-label" title="Cuff + Double হলে Total Kg / Yds ×২ হবে">Ply (Cuff ×2)</label>
+                                    <asp:DropDownList ID="ddlFabPly" runat="server" CssClass="form-select form-select-sm">
+                                        <asp:ListItem Value="">--</asp:ListItem>
+                                        <asp:ListItem>Single</asp:ListItem>
+                                        <asp:ListItem>Double</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 align-items-end mb-3 fab-in">
+                                <div>
+                                    <label class="form-label">Cons (Kg)</label>
+                                    <div class="input-group input-group-sm" style="width:240px">
+                                        <asp:TextBox ID="txtFabKgDzn" runat="server" CssClass="form-control fab-num" placeholder="Kg / Dzn" data-grp="kg" data-role="dzn" autocomplete="off" />
+                                        <span class="input-group-text">Dzn</span>
+                                        <asp:TextBox ID="txtFabKgPc" runat="server" CssClass="form-control fab-num" placeholder="Kg / Pc" data-grp="kg" data-role="pc" autocomplete="off" />
+                                        <span class="input-group-text">Pc</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Cons (Yds)</label>
+                                    <div class="input-group input-group-sm" style="width:240px">
+                                        <asp:TextBox ID="txtFabYdDzn" runat="server" CssClass="form-control fab-num" placeholder="Yds / Dzn" data-grp="yd" data-role="dzn" autocomplete="off" />
+                                        <span class="input-group-text">Dzn</span>
+                                        <asp:TextBox ID="txtFabYdPc" runat="server" CssClass="form-control fab-num" placeholder="Yds / Pc" data-grp="yd" data-role="pc" autocomplete="off" />
+                                        <span class="input-group-text">Pc</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Rate</label>
+                                    <div class="input-group input-group-sm" style="width:240px">
+                                        <asp:TextBox ID="txtFabRateDzn" runat="server" CssClass="form-control fab-num" placeholder="Rate / Dzn" data-grp="rate" data-role="dzn" autocomplete="off" />
+                                        <span class="input-group-text">Dzn</span>
+                                        <asp:TextBox ID="txtFabRatePc" runat="server" CssClass="form-control fab-num" placeholder="Rate / Pc" data-grp="rate" data-role="pc" autocomplete="off" />
+                                        <span class="input-group-text">Pc</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Process Loss %</label>
+                                    <asp:TextBox ID="txtFabLoss" runat="server" CssClass="form-control form-control-sm fab-num" placeholder="0" Width="90px" autocomplete="off" />
+                                </div>
+                                <div>
+                                    <asp:LinkButton ID="btnAddFab" runat="server" CssClass="btn btn-sm btn-success"
+                                        OnClick="btnAddFab_Click"><i class="bi bi-plus-lg"></i> Add</asp:LinkButton>
+                                    <asp:LinkButton ID="btnSyncFabQty" runat="server" CssClass="btn btn-sm btn-outline-secondary ms-1"
+                                        CausesValidation="false" OnClick="btnSyncFabQty_Click"
+                                        ToolTip="Qty &amp; Price ট্যাবের Color×Size Qty থেকে সব লাইনের Qty নতুন করে বসাও"><i class="bi bi-arrow-repeat"></i> Sync Qty</asp:LinkButton>
+                                </div>
+                            </div>
+
                             <div class="table-responsive">
-                                <asp:GridView ID="gvFabric" runat="server" AutoGenerateColumns="false"
-                                    CssClass="table table-bordered table-sm align-middle"
+                                <asp:GridView ID="gvFab" runat="server" AutoGenerateColumns="false"
+                                    CssClass="table table-bordered table-sm align-middle emb-tbl fab-tbl"
                                     HeaderStyle-CssClass="table-light" GridLines="None"
-                                    EmptyDataText="No fabric in style.">
+                                    OnRowCommand="gvFab_RowCommand" OnRowDataBound="gvFab_RowDataBound"
+                                    EmptyDataText="No fabric booking added. Select colors, fabrics &amp; part, enter consumption and click Add.">
                                     <Columns>
-                                        <asp:BoundField DataField="FabricCode" HeaderText="Code" />
-                                        <asp:BoundField DataField="FabricName" HeaderText="Name" />
-                                        <asp:BoundField DataField="Composition" HeaderText="Composition" />
-                                        <asp:BoundField DataField="GSM" HeaderText="GSM" />
-                                        <asp:BoundField DataField="ColorName" HeaderText="Color" />
-                                        <asp:BoundField DataField="Consumption" HeaderText="Cons/pc" DataFormatString="{0:0.000}" />
-                                        <asp:BoundField DataField="Unit" HeaderText="Unit" />
-                                        <asp:BoundField DataField="TotalQty" HeaderText="Total Qty (auto)" DataFormatString="{0:N2}" ItemStyle-CssClass="fw-bold" />
+                                        <asp:TemplateField HeaderText="Color">
+                                            <ItemTemplate>
+                                                <b><asp:Literal ID="litFabColor" runat="server" Mode="Encode" Text='<%# Eval("ColorCode") %>' /></b>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Part">
+                                            <ItemTemplate>
+                                                <span class="badge bg-dark part-badge fab-part"><asp:Literal ID="litFabPart" runat="server" Mode="Encode" Text='<%# Eval("PartName") %>' /></span>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Size">
+                                            <ItemTemplate>
+                                                <asp:Literal ID="litFabSize" runat="server" Mode="Encode" Text='<%# Eval("SizeCode") %>' />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Fabric">
+                                            <ItemTemplate>
+                                                <asp:Literal ID="litFabCode" runat="server" Mode="Encode" Text='<%# Eval("FabricCode") %>' />
+                                                <asp:HiddenField ID="hfFabName" runat="server" Value='<%# Eval("FabricName") %>' />
+                                                <div class="text-muted small"><%# Server.HtmlEncode(Convert.ToString(Eval("FabricName"))) %></div>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="GSM">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabGsm" runat="server" CssClass="grid-input fab-txt" Style="width:55px" MaxLength="20" Text='<%# Eval("GSM") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Form">
+                                            <ItemTemplate>
+                                                <asp:DropDownList ID="ddlFabFormRow" runat="server" CssClass="form-select form-select-sm">
+                                                    <asp:ListItem Value="">--</asp:ListItem>
+                                                    <asp:ListItem>Open</asp:ListItem>
+                                                    <asp:ListItem>Tube</asp:ListItem>
+                                                </asp:DropDownList>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Dia">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabDiaRow" runat="server" CssClass="grid-input fab-txt" Style="width:55px" MaxLength="20" Text='<%# Eval("Dia") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Part Size">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabPartSizeRow" runat="server" CssClass="grid-input fab-txt" MaxLength="50" Text='<%# Eval("PartSize") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Ply">
+                                            <ItemTemplate>
+                                                <asp:DropDownList ID="ddlFabPlyRow" runat="server" CssClass="form-select form-select-sm">
+                                                    <asp:ListItem Value="">--</asp:ListItem>
+                                                    <asp:ListItem>Single</asp:ListItem>
+                                                    <asp:ListItem>Double</asp:ListItem>
+                                                </asp:DropDownList>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Kg / Dzn">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabKgDzn" runat="server" CssClass="grid-input fab-num" data-grp="kg" data-role="dzn"
+                                                    Text='<%# Eval("KgDzn", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Kg / Pc">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabKgPc" runat="server" CssClass="grid-input fab-num" data-grp="kg" data-role="pc"
+                                                    Text='<%# Eval("KgPc", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Yds / Dzn">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabYdDzn" runat="server" CssClass="grid-input fab-num" data-grp="yd" data-role="dzn"
+                                                    Text='<%# Eval("YdDzn", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Yds / Pc">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabYdPc" runat="server" CssClass="grid-input fab-num" data-grp="yd" data-role="pc"
+                                                    Text='<%# Eval("YdPc", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Rate / Dzn">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabRateDzn" runat="server" CssClass="grid-input fab-num" data-grp="rate" data-role="dzn"
+                                                    Text='<%# Eval("RateDzn", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Rate / Pc">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabRatePc" runat="server" CssClass="grid-input fab-num" data-grp="rate" data-role="pc"
+                                                    Text='<%# Eval("RatePc", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Qty (pcs)">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabQty" runat="server" CssClass="grid-input fab-qty" Text='<%# Eval("Qty") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Loss %">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabLoss" runat="server" CssClass="grid-input fab-num" Width="50px" Text='<%# Eval("LossPct", "{0:0.##}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Total Kg" ItemStyle-CssClass="text-end fw-bold">
+                                            <ItemTemplate><asp:Label ID="lblFabTotalKg" runat="server" CssClass="fab-tkg" Text='<%# Eval("TotalKg", "{0:N2}") %>' /></ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Total Yds" ItemStyle-CssClass="text-end fw-bold">
+                                            <ItemTemplate><asp:Label ID="lblFabTotalYd" runat="server" CssClass="fab-tyd" Text='<%# Eval("TotalYd", "{0:N2}") %>' /></ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Amount" ItemStyle-CssClass="text-end fw-bold">
+                                            <ItemTemplate><asp:Label ID="lblFabAmt" runat="server" CssClass="fab-amt" Text='<%# Eval("Amount", "{0:N2}") %>' /></ItemTemplate>
+                                        </asp:TemplateField>
                                         <asp:TemplateField HeaderText="Book?">
-                                            <ItemTemplate><asp:CheckBox runat="server" ID="chkBookFab" Checked="true" /></ItemTemplate>
+                                            <ItemTemplate><asp:CheckBox ID="chkBookFab" runat="server" Checked='<%# Eval("IsBooked") %>' /></ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Action" ItemStyle-Width="70px">
+                                            <ItemTemplate>
+                                                <asp:LinkButton runat="server" CommandName="CopyRow" CommandArgument='<%# Container.DataItemIndex %>'
+                                                    CausesValidation="false" CssClass="text-primary me-2" ToolTip="Duplicate this line (then change Size / Dia / Cons)"><i class="bi bi-files"></i></asp:LinkButton>
+                                                <asp:LinkButton runat="server" CommandName="RemoveRow" CommandArgument='<%# Container.DataItemIndex %>'
+                                                    CausesValidation="false" CssClass="text-danger" ToolTip="Remove"
+                                                    OnClientClick="return confirm('Remove this row?');"><i class="bi bi-trash"></i></asp:LinkButton>
+                                            </ItemTemplate>
                                         </asp:TemplateField>
                                     </Columns>
                                 </asp:GridView>
+                            </div>
+                            <div class="text-end fw-bold">
+                                Total Kg: <asp:Label ID="lblFabSumKg" runat="server" CssClass="fab-sum-kg" Text="0.00" />
+                                &nbsp;|&nbsp; Total Yds: <asp:Label ID="lblFabSumYd" runat="server" CssClass="fab-sum-yd" Text="0.00" />
+                                &nbsp;|&nbsp; Amount: <asp:Label ID="lblFabSumAmt" runat="server" CssClass="fab-sum-amt" Text="0.00" />
                             </div>
                         </div>
 
-                        <!-- ACCESSORIES -->
+                        <!-- ACCESSORIES BOOKING -->
                         <div class="tab-pane fade" id="acc-tab">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="text-uppercase text-secondary fw-bold m-0"><i class="bi bi-tag"></i> Trims &amp; Accessories (auto from Style)</h6>
-                                <span class="stock-note"><i class="bi bi-info-circle"></i> Style-এর Accessories লিস্ট — শুধু Book টিক দিন</span>
+                                <h6 class="text-uppercase text-secondary fw-bold m-0"><i class="bi bi-tag"></i> Trims &amp; Accessories Booking (Color wise)</h6>
+                                <span class="stock-note"><i class="bi bi-info-circle"></i> Color ও Accessories সিলেক্ট করুন, Consumption ও Rate দিয়ে Add চাপুন (ফাঁকা রাখলে Style-এর Consumption / Wastage / Unit বসবে)</span>
                             </div>
+
+                            <div class="d-flex flex-wrap gap-2 align-items-end mb-3 fab-in">
+                                <div style="width:200px" class="ms-dd dropdown">
+                                    <label class="form-label">Style Colors</label>
+                                    <button type="button" class="form-select form-select-sm ms-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-ph="Select colors">Select colors</button>
+                                    <div class="dropdown-menu">
+                                        <label class="d-block border-bottom pb-1 mb-1 fw-semibold"><input type="checkbox" class="ms-all me-1" />Select All</label>
+                                        <asp:CheckBoxList ID="cblAccColors" runat="server" CssClass="ms-list" RepeatLayout="Flow" />
+                                    </div>
+                                </div>
+
+                                <div style="width:260px" class="ms-dd dropdown">
+                                    <label class="form-label">Style Accessories</label>
+                                    <button type="button" class="form-select form-select-sm ms-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-ph="Select accessories">Select accessories</button>
+                                    <div class="dropdown-menu">
+                                        <label class="d-block border-bottom pb-1 mb-1 fw-semibold"><input type="checkbox" class="ms-all me-1" />Select All</label>
+                                        <asp:CheckBoxList ID="cblAccItems" runat="server" CssClass="ms-list" RepeatLayout="Flow" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Consumption</label>
+                                    <div class="input-group input-group-sm" style="width:240px">
+                                        <asp:TextBox ID="txtAccConsDzn" runat="server" CssClass="form-control acc-num" placeholder="Cons / Dzn" data-grp="acons" data-role="dzn" autocomplete="off" />
+                                        <span class="input-group-text">Dzn</span>
+                                        <asp:TextBox ID="txtAccConsPc" runat="server" CssClass="form-control acc-num" placeholder="Cons / Pc" data-grp="acons" data-role="pc" autocomplete="off" />
+                                        <span class="input-group-text">Pc</span>
+                                    </div>
+                                </div>
+
+                                <div style="width:110px">
+                                    <label class="form-label">Unit</label>
+                                    <asp:DropDownList ID="ddlAccUnit" runat="server" CssClass="form-select form-select-sm">
+                                        <asp:ListItem Value="">Style Unit</asp:ListItem>
+                                        <asp:ListItem>Pcs</asp:ListItem>
+                                        <asp:ListItem>Set</asp:ListItem>
+                                        <asp:ListItem>Mtr</asp:ListItem>
+                                        <asp:ListItem>Yds</asp:ListItem>
+                                        <asp:ListItem>Cone</asp:ListItem>
+                                        <asp:ListItem>Kg</asp:ListItem>
+                                        <asp:ListItem>Roll</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Rate</label>
+                                    <div class="input-group input-group-sm" style="width:240px">
+                                        <asp:TextBox ID="txtAccRateDzn" runat="server" CssClass="form-control acc-num" placeholder="Rate / Dzn" data-grp="arate" data-role="dzn" autocomplete="off" />
+                                        <span class="input-group-text">Dzn</span>
+                                        <asp:TextBox ID="txtAccRatePc" runat="server" CssClass="form-control acc-num" placeholder="Rate / Pc" data-grp="arate" data-role="pc" autocomplete="off" />
+                                        <span class="input-group-text">Pc</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label">Wastage %</label>
+                                    <asp:TextBox ID="txtAccLoss" runat="server" CssClass="form-control form-control-sm acc-num" placeholder="0" Width="90px" autocomplete="off" />
+                                </div>
+
+                                <div>
+                                    <asp:LinkButton ID="btnAddAcc" runat="server" CssClass="btn btn-sm btn-success"
+                                        OnClick="btnAddAcc_Click"><i class="bi bi-plus-lg"></i> Add</asp:LinkButton>
+                                </div>
+                            </div>
+
                             <div class="table-responsive">
                                 <asp:GridView ID="gvAcc" runat="server" AutoGenerateColumns="false"
-                                    CssClass="table table-bordered table-sm align-middle"
+                                    CssClass="table table-bordered table-sm align-middle emb-tbl"
                                     HeaderStyle-CssClass="table-light" GridLines="None"
-                                    EmptyDataText="No accessories in style.">
+                                    OnRowCommand="gvAcc_RowCommand"
+                                    EmptyDataText="No accessories booking added. Select colors &amp; accessories, enter consumption and click Add.">
                                     <Columns>
-                                        <asp:BoundField DataField="ItemCode" HeaderText="Item Code" />
-                                        <asp:BoundField DataField="ItemName" HeaderText="Item Name" />
-                                        <asp:BoundField DataField="ItemType" HeaderText="Type" />
-                                        <asp:BoundField DataField="SizeColor" HeaderText="Size/Color" />
-                                        <asp:BoundField DataField="Consumption" HeaderText="Cons/pc" DataFormatString="{0:0.000}" />
-                                        <asp:BoundField DataField="Unit" HeaderText="Unit" />
-                                        <asp:BoundField DataField="WastagePercent" HeaderText="Waste %" DataFormatString="{0:0.00}" />
-                                        <asp:BoundField DataField="TotalQty" HeaderText="Total Qty (auto)" DataFormatString="{0:N2}" ItemStyle-CssClass="fw-bold" />
+                                        <asp:TemplateField HeaderText="Color">
+                                            <ItemTemplate>
+                                                <b><asp:Literal ID="litAccColor" runat="server" Mode="Encode" Text='<%# Eval("ColorCode") %>' /></b>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Accessories">
+                                            <ItemTemplate>
+                                                <asp:Literal ID="litAccCode" runat="server" Mode="Encode" Text='<%# Eval("ItemCode") %>' />
+                                                <asp:HiddenField ID="hfAccName" runat="server" Value='<%# Eval("ItemName") %>' />
+                                                <asp:HiddenField ID="hfAccType" runat="server" Value='<%# Eval("ItemType") %>' />
+                                                <asp:HiddenField ID="hfAccSize" runat="server" Value='<%# Eval("SizeColor") %>' />
+                                                <div class="text-muted small"><%# Server.HtmlEncode(Convert.ToString(Eval("ItemName"))) %> <%# Server.HtmlEncode(Convert.ToString(Eval("ItemType"))) %> <%# Server.HtmlEncode(Convert.ToString(Eval("SizeColor"))) %></div>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Cons / Dzn">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtAccConsDzn" runat="server" CssClass="grid-input acc-num" data-grp="acons" data-role="dzn"
+                                                    Text='<%# Eval("ConsDzn", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Cons / Pc">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtAccConsPc" runat="server" CssClass="grid-input acc-num" data-grp="acons" data-role="pc"
+                                                    Text='<%# Eval("ConsPc", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Unit">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtAccUnit" runat="server" CssClass="grid-input" Width="60px" MaxLength="20" Text='<%# Eval("Unit") %>' />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Rate / Dzn">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtAccRateDzn" runat="server" CssClass="grid-input acc-num" data-grp="arate" data-role="dzn"
+                                                    Text='<%# Eval("RateDzn", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Rate / Pc">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtAccRatePc" runat="server" CssClass="grid-input acc-num" data-grp="arate" data-role="pc"
+                                                    Text='<%# Eval("RatePc", "{0:0.####}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Wastage %">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtAccLoss" runat="server" CssClass="grid-input acc-num" Width="60px" Text='<%# Eval("WastePct", "{0:0.##}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Qty (pcs)">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtAccQty" runat="server" CssClass="grid-input acc-qty" Text='<%# Eval("Qty") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Total Qty" ItemStyle-CssClass="text-end fw-bold">
+                                            <ItemTemplate><asp:Label ID="lblAccTotalQty" runat="server" CssClass="acc-tqty" Text='<%# Eval("TotalQty", "{0:N2}") %>' /></ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Amount" ItemStyle-CssClass="text-end fw-bold">
+                                            <ItemTemplate><asp:Label ID="lblAccAmt" runat="server" CssClass="acc-amt" Text='<%# Eval("Amount", "{0:N2}") %>' /></ItemTemplate>
+                                        </asp:TemplateField>
                                         <asp:TemplateField HeaderText="Book?">
-                                            <ItemTemplate><asp:CheckBox runat="server" ID="chkBookAcc" Checked="true" /></ItemTemplate>
+                                            <ItemTemplate><asp:CheckBox ID="chkBookAcc" runat="server" Checked='<%# Eval("IsBooked") %>' /></ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Action" ItemStyle-Width="60px">
+                                            <ItemTemplate>
+                                                <asp:LinkButton runat="server" CommandName="RemoveRow" CommandArgument='<%# Container.DataItemIndex %>'
+                                                    CausesValidation="false" CssClass="text-danger" ToolTip="Remove"
+                                                    OnClientClick="return confirm('Remove this row?');"><i class="bi bi-trash"></i></asp:LinkButton>
+                                            </ItemTemplate>
                                         </asp:TemplateField>
                                     </Columns>
                                 </asp:GridView>
+                            </div>
+                            <div class="text-end fw-bold">
+                                Total Amount: <asp:Label ID="lblAccSumAmt" runat="server" CssClass="acc-sum-amt" Text="0.00" />
                             </div>
                         </div>
 
@@ -729,6 +1107,132 @@
     });
     document.addEventListener('focusin', function (e) {
         if (e.target.classList && (e.target.classList.contains('qty-input') || e.target.classList.contains('emb-qty') || e.target.classList.contains('emb-rate')))
+            e.target.select();
+    });
+
+    /* ---------- fabric booking : Dzn <-> Pc sync + live totals ---------- */
+    function r4(v) { return Math.round(v * 10000) / 10000; }
+
+    function fabSync(t) {
+        var g = t.getAttribute('data-grp'); if (!g) return;
+        var scope = t.closest('tr') || t.closest('.fab-in'); if (!scope) return;
+        var role = t.getAttribute('data-role');
+        var other = scope.querySelector('[data-grp="' + g + '"][data-role="' + (role === 'dzn' ? 'pc' : 'dzn') + '"]');
+        if (!other) return;
+        if (t.value.trim() === '') { other.value = ''; return; }
+        var v = num(t.value);
+        other.value = r4(role === 'dzn' ? v / 12 : v * 12);
+    }
+
+    function recalcFabRow(tr) {
+        if (!tr) return;
+        function val(sel) { var el = tr.querySelector(sel); return el ? num(el.value) : 0; }
+        var qty = parseInt((tr.querySelector('.fab-qty') || {}).value, 10); if (isNaN(qty)) qty = 0;
+        var f = 1 + val('[id$="txtFabLoss"]') / 100;
+        /* Cuff + Double ply → x2 */
+        var partEl = tr.querySelector('.fab-part'), plyEl = tr.querySelector('[id$="ddlFabPlyRow"]');
+        if (partEl && plyEl && partEl.textContent.trim() === 'Cuff' && plyEl.value === 'Double') f *= 2;
+        var kg = qty * f * val('[data-grp="kg"][data-role="pc"]');
+        var yd = qty * f * val('[data-grp="yd"][data-role="pc"]');
+        var amt = qty * val('[data-grp="rate"][data-role="pc"]');
+        var a = tr.querySelector('.fab-tkg'); if (a) a.textContent = fmt(kg, 2);
+        var b = tr.querySelector('.fab-tyd'); if (b) b.textContent = fmt(yd, 2);
+        var c = tr.querySelector('.fab-amt'); if (c) c.textContent = fmt(amt, 2);
+    }
+
+    function recalcFabTotals() {
+        var kg = 0, yd = 0, amt = 0;
+        document.querySelectorAll('.fab-tkg').forEach(function (s) { kg += num(s.textContent); });
+        document.querySelectorAll('.fab-tyd').forEach(function (s) { yd += num(s.textContent); });
+        document.querySelectorAll('.fab-amt').forEach(function (s) { amt += num(s.textContent); });
+        var x = document.querySelector('.fab-sum-kg'); if (x) x.textContent = fmt(kg, 2);
+        var y = document.querySelector('.fab-sum-yd'); if (y) y.textContent = fmt(yd, 2);
+        var z = document.querySelector('.fab-sum-amt'); if (z) z.textContent = fmt(amt, 2);
+    }
+
+    document.addEventListener('input', function (e) {
+        var t = e.target;
+        if (t.classList.contains('fab-num')) {
+            var clean = t.value.replace(/[^0-9.]/g, '');
+            if (clean !== t.value) t.value = clean;
+            fabSync(t);
+            var tr = t.closest('tr');
+            if (tr) { recalcFabRow(tr); recalcFabTotals(); }
+        } else if (t.classList.contains('fab-qty')) {
+            var clean2 = t.value.replace(/[^0-9]/g, '');
+            if (clean2 !== t.value) t.value = clean2;
+            recalcFabRow(t.closest('tr')); recalcFabTotals();
+        }
+    });
+
+    /* Ply changed (Single/Double) → recalc that row */
+    document.addEventListener('change', function (e) {
+        var t = e.target;
+        if (t.id && t.id.indexOf('ddlFabPlyRow') >= 0) {
+            recalcFabRow(t.closest('tr')); recalcFabTotals();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        var t = e.target;
+        if (t.classList && (t.classList.contains('fab-num') || t.classList.contains('fab-qty'))) {
+            e.preventDefault();
+            var all = [].slice.call(document.querySelectorAll('#fabric-tab .fab-num, #fabric-tab .fab-qty'));
+            var i = all.indexOf(t);
+            if (i >= 0 && i < all.length - 1) { all[i + 1].focus(); all[i + 1].select(); }
+        }
+    });
+    document.addEventListener('focusin', function (e) {
+        if (e.target.classList && (e.target.classList.contains('fab-num') || e.target.classList.contains('fab-qty')))
+            e.target.select();
+    });
+
+    /* ---------- accessories booking : Dzn <-> Pc sync + live totals ---------- */
+    function recalcAccRow(tr) {
+        if (!tr) return;
+        function val(sel) { var el = tr.querySelector(sel); return el ? num(el.value) : 0; }
+        var qty = parseInt((tr.querySelector('.acc-qty') || {}).value, 10); if (isNaN(qty)) qty = 0;
+        var f = 1 + val('[id$="txtAccLoss"]') / 100;
+        var tq = qty * f * val('[data-grp="acons"][data-role="pc"]');
+        var amt = qty * val('[data-grp="arate"][data-role="pc"]');
+        var a = tr.querySelector('.acc-tqty'); if (a) a.textContent = fmt(tq, 2);
+        var b = tr.querySelector('.acc-amt'); if (b) b.textContent = fmt(amt, 2);
+    }
+
+    function recalcAccTotals() {
+        var amt = 0;
+        document.querySelectorAll('.acc-amt').forEach(function (s) { amt += num(s.textContent); });
+        var z = document.querySelector('.acc-sum-amt'); if (z) z.textContent = fmt(amt, 2);
+    }
+
+    document.addEventListener('input', function (e) {
+        var t = e.target;
+        if (t.classList.contains('acc-num')) {
+            var clean = t.value.replace(/[^0-9.]/g, '');
+            if (clean !== t.value) t.value = clean;
+            fabSync(t);
+            var tr = t.closest('tr');
+            if (tr) { recalcAccRow(tr); recalcAccTotals(); }
+        } else if (t.classList.contains('acc-qty')) {
+            var clean2 = t.value.replace(/[^0-9]/g, '');
+            if (clean2 !== t.value) t.value = clean2;
+            recalcAccRow(t.closest('tr')); recalcAccTotals();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        var t = e.target;
+        if (t.classList && (t.classList.contains('acc-num') || t.classList.contains('acc-qty'))) {
+            e.preventDefault();
+            var all = [].slice.call(document.querySelectorAll('#acc-tab .acc-num, #acc-tab .acc-qty'));
+            var i = all.indexOf(t);
+            if (i >= 0 && i < all.length - 1) { all[i + 1].focus(); all[i + 1].select(); }
+        }
+    });
+    document.addEventListener('focusin', function (e) {
+        if (e.target.classList && (e.target.classList.contains('acc-num') || e.target.classList.contains('acc-qty')))
             e.target.select();
     });
 

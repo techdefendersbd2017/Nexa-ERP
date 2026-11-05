@@ -22,6 +22,72 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         public decimal Amount { get; set; }
     }
 
+    // One row of the Fabric Booking grid.
+    // Key = Color + Part + Size + Fabric.  SizeCode = "ALL" means the line applies to every size of the color.
+    // Dzn is the stored value, Pc is always Dzn / 12.
+    public class FabRow
+    {
+        public const string AllSizes = "ALL";
+
+        public string ColorCode { get; set; }
+        public string PartName { get; set; }      // Body / Sleeve / Collar / Cuff / Flat Knit Bottom / Rib / Pocket / Other
+        public string SizeCode { get; set; }      // ALL or a style size
+        public string FabricCode { get; set; }
+        public string FabricName { get; set; }
+        public string GSM { get; set; }
+        public string FabForm { get; set; }       // Open / Tube
+        public string Dia { get; set; }           // finish dia (inch)
+        public string PartSize { get; set; }      // collar size / cuff size / bottom size
+        public string Ply { get; set; }           // Single / Double (cuff)
+        public decimal KgDzn { get; set; }
+        public decimal YdDzn { get; set; }
+        public decimal RateDzn { get; set; }
+        public int Qty { get; set; }
+        public bool IsBooked { get; set; }
+
+        public decimal LossPct { get; set; }
+        public decimal KgPc { get { return KgDzn / 12m; } }
+        public decimal YdPc { get { return YdDzn / 12m; } }
+        public decimal RatePc { get { return RateDzn / 12m; } }
+        // Cuff + Double = fabric is used twice → Total Kg / Yds x 2 (Kg/Pc, Yds/Pc stay as entered)
+        public static decimal PlyFactorOf(string part, string ply)
+        {
+            return (part == "Cuff" && ply == "Double") ? 2m : 1m;
+        }
+        public decimal PlyFactor { get { return PlyFactorOf(PartName, Ply); } }
+
+        public decimal TotalKg { get { return Qty * KgPc * (1m + LossPct / 100m) * PlyFactor; } }
+        public decimal TotalYd { get { return Qty * YdPc * (1m + LossPct / 100m) * PlyFactor; } }
+        public decimal Amount { get { return Qty * RatePc; } }
+
+        public FabRow()
+        {
+            PartName = "Body";
+            SizeCode = AllSizes;
+        }
+    }
+
+    // One row of the Accessories Booking grid (Dzn is the stored value, Pc is always Dzn / 12)
+    public class AccRow
+    {
+        public string ColorCode { get; set; }
+        public string ItemCode { get; set; }
+        public string ItemName { get; set; }
+        public string ItemType { get; set; }
+        public string SizeColor { get; set; }
+        public string Unit { get; set; }
+        public decimal ConsDzn { get; set; }
+        public decimal RateDzn { get; set; }
+        public decimal WastePct { get; set; }
+        public int Qty { get; set; }
+        public bool IsBooked { get; set; }
+
+        public decimal ConsPc { get { return ConsDzn / 12m; } }
+        public decimal RatePc { get { return RateDzn / 12m; } }
+        public decimal TotalQty { get { return Qty * ConsPc * (1m + WastePct / 100m); } }
+        public decimal Amount { get { return Qty * RatePc; } }
+    }
+
     public partial class POEntry : System.Web.UI.Page
     {
         // ============================================================
@@ -81,7 +147,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             }
         }
 
-        // Every render: refresh row/column totals, PO Qty, Total Value, Fabric/Acc qty, Embellishment amount
+        // Every render: refresh row/column totals, PO Qty, Total Value, Accessories qty, Embellishment & Fabric amounts
         protected void Page_PreRender(object sender, EventArgs e)
         {
             if (!pnlEntry.Visible) return;
@@ -92,19 +158,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             txtPOQty.Text = total.ToString();
             txtTotalValue.Text = (total * price).ToString("N2");
 
-            int styleId;
-            if (int.TryParse(hfStyleId.Value, out styleId) && styleId > 0)
-            {
-                int last = ViewState["LastQty"] != null ? Convert.ToInt32(ViewState["LastQty"]) : -1;
-                if (last != total)
-                {
-                    LoadFabricGrid(styleId);
-                    LoadAccGrid(styleId);
-                    ViewState["LastQty"] = total;
-                }
-            }
-
             RefreshEmbAmounts();
+            RefreshFabAmounts();
+            RefreshAccAmounts();
         }
 
         // ============================================================
@@ -319,9 +375,11 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ============================================================
         protected void ddlStyle_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // style changed → old matrix / embellishment no longer valid
+            // style changed → old matrix / embellishment / fabric no longer valid
             BindMatrix(new MatrixData());
             BindEmb(new List<EmbRow>());
+            BindFab(new List<FabRow>());
+            BindAcc(new List<AccRow>());
             ViewState["LastQty"] = null;
 
             int styleId;
@@ -330,8 +388,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 hfStyleId.Value = "0";
                 ClearStyleSnapshot();
                 ClearStyleLists();
-                gvFabric.DataSource = null; gvFabric.DataBind();
-                gvAcc.DataSource = null; gvAcc.DataBind();
+                BindAcc(new List<AccRow>());
                 return;
             }
 
@@ -421,7 +478,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
 
         // ============================================================
-        // STYLE COLOR / SIZE LISTS (multi-select dropdowns)
+        // STYLE COLOR / SIZE / FABRIC LISTS (multi-select dropdowns)
         // ============================================================
         private List<string> GetStyleCodes(string sql, int styleId)
         {
@@ -457,28 +514,72 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                                    ORDER BY SortOrder, StyleSizeID", styleId);
         }
 
+        private DataTable GetStyleFabrics(int styleId)
+        {
+            DataTable dt = new DataTable();
+            con = conn.openConnection();
+            using (SqlCommand c = new SqlCommand(@"
+                SELECT FabricCode, FabricName, GSM
+                FROM   dbo.StyleFabric
+                WHERE  StyleID=@ID
+                ORDER BY SortOrder, StyleFabricID", con))
+            {
+                c.Parameters.AddWithValue("@ID", styleId);
+                new SqlDataAdapter(c).Fill(dt);
+            }
+            CloseConnection();
+            return dt;
+        }
+
         private void PopulateStyleLists(int styleId)
         {
             try
             {
                 List<string> colors = GetStyleColors(styleId);
                 List<string> sizes = GetStyleSizes(styleId);
+                DataTable fabs = GetStyleFabrics(styleId);
+                DataTable accs = GetStyleAccessories(styleId);
 
                 cblColors.Items.Clear();
                 cblEmbColors.Items.Clear();
+                cblFabColors.Items.Clear();
                 cblSizes.Items.Clear();
+                cblFabSizes.Items.Clear();
+                cblFabrics.Items.Clear();
+                cblAccColors.Items.Clear();
+                cblAccItems.Items.Clear();
+
                 foreach (string c in colors)
                 {
                     cblColors.Items.Add(new ListItem(c, c));
                     cblEmbColors.Items.Add(new ListItem(c, c));
+                    cblFabColors.Items.Add(new ListItem(c, c));
+                    cblAccColors.Items.Add(new ListItem(c, c));
                 }
                 foreach (string s in sizes)
+                {
                     cblSizes.Items.Add(new ListItem(s, s));
+                    cblFabSizes.Items.Add(new ListItem(s, s));
+                }
+
+                foreach (DataRow ar in accs.Rows)
+                {
+                    string acode = GetStr(ar["ItemCode"]);
+                    string aname = GetStr(ar["ItemName"]);
+                    cblAccItems.Items.Add(new ListItem(acode + (aname.Length > 0 ? " - " + aname : ""), acode));
+                }
+
+                foreach (DataRow dr in fabs.Rows)
+                {
+                    string code = GetStr(dr["FabricCode"]);
+                    string name = GetStr(dr["FabricName"]);
+                    cblFabrics.Items.Add(new ListItem(code + (name.Length > 0 ? " - " + name : ""), code));
+                }
             }
             catch (Exception ex)
             {
                 CloseConnection();
-                ShowAlert("Color/Size load error: " + ex.Message);
+                ShowAlert("Color/Size/Fabric load error: " + ex.Message);
             }
         }
 
@@ -487,6 +588,11 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             cblColors.Items.Clear();
             cblSizes.Items.Clear();
             cblEmbColors.Items.Clear();
+            cblFabColors.Items.Clear();
+            cblFabSizes.Items.Clear();
+            cblFabrics.Items.Clear();
+            cblAccColors.Items.Clear();
+            cblAccItems.Items.Clear();
         }
 
         private static List<string> GetChecked(CheckBoxList cbl)
@@ -664,125 +770,496 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             return t;
         }
 
-        // ============================================================
-        // FABRIC GRID
-        // ============================================================
-        private void LoadFabricGrid(int styleId)
+        // qty for one Color + Size ("ALL" = whole color)
+        private static int QtyFor(MatrixData m, string color, string size)
         {
-            int poQty = IntOrZero(txtPOQty.Text);
-            try
-            {
-                con = conn.openConnection();
-                string sql = @"
-                    SELECT  FabricCode, FabricName, Composition, GSM, ColorName,
-                            Consumption, WastagePercent, UnitCode
-                    FROM    dbo.StyleFabric
-                    WHERE   StyleID = @ID
-                    ORDER BY SortOrder, StyleFabricID";
-
-                using (SqlCommand c = new SqlCommand(sql, con))
-                {
-                    c.Parameters.AddWithValue("@ID", styleId);
-
-                    DataTable dt = new DataTable();
-                    dt.Columns.Add("FabricCode", typeof(string));
-                    dt.Columns.Add("FabricName", typeof(string));
-                    dt.Columns.Add("Composition", typeof(string));
-                    dt.Columns.Add("GSM", typeof(string));
-                    dt.Columns.Add("ColorName", typeof(string));
-                    dt.Columns.Add("Consumption", typeof(decimal));
-                    dt.Columns.Add("Unit", typeof(string));
-                    dt.Columns.Add("TotalQty", typeof(decimal));
-
-                    using (SqlDataReader r = c.ExecuteReader())
-                    {
-                        while (r.Read())
-                        {
-                            decimal cons = r["Consumption"] != DBNull.Value ? Convert.ToDecimal(r["Consumption"]) : 0m;
-                            DataRow dr = dt.NewRow();
-                            dr["FabricCode"] = GetStr(r["FabricCode"]);
-                            dr["FabricName"] = GetStr(r["FabricName"]);
-                            dr["Composition"] = GetStr(r["Composition"]);
-                            dr["GSM"] = GetStr(r["GSM"]);
-                            dr["ColorName"] = GetStr(r["ColorName"]);
-                            dr["Consumption"] = cons;
-                            dr["Unit"] = GetStr(r["UnitCode"]);
-                            dr["TotalQty"] = poQty * cons;
-                            dt.Rows.Add(dr);
-                        }
-                    }
-
-                    gvFabric.DataSource = dt;
-                    gvFabric.DataBind();
-                }
-                CloseConnection();
-            }
-            catch (Exception ex)
-            {
-                CloseConnection();
-                ShowAlert("Fabric grid error: " + ex.Message);
-            }
+            if (string.IsNullOrEmpty(size) || size == FabRow.AllSizes) return ColorTotal(m, color);
+            int q;
+            return m.Qty.TryGetValue(Key(color, size), out q) ? q : 0;
         }
 
         // ============================================================
-        // ACCESSORIES GRID
+        // FABRIC BOOKING (Color x Part x Size x Fabric)
         // ============================================================
-        private void LoadAccGrid(int styleId)
+
+        // Dzn is the master value; if only Pc was typed, convert it
+        private static decimal DznFrom(string dznText, string pcText)
         {
-            int poQty = IntOrZero(txtPOQty.Text);
+            decimal dzn, pc;
+            decimal.TryParse(dznText, out dzn);
+            decimal.TryParse(pcText, out pc);
+            if (dzn <= 0m && pc > 0m) dzn = pc * 12m;
+            return dzn;
+        }
+
+        // parts that must carry their own size (collar size / cuff size / bottom size)
+        private static bool PartNeedsSize(string part)
+        {
+            return part == "Collar" || part == "Cuff" || part == "Flat Knit Bottom";
+        }
+
+        private List<FabRow> ReadFab()
+        {
+            List<FabRow> list = new List<FabRow>();
+            foreach (GridViewRow row in gvFab.Rows)
+            {
+                if (row.RowType != DataControlRowType.DataRow) continue;
+                Literal lc = row.FindControl("litFabColor") as Literal;
+                if (lc == null) continue;
+
+                FabRow r = new FabRow();
+                r.ColorCode = lc.Text;
+                r.PartName = ((Literal)row.FindControl("litFabPart")).Text;
+                r.SizeCode = ((Literal)row.FindControl("litFabSize")).Text;
+                r.FabricCode = ((Literal)row.FindControl("litFabCode")).Text;
+                r.FabricName = ((HiddenField)row.FindControl("hfFabName")).Value;
+                r.GSM = ((TextBox)row.FindControl("txtFabGsm")).Text.Trim();
+                r.FabForm = ((DropDownList)row.FindControl("ddlFabFormRow")).SelectedValue;
+                r.Dia = ((TextBox)row.FindControl("txtFabDiaRow")).Text.Trim();
+                r.PartSize = ((TextBox)row.FindControl("txtFabPartSizeRow")).Text.Trim();
+                r.Ply = ((DropDownList)row.FindControl("ddlFabPlyRow")).SelectedValue;
+                r.KgDzn = DznFrom(((TextBox)row.FindControl("txtFabKgDzn")).Text, ((TextBox)row.FindControl("txtFabKgPc")).Text);
+                r.YdDzn = DznFrom(((TextBox)row.FindControl("txtFabYdDzn")).Text, ((TextBox)row.FindControl("txtFabYdPc")).Text);
+                r.RateDzn = DznFrom(((TextBox)row.FindControl("txtFabRateDzn")).Text, ((TextBox)row.FindControl("txtFabRatePc")).Text);
+                r.Qty = IntOrZero(((TextBox)row.FindControl("txtFabQty")).Text.Trim());
+                r.LossPct = DecOrZero(((TextBox)row.FindControl("txtFabLoss")).Text.Trim());
+                r.IsBooked = ((CheckBox)row.FindControl("chkBookFab")).Checked;
+                list.Add(r);
+            }
+            return list;
+        }
+
+        private void BindFab(List<FabRow> rows)
+        {
+            gvFab.DataSource = rows;
+            gvFab.DataBind();
+        }
+
+        protected void gvFab_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType != DataControlRowType.DataRow) return;
+            FabRow r = e.Row.DataItem as FabRow;
+            if (r == null) return;
+            SelectDDL((DropDownList)e.Row.FindControl("ddlFabFormRow"), r.FabForm ?? "");
+            SelectDDL((DropDownList)e.Row.FindControl("ddlFabPlyRow"), r.Ply ?? "");
+        }
+
+        protected void btnAddFab_Click(object sender, EventArgs e)
+        {
+            List<string> colors = GetChecked(cblFabColors);
+            List<string> fabrics = GetChecked(cblFabrics);
+            List<string> sizes = GetChecked(cblFabSizes);
+            string part = ddlFabPart.SelectedValue;
+
+            if (colors.Count == 0) { ShowAlert("Select at least one Color."); return; }
+            if (fabrics.Count == 0) { ShowAlert("Select at least one Fabric."); return; }
+            if (part.Length == 0) { ShowAlert("Select a Part (Body / Collar / Cuff ...)."); return; }
+            if (sizes.Count == 0) sizes.Add(FabRow.AllSizes);   // no size picked → one line for ALL sizes
+
+            decimal kgDzn = DznFrom(txtFabKgDzn.Text, txtFabKgPc.Text);
+            decimal ydDzn = DznFrom(txtFabYdDzn.Text, txtFabYdPc.Text);
+            decimal rateDzn = DznFrom(txtFabRateDzn.Text, txtFabRatePc.Text);
+            decimal lossPct = DecOrZero(txtFabLoss.Text);
+
+            if (kgDzn <= 0m && ydDzn <= 0m)
+            { ShowAlert("Enter Consumption (Kg or Yds), then click Add."); return; }
+
+            string form = ddlFabForm.SelectedValue;
+            string dia = txtFabDia.Text.Trim();
+            string partSize = txtFabPartSize.Text.Trim();
+            string ply = ddlFabPly.SelectedValue;
+
+            int styleId;
+            int.TryParse(hfStyleId.Value, out styleId);
+            DataTable fabInfo = styleId > 0 ? GetStyleFabrics(styleId) : new DataTable();
+
+            List<FabRow> rows = ReadFab();
+            MatrixData m = ReadMatrix();
+            int added = 0;
+
+            foreach (string color in colors)
+            {
+                foreach (string code in fabrics)
+                {
+                    foreach (string size in sizes)
+                    {
+                        if (rows.Any(x => x.ColorCode == color && x.FabricCode == code && x.PartName == part && x.SizeCode == size)) continue;
+
+                        string name = "", gsm = "";
+                        foreach (DataRow dr in fabInfo.Rows)
+                        {
+                            if (GetStr(dr["FabricCode"]) == code)
+                            {
+                                name = GetStr(dr["FabricName"]);
+                                gsm = GetStr(dr["GSM"]);
+                                break;
+                            }
+                        }
+
+                        rows.Add(new FabRow
+                        {
+                            ColorCode = color,
+                            PartName = part,
+                            SizeCode = size,
+                            FabricCode = code,
+                            FabricName = name,
+                            GSM = gsm,
+                            FabForm = form,
+                            Dia = dia,
+                            PartSize = partSize,
+                            Ply = ply,
+                            KgDzn = kgDzn,
+                            YdDzn = ydDzn,
+                            RateDzn = rateDzn,
+                            LossPct = lossPct,
+                            Qty = QtyFor(m, color, size),
+                            IsBooked = true
+                        });
+                        added++;
+                    }
+                }
+            }
+
+            BindFab(rows);
+            cblFabColors.ClearSelection();
+            cblFabrics.ClearSelection();
+            cblFabSizes.ClearSelection();
+            ddlFabForm.SelectedIndex = 0;
+            ddlFabPly.SelectedIndex = 0;
+            txtFabDia.Text = txtFabPartSize.Text = "";
+            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = "";
+
+            if (added == 0)
+                ShowAlert("Selected color / fabric / part / size combination(s) already added.");
+        }
+
+        protected void gvFab_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            int idx;
+            if (!int.TryParse(Convert.ToString(e.CommandArgument), out idx)) return;
+
+            List<FabRow> rows = ReadFab();
+            if (idx < 0 || idx >= rows.Count) return;
+
+            if (e.CommandName == "RemoveRow")
+            {
+                rows.RemoveAt(idx);
+            }
+            else if (e.CommandName == "CopyRow")
+            {
+                // duplicate the line right below, user then changes Size / Dia / Cons for the copy
+                FabRow s = rows[idx];
+                rows.Insert(idx + 1, new FabRow
+                {
+                    ColorCode = s.ColorCode,
+                    PartName = s.PartName,
+                    SizeCode = s.SizeCode,
+                    FabricCode = s.FabricCode,
+                    FabricName = s.FabricName,
+                    GSM = s.GSM,
+                    FabForm = s.FabForm,
+                    Dia = s.Dia,
+                    PartSize = s.PartSize,
+                    Ply = s.Ply,
+                    KgDzn = s.KgDzn,
+                    YdDzn = s.YdDzn,
+                    RateDzn = s.RateDzn,
+                    LossPct = s.LossPct,
+                    Qty = s.Qty,
+                    IsBooked = s.IsBooked
+                });
+            }
+            else return;
+
+            BindFab(rows);
+        }
+
+        // re-pull Qty of every fabric line from the Color x Size matrix
+        protected void btnSyncFabQty_Click(object sender, EventArgs e)
+        {
+            List<FabRow> rows = ReadFab();
+            MatrixData m = ReadMatrix();
+            foreach (FabRow r in rows)
+                r.Qty = QtyFor(m, r.ColorCode, r.SizeCode);
+            BindFab(rows);
+        }
+
+        private void RefreshFabAmounts()
+        {
+            decimal sKg = 0m, sYd = 0m, sAmt = 0m;
+            foreach (GridViewRow row in gvFab.Rows)
+            {
+                if (row.RowType != DataControlRowType.DataRow) continue;
+                if (row.FindControl("txtFabQty") == null) continue;
+
+                decimal kgPc = DznFrom(((TextBox)row.FindControl("txtFabKgDzn")).Text, ((TextBox)row.FindControl("txtFabKgPc")).Text) / 12m;
+                decimal ydPc = DznFrom(((TextBox)row.FindControl("txtFabYdDzn")).Text, ((TextBox)row.FindControl("txtFabYdPc")).Text) / 12m;
+                decimal ratePc = DznFrom(((TextBox)row.FindControl("txtFabRateDzn")).Text, ((TextBox)row.FindControl("txtFabRatePc")).Text) / 12m;
+                int qty = IntOrZero(((TextBox)row.FindControl("txtFabQty")).Text.Trim());
+
+                decimal f = 1m + DecOrZero(((TextBox)row.FindControl("txtFabLoss")).Text) / 100m;
+                f *= FabRow.PlyFactorOf(((Literal)row.FindControl("litFabPart")).Text,
+                                        ((DropDownList)row.FindControl("ddlFabPlyRow")).SelectedValue);
+                decimal tk = qty * kgPc * f, ty = qty * ydPc * f, am = qty * ratePc;
+                ((Label)row.FindControl("lblFabTotalKg")).Text = tk.ToString("N2");
+                ((Label)row.FindControl("lblFabTotalYd")).Text = ty.ToString("N2");
+                ((Label)row.FindControl("lblFabAmt")).Text = am.ToString("N2");
+                sKg += tk; sYd += ty; sAmt += am;
+            }
+            lblFabSumKg.Text = sKg.ToString("N2");
+            lblFabSumYd.Text = sYd.ToString("N2");
+            lblFabSumAmt.Text = sAmt.ToString("N2");
+        }
+
+        private void LoadFabFromPO(int poId)
+        {
+            List<FabRow> rows = new List<FabRow>();
             try
             {
                 con = conn.openConnection();
-                string sql = @"
-                    SELECT  ItemCode, ItemName, AccTypeName, SizeColor,
-                            Consumption, UnitCode, WastagePercent, Supplier
-                    FROM    dbo.StyleAccessories
-                    WHERE   StyleID = @ID
-                    ORDER BY SortOrder, StyleAccID";
-
-                using (SqlCommand c = new SqlCommand(sql, con))
+                using (SqlCommand c = new SqlCommand(@"
+                    SELECT ColorCode, ISNULL(PartName,'Body') AS PartName, ISNULL(SizeCode,'ALL') AS SizeCode,
+                           FabricCode, FabricName, GSM, FabricForm, Dia, PartSize, Ply,
+                           KgPerDzn, YdPerDzn, RatePerDzn, Qty, LossPct, IsBooked
+                    FROM   dbo.POFabricBooking
+                    WHERE  POID=@ID
+                    ORDER BY SortOrder, FabBookID", con))
                 {
-                    c.Parameters.AddWithValue("@ID", styleId);
-
-                    DataTable dt = new DataTable();
-                    dt.Columns.Add("ItemCode", typeof(string));
-                    dt.Columns.Add("ItemName", typeof(string));
-                    dt.Columns.Add("ItemType", typeof(string));
-                    dt.Columns.Add("SizeColor", typeof(string));
-                    dt.Columns.Add("Consumption", typeof(decimal));
-                    dt.Columns.Add("Unit", typeof(string));
-                    dt.Columns.Add("WastagePercent", typeof(decimal));
-                    dt.Columns.Add("TotalQty", typeof(decimal));
-
+                    c.Parameters.AddWithValue("@ID", poId);
                     using (SqlDataReader r = c.ExecuteReader())
                     {
                         while (r.Read())
                         {
-                            decimal cons = r["Consumption"] != DBNull.Value ? Convert.ToDecimal(r["Consumption"]) : 0m;
-                            decimal waste = r["WastagePercent"] != DBNull.Value ? Convert.ToDecimal(r["WastagePercent"]) : 0m;
-                            DataRow dr = dt.NewRow();
-                            dr["ItemCode"] = GetStr(r["ItemCode"]);
-                            dr["ItemName"] = GetStr(r["ItemName"]);
-                            dr["ItemType"] = GetStr(r["AccTypeName"]);
-                            dr["SizeColor"] = GetStr(r["SizeColor"]);
-                            dr["Consumption"] = cons;
-                            dr["Unit"] = GetStr(r["UnitCode"]);
-                            dr["WastagePercent"] = waste;
-                            dr["TotalQty"] = poQty * cons * (1 + waste / 100m);
-                            dt.Rows.Add(dr);
+                            rows.Add(new FabRow
+                            {
+                                ColorCode = GetStr(r["ColorCode"]),
+                                PartName = GetStr(r["PartName"]),
+                                SizeCode = GetStr(r["SizeCode"]),
+                                FabricCode = GetStr(r["FabricCode"]),
+                                FabricName = GetStr(r["FabricName"]),
+                                GSM = GetStr(r["GSM"]),
+                                FabForm = GetStr(r["FabricForm"]),
+                                Dia = GetStr(r["Dia"]),
+                                PartSize = GetStr(r["PartSize"]),
+                                Ply = GetStr(r["Ply"]),
+                                KgDzn = Convert.ToDecimal(r["KgPerDzn"]),
+                                YdDzn = Convert.ToDecimal(r["YdPerDzn"]),
+                                RateDzn = Convert.ToDecimal(r["RatePerDzn"]),
+                                Qty = Convert.ToInt32(r["Qty"]),
+                                LossPct = Convert.ToDecimal(r["LossPct"]),
+                                IsBooked = Convert.ToBoolean(r["IsBooked"])
+                            });
                         }
                     }
-
-                    gvAcc.DataSource = dt;
-                    gvAcc.DataBind();
                 }
                 CloseConnection();
             }
             catch (Exception ex)
             {
                 CloseConnection();
-                ShowAlert("Accessories grid error: " + ex.Message);
+                ShowAlert("Fabric booking load error: " + ex.Message);
             }
+            BindFab(rows);
+        }
+
+        // ============================================================
+        // ACCESSORIES BOOKING (Color x Accessories)
+        // ============================================================
+        private DataTable GetStyleAccessories(int styleId)
+        {
+            DataTable dt = new DataTable();
+            con = conn.openConnection();
+            using (SqlCommand c = new SqlCommand(@"
+                SELECT ItemCode, ItemName, AccTypeName, SizeColor, UnitCode, Consumption, WastagePercent
+                FROM   dbo.StyleAccessories
+                WHERE  StyleID=@ID
+                ORDER BY SortOrder, StyleAccID", con))
+            {
+                c.Parameters.AddWithValue("@ID", styleId);
+                new SqlDataAdapter(c).Fill(dt);
+            }
+            CloseConnection();
+            return dt;
+        }
+
+        private List<AccRow> ReadAcc()
+        {
+            List<AccRow> list = new List<AccRow>();
+            foreach (GridViewRow row in gvAcc.Rows)
+            {
+                if (row.RowType != DataControlRowType.DataRow) continue;
+                Literal lc = row.FindControl("litAccColor") as Literal;
+                if (lc == null) continue;
+
+                AccRow r = new AccRow();
+                r.ColorCode = lc.Text;
+                r.ItemCode = ((Literal)row.FindControl("litAccCode")).Text;
+                r.ItemName = ((HiddenField)row.FindControl("hfAccName")).Value;
+                r.ItemType = ((HiddenField)row.FindControl("hfAccType")).Value;
+                r.SizeColor = ((HiddenField)row.FindControl("hfAccSize")).Value;
+                r.Unit = ((TextBox)row.FindControl("txtAccUnit")).Text.Trim();
+                r.ConsDzn = DznFrom(((TextBox)row.FindControl("txtAccConsDzn")).Text, ((TextBox)row.FindControl("txtAccConsPc")).Text);
+                r.RateDzn = DznFrom(((TextBox)row.FindControl("txtAccRateDzn")).Text, ((TextBox)row.FindControl("txtAccRatePc")).Text);
+                r.WastePct = DecOrZero(((TextBox)row.FindControl("txtAccLoss")).Text.Trim());
+                r.Qty = IntOrZero(((TextBox)row.FindControl("txtAccQty")).Text.Trim());
+                r.IsBooked = ((CheckBox)row.FindControl("chkBookAcc")).Checked;
+                list.Add(r);
+            }
+            return list;
+        }
+
+        private void BindAcc(List<AccRow> rows)
+        {
+            gvAcc.DataSource = rows;
+            gvAcc.DataBind();
+        }
+
+        protected void btnAddAcc_Click(object sender, EventArgs e)
+        {
+            List<string> colors = GetChecked(cblAccColors);
+            List<string> items = GetChecked(cblAccItems);
+
+            if (colors.Count == 0) { ShowAlert("Select at least one Color."); return; }
+            if (items.Count == 0) { ShowAlert("Select at least one Accessories item."); return; }
+
+            int styleId;
+            int.TryParse(hfStyleId.Value, out styleId);
+            DataTable info = styleId > 0 ? GetStyleAccessories(styleId) : new DataTable();
+
+            decimal consDzn = DznFrom(txtAccConsDzn.Text, txtAccConsPc.Text);
+            decimal rateDzn = DznFrom(txtAccRateDzn.Text, txtAccRatePc.Text);
+            bool hasWaste = txtAccLoss.Text.Trim().Length > 0;
+            decimal wasteIn = DecOrZero(txtAccLoss.Text);
+            string unitSel = ddlAccUnit.SelectedValue;
+
+            List<AccRow> rows = ReadAcc();
+            MatrixData m = ReadMatrix();
+            int added = 0;
+
+            foreach (string color in colors)
+            {
+                foreach (string code in items)
+                {
+                    if (rows.Any(x => x.ColorCode == color && x.ItemCode == code)) continue;
+
+                    string name = "", type = "", size = "", styleUnit = "";
+                    decimal styleConsPc = 0m, styleWaste = 0m;
+                    foreach (DataRow dr in info.Rows)
+                    {
+                        if (GetStr(dr["ItemCode"]) != code) continue;
+                        name = GetStr(dr["ItemName"]);
+                        type = GetStr(dr["AccTypeName"]);
+                        size = GetStr(dr["SizeColor"]);
+                        styleUnit = GetStr(dr["UnitCode"]);
+                        styleConsPc = dr["Consumption"] != DBNull.Value ? Convert.ToDecimal(dr["Consumption"]) : 0m;
+                        styleWaste = dr["WastagePercent"] != DBNull.Value ? Convert.ToDecimal(dr["WastagePercent"]) : 0m;
+                        break;
+                    }
+
+                    rows.Add(new AccRow
+                    {
+                        ColorCode = color,
+                        ItemCode = code,
+                        ItemName = name,
+                        ItemType = type,
+                        SizeColor = size,
+                        Unit = unitSel.Length > 0 ? unitSel : styleUnit,
+                        ConsDzn = consDzn > 0m ? consDzn : styleConsPc * 12m,
+                        RateDzn = rateDzn,
+                        WastePct = hasWaste ? wasteIn : styleWaste,
+                        Qty = ColorTotal(m, color),
+                        IsBooked = true
+                    });
+                    added++;
+                }
+            }
+
+            BindAcc(rows);
+            cblAccColors.ClearSelection();
+            cblAccItems.ClearSelection();
+            txtAccConsDzn.Text = txtAccConsPc.Text = txtAccRateDzn.Text = txtAccRatePc.Text = txtAccLoss.Text = "";
+            ddlAccUnit.SelectedIndex = 0;
+
+            if (added == 0)
+                ShowAlert("Selected color/accessories combination(s) already added.");
+        }
+
+        protected void gvAcc_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            if (e.CommandName != "RemoveRow") return;
+            int idx;
+            if (!int.TryParse(Convert.ToString(e.CommandArgument), out idx)) return;
+
+            List<AccRow> rows = ReadAcc();
+            if (idx < 0 || idx >= rows.Count) return;
+            rows.RemoveAt(idx);
+            BindAcc(rows);
+        }
+
+        private void RefreshAccAmounts()
+        {
+            decimal sAmt = 0m;
+            foreach (GridViewRow row in gvAcc.Rows)
+            {
+                if (row.RowType != DataControlRowType.DataRow) continue;
+                if (row.FindControl("txtAccQty") == null) continue;
+
+                decimal consPc = DznFrom(((TextBox)row.FindControl("txtAccConsDzn")).Text, ((TextBox)row.FindControl("txtAccConsPc")).Text) / 12m;
+                decimal ratePc = DznFrom(((TextBox)row.FindControl("txtAccRateDzn")).Text, ((TextBox)row.FindControl("txtAccRatePc")).Text) / 12m;
+                decimal f = 1m + DecOrZero(((TextBox)row.FindControl("txtAccLoss")).Text) / 100m;
+                int qty = IntOrZero(((TextBox)row.FindControl("txtAccQty")).Text.Trim());
+
+                decimal tq = qty * consPc * f, am = qty * ratePc;
+                ((Label)row.FindControl("lblAccTotalQty")).Text = tq.ToString("N2");
+                ((Label)row.FindControl("lblAccAmt")).Text = am.ToString("N2");
+                sAmt += am;
+            }
+            lblAccSumAmt.Text = sAmt.ToString("N2");
+        }
+
+        private void LoadAccFromPO(int poId)
+        {
+            List<AccRow> rows = new List<AccRow>();
+            try
+            {
+                con = conn.openConnection();
+                using (SqlCommand c = new SqlCommand(@"
+                    SELECT ColorCode, ItemCode, ItemName, ItemType, SizeColor, UnitCode,
+                           ConsPerDzn, RatePerDzn, WastagePct, Qty, IsBooked
+                    FROM   dbo.POAccessoriesBooking
+                    WHERE  POID=@ID
+                    ORDER BY SortOrder, AccBookID", con))
+                {
+                    c.Parameters.AddWithValue("@ID", poId);
+                    using (SqlDataReader r = c.ExecuteReader())
+                    {
+                        while (r.Read())
+                        {
+                            rows.Add(new AccRow
+                            {
+                                ColorCode = GetStr(r["ColorCode"]),
+                                ItemCode = GetStr(r["ItemCode"]),
+                                ItemName = GetStr(r["ItemName"]),
+                                ItemType = GetStr(r["ItemType"]),
+                                SizeColor = GetStr(r["SizeColor"]),
+                                Unit = GetStr(r["UnitCode"]),
+                                ConsDzn = Convert.ToDecimal(r["ConsPerDzn"]),
+                                RateDzn = Convert.ToDecimal(r["RatePerDzn"]),
+                                WastePct = Convert.ToDecimal(r["WastagePct"]),
+                                Qty = Convert.ToInt32(r["Qty"]),
+                                IsBooked = Convert.ToBoolean(r["IsBooked"])
+                            });
+                        }
+                    }
+                }
+                CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                CloseConnection();
+                ShowAlert("Accessories booking load error: " + ex.Message);
+            }
+            BindAcc(rows);
         }
 
         // ============================================================
@@ -1062,7 +1539,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                     PopulateStyleLists(styleId);
                     LoadMatrixFromPO(poId, styleId);
                     LoadEmbFromPO(poId);
-                    ViewState["LastQty"] = null;   // PreRender reloads Fabric / Accessories
+                    LoadFabFromPO(poId);
+                    LoadAccFromPO(poId);
+                    ViewState["LastQty"] = null;   // PreRender reloads Accessories
                 }
             }
             catch (Exception ex)
@@ -1135,6 +1614,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
             MatrixData matrix = ReadMatrix();
             List<EmbRow> embRows = ReadEmb();
+            List<FabRow> fabRows = ReadFab();
+            List<AccRow> accRows = ReadAcc();
 
             int poQty = 0;
             foreach (string color in matrix.Colors)
@@ -1249,44 +1730,86 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                             }
                         }
 
-                        // 4. Fabric snapshot
-                        using (SqlCommand c = new SqlCommand("DELETE FROM dbo.POFabric WHERE POID=@ID", con, tx))
+                        // 4. Fabric booking (Color x Part x Size x Fabric)
+                        using (SqlCommand c = new SqlCommand("DELETE FROM dbo.POFabricBooking WHERE POID=@ID", con, tx))
                         {
                             c.Parameters.AddWithValue("@ID", poId);
                             c.ExecuteNonQuery();
                         }
-                        using (SqlCommand c = new SqlCommand(@"
-                            INSERT INTO dbo.POFabric (POID, FabricCode, FabricName, Composition, GSM, ColorName,
-                                                      Consumption, WastagePercent, UnitCode, TotalQty, IsBooked)
-                            SELECT @ID, FabricCode, FabricName, Composition, GSM, ColorName,
-                                   Consumption, ISNULL(WastagePercent,0), UnitCode,
-                                   Consumption * @POQty, 1
-                            FROM   dbo.StyleFabric WHERE StyleID = @StyleID", con, tx))
+                        int fsort = 0;
+                        foreach (FabRow fr in fabRows)
                         {
-                            c.Parameters.AddWithValue("@ID", poId);
-                            c.Parameters.AddWithValue("@StyleID", styleId);
-                            c.Parameters.AddWithValue("@POQty", poQty);
-                            c.ExecuteNonQuery();
+                            fsort++;
+                            using (SqlCommand c = new SqlCommand(@"
+                                INSERT INTO dbo.POFabricBooking
+                                    (POID, ColorCode, PartName, SizeCode, FabricCode, FabricName, GSM,
+                                     FabricForm, Dia, PartSize, Ply,
+                                     KgPerDzn, YdPerDzn, RatePerDzn,
+                                     Qty, LossPct, TotalKg, TotalYd, Amount, IsBooked, SortOrder)
+                                VALUES (@ID, @Color, @Part, @SizeCode, @Code, @Name, @Gsm,
+                                        @Form, @Dia, @PartSize, @Ply,
+                                        @Kg, @Yd, @Rate,
+                                        @Qty, @Loss, @TKg, @TYd, @Amt, @Booked, @Sort)", con, tx))
+                            {
+                                c.Parameters.AddWithValue("@ID", poId);
+                                c.Parameters.AddWithValue("@Color", fr.ColorCode);
+                                c.Parameters.AddWithValue("@Part", string.IsNullOrEmpty(fr.PartName) ? "Body" : fr.PartName);
+                                c.Parameters.AddWithValue("@SizeCode", string.IsNullOrEmpty(fr.SizeCode) ? FabRow.AllSizes : fr.SizeCode);
+                                c.Parameters.AddWithValue("@Code", fr.FabricCode);
+                                c.Parameters.AddWithValue("@Name", NullIfEmpty(fr.FabricName));
+                                c.Parameters.AddWithValue("@Gsm", NullIfEmpty(fr.GSM));
+                                c.Parameters.AddWithValue("@Form", NullIfEmpty(fr.FabForm));
+                                c.Parameters.AddWithValue("@Dia", NullIfEmpty(fr.Dia));
+                                c.Parameters.AddWithValue("@PartSize", NullIfEmpty(fr.PartSize));
+                                c.Parameters.AddWithValue("@Ply", NullIfEmpty(fr.Ply));
+                                c.Parameters.AddWithValue("@Kg", fr.KgDzn);
+                                c.Parameters.AddWithValue("@Yd", fr.YdDzn);
+                                c.Parameters.AddWithValue("@Rate", fr.RateDzn);
+                                c.Parameters.AddWithValue("@Qty", fr.Qty);
+                                c.Parameters.AddWithValue("@Loss", fr.LossPct);
+                                c.Parameters.AddWithValue("@TKg", fr.TotalKg);
+                                c.Parameters.AddWithValue("@TYd", fr.TotalYd);
+                                c.Parameters.AddWithValue("@Amt", fr.Amount);
+                                c.Parameters.AddWithValue("@Booked", fr.IsBooked);
+                                c.Parameters.AddWithValue("@Sort", fsort);
+                                c.ExecuteNonQuery();
+                            }
                         }
 
-                        // 5. Accessories snapshot
-                        using (SqlCommand c = new SqlCommand("DELETE FROM dbo.POAccessories WHERE POID=@ID", con, tx))
+                        // 5. Accessories booking (Color x Accessories)
+                        using (SqlCommand c = new SqlCommand("DELETE FROM dbo.POAccessoriesBooking WHERE POID=@ID", con, tx))
                         {
                             c.Parameters.AddWithValue("@ID", poId);
                             c.ExecuteNonQuery();
                         }
-                        using (SqlCommand c = new SqlCommand(@"
-                            INSERT INTO dbo.POAccessories (POID, ItemCode, ItemName, AccTypeName, SizeColor,
-                                                            Consumption, UnitCode, WastagePercent, Supplier, TotalQty, IsBooked)
-                            SELECT @ID, ItemCode, ItemName, AccTypeName, SizeColor,
-                                   Consumption, UnitCode, ISNULL(WastagePercent,0), Supplier,
-                                   Consumption * @POQty * (1 + ISNULL(WastagePercent,0)/100.0), 1
-                            FROM   dbo.StyleAccessories WHERE StyleID = @StyleID", con, tx))
+                        int asort = 0;
+                        foreach (AccRow ar in accRows)
                         {
-                            c.Parameters.AddWithValue("@ID", poId);
-                            c.Parameters.AddWithValue("@StyleID", styleId);
-                            c.Parameters.AddWithValue("@POQty", poQty);
-                            c.ExecuteNonQuery();
+                            asort++;
+                            using (SqlCommand c = new SqlCommand(@"
+                                INSERT INTO dbo.POAccessoriesBooking
+                                    (POID, ColorCode, ItemCode, ItemName, ItemType, SizeColor, UnitCode,
+                                     ConsPerDzn, RatePerDzn, WastagePct, Qty, TotalQty, Amount, IsBooked, SortOrder)
+                                VALUES (@ID, @Color, @Code, @Name, @Type, @Size, @Unit,
+                                        @Cons, @Rate, @Waste, @Qty, @TQty, @Amt, @Booked, @Sort)", con, tx))
+                            {
+                                c.Parameters.AddWithValue("@ID", poId);
+                                c.Parameters.AddWithValue("@Color", ar.ColorCode);
+                                c.Parameters.AddWithValue("@Code", ar.ItemCode);
+                                c.Parameters.AddWithValue("@Name", NullIfEmpty(ar.ItemName));
+                                c.Parameters.AddWithValue("@Type", NullIfEmpty(ar.ItemType));
+                                c.Parameters.AddWithValue("@Size", NullIfEmpty(ar.SizeColor));
+                                c.Parameters.AddWithValue("@Unit", NullIfEmpty(ar.Unit));
+                                c.Parameters.AddWithValue("@Cons", ar.ConsDzn);
+                                c.Parameters.AddWithValue("@Rate", ar.RateDzn);
+                                c.Parameters.AddWithValue("@Waste", ar.WastePct);
+                                c.Parameters.AddWithValue("@Qty", ar.Qty);
+                                c.Parameters.AddWithValue("@TQty", ar.TotalQty);
+                                c.Parameters.AddWithValue("@Amt", ar.Amount);
+                                c.Parameters.AddWithValue("@Booked", ar.IsBooked);
+                                c.Parameters.AddWithValue("@Sort", asort);
+                                c.ExecuteNonQuery();
+                            }
                         }
 
                         tx.Commit();
@@ -1338,6 +1861,30 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 if (string.IsNullOrWhiteSpace(er.EmbType))
                 { ShowAlert("Select Embellishment Type for color " + er.ColorCode + "."); return false; }
             }
+
+            // Fabric booking rules (only for lines marked "Book?")
+            foreach (FabRow fr in ReadFab())
+            {
+                if (!fr.IsBooked) continue;
+
+                string tag = fr.ColorCode + " / " + fr.PartName + " / " + fr.FabricCode
+                           + (fr.SizeCode != FabRow.AllSizes ? " / " + fr.SizeCode : "");
+
+                if (string.IsNullOrWhiteSpace(fr.FabForm))
+                { ShowAlert("Fabric booking [" + tag + "]: select Fabric Form (Open / Tube)."); return false; }
+
+                if (string.IsNullOrWhiteSpace(fr.Dia))
+                { ShowAlert("Fabric booking [" + tag + "]: enter Dia."); return false; }
+
+                if (PartNeedsSize(fr.PartName) && string.IsNullOrWhiteSpace(fr.PartSize))
+                { ShowAlert("Fabric booking [" + tag + "]: enter " + fr.PartName + " size."); return false; }
+
+                if (fr.PartName == "Cuff" && string.IsNullOrWhiteSpace(fr.Ply))
+                { ShowAlert("Fabric booking [" + tag + "]: select Cuff Single or Double."); return false; }
+
+                if (fr.KgDzn <= 0m && fr.YdDzn <= 0m)
+                { ShowAlert("Fabric booking [" + tag + "]: enter consumption (Kg or Yds)."); return false; }
+            }
             return true;
         }
 
@@ -1386,11 +1933,21 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             ClearStyleSnapshot();
             ClearStyleLists();
 
+            ddlFabPart.SelectedIndex = 0;
+            ddlFabForm.SelectedIndex = 0;
+            ddlFabPly.SelectedIndex = 0;
+            txtFabDia.Text = txtFabPartSize.Text = "";
+            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = "";
+
             BindMatrix(new MatrixData());
             BindEmb(new List<EmbRow>());
             lblEmbTotal.Text = "0.00";
-            gvFabric.DataSource = null; gvFabric.DataBind();
-            gvAcc.DataSource = null; gvAcc.DataBind();
+            BindFab(new List<FabRow>());
+            lblFabSumKg.Text = lblFabSumYd.Text = lblFabSumAmt.Text = "0.00";
+            txtAccConsDzn.Text = txtAccConsPc.Text = txtAccRateDzn.Text = txtAccRatePc.Text = txtAccLoss.Text = "";
+            ddlAccUnit.SelectedIndex = 0;
+            lblAccSumAmt.Text = "0.00";
+            BindAcc(new List<AccRow>());
         }
 
         private void ClearStyleSnapshot()
