@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -19,6 +20,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // Fabric grid column order (must match gvFabric BoundField order, Category = cell index 8)
         private static readonly string[] FabricCols =
             { "FabricCode", "FabricName", "Composition", "GSM", "ColorName", "Consumption", "WastagePercent", "Unit", "Category" };
+
+        private static readonly string[] AccCols =
+            { "ItemCode", "ItemName", "ItemType", "SizeColor", "Consumption", "Unit", "WastagePercent", "Supplier" };
 
         private int CurrentUserId
         {
@@ -65,13 +69,17 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ============================================================
         private void ShowAlert(string msg)
         {
-            string safe = msg.Replace("'", "").Replace("\r", "").Replace("\n", " ");
+            string safe = (msg ?? "").Replace("'", "").Replace("\\", "").Replace("\r", "").Replace("\n", " ");
             ScriptManager.RegisterStartupScript(this, this.GetType(),
                 Guid.NewGuid().ToString("N"),
                 "alert('" + safe + "');", true);
         }
+
         private void PreserveTab(string tabId)
         {
+            tabId = (tabId ?? "").TrimStart('#');
+            if (!Regex.IsMatch(tabId, "^[A-Za-z0-9_-]+$")) return;
+
             hfActiveTab.Value = tabId;
             ScriptManager.RegisterStartupScript(this, this.GetType(),
                 "setTab_" + Guid.NewGuid().ToString("N"),
@@ -125,13 +133,45 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // GridView BoundField cell text: HTML-decode and turn &nbsp; (empty cell) into ""
         private string CellText(GridViewRow row, int index)
         {
+            if (index >= row.Cells.Count) return "";
             string t = HttpUtility.HtmlDecode(row.Cells[index].Text ?? "");
             return t.Replace('\u00a0', ' ').Trim();
         }
 
+        private static void SelectDDL(DropDownList ddl, string value)
+        {
+            if (ddl == null) return;
+            ListItem item = ddl.Items.FindByValue(value ?? "");
+            ddl.ClearSelection();
+            if (item != null) item.Selected = true;
+            else if (ddl.Items.Count > 0) ddl.SelectedIndex = 0;
+        }
+
+        // next auto code like FAB-001 (based on codes already in the grid)
+        private string NextCode(DataTable dt, string col, string prefix)
+        {
+            int max = 0;
+            foreach (DataRow r in dt.Rows)
+            {
+                string s = Convert.ToString(r[col]) ?? "";
+                if (s.StartsWith(prefix + "-", StringComparison.OrdinalIgnoreCase))
+                {
+                    int n;
+                    if (int.TryParse(s.Substring(prefix.Length + 1), out n) && n > max) max = n;
+                }
+            }
+            return prefix + "-" + (max + 1).ToString("D3");
+        }
+
+        private bool HasCode(DataTable dt, string col, string code)
+        {
+            foreach (DataRow r in dt.Rows)
+                if (string.Equals(Convert.ToString(r[col]), code, StringComparison.OrdinalIgnoreCase)) return true;
+            return false;
+        }
+
         // ============================================================
         // GRIDVIEW BOOLEAN HELPERS
-        // (fixes "String was not recognized as a valid Boolean")
         // ============================================================
         protected string GetActiveCss(object value)
         {
@@ -156,6 +196,102 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 || s.Equals("yes", StringComparison.OrdinalIgnoreCase)) return true;
 
             return false;
+        }
+
+        // ============================================================
+        // "USED IN PO" CHECKS  (used items can NOT be removed / deleted)
+        // ============================================================
+        private static string UsageSql(string table, string col)
+        {
+            return "SELECT x." + col + " FROM dbo." + table + " x " +
+                   "INNER JOIN dbo.POHeader h ON h.POID = x.POID " +
+                   "WHERE h.StyleID = @S AND ISNULL(h.IsActive,1) = 1";
+        }
+
+        // kind: color | size | fabric | acc
+        private HashSet<string> GetUsedCodes(SqlConnection cn, SqlTransaction tx, int styleId, string kind)
+        {
+            string sql;
+            switch (kind)
+            {
+                case "color":
+                    sql = UsageSql("POColorSize", "ColorCode") + " UNION " +
+                          UsageSql("POFabricBooking", "ColorCode") + " UNION " +
+                          UsageSql("POAccessoriesBooking", "ColorCode") + " UNION " +
+                          UsageSql("POEmbellishment", "ColorCode");
+                    break;
+                case "size":
+                    sql = UsageSql("POColorSize", "SizeCode") + " UNION " +
+                          UsageSql("POFabricBooking", "SizeCode");
+                    break;
+                case "fabric":
+                    sql = UsageSql("POFabricBooking", "FabricCode");
+                    break;
+                case "acc":
+                    sql = UsageSql("POAccessoriesBooking", "ItemCode");
+                    break;
+                default:
+                    return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            HashSet<string> set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            using (SqlCommand c = new SqlCommand(sql, cn, tx))
+            {
+                c.Parameters.AddWithValue("@S", styleId);
+                using (SqlDataReader r = c.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        string v = Convert.ToString(r[0]);
+                        if (!string.IsNullOrEmpty(v)) set.Add(v.Trim());
+                    }
+                }
+            }
+            return set;
+        }
+
+        private bool IsStyleUsedInPO(int styleId)
+        {
+            con = conn.openConnection();
+            try
+            {
+                using (SqlCommand c = new SqlCommand(
+                    "SELECT COUNT(1) FROM dbo.POHeader WHERE StyleID=@ID AND ISNULL(IsActive,1)=1", con))
+                {
+                    c.Parameters.AddWithValue("@ID", styleId);
+                    return Convert.ToInt32(c.ExecuteScalar()) > 0;
+                }
+            }
+            finally { CloseConnection(); }
+        }
+
+        // returns true when the item is used in a PO (removal must be blocked)
+        private bool BlockIfUsed(string kind, string code, string label, string tabId)
+        {
+            if (ViewState["StyleID"] == null) return false;   // not saved yet -> nothing can be using it
+            if (string.IsNullOrWhiteSpace(code)) return false;
+            try
+            {
+                int styleId = Convert.ToInt32(ViewState["StyleID"]);
+                con = conn.openConnection();
+                HashSet<string> used = GetUsedCodes(con, null, styleId, kind);
+                CloseConnection();
+
+                if (used.Contains(code.Trim()))
+                {
+                    ShowAlert(label + " " + code + " is already used in a PO. It cannot be removed or deleted.");
+                    PreserveTab(tabId);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                CloseConnection();
+                ShowAlert("Usage check error: " + ex.Message);
+                PreserveTab(tabId);
+                return true;   // when unsure, do not allow removal
+            }
         }
 
         // ============================================================
@@ -291,6 +427,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
             try
             {
+                int newId;
+
                 con = conn.openConnection();
                 using (SqlCommand c = new SqlCommand("sp_SaveUpdateStyleMaster", con))
                 {
@@ -304,22 +442,22 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                     c.Parameters.Add(outId);
 
                     c.ExecuteNonQuery();
-
-                    int newId = Convert.ToInt32(outId.Value);
-                    ViewState["StyleID"] = newId;
-                    hfStyleId.Value = newId.ToString();
-                    txtStyleID.Text = newId.ToString();
-
-                    SaveStyleColors(newId);
-                    SaveStyleSizes(newId);
-                    SaveStyleFabrics(newId);
-                    SaveStyleAccessories(newId);
-
-                    ShowAlert("Style saved successfully. ID = " + newId);
-                    btnSave.Visible = false;
-                    btnUpdate.Visible = true;
+                    newId = Convert.ToInt32(outId.Value);
                 }
                 CloseConnection();
+
+                // header is saved -> from now on this form is in "update" mode
+                ViewState["StyleID"] = newId;
+                hfStyleId.Value = newId.ToString();
+                txtStyleID.Text = newId.ToString();
+                btnSave.Visible = false;
+                btnUpdate.Visible = true;
+
+                string warn = SaveAllChildren(newId);
+                ReloadChildGrids(newId);
+
+                ShowAlert("Style saved successfully. ID = " + newId + warn);
+                PreserveTab(hfActiveTab.Value);
                 LoadStyleList();
             }
             catch (Exception ex)
@@ -362,12 +500,11 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
                 CloseConnection();
 
-                SaveStyleColors(styleId);
-                SaveStyleSizes(styleId);
-                SaveStyleFabrics(styleId);
-                SaveStyleAccessories(styleId);
+                string warn = SaveAllChildren(styleId);
+                ReloadChildGrids(styleId);
 
-                ShowAlert("Style updated successfully.");
+                ShowAlert("Style updated successfully." + warn);
+                PreserveTab(hfActiveTab.Value);
                 LoadStyleList();
             }
             catch (Exception ex)
@@ -477,9 +614,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                         txtCreationDate.Text = r["CreationDate"] != DBNull.Value
                             ? Convert.ToDateTime(r["CreationDate"]).ToString("yyyy-MM-dd") : "";
                         txtBuyerStyleRef.Text = r["BuyerStyleRef"].ToString();
-                        ddlFit.SelectedValue = r["FitType"].ToString();
+                        SelectDDL(ddlFit, r["FitType"].ToString());
                         txtTargetPrice.Text = r["TargetPrice"].ToString();
-                        ddlCurrency.SelectedValue = r["Currency"].ToString();
+                        SelectDDL(ddlCurrency, r["Currency"].ToString());
                         txtDeliveryDate.Text = r["DeliveryDate"] != DBNull.Value
                             ? Convert.ToDateTime(r["DeliveryDate"]).ToString("yyyy-MM-dd") : "";
                         txtHSCode.Text = r["HSCode"].ToString();
@@ -487,7 +624,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                         txtLeadTime.Text = r["LeadTime"].ToString();
                         txtMOQ.Text = r["MOQ"].ToString();
                         txtSMV.Text = r["SMV"].ToString();
-                        ddlSampleType.SelectedValue = r["SampleType"].ToString();
+                        SelectDDL(ddlSampleType, r["SampleType"].ToString());
                         txtGarmentWeight.Text = r["GarmentWeight"].ToString();
                         txtPacking.Text = r["PackingType"].ToString();
                         txtRemarks.Text = r["Remarks"].ToString();
@@ -571,6 +708,12 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 int styleId = Convert.ToInt32(e.CommandArgument);
                 try
                 {
+                    if (IsStyleUsedInPO(styleId))
+                    {
+                        ShowAlert("This style is used in a PO. It cannot be deleted.");
+                        return;
+                    }
+
                     con = conn.openConnection();
                     using (SqlCommand c = new SqlCommand("UPDATE dbo.StyleMaster SET IsActive=0, ModifiedBy=@U, ModifiedDate=GETDATE() WHERE StyleID=@ID", con))
                     {
@@ -591,15 +734,134 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
 
         // ============================================================
+        // GENERIC SYNC (UPDATE existing / INSERT new / DELETE removed-and-unused)
+        // rows[i][0] is always the key (code). Returns codes that were kept because they are used in a PO.
+        // ============================================================
+        private List<string[]> RowsFromGrid(GridView gv, int cols)
+        {
+            List<string[]> list = new List<string[]>();
+            HashSet<string> seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (GridViewRow row in gv.Rows)
+            {
+                if (row.RowType != DataControlRowType.DataRow) continue;
+                string[] v = new string[cols];
+                for (int i = 0; i < cols; i++) v[i] = CellText(row, i);
+                if (v[0].Length == 0) continue;          // no key -> cannot be saved
+                if (!seen.Add(v[0])) continue;            // duplicate key
+                list.Add(v);
+            }
+            return list;
+        }
+
+        private List<string> SyncItems(int styleId, string table, string keyCol, string kind, string label,
+                                       List<string[]> rows, string insertSql, string updateSql,
+                                       Action<SqlCommand, string[], int> fill)
+        {
+            List<string> blocked = new List<string>();
+
+            con = conn.openConnection();
+            SqlTransaction tx = con.BeginTransaction();
+            try
+            {
+                HashSet<string> used = GetUsedCodes(con, tx, styleId, kind);
+
+                HashSet<string> keep = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (string[] r in rows) keep.Add(r[0]);
+
+                HashSet<string> existing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                using (SqlCommand c = new SqlCommand("SELECT " + keyCol + " FROM dbo." + table + " WHERE StyleID=@S", con, tx))
+                {
+                    c.Parameters.AddWithValue("@S", styleId);
+                    using (SqlDataReader rd = c.ExecuteReader())
+                    {
+                        while (rd.Read())
+                        {
+                            string k = Convert.ToString(rd[0]);
+                            if (k != null) existing.Add(k.Trim());
+                        }
+                    }
+                }
+
+                // removed from grid: delete only if NOT used anywhere
+                foreach (string ex in existing)
+                {
+                    if (keep.Contains(ex)) continue;
+                    if (used.Contains(ex))
+                    {
+                        blocked.Add(label + " " + ex);
+                        continue;
+                    }
+                    using (SqlCommand c = new SqlCommand("DELETE FROM dbo." + table + " WHERE StyleID=@S AND " + keyCol + "=@K", con, tx))
+                    {
+                        c.Parameters.AddWithValue("@S", styleId);
+                        c.Parameters.AddWithValue("@K", ex);
+                        c.ExecuteNonQuery();
+                    }
+                }
+
+                int sort = 0;
+                foreach (string[] r in rows)
+                {
+                    sort++;
+                    string sql = existing.Contains(r[0]) ? updateSql : insertSql;
+                    using (SqlCommand c = new SqlCommand(sql, con, tx))
+                    {
+                        c.Parameters.AddWithValue("@S", styleId);
+                        fill(c, r, sort);
+                        c.ExecuteNonQuery();
+                    }
+                }
+
+                tx.Commit();
+            }
+            catch
+            {
+                try { tx.Rollback(); } catch { }
+                CloseConnection();
+                throw;
+            }
+            CloseConnection();
+            return blocked;
+        }
+
+        // saves Color / Size / Fabric / Accessories. Throws on error, returns a warning text for kept items.
+        private string SaveAllChildren(int styleId)
+        {
+            List<string> blocked = new List<string>();
+            blocked.AddRange(SaveStyleColors(styleId));
+            blocked.AddRange(SaveStyleSizes(styleId));
+            blocked.AddRange(SaveStyleFabrics(styleId));
+            blocked.AddRange(SaveStyleAccessories(styleId));
+
+            if (blocked.Count == 0) return "";
+            return " | Kept (used in PO, cannot be removed): " + string.Join(", ", blocked.ToArray());
+        }
+
+        private void ReloadChildGrids(int styleId)
+        {
+            LoadStyleColors(styleId);
+            LoadStyleSizes(styleId);
+            LoadStyleFabrics(styleId);
+            LoadStyleAccessories(styleId);
+        }
+
+        // ============================================================
         // COLOR GRID
         // ============================================================
         protected void btnAddColor_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(hfColor.Value)) { ShowAlert("Select a color."); return; }
+            if (string.IsNullOrEmpty(hfColor.Value)) { ShowAlert("Select a color."); PreserveTab("colorsize-tab"); return; }
 
             DataTable dt = GetGridTable(gvColors,
                 new[] { "ColorCode", "ColorName", "PantoneCode", "IsActive" },
                 new[] { "IsActive" });
+
+            if (HasCode(dt, "ColorCode", hfColor.Value))
+            {
+                ShowAlert("This color is already added.");
+                PreserveTab("colorsize-tab");
+                return;
+            }
 
             DataRow dr = dt.NewRow();
             dr["ColorCode"] = hfColor.Value;
@@ -623,6 +885,10 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 DataTable dt = GetGridTable(gvColors,
                     new[] { "ColorCode", "ColorName", "PantoneCode", "IsActive" },
                     new[] { "IsActive" });
+                if (idx < 0 || idx >= dt.Rows.Count) return;
+
+                if (BlockIfUsed("color", Convert.ToString(dt.Rows[idx]["ColorCode"]), "Color", "colorsize-tab")) return;
+
                 dt.Rows.RemoveAt(idx);
                 gvColors.DataSource = dt;
                 gvColors.DataBind();
@@ -630,36 +896,21 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             }
         }
 
-        private void SaveStyleColors(int styleId)
+        private List<string> SaveStyleColors(int styleId)
         {
-            if (gvColors.Rows.Count == 0) return;
-            try
-            {
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand("DELETE FROM dbo.StyleColor WHERE StyleID=@ID", con))
+            return SyncItems(styleId, "StyleColor", "ColorCode", "color", "Color",
+                RowsFromGrid(gvColors, 3),
+                @"INSERT INTO dbo.StyleColor (StyleID, ColorCode, ColorName, PantoneCode, SortOrder, IsActive, CreatedDate)
+                  VALUES (@S, @C, @N, @P, @O, 1, GETDATE())",
+                @"UPDATE dbo.StyleColor SET ColorName=@N, PantoneCode=@P, SortOrder=@O, IsActive=1
+                  WHERE StyleID=@S AND ColorCode=@C",
+                (c, v, sort) =>
                 {
-                    c.Parameters.AddWithValue("@ID", styleId);
-                    c.ExecuteNonQuery();
-                }
-                foreach (GridViewRow row in gvColors.Rows)
-                {
-                    string code = row.Cells[0].Text;
-                    string name = row.Cells[1].Text;
-                    string pant = row.Cells[2].Text;
-                    using (SqlCommand c = new SqlCommand(
-                        @"INSERT INTO dbo.StyleColor (StyleID, ColorCode, ColorName, PantoneCode, IsActive, CreatedDate)
-                          VALUES (@S, @C, @N, @P, 1, GETDATE())", con))
-                    {
-                        c.Parameters.AddWithValue("@S", styleId);
-                        c.Parameters.AddWithValue("@C", code);
-                        c.Parameters.AddWithValue("@N", name);
-                        c.Parameters.AddWithValue("@P", pant);
-                        c.ExecuteNonQuery();
-                    }
-                }
-                CloseConnection();
-            }
-            catch { CloseConnection(); }
+                    c.Parameters.AddWithValue("@C", v[0]);
+                    c.Parameters.AddWithValue("@N", v[1]);
+                    c.Parameters.AddWithValue("@P", v[2]);
+                    c.Parameters.AddWithValue("@O", sort);
+                });
         }
 
         private void LoadStyleColors(int styleId)
@@ -679,7 +930,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
                 CloseConnection();
             }
-            catch { CloseConnection(); }
+            catch (Exception ex) { CloseConnection(); ShowAlert("Color load error: " + ex.Message); }
         }
 
         // ============================================================
@@ -687,11 +938,18 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ============================================================
         protected void btnAddSize_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(hfSize.Value)) { ShowAlert("Select a size."); return; }
+            if (string.IsNullOrEmpty(hfSize.Value)) { ShowAlert("Select a size."); PreserveTab("colorsize-tab"); return; }
 
             DataTable dt = GetGridTable(gvSizes,
                 new[] { "SizeCode", "SizeName", "SizeRange", "IsActive" },
                 new[] { "IsActive" });
+
+            if (HasCode(dt, "SizeCode", hfSize.Value))
+            {
+                ShowAlert("This size is already added.");
+                PreserveTab("colorsize-tab");
+                return;
+            }
 
             DataRow dr = dt.NewRow();
             dr["SizeCode"] = hfSize.Value;
@@ -714,6 +972,10 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 DataTable dt = GetGridTable(gvSizes,
                     new[] { "SizeCode", "SizeName", "SizeRange", "IsActive" },
                     new[] { "IsActive" });
+                if (idx < 0 || idx >= dt.Rows.Count) return;
+
+                if (BlockIfUsed("size", Convert.ToString(dt.Rows[idx]["SizeCode"]), "Size", "colorsize-tab")) return;
+
                 dt.Rows.RemoveAt(idx);
                 gvSizes.DataSource = dt;
                 gvSizes.DataBind();
@@ -721,36 +983,21 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             }
         }
 
-        private void SaveStyleSizes(int styleId)
+        private List<string> SaveStyleSizes(int styleId)
         {
-            if (gvSizes.Rows.Count == 0) return;
-            try
-            {
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand("DELETE FROM dbo.StyleSize WHERE StyleID=@ID", con))
+            return SyncItems(styleId, "StyleSize", "SizeCode", "size", "Size",
+                RowsFromGrid(gvSizes, 3),
+                @"INSERT INTO dbo.StyleSize (StyleID, SizeCode, SizeName, SizeRange, SortOrder, IsActive, CreatedDate)
+                  VALUES (@S, @C, @N, @R, @O, 1, GETDATE())",
+                @"UPDATE dbo.StyleSize SET SizeName=@N, SizeRange=@R, SortOrder=@O, IsActive=1
+                  WHERE StyleID=@S AND SizeCode=@C",
+                (c, v, sort) =>
                 {
-                    c.Parameters.AddWithValue("@ID", styleId);
-                    c.ExecuteNonQuery();
-                }
-                int sort = 0;
-                foreach (GridViewRow row in gvSizes.Rows)
-                {
-                    sort++;
-                    using (SqlCommand c = new SqlCommand(
-                        @"INSERT INTO dbo.StyleSize (StyleID, SizeCode, SizeName, SizeRange, SortOrder, IsActive, CreatedDate)
-                          VALUES (@S, @C, @N, @R, @O, 1, GETDATE())", con))
-                    {
-                        c.Parameters.AddWithValue("@S", styleId);
-                        c.Parameters.AddWithValue("@C", row.Cells[0].Text);
-                        c.Parameters.AddWithValue("@N", row.Cells[1].Text);
-                        c.Parameters.AddWithValue("@R", row.Cells[2].Text);
-                        c.Parameters.AddWithValue("@O", sort);
-                        c.ExecuteNonQuery();
-                    }
-                }
-                CloseConnection();
-            }
-            catch { CloseConnection(); }
+                    c.Parameters.AddWithValue("@C", v[0]);
+                    c.Parameters.AddWithValue("@N", v[1]);
+                    c.Parameters.AddWithValue("@R", v[2]);
+                    c.Parameters.AddWithValue("@O", sort);
+                });
         }
 
         private void LoadStyleSizes(int styleId)
@@ -770,7 +1017,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
                 CloseConnection();
             }
-            catch { CloseConnection(); }
+            catch (Exception ex) { CloseConnection(); ShowAlert("Size load error: " + ex.Message); }
         }
 
         // ============================================================
@@ -786,8 +1033,21 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             }
 
             DataTable dt = GetFabricTable();
+
+            string code = txtFabCode.Text.Trim();
+            if (code.Length == 0) code = NextCode(dt, "FabricCode", "FAB");   // PO booking links by code -> never blank
+            if (HasCode(dt, "FabricCode", code))
+            {
+                ShowAlert("Fabric code " + code + " already exists in this style. Use a different code.");
+                PreserveTab("fabric-tab");
+                return;
+            }
+
+            string cat = hfFabCat.Value;
+            if (string.IsNullOrWhiteSpace(cat)) cat = hfKnitWoven.Value;   // fallback when builder was not used
+
             DataRow dr = dt.NewRow();
-            dr["FabricCode"] = txtFabCode.Text.Trim();
+            dr["FabricCode"] = code;
             // FabricName column uses HtmlEncode="false", so encode here to stay safe
             dr["FabricName"] = HttpUtility.HtmlEncode(txtFabName.Text.Trim());
             dr["Composition"] = txtFabComp.Text.Trim();
@@ -796,7 +1056,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             dr["Consumption"] = DecOrZero(txtFabCons.Text);
             dr["WastagePercent"] = DecOrZero(txtFabWaste.Text);
             dr["Unit"] = hfFabUnit.Value;
-            dr["Category"] = hfFabCat.Value;
+            dr["Category"] = (cat ?? "").Trim();
             dt.Rows.Add(dr);
             gvFabric.DataSource = dt;
             gvFabric.DataBind();
@@ -822,6 +1082,10 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             {
                 int idx = Convert.ToInt32(e.CommandArgument);
                 DataTable dt = GetFabricTable();
+                if (idx < 0 || idx >= dt.Rows.Count) return;
+
+                if (BlockIfUsed("fabric", Convert.ToString(dt.Rows[idx]["FabricCode"]), "Fabric", "fabric-tab")) return;
+
                 dt.Rows.RemoveAt(idx);
                 gvFabric.DataSource = dt;
                 gvFabric.DataBind();
@@ -829,48 +1093,30 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             }
         }
 
-        private void SaveStyleFabrics(int styleId)
+        private List<string> SaveStyleFabrics(int styleId)
         {
-            if (gvFabric.Rows.Count == 0) return;
-            try
-            {
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand("DELETE FROM dbo.StyleFabric WHERE StyleID=@ID", con))
+            return SyncItems(styleId, "StyleFabric", "FabricCode", "fabric", "Fabric",
+                RowsFromGrid(gvFabric, 9),
+                @"INSERT INTO dbo.StyleFabric
+                  (StyleID, FabricCode, FabricName, Composition, GSM, ColorName, Consumption, WastagePercent, UnitCode, FabricCategory, SortOrder, IsActive, CreatedDate)
+                  VALUES (@S, @C, @N, @Comp, @G, @Col, @Cons, @W, @U, @Cat, @O, 1, GETDATE())",
+                @"UPDATE dbo.StyleFabric
+                  SET FabricName=@N, Composition=@Comp, GSM=@G, ColorName=@Col, Consumption=@Cons,
+                      WastagePercent=@W, UnitCode=@U, FabricCategory=@Cat, SortOrder=@O, IsActive=1
+                  WHERE StyleID=@S AND FabricCode=@C",
+                (c, v, sort) =>
                 {
-                    c.Parameters.AddWithValue("@ID", styleId);
-                    c.ExecuteNonQuery();
-                }
-                int sort = 0;
-                foreach (GridViewRow row in gvFabric.Rows)
-                {
-                    sort++;
-                    using (SqlCommand c = new SqlCommand(
-                        @"INSERT INTO dbo.StyleFabric
-                          (StyleID, FabricCode, FabricName, Composition, GSM, ColorName, Consumption, WastagePercent, UnitCode, FabricCategory, SortOrder, IsActive, CreatedDate)
-                          VALUES (@S, @C, @N, @Comp, @G, @Col, @Cons, @W, @U, @Cat, @O, 1, GETDATE())", con))
-                    {
-                        string cat = CellText(row, 8);
-                        c.Parameters.AddWithValue("@S", styleId);
-                        c.Parameters.AddWithValue("@C", CellText(row, 0));
-                        c.Parameters.AddWithValue("@N", CellText(row, 1));
-                        c.Parameters.AddWithValue("@Comp", CellText(row, 2));
-                        c.Parameters.AddWithValue("@G", CellText(row, 3));
-                        c.Parameters.AddWithValue("@Col", CellText(row, 4));
-                        c.Parameters.AddWithValue("@Cons", DecOrZero(CellText(row, 5)));
-                        c.Parameters.AddWithValue("@W", DecOrZero(CellText(row, 6)));
-                        c.Parameters.AddWithValue("@U", CellText(row, 7));
-                        c.Parameters.AddWithValue("@Cat", string.IsNullOrEmpty(cat) ? (object)DBNull.Value : cat);
-                        c.Parameters.AddWithValue("@O", sort);
-                        c.ExecuteNonQuery();
-                    }
-                }
-                CloseConnection();
-            }
-            catch (Exception ex)
-            {
-                CloseConnection();
-                ShowAlert("Fabric save error: " + ex.Message);
-            }
+                    c.Parameters.AddWithValue("@C", v[0]);
+                    c.Parameters.AddWithValue("@N", v[1]);
+                    c.Parameters.AddWithValue("@Comp", v[2]);
+                    c.Parameters.AddWithValue("@G", v[3]);
+                    c.Parameters.AddWithValue("@Col", v[4]);
+                    c.Parameters.AddWithValue("@Cons", DecOrZero(v[5]));
+                    c.Parameters.AddWithValue("@W", DecOrZero(v[6]));
+                    c.Parameters.AddWithValue("@U", v[7]);
+                    c.Parameters.AddWithValue("@Cat", string.IsNullOrEmpty(v[8]) ? (object)DBNull.Value : v[8]);
+                    c.Parameters.AddWithValue("@O", sort);
+                });
         }
 
         private void LoadStyleFabrics(int styleId)
@@ -898,7 +1144,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
                 CloseConnection();
             }
-            catch { CloseConnection(); }
+            catch (Exception ex) { CloseConnection(); ShowAlert("Fabric load error: " + ex.Message); }
         }
 
         // ============================================================
@@ -906,10 +1152,26 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ============================================================
         protected void btnAddAcc_Click(object sender, EventArgs e)
         {
-            DataTable dt = GetGridTable(gvAcc,
-                new[] { "ItemCode", "ItemName", "ItemType", "SizeColor", "Consumption", "Unit", "WastagePercent", "Supplier" });
+            if (string.IsNullOrWhiteSpace(txtAccName.Text) && string.IsNullOrWhiteSpace(txtAccCode.Text))
+            {
+                ShowAlert("Enter item code or item name.");
+                PreserveTab("accessories-tab");
+                return;
+            }
+
+            DataTable dt = GetGridTable(gvAcc, AccCols);
+
+            string code = txtAccCode.Text.Trim();
+            if (code.Length == 0) code = NextCode(dt, "ItemCode", "ACC");   // PO booking links by code -> never blank
+            if (HasCode(dt, "ItemCode", code))
+            {
+                ShowAlert("Item code " + code + " already exists in this style. Use a different code.");
+                PreserveTab("accessories-tab");
+                return;
+            }
+
             DataRow dr = dt.NewRow();
-            dr["ItemCode"] = txtAccCode.Text.Trim();
+            dr["ItemCode"] = code;
             dr["ItemName"] = txtAccName.Text.Trim();
             dr["ItemType"] = hfAccType.Value;
             dr["SizeColor"] = txtAccSizeColor.Text.Trim();
@@ -932,8 +1194,11 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             if (e.CommandName == "DelRow")
             {
                 int idx = Convert.ToInt32(e.CommandArgument);
-                DataTable dt = GetGridTable(gvAcc,
-                    new[] { "ItemCode", "ItemName", "ItemType", "SizeColor", "Consumption", "Unit", "WastagePercent", "Supplier" });
+                DataTable dt = GetGridTable(gvAcc, AccCols);
+                if (idx < 0 || idx >= dt.Rows.Count) return;
+
+                if (BlockIfUsed("acc", Convert.ToString(dt.Rows[idx]["ItemCode"]), "Accessories item", "accessories-tab")) return;
+
                 dt.Rows.RemoveAt(idx);
                 gvAcc.DataSource = dt;
                 gvAcc.DataBind();
@@ -941,42 +1206,29 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             }
         }
 
-        private void SaveStyleAccessories(int styleId)
+        private List<string> SaveStyleAccessories(int styleId)
         {
-            if (gvAcc.Rows.Count == 0) return;
-            try
-            {
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand("DELETE FROM dbo.StyleAccessories WHERE StyleID=@ID", con))
+            return SyncItems(styleId, "StyleAccessories", "ItemCode", "acc", "Accessories",
+                RowsFromGrid(gvAcc, 8),
+                @"INSERT INTO dbo.StyleAccessories
+                  (StyleID, ItemCode, ItemName, AccTypeName, SizeColor, Consumption, UnitCode, WastagePercent, Supplier, SortOrder, IsActive, CreatedDate)
+                  VALUES (@S, @C, @N, @T, @SC, @Cons, @U, @W, @Sup, @O, 1, GETDATE())",
+                @"UPDATE dbo.StyleAccessories
+                  SET ItemName=@N, AccTypeName=@T, SizeColor=@SC, Consumption=@Cons, UnitCode=@U,
+                      WastagePercent=@W, Supplier=@Sup, SortOrder=@O, IsActive=1
+                  WHERE StyleID=@S AND ItemCode=@C",
+                (c, v, sort) =>
                 {
-                    c.Parameters.AddWithValue("@ID", styleId);
-                    c.ExecuteNonQuery();
-                }
-                int sort = 0;
-                foreach (GridViewRow row in gvAcc.Rows)
-                {
-                    sort++;
-                    using (SqlCommand c = new SqlCommand(
-                        @"INSERT INTO dbo.StyleAccessories
-                          (StyleID, ItemCode, ItemName, AccTypeName, SizeColor, Consumption, UnitCode, WastagePercent, Supplier, SortOrder, IsActive, CreatedDate)
-                          VALUES (@S, @C, @N, @T, @SC, @Cons, @U, @W, @Sup, @O, 1, GETDATE())", con))
-                    {
-                        c.Parameters.AddWithValue("@S", styleId);
-                        c.Parameters.AddWithValue("@C", row.Cells[0].Text);
-                        c.Parameters.AddWithValue("@N", row.Cells[1].Text);
-                        c.Parameters.AddWithValue("@T", row.Cells[2].Text);
-                        c.Parameters.AddWithValue("@SC", row.Cells[3].Text);
-                        c.Parameters.AddWithValue("@Cons", DecOrZero(row.Cells[4].Text));
-                        c.Parameters.AddWithValue("@U", row.Cells[5].Text);
-                        c.Parameters.AddWithValue("@W", DecOrZero(row.Cells[6].Text));
-                        c.Parameters.AddWithValue("@Sup", row.Cells[7].Text);
-                        c.Parameters.AddWithValue("@O", sort);
-                        c.ExecuteNonQuery();
-                    }
-                }
-                CloseConnection();
-            }
-            catch { CloseConnection(); }
+                    c.Parameters.AddWithValue("@C", v[0]);
+                    c.Parameters.AddWithValue("@N", v[1]);
+                    c.Parameters.AddWithValue("@T", v[2]);
+                    c.Parameters.AddWithValue("@SC", v[3]);
+                    c.Parameters.AddWithValue("@Cons", DecOrZero(v[4]));
+                    c.Parameters.AddWithValue("@U", v[5]);
+                    c.Parameters.AddWithValue("@W", DecOrZero(v[6]));
+                    c.Parameters.AddWithValue("@Sup", v[7]);
+                    c.Parameters.AddWithValue("@O", sort);
+                });
         }
 
         private void LoadStyleAccessories(int styleId)
@@ -998,7 +1250,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 }
                 CloseConnection();
             }
-            catch { CloseConnection(); }
+            catch (Exception ex) { CloseConnection(); ShowAlert("Accessories load error: " + ex.Message); }
         }
 
         // ============================================================

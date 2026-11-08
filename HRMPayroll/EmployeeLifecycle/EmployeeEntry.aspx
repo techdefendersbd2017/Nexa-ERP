@@ -283,7 +283,10 @@
                                 <div data-dd="paytype"></div>
                                 <div class="form-row-custom"><label>Bank Gross</label><asp:TextBox ID="txtBankGross" runat="server" CssClass="form-control form-control-sm w-100" Text="0" /></div>
                                 <div class="form-row-custom"><label>Cash Gross</label><asp:TextBox ID="txtCashGross" runat="server" CssClass="form-control form-control-sm w-100" Text="0" /></div>
-                                <div class="form-row-custom"><label>Non-Compliance Gross</label><asp:TextBox ID="txtNonComplianceGross" runat="server" CssClass="form-control form-control-sm w-100" Text="0" /></div>
+
+                                <!-- Alt+O চাপলে দেখাবে / লুকাবে (ডিফল্টে লুকানো) -->
+                                <div id="rowNonCompliance" class="form-row-custom d-none"><label>Non-Compliance Gross</label><asp:TextBox ID="txtNonComplianceGross" runat="server" CssClass="form-control form-control-sm w-100" Text="0" /></div>
+
                                 <div class="form-row-custom"><label>Joining Gross</label><asp:TextBox ID="txtJoinGross" runat="server" CssClass="form-control form-control-sm w-100" Text="0" /></div>
 
                             </div>
@@ -476,27 +479,27 @@ function showNotification(message) {
 
 <!-- ৩) পেজের নিজস্ব লজিক -->
 <script>
-    // ---- Photo: 300 KB limit ----
-    var MAX_PHOTO = 300 * 1024;
-    document.getElementById('fuPhoto').addEventListener('change', function () {
-        var f = this.files && this.files[0];
-        if (!f) return;
-        if (f.size > MAX_PHOTO) {
-            showNotification('ছবির সাইজ 300 KB এর বেশি (' + Math.round(f.size / 1024) + ' KB)। ছোট ছবি দিন।');
-            this.value = '';
-            document.getElementById('photoInfo').textContent = 'সর্বোচ্চ 300KB (JPG/PNG/BMP)';
-            return;
-        }
-        document.getElementById('photoInfo').textContent = f.name + ' (' + Math.round(f.size / 1024) + ' KB)';
-        var r = new FileReader();
-        r.onload = function (e) { document.getElementById('imgEmp').src = e.target.result; };
-        r.readAsDataURL(f);
-    });
+// ---- Photo: 300 KB limit ----
+var MAX_PHOTO = 300 * 1024;
+document.getElementById('fuPhoto').addEventListener('change', function () {
+    var f = this.files && this.files[0];
+    if (!f) return;
+    if (f.size > MAX_PHOTO) {
+        showNotification('ছবির সাইজ 300 KB এর বেশি (' + Math.round(f.size / 1024) + ' KB)। ছোট ছবি দিন।');
+        this.value = '';
+        document.getElementById('photoInfo').textContent = 'সর্বোচ্চ 300KB (JPG/PNG/BMP)';
+        return;
+    }
+    document.getElementById('photoInfo').textContent = f.name + ' (' + Math.round(f.size / 1024) + ' KB)';
+    var r = new FileReader();
+    r.onload = function (e) { document.getElementById('imgEmp').src = e.target.result; };
+    r.readAsDataURL(f);
+});
 
-    // ---- Cash Gross = Gross - Bank Gross ----
-    function num(id) { return parseInt(document.getElementById(id).value, 10) || 0; }
-    function calcCash() {
-        document.getElementById('<%= txtCashGross.ClientID %>').value = num('<%= txtGross.ClientID %>') - num('<%= txtBankGross.ClientID %>');
+// ---- Cash Gross = Gross - Bank Gross ----
+function num(id) { return parseInt(document.getElementById(id).value, 10) || 0; }
+function calcCash() {
+    document.getElementById('<%= txtCashGross.ClientID %>').value = num('<%= txtGross.ClientID %>') - num('<%= txtBankGross.ClientID %>');
         document.getElementById('<%= txtJoinGross.ClientID %>').value = num('<%= txtGross.ClientID %>');
         document.getElementById('<%= txtNonComplianceGross.ClientID %>').value = num('<%= txtGross.ClientID %>');
     }
@@ -520,6 +523,16 @@ function showNotification(message) {
         if (id === 'paytype') payTypeLock();
         if (id === 'bank') bankLock();
     };
+
+    // ---- Alt+O : Non-Compliance Gross দেখাও / লুকাও ----
+    document.addEventListener('keydown', function (e) {
+        var isO = (e.code === 'KeyO') || (e.key && e.key.toLowerCase() === 'o');
+        if (e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey && isO) {
+            e.preventDefault();
+            var row = document.getElementById('rowNonCompliance');
+            if (row) row.classList.toggle('d-none');
+        }
+    });
 
     function validateForm() {
         if (!document.getElementById('<%= txtEmpId.ClientID %>').value.trim()) { showNotification('Please enter ID No.'); return false; }

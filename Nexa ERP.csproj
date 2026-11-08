@@ -244,6 +244,7 @@
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\LeaveSetting\EmployeeWiseHolidays.aspx" />
     <Content Include="HRMPayroll\HRMApproval\AttendanceDeleteApproval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\EmployeeRe_Active_Approval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\EmployeeSaperationApproval.aspx" />
@@ -573,6 +574,13 @@
     </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.designer.cs">
       <DependentUpon>EmployeeEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\LeaveSetting\EmployeeWiseHolidays.aspx.cs">
+      <DependentUpon>EmployeeWiseHolidays.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\LeaveSetting\EmployeeWiseHolidays.aspx.designer.cs">
+      <DependentUpon>EmployeeWiseHolidays.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRMApproval\AttendanceDeleteApproval.aspx.cs">
       <DependentUpon>AttendanceDeleteApproval.aspx</DependentUpon>
