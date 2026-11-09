@@ -253,6 +253,8 @@
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceSummaryView.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBangla.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBanglaCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\Payroll_Reports.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\GarmentType.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\ProductCategory.aspx" />
@@ -638,6 +640,20 @@
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx.designer.cs">
       <DependentUpon>JobCardReportCompliance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBangla.aspx.cs">
+      <DependentUpon>SalarySheetBangla.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBangla.aspx.designer.cs">
+      <DependentUpon>SalarySheetBangla.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBanglaCompliance.aspx.cs">
+      <DependentUpon>SalarySheetBanglaCompliance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBanglaCompliance.aspx.designer.cs">
+      <DependentUpon>SalarySheetBanglaCompliance.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\Payroll_Reports.aspx.cs">
       <DependentUpon>Payroll_Reports.aspx</DependentUpon>
