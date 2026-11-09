@@ -180,19 +180,19 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.PayrollReports
             c.Add(Money("প্রদেয় টাকা", 19, "Gross_Payable_Amount", true));
 
             // ওভার টাইম: কমপ্লায়েন্স ও অতিরিক্ত (প্রতি ঘন্টা / মোট ঘন্টা / মোট টাকা)
-            c.Add(new Cn
-            {
-                W = 50,
-                StackHead = new[] { "ওভার", "প্রতি ঘন্টা", "মোট ঘন্টা", "মোট টাকা" },
-                Val = (r, i) => new[] {
-                    H2(D(r, "OT_Rate")),
-                    H2(OtHrs(r, "Compliance_OT_Hours", "Compliance_OT_Min")),
-                    M(D(r, "Compliance_OT_Amount")) },
-                Tot = l => new[] {
-                    "",
-                    H2(l.Sum(x => OtHrs(x, "Compliance_OT_Hours", "Compliance_OT_Min"))),
-                    P(l.Sum(x => D(x, "Compliance_OT_Amount"))) }
-            });
+            //c.Add(new Cn
+            //{
+            //    W = 50,
+            //    StackHead = new[] { "ওভার", "প্রতি ঘন্টা", "মোট ঘন্টা", "মোট টাকা" },
+            //    Val = (r, i) => new[] {
+            //        H2(D(r, "OT_Rate")),
+            //        H2(OtHrs(r, "Compliance_OT_Hours", "Compliance_OT_Min")),
+            //        M(D(r, "Compliance_OT_Amount")) },
+            //    Tot = l => new[] {
+            //        "",
+            //        H2(l.Sum(x => OtHrs(x, "Compliance_OT_Hours", "Compliance_OT_Min"))),
+            //        P(l.Sum(x => D(x, "Compliance_OT_Amount"))) }
+            //});
             c.Add(new Cn
             {
                 W = 50,
@@ -239,22 +239,22 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.PayrollReports
                 Val = (r, i) => new[] { M(NetOf(r)) },
                 Tot = l => new[] { P(l.Sum(x => NetOf(x))) }
             });
-            c.Add(new Cn
-            {
-                W = 38,
-                Head = "ক্যাশ প্রদেয় টাকা",
-                Bold = true,
-                Val = (r, i) => new[] { M(IsBank(r) ? 0m : NetOf(r)) },
-                Tot = l => new[] { P(l.Where(x => !IsBank(x)).Sum(x => NetOf(x))) }
-            });
-            c.Add(new Cn
-            {
-                W = 38,
-                Head = "ব্যাংক প্রদেয় টাকা",
-                Bold = true,
-                Val = (r, i) => new[] { M(IsBank(r) ? NetOf(r) : 0m) },
-                Tot = l => new[] { P(l.Where(x => IsBank(x)).Sum(x => NetOf(x))) }
-            });
+            //c.Add(new Cn
+            //{
+            //    W = 38,
+            //    Head = "ক্যাশ প্রদেয় টাকা",
+            //    Bold = true,
+            //    Val = (r, i) => new[] { M(IsBank(r) ? 0m : NetOf(r)) },
+            //    Tot = l => new[] { P(l.Where(x => !IsBank(x)).Sum(x => NetOf(x))) }
+            //});
+            //c.Add(new Cn
+            //{
+            //    W = 38,
+            //    Head = "ব্যাংক প্রদেয় টাকা",
+            //    Bold = true,
+            //    Val = (r, i) => new[] { M(IsBank(r) ? NetOf(r) : 0m) },
+            //    Tot = l => new[] { P(l.Where(x => IsBank(x)).Sum(x => NetOf(x))) }
+            //});
             c.Add(new Cn { W = 90, Head = "স্বাক্ষর", Val = (r, i) => new[] { "" } });
 
             return c;
@@ -340,8 +340,8 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.PayrollReports
             right.Add(new[] { "স্ট্যাম্প কর্তন", M(rows.Sum(r => D(r, "Stamp_Deduction"))), "" });
             right.Add(new[] { "মোট কর্তন", M(rows.Sum(r => D(r, "Total_Deduction"))), "" });
             right.Add(new[] { "মোট প্রদেয় টাকা", M(rows.Sum(r => NetOf(r))), "b" });
-            right.Add(new[] { "মোট প্রদেয় টাকা ক্যাশ", M(rows.Where(r => !IsBank(r)).Sum(r => NetOf(r))), "b" });
-            right.Add(new[] { "মোট প্রদেয় টাকা ব্যাংক", M(rows.Where(r => IsBank(r)).Sum(r => NetOf(r))), "b" });
+            //right.Add(new[] { "মোট প্রদেয় টাকা ক্যাশ", M(rows.Where(r => !IsBank(r)).Sum(r => NetOf(r))), "b" });
+            //right.Add(new[] { "মোট প্রদেয় টাকা ব্যাংক", M(rows.Where(r => IsBank(r)).Sum(r => NetOf(r))), "b" });
 
             var sb = new StringBuilder();
             sb.Append("<div class='pg'><div class='pnr'>Page @@PG@@ of @@TOT@@</div>");

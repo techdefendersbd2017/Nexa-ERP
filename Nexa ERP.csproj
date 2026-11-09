@@ -396,6 +396,7 @@
     <Content Include="Shipment\ShipmentReports\DeliveryChallanWiseBill.aspx" />
     <Content Include="Shipment\ShipmentReports\eSDeliveryChallanGetpass.aspx" />
     <Content Include="Test.aspx" />
+    <Content Include="Tools\TableViewer.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\MaterialRequirementByWorkOrder.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\BookingInformation.aspx" />
     <Content Include="TrimsAccessories\EstimationCostings\OrdersReports\PriceQuotationPrint.aspx" />
@@ -1614,6 +1615,13 @@
     </Compile>
     <Compile Include="Test.aspx.designer.cs">
       <DependentUpon>Test.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Tools\TableViewer.aspx.cs">
+      <DependentUpon>TableViewer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Tools\TableViewer.aspx.designer.cs">
+      <DependentUpon>TableViewer.aspx</DependentUpon>
     </Compile>
     <Compile Include="TrimsAccessories\EstimationCostings\MaterialRequirementByWorkOrder.aspx.cs">
       <DependentUpon>MaterialRequirementByWorkOrder.aspx</DependentUpon>
