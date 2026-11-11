@@ -1616,6 +1616,7 @@
     <Compile Include="Test.aspx.designer.cs">
       <DependentUpon>Test.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Tools\BijoyConverter.cs" />
     <Compile Include="Tools\TableViewer.aspx.cs">
       <DependentUpon>TableViewer.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

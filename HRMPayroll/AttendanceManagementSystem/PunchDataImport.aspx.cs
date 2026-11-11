@@ -15,10 +15,13 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
         PayrollDB conn = new PayrollDB();
 
         // আপনার ফাইলের Date/Time ফরম্যাট অনুযায়ী এখানে ফরম্যাট যোগ/পরিবর্তন করুন
+        // [FIX] আগে "mm/dd/yyyy" ছিল (ছোট mm = মিনিট, ভুল)। এখন "MM/dd/yyyy" (বড় MM = মাস)।
         private static readonly string[] DateFormats =
         {
-            "dd-MMM-yyyy",   // client-side page always sends dates in this format now, e.g. "09-Jan-2026"
-            "yyyy-MM-dd", "dd/MM/yyyy", "d/M/yyyy", "yyyy/MM/dd", "dd-MM-yyyy", "d-M-yyyy"
+            "dd-MMM-yyyy",   // client-side page always sends dates in this format, e.g. "09-Nov-2026"
+            "yyyy-MM-dd", "yyyy/MM/dd",
+            "dd/MM/yyyy", "d/M/yyyy", "dd-MM-yyyy", "d-M-yyyy",
+            "MM/dd/yyyy", "M/d/yyyy"
         };
 
         private static readonly string[] TimeFormats =
@@ -26,7 +29,7 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
             "HH:mm:ss", "H:mm:ss", "HH:mm", "H:mm", "h:mm:ss tt", "hh:mm:ss tt", "h:mm tt", "hh:mm tt"
         };
 
-        // [নতুন] একই কলামে Date ও Time একসাথে থাকলে (যেমন "2026-10-19 20:37:56" - Original Records Report.csv)
+        // একই কলামে Date ও Time একসাথে থাকলে (যেমন "2026-10-19 20:37:56" - Original Records Report.csv)
         private static readonly string[] DateTimeFormats =
         {
             "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd H:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM-dd H:mm",
@@ -51,7 +54,7 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
                 }
 
                 // Rows sent by the page: [{ No, StaffCode, Name, Department, UserID, Week, Date, Time, MachineID }, ...]
-                // [নতুন] CSV ফরম্যাটে: [{ "Person ID", Name, Department, Time(Date+Time একসাথে), ... }, ...] ও চলবে
+                // CSV ফরম্যাটে: [{ "Person ID", Name, Department, Time(Date+Time একসাথে), ... }, ...] ও চলবে
                 var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
                 List<Dictionary<string, string>> rows = serializer.Deserialize<List<Dictionary<string, string>>>(json);
 
@@ -174,19 +177,19 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.HRMSetting
 
             foreach (var r in rows)
             {
-                // আগের ফরম্যাট: UserID, Date, Time আলাদা কলামে আসে
+                // UserID, Date, Time আলাদা কলামে আসে
                 string userId = Get(r, "UserID");
                 string date = Get(r, "Date");
                 string time = Get(r, "Time");
 
-                // [নতুন] CSV ফরম্যাট: "Person ID" (শুরুতে ' থাকে, যেমন '100)
+                // CSV ফরম্যাট: "Person ID" (শুরুতে ' থাকে, যেমন '100)
                 if (userId.Length == 0)
                     userId = Get(r, "PersonID");
                 if (userId.Length == 0)
                     userId = Get(r, "Person ID");
                 userId = userId.TrimStart('\'', '"', ' ');
 
-                // [নতুন] Date খালি থাকলে এবং Time কলামে Date+Time একসাথে থাকলে ভেঙে নেওয়া হয়
+                // Date খালি থাকলে এবং Time কলামে Date+Time একসাথে থাকলে ভেঙে নেওয়া হয়
                 // যেমন "2026-10-19 20:37:56" → Date "19-Oct-2026", Time "20:37:56"
                 if (date.Length == 0 && time.Length > 0)
                 {
