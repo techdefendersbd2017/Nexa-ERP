@@ -26,8 +26,25 @@
     public string JoinDate = "", PeriodFrom = "", PeriodTill = "", PeriodFromSlash = "", PeriodTillSlash = "";
     public string Days = "", ApplyDate = "", Purpose = "", Address = "";
 
+    // সর্বশেষ ব্যবহৃত ছুটি (চলতি আবেদনের আগের)
+    public bool HasLastLeave;
+    public string LastLeaveName = "", LastLeaveFrom = "", LastLeaveTill = "", LastLeaveDays = "";
+
+    // শুধু "অনুমোদিত/ব্যবহৃত" ছুটি ধরতে চাইলে এখানে শর্ত দিন। যেমন: " AND la.Status = 'Approved'"
+    // খালি রাখলে এই কর্মীর আগের সব আবেদনের মধ্যে সর্বশেষটি ধরা হবে।
+    const string UsedStatusCondition = "";
+
     // বাংলা হলে প্রথমটি, ইংরেজি হলে দ্বিতীয়টি
     public string T(string bn, string en) { return IsBangla ? bn : en; }
+
+    // বিজয় (ANSI) এ সেভ করা লেখা হলে "ansi" ক্লাস (SutonnyMJ ফন্টে দেখাবে); ইউনিকোড হলে স্বাভাবিক ফন্ট
+    public string AnsiCls(string s)
+    {
+        if (!IsBangla || string.IsNullOrEmpty(s)) return "";
+        foreach (char c in s)
+            if (c >= '\u0980' && c <= '\u09FF') return "";
+        return "ansi";
+    }
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -53,6 +70,7 @@
 
             FillHeader(dt.Rows[0]);
             FillLines(dt);
+            LoadLastLeave(dt.Rows[0]);
             HasData = true;
         }
         catch (Exception ex)
@@ -94,6 +112,50 @@ WHERE 1=1 " + prm + " ORDER BY Emp_Wise_Dtls.Leave_code";
                 using (var da = new SqlDataAdapter(cmd)) da.Fill(dt);
                 return dt;
             }
+        }
+    }
+
+    // এই কর্মীর সর্বশেষ ব্যবহৃত ছুটি: চলতি আবেদন বাদে, চলতি আবেদনের শুরুর তারিখের আগের সবচেয়ে নতুনটি
+    void LoadLastLeave(DataRow cur)
+    {
+        try
+        {
+            string sql =
+@"SELECT TOP 1 la.From_Date, la.Till_Date, la.Apply_Days, ln.Leave_Name, ln.Leave_Name_Bangla
+  FROM Leave_Application la
+  INNER JOIN Leave_Name_List ln ON la.Leave_Type = ln.Leave_code
+  WHERE la.ID_no = @id AND la.Apply_No <> @ap AND la.From_Date < @from" + UsedStatusCondition + @"
+  ORDER BY la.From_Date DESC, la.Till_Date DESC";
+
+            PayrollDB conn = new PayrollDB();
+            using (SqlConnection con = conn.openConnection())
+            {
+                if (con.State != ConnectionState.Open) con.Open();
+                using (var cmd = new SqlCommand(sql, con))
+                {
+                    cmd.CommandTimeout = 60;
+                    cmd.Parameters.AddWithValue("@id", cur["ID_no"]);
+                    cmd.Parameters.AddWithValue("@ap", cur["Apply_No"]);
+                    cmd.Parameters.AddWithValue("@from", cur["From_Date"]);
+
+                    var dt = new DataTable();
+                    using (var da = new SqlDataAdapter(cmd)) da.Fill(dt);
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        DataRow r = dt.Rows[0];
+                        LastLeaveName = IsBangla ? Col(r, "Leave_Name_Bangla") : Col(r, "Leave_Name");
+                        LastLeaveFrom = Fmt(r, "From_Date", "dd/MM/yyyy");
+                        LastLeaveTill = Fmt(r, "Till_Date", "dd/MM/yyyy");
+                        LastLeaveDays = N(Col(r, "Apply_Days"));
+                        HasLastLeave = true;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            HasLastLeave = false; // এই অংশে সমস্যা হলেও মূল রিপোর্ট বন্ধ হবে না
         }
     }
 
@@ -241,9 +303,21 @@ WHERE 1=1 " + prm + " ORDER BY Emp_Wise_Dtls.Leave_code";
     </div>
 
     <!-- Reason -->
-    <div class="flex items-stretch gap-0 mt-5 mb-5">
+    <div class="flex items-stretch gap-0 mt-5 mb-2">
         <div class="shrink-0 pr-2 flex items-center"><span class="tag"><%: T("ছুটির কারণঃ", "Reason:") %></span></div>
         <div class="box flex-1 px-2 py-2 <%= IsBangla ? "ansi" : "" %>"><%: Purpose %></div>
+    </div>
+
+    <!-- সর্বশেষ ব্যবহৃত ছুটি -->
+    <div class="box px-2 py-1.5 mb-4">
+        <b><%: T("সর্বশেষ ব্যবহৃত ছুটি", "Last leave taken") %></b> ঃ
+        <% if (HasLastLeave) { %>
+            <span class="font-medium <%= AnsiCls(LastLeaveName) %>"><%: LastLeaveName %></span>
+            &nbsp;<%: T("", "from") %> <%: LastLeaveFrom %> <%: T("থেকে", "to") %> <%: LastLeaveTill %> <%: T("পর্যন্ত", "") %>
+            &nbsp;<b><%: LastLeaveDays %></b> <%: T("দিন।", "day(s).") %>
+        <% } else { %>
+            <%: T("নেই।", "None.") %>
+        <% } %>
     </div>
 
     <!-- Leave details -->
