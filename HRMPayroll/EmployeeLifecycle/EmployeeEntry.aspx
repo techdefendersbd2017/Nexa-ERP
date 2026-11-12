@@ -17,7 +17,7 @@
             --brand-primary: #2e5bd7;
             --brand-primary-dark: #234699;
             --text-muted: #6b7280;
-            --shell-offset: 4.5rem;   /* ERP shell এর উপরের বারের জন্য ফাঁকা জায়গা; দরকারে বদলান */
+            --shell-offset: 1.5rem;   /* ERP shell এর উপরের বারের জন্য ফাঁকা জায়গা; দরকারে বদলান */
         }
 
         body { background-color: #f0f2f5; font-family: 'Inter', 'Hind Siliguri', 'Segoe UI', Arial, sans-serif; font-size: 12px; padding-top: var(--shell-offset); }
