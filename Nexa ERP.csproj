@@ -238,16 +238,210 @@
     <Content Include="ERPConfiguration\UserAuthorization\RoleWiseChartOfMenuPermission.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\AttendanceProcess.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\ContinuousAbsence.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\GatePunchData.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\LatePermissionEntry.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\GeneralDayDeclared.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\ShiftChangeing.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\ShiftingTeamSetup.aspx" />
+    <Content Include="HRMPayroll\EmployeeLifecycle\ContinuousAbsentProcess.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\LeaveSetting\EmployeeWiseHolidays.aspx" />
     <Content Include="HRMPayroll\HRMApproval\AttendanceDeleteApproval.aspx" />
+    <Content Include="HRMPayroll\HRMApproval\DeductionEarningApproval.aspx">
+      <BrowseToURL>&lt;%25%40 Page Language="C#" AutoEventWireup="true" CodeBehind="DeductionEarningApproval.aspx.cs" Inherits="Nexa_ERP.HRMPayroll.HRMApproval.DeductionEarningApproval" %25&gt;
+
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head runat="server"&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Deduction or Earning Approval&lt;/title&gt;
+    &lt;!-- Tailwind CSS CDN --&gt;
+    &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+    &lt;!-- FontAwesome --&gt;
+    &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"&gt;
+    &lt;!-- Inter Font --&gt;
+    &lt;link href="https://fonts.googleapis.com/css2%3ffamily=Inter:wght%40300%3b400%3b500%3b600%3b700&amp;display=swap" rel="stylesheet"&gt;
+    &lt;style&gt;
+        body { font-family: %27Inter%27, sans-serif%3b }
+        ::-webkit-scrollbar{width:6px%3bheight:6px}
+        ::-webkit-scrollbar-track{background:#f1f5f9}
+        ::-webkit-scrollbar-thumb{background:#cbd5e1%3bborder-radius:3px}
+        ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+
+        /%2a ---- Filter fields %28Increment Approval এর মতো%29 ---- %2a/
+        .fld{display:flex%3balign-items:center%3bjustify-content:space-between%3bgap:6px%3bheight:32px%3bpadding:0 10px%3b
+             border:1px solid #d9dce5%3bborder-radius:6px%3bbackground:#f6f7fb%3bfont-size:13px%3bcolor:#1e293b%3b
+             transition:border-color .15s, box-shadow .15s, background .15s%3bwidth:100%25}
+        .fld:hover{border-color:#b6bccb}
+        .fld:focus{outline:none%3bborder-color:#3b82f6%3bbox-shadow:0 0 0 3px rgba%2859,130,246,.15%29}
+        input.fld{cursor:text}
+        input.fld::placeholder{color:#a0a7b5}
+        input.fld.date{background:#f3f4f7%3bcolor:#334155}
+        select.fld{display:block%3bcursor:pointer%3bpadding:0 6px}
+        .lbl{display:block%3bfont-size:13px%3bcolor:#334155%3bmargin-bottom:6px}
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class="bg-slate-100 text-slate-800 antialiased h-screen flex flex-col overflow-hidden"&gt;
+&lt;form id="form1" runat="server" class="flex flex-col h-screen overflow-hidden" autocomplete="off"&gt;
+
+    &lt;section class="bg-white border-b border-slate-200 px-6 py-4 shrink-0 relative z-30"&gt;
+        &lt;div class="bg-slate-50/70 border border-slate-200 rounded-xl p-4"&gt;
+            &lt;div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-3"&gt;
+                &lt;%25-- ডেক্সটপ ফর্মের ফিল্ড: textBox1 / dateTimePicker1 / comboBox1 --%25&gt;
+                &lt;div class="lg:col-span-2"&gt;&lt;label class="lbl"&gt;ID No&lt;/label&gt;
+                    &lt;asp:TextBox ID="txtIdNo" runat="server" ClientIDMode="Static" CssClass="fld" placeholder="e.g. 1001, 1002…" autocomplete="off" /&gt;&lt;/div&gt;
+                &lt;div&gt;&lt;label class="lbl"&gt;Effe. Date&lt;/label&gt;
+                    &lt;asp:TextBox ID="txtDate" runat="server" ClientIDMode="Static" TextMode="Date" CssClass="fld date" autocomplete="off" /&gt;&lt;/div&gt;
+                &lt;div&gt;&lt;label class="lbl"&gt;Status&lt;/label&gt;
+                    &lt;asp:DropDownList ID="ddStatus" runat="server" ClientIDMode="Static" CssClass="fld" /&gt;&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="flex justify-end items-center gap-2 mt-3"&gt;
+            &lt;asp:LinkButton ID="btnShow" runat="server" ClientIDMode="Static" OnClick="btnShow_Click" CssClass="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-2 transition"&gt;
+                &lt;i class="fa-regular fa-eye text-xs"&gt;&lt;/i&gt;&lt;span&gt;Show&lt;/span&gt;
+            &lt;/asp:LinkButton&gt;
+            &lt;button type="button" onclick="setAll%28true%29" class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-2 transition"&gt;
+                &lt;i class="fa-regular fa-square-check text-xs"&gt;&lt;/i&gt;&lt;span&gt;Select&lt;/span&gt;
+            &lt;/button&gt;
+            &lt;button type="button" onclick="setAll%28false%29" class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-2 transition"&gt;
+                &lt;i class="fa-solid fa-eraser text-xs"&gt;&lt;/i&gt;&lt;span&gt;Clear&lt;/span&gt;
+            &lt;/button&gt;
+            &lt;asp:LinkButton ID="btnConfirm" runat="server" ClientIDMode="Static" OnClick="btnConfirm_Click" OnClientClick="return confirmAct%28%27নির্বাচিতগুলো Confirm করতে চান%3f%27%29%3b" CssClass="h-9 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center gap-2 shadow-sm transition"&gt;
+                &lt;i class="fa-solid fa-check text-xs"&gt;&lt;/i&gt;&lt;span&gt;Confirm&lt;/span&gt;
+            &lt;/asp:LinkButton&gt;
+            &lt;asp:LinkButton ID="btnReOpen" runat="server" ClientIDMode="Static" OnClick="btnReOpen_Click" OnClientClick="return confirmAct%28%27নির্বাচিতগুলো Re-Open করতে চান%3f%27%29%3b" CssClass="h-9 px-5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium flex items-center gap-2 shadow-sm transition"&gt;
+                &lt;i class="fa-solid fa-rotate-left text-xs"&gt;&lt;/i&gt;&lt;span&gt;Re-Open&lt;/span&gt;
+            &lt;/asp:LinkButton&gt;
+            &lt;asp:LinkButton ID="btnDelete" runat="server" ClientIDMode="Static" OnClick="btnDelete_Click" OnClientClick="return confirmAct%28%27নির্বাচিতগুলো Delete করতে চান%3f এটি আগের অবস্থায় ফেরানো যাবে না।%27%29%3b" CssClass="h-9 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium flex items-center gap-2 shadow-sm transition"&gt;
+                &lt;i class="fa-regular fa-trash-can text-xs"&gt;&lt;/i&gt;&lt;span&gt;Delete&lt;/span&gt;
+            &lt;/asp:LinkButton&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- Results --&gt;
+    &lt;div class="flex-1 flex flex-col min-h-0 overflow-hidden"&gt;
+        &lt;main class="flex-1 flex flex-col min-h-0 bg-slate-100 overflow-hidden relative"&gt;
+
+            &lt;div class="bg-white border-b border-slate-200 px-6 py-4 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xs"&gt;
+                &lt;div&gt;
+                    &lt;div class="flex items-center space-x-2"&gt;
+                        &lt;h2 class="text-base font-bold text-slate-800"&gt;Deduction or Earning Approval&lt;/h2&gt;
+                        &lt;asp:Label ID="lblCount" runat="server" CssClass="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-indigo-100" Text="0 Records" /&gt;
+                    &lt;/div&gt;
+                    &lt;p class="text-xs text-slate-500 mt-0.5"&gt;Showing deduction / earning entries for the selected month and status.&lt;/p&gt;
+                &lt;/div&gt;
+                &lt;div class="relative"&gt;
+                    &lt;input type="text" id="tableSearch" onkeyup="searchTable%28%29" onkeydown="if%28event.key===%27Enter%27%29return false%3b" placeholder="Quick filter table..." class="bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48 sm:w-64"&gt;
+                    &lt;i class="fa-solid fa-search absolute left-2.5 top-2 text-slate-400 text-xs"&gt;&lt;/i&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class="flex-1 p-6 overflow-auto"&gt;
+                &lt;div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col h-full"&gt;
+                    &lt;div class="overflow-x-auto flex-1"&gt;
+                        &lt;table id="reportTable" class="w-full text-left border-collapse"&gt;
+                            &lt;thead&gt;
+                                &lt;tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider sticky top-0 z-10"&gt;
+                                    &lt;th class="py-3.5 px-4 w-12 text-center"&gt;
+                                        &lt;input type="checkbox" id="selectAllRows" onchange="setAll%28this.checked%29" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"&gt;
+                                    &lt;/th&gt;
+                                    &lt;th class="py-3.5 px-4 font-semibold"&gt;Entry No&lt;/th&gt;
+                                    &lt;th class="py-3.5 px-4 font-semibold"&gt;ID No&lt;/th&gt;
+                                    &lt;th class="py-3.5 px-4 font-semibold"&gt;Name&lt;/th&gt;
+                                    &lt;th class="py-3.5 px-4 font-semibold"&gt;Mode&lt;/th&gt;
+                                    &lt;th class="py-3.5 px-4 font-semibold"&gt;Deduction / Earning&lt;/th&gt;
+                                    &lt;th class="py-3.5 px-4 font-semibold text-right"&gt;Amount&lt;/th&gt;
+                                &lt;/tr&gt;
+                            &lt;/thead&gt;
+                            &lt;tbody id="tableBody" class="divide-y divide-slate-100 text-sm text-slate-700 bg-white"&gt;
+                                &lt;asp:Repeater ID="rptDed" runat="server"&gt;
+                                    &lt;ItemTemplate&gt;
+                                        &lt;tr class="hover:bg-slate-50/80 transition-colors"&gt;
+                                            &lt;%25-- name="selEntry" এর value = Entry_no%3b বাটন চাপলে সার্ভার এটিই পড়ে --%25&gt;
+                                            &lt;td class="py-3 px-4 text-center"&gt;&lt;input type="checkbox" name="selEntry" class="row-checkbox rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" value=%27&lt;%25# Server.HtmlEncode%28Get%28Container.DataItem, "Entry_no"%29%29 %25&gt;%27&gt;&lt;/td&gt;
+                                            &lt;td class="py-3 px-4 text-slate-600 text-xs"&gt;&lt;%25# Server.HtmlEncode%28Get%28Container.DataItem, "Entry_no"%29%29 %25&gt;&lt;/td&gt;
+                                            &lt;td class="py-3 px-4 font-semibold text-slate-900 text-xs"&gt;&lt;%25# Server.HtmlEncode%28Get%28Container.DataItem, "ID_no", "ID_No"%29%29 %25&gt;&lt;/td&gt;
+                                            &lt;td class="py-3 px-4 font-medium text-slate-800 text-xs"&gt;&lt;%25# Server.HtmlEncode%28Get%28Container.DataItem, "Name"%29%29 %25&gt;&lt;/td&gt;
+                                            &lt;td class="py-3 px-4 text-slate-600 text-xs"&gt;&lt;%25# Server.HtmlEncode%28Get%28Container.DataItem, "Mode_Name"%29%29 %25&gt;&lt;/td&gt;
+                                            &lt;td class="py-3 px-4 text-slate-600 text-xs"&gt;&lt;%25# Server.HtmlEncode%28Get%28Container.DataItem, "Deduct_Name"%29%29 %25&gt;&lt;/td&gt;
+                                            &lt;td class="py-3 px-4 text-slate-900 font-semibold text-xs text-right"&gt;&lt;%25# Num%28Container.DataItem, "Advance_Amount"%29 %25&gt;&lt;/td&gt;
+                                        &lt;/tr&gt;
+                                    &lt;/ItemTemplate&gt;
+                                &lt;/asp:Repeater&gt;
+                                &lt;tr id="trEmpty" runat="server" visible="false"&gt;&lt;td colspan="7" class="text-center py-8 text-slate-400 text-xs"&gt;No matching records found for the selected criteria.&lt;/td&gt;&lt;/tr&gt;
+                            &lt;/tbody&gt;
+                        &lt;/table&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/main&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Notification Toast Container --&gt;
+    &lt;div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"&gt;&lt;/div&gt;
+
+&lt;/form&gt;
+
+&lt;script&gt;
+// %40ts-nocheck
+const esc = s =&gt; String%28s%29.replace%28/[&amp;&lt;&gt;"%27]/g, c =&gt; %28{ %27&amp;%27: %27&amp;amp%3b%27, %27&lt;%27: %27&amp;lt%3b%27, %27&gt;%27: %27&amp;gt%3b%27, %27"%27: %27&amp;quot%3b%27, "%27": %27&amp;#39%3b%27 }[c]%29%29%3b
+
+// Select / Clear: সব চেকবক্স টিক দেওয়া বা তোলা
+function setAll%28v%29 {
+    document.querySelectorAll%28%27.row-checkbox%27%29.forEach%28c =&gt; c.checked = v%29%3b
+    var h = document.getElementById%28%27selectAllRows%27%29%3b if %28h%29 h.checked = v%3b
+}
+
+// Confirm / Re-Open / Delete চাপলে অন্তত একটি টিক লাগবে
+function confirmAct%28msg%29 {
+    if %28!document.querySelectorAll%28%27.row-checkbox:checked%27%29.length%29 {
+        showNotification%28%27কমপক্ষে একটি এন্ট্রি নির্বাচন করুন।%27%29%3b
+        return false%3b
+    }
+    return confirm%28msg%29%3b
+}
+
+document.addEventListener%28%27DOMContentLoaded%27, function %28%29 {
+    // ID No ঘরে Enter চাপলে Show চলবে
+    var t = document.getElementById%28%27txtIdNo%27%29%3b
+    if %28t%29 t.addEventListener%28%27keydown%27, function %28e%29 {
+        if %28e.key === %27Enter%27%29 { e.preventDefault%28%29%3b document.getElementById%28%27btnShow%27%29.click%28%29%3b }
+    }%29%3b
+}%29%3b
+
+// ---------- টেবিলের Quick filter ----------
+function searchTable%28%29 {
+    const q = document.getElementById%28%27tableSearch%27%29.value.toLowerCase%28%29%3b
+    document.querySelectorAll%28%27#tableBody tr%27%29.forEach%28tr =&gt; {
+        if %28tr.id &amp;&amp; tr.id.indexOf%28%27trEmpty%27%29 &gt; -1%29 return%3b
+        tr.style.display = tr.textContent.toLowerCase%28%29.includes%28q%29 %3f %27%27 : %27none%27%3b
+    }%29%3b
+}
+
+function showNotification%28message%29 {
+    const container = document.getElementById%28%27toastContainer%27%29%3b
+    const toast = document.createElement%28%27div%27%29%3b
+    toast.className = "bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-lg pointer-events-auto flex items-center space-x-2 transition transform translate-y-2 opacity-0"%3b
+    toast.innerHTML = `&lt;i class="fa-solid fa-circle-info text-indigo-400"&gt;&lt;/i&gt;&lt;span&gt;%24{esc%28message%29}&lt;/span&gt;`%3b
+    container.appendChild%28toast%29%3b
+    setTimeout%28%28%29 =&gt; toast.classList.remove%28%27translate-y-2%27, %27opacity-0%27%29, 10%29%3b
+    setTimeout%28%28%29 =&gt; { toast.classList.add%28%27translate-y-2%27, %27opacity-0%27%29%3b setTimeout%28%28%29 =&gt; toast.remove%28%29, 300%29%3b }, 3000%29%3b
+}
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</BrowseToURL>
+    </Content>
+    <Content Include="HRMPayroll\HRMApproval\EmployeeInformationChangeApproval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\EmployeeRe_Active_Approval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\EmployeeSaperationApproval.aspx" />
+    <Content Include="HRMPayroll\HRMApproval\IncrementApproval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\LatePermissionApproval.aspx" />
+    <Content Include="HRMPayroll\HRMApproval\LeaveApproval.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceSummaryView.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReport.aspx" />
@@ -319,7 +513,7 @@
     <Content Include="Approval\HRM\Payroll\IncrementApproval.aspx" />
     <Content Include="HRMPayroll\Payrollinformation\IncrementEntry.aspx" />
     <Content Include="HRMPayroll\Payrollinformation\MaternityPaymentProcess.aspx" />
-    <Content Include="HRMPayroll\Payrollinformation\PaymentConfirmProcess.aspx" />
+    <Content Include="HRMPayroll\HRMApproval\PaymentConfirmProcess.aspx" />
     <Content Include="HRMPayroll\Payrollinformation\SalaryBreckDownProcess.aspx" />
     <Content Include="HRMPayroll\Payrollinformation\SalaryProcess.aspx" />
     <Content Include="images\Loginbg1.jpg" />
@@ -542,6 +736,13 @@
     <Compile Include="HRMPayroll\AttendanceManagementSystem\ContinuousAbsence.aspx.designer.cs">
       <DependentUpon>ContinuousAbsence.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\GatePunchData.aspx.cs">
+      <DependentUpon>GatePunchData.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\GatePunchData.aspx.designer.cs">
+      <DependentUpon>GatePunchData.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\AttendanceManagementSystem\LatePermissionEntry.aspx.cs">
       <DependentUpon>LatePermissionEntry.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -570,6 +771,34 @@
     <Compile Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx.designer.cs">
       <DependentUpon>RandomAbsentAttendance.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\GeneralDayDeclared.aspx.cs">
+      <DependentUpon>GeneralDayDeclared.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\GeneralDayDeclared.aspx.designer.cs">
+      <DependentUpon>GeneralDayDeclared.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\ShiftChangeing.aspx.cs">
+      <DependentUpon>ShiftChangeing.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\ShiftChangeing.aspx.designer.cs">
+      <DependentUpon>ShiftChangeing.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\ShiftingTeamSetup.aspx.cs">
+      <DependentUpon>ShiftingTeamSetup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\ShiftingTeamSetup.aspx.designer.cs">
+      <DependentUpon>ShiftingTeamSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\ContinuousAbsentProcess.aspx.cs">
+      <DependentUpon>ContinuousAbsentProcess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\EmployeeLifecycle\ContinuousAbsentProcess.aspx.designer.cs">
+      <DependentUpon>ContinuousAbsentProcess.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx.cs">
       <DependentUpon>EmployeeEntry.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -591,6 +820,20 @@
     <Compile Include="HRMPayroll\HRMApproval\AttendanceDeleteApproval.aspx.designer.cs">
       <DependentUpon>AttendanceDeleteApproval.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\DeductionEarningApproval.aspx.cs">
+      <DependentUpon>DeductionEarningApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\DeductionEarningApproval.aspx.designer.cs">
+      <DependentUpon>DeductionEarningApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\EmployeeInformationChangeApproval.aspx.cs">
+      <DependentUpon>EmployeeInformationChangeApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\EmployeeInformationChangeApproval.aspx.designer.cs">
+      <DependentUpon>EmployeeInformationChangeApproval.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\HRMApproval\EmployeeRe_Active_Approval.aspx.cs">
       <DependentUpon>EmployeeRe_Active_Approval.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -605,12 +848,26 @@
     <Compile Include="HRMPayroll\HRMApproval\EmployeeSaperationApproval.aspx.designer.cs">
       <DependentUpon>EmployeeSaperationApproval.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\IncrementApproval.aspx.cs">
+      <DependentUpon>IncrementApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\IncrementApproval.aspx.designer.cs">
+      <DependentUpon>IncrementApproval.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\HRMApproval\LatePermissionApproval.aspx.cs">
       <DependentUpon>LatePermissionApproval.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="HRMPayroll\HRMApproval\LatePermissionApproval.aspx.designer.cs">
       <DependentUpon>LatePermissionApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\LeaveApproval.aspx.cs">
+      <DependentUpon>LeaveApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMApproval\LeaveApproval.aspx.designer.cs">
+      <DependentUpon>LeaveApproval.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReport.cs" />
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx.cs">
@@ -1111,11 +1368,11 @@
     <Compile Include="HRMPayroll\Payrollinformation\MaternityPaymentProcess.aspx.designer.cs">
       <DependentUpon>MaternityPaymentProcess.aspx</DependentUpon>
     </Compile>
-    <Compile Include="HRMPayroll\Payrollinformation\PaymentConfirmProcess.aspx.cs">
+    <Compile Include="HRMPayroll\HRMApproval\PaymentConfirmProcess.aspx.cs">
       <DependentUpon>PaymentConfirmProcess.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="HRMPayroll\Payrollinformation\PaymentConfirmProcess.aspx.designer.cs">
+    <Compile Include="HRMPayroll\HRMApproval\PaymentConfirmProcess.aspx.designer.cs">
       <DependentUpon>PaymentConfirmProcess.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\Payrollinformation\SalaryBreckDownProcess.aspx.cs">
