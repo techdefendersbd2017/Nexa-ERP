@@ -449,6 +449,7 @@ function showNotification%28message%29 {
     <Content Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBangla.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBanglaCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\Payroll_Reports.aspx" />
+    <Content Include="HRMPayroll\Payrollinformation\BankAccountNumberUpload.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\GarmentType.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\ProductCategory.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\Season.aspx" />
@@ -918,6 +919,13 @@ function showNotification%28message%29 {
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\Payroll_Reports.aspx.designer.cs">
       <DependentUpon>Payroll_Reports.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\BankAccountNumberUpload.aspx.cs">
+      <DependentUpon>BankAccountNumberUpload.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\Payrollinformation\BankAccountNumberUpload.aspx.designer.cs">
+      <DependentUpon>BankAccountNumberUpload.aspx</DependentUpon>
     </Compile>
     <Compile Include="MasterConfiguration\BuyerManagement\GarmentType.aspx.cs">
       <DependentUpon>GarmentType.aspx</DependentUpon>
