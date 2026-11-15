@@ -39,16 +39,20 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         public string Dia { get; set; }           // finish dia (inch)
         public string PartSize { get; set; }      // collar size / cuff size / bottom size
         public string Ply { get; set; }           // Single / Double (cuff)
+        public string YarnDyed { get; set; }      // Yes / No (default No)
         public decimal KgDzn { get; set; }
         public decimal YdDzn { get; set; }
         public decimal RateDzn { get; set; }
         public int Qty { get; set; }
         public bool IsBooked { get; set; }
 
-        public decimal LossPct { get; set; }
+        public decimal LossPct { get; set; }      // Process Loss %
+        public decimal ExtraPct { get; set; }     // Extra Cutting % (added on top of Process Loss %)
+
         public decimal KgPc { get { return KgDzn / 12m; } }
         public decimal YdPc { get { return YdDzn / 12m; } }
         public decimal RatePc { get { return RateDzn / 12m; } }
+
         // Cuff + Double = fabric is used twice → Total Kg / Yds x 2 (Kg/Pc, Yds/Pc stay as entered)
         public static decimal PlyFactorOf(string part, string ply)
         {
@@ -56,14 +60,22 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
         public decimal PlyFactor { get { return PlyFactorOf(PartName, Ply); } }
 
-        public decimal TotalKg { get { return Qty * KgPc * (1m + LossPct / 100m) * PlyFactor; } }
-        public decimal TotalYd { get { return Qty * YdPc * (1m + LossPct / 100m) * PlyFactor; } }
+        // Process Loss % + Extra Cutting % are added together
+        public static decimal AllowanceFactorOf(decimal lossPct, decimal extraPct)
+        {
+            return 1m + (lossPct + extraPct) / 100m;
+        }
+        public decimal AllowanceFactor { get { return AllowanceFactorOf(LossPct, ExtraPct); } }
+
+        public decimal TotalKg { get { return Qty * KgPc * AllowanceFactor * PlyFactor; } }
+        public decimal TotalYd { get { return Qty * YdPc * AllowanceFactor * PlyFactor; } }
         public decimal Amount { get { return Qty * RatePc; } }
 
         public FabRow()
         {
             PartName = "Body";
             SizeCode = AllSizes;
+            YarnDyed = "No";
         }
     }
 
@@ -144,6 +156,16 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 hfStyleId.Value = "0";
                 ViewState["POID"] = null;
                 LoadPOList();
+            }
+            else if (pnlEntry.Visible && cblFabSizes.Items.Count == 0)
+            {
+                // safety: refill Fabric "Sizes" list from the Style's sizes if it ever comes back empty
+                int sid;
+                if (int.TryParse(hfStyleId.Value, out sid) && sid > 0)
+                {
+                    foreach (string s in GetStyleSizes(sid))
+                        cblFabSizes.Items.Add(new ListItem(s, s));
+                }
             }
         }
 
@@ -818,11 +840,13 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 r.Dia = ((TextBox)row.FindControl("txtFabDiaRow")).Text.Trim();
                 r.PartSize = ((TextBox)row.FindControl("txtFabPartSizeRow")).Text.Trim();
                 r.Ply = ((DropDownList)row.FindControl("ddlFabPlyRow")).SelectedValue;
+                r.YarnDyed = ((DropDownList)row.FindControl("ddlFabYarnRow")).SelectedValue;
                 r.KgDzn = DznFrom(((TextBox)row.FindControl("txtFabKgDzn")).Text, ((TextBox)row.FindControl("txtFabKgPc")).Text);
                 r.YdDzn = DznFrom(((TextBox)row.FindControl("txtFabYdDzn")).Text, ((TextBox)row.FindControl("txtFabYdPc")).Text);
                 r.RateDzn = DznFrom(((TextBox)row.FindControl("txtFabRateDzn")).Text, ((TextBox)row.FindControl("txtFabRatePc")).Text);
                 r.Qty = IntOrZero(((TextBox)row.FindControl("txtFabQty")).Text.Trim());
                 r.LossPct = DecOrZero(((TextBox)row.FindControl("txtFabLoss")).Text.Trim());
+                r.ExtraPct = DecOrZero(((TextBox)row.FindControl("txtFabExtra")).Text.Trim());
                 r.IsBooked = ((CheckBox)row.FindControl("chkBookFab")).Checked;
                 list.Add(r);
             }
@@ -842,6 +866,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             if (r == null) return;
             SelectDDL((DropDownList)e.Row.FindControl("ddlFabFormRow"), r.FabForm ?? "");
             SelectDDL((DropDownList)e.Row.FindControl("ddlFabPlyRow"), r.Ply ?? "");
+            SelectDDL((DropDownList)e.Row.FindControl("ddlFabYarnRow"),
+                      string.IsNullOrEmpty(r.YarnDyed) ? "No" : r.YarnDyed);
         }
 
         protected void btnAddFab_Click(object sender, EventArgs e)
@@ -860,6 +886,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             decimal ydDzn = DznFrom(txtFabYdDzn.Text, txtFabYdPc.Text);
             decimal rateDzn = DznFrom(txtFabRateDzn.Text, txtFabRatePc.Text);
             decimal lossPct = DecOrZero(txtFabLoss.Text);
+            decimal extraPct = DecOrZero(txtFabExtra.Text);
 
             if (kgDzn <= 0m && ydDzn <= 0m)
             { ShowAlert("Enter Consumption (Kg or Yds), then click Add."); return; }
@@ -868,6 +895,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             string dia = txtFabDia.Text.Trim();
             string partSize = txtFabPartSize.Text.Trim();
             string ply = ddlFabPly.SelectedValue;
+            string yarn = ddlFabYarnDyed.SelectedValue;
 
             int styleId;
             int.TryParse(hfStyleId.Value, out styleId);
@@ -908,10 +936,12 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                             Dia = dia,
                             PartSize = partSize,
                             Ply = ply,
+                            YarnDyed = yarn,
                             KgDzn = kgDzn,
                             YdDzn = ydDzn,
                             RateDzn = rateDzn,
                             LossPct = lossPct,
+                            ExtraPct = extraPct,
                             Qty = QtyFor(m, color, size),
                             IsBooked = true
                         });
@@ -926,8 +956,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             cblFabSizes.ClearSelection();
             ddlFabForm.SelectedIndex = 0;
             ddlFabPly.SelectedIndex = 0;
+            ddlFabYarnDyed.SelectedValue = "No";
             txtFabDia.Text = txtFabPartSize.Text = "";
-            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = "";
+            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = txtFabExtra.Text = "";
 
             if (added == 0)
                 ShowAlert("Selected color / fabric / part / size combination(s) already added.");
@@ -961,10 +992,12 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                     Dia = s.Dia,
                     PartSize = s.PartSize,
                     Ply = s.Ply,
+                    YarnDyed = s.YarnDyed,
                     KgDzn = s.KgDzn,
                     YdDzn = s.YdDzn,
                     RateDzn = s.RateDzn,
                     LossPct = s.LossPct,
+                    ExtraPct = s.ExtraPct,
                     Qty = s.Qty,
                     IsBooked = s.IsBooked
                 });
@@ -997,7 +1030,10 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 decimal ratePc = DznFrom(((TextBox)row.FindControl("txtFabRateDzn")).Text, ((TextBox)row.FindControl("txtFabRatePc")).Text) / 12m;
                 int qty = IntOrZero(((TextBox)row.FindControl("txtFabQty")).Text.Trim());
 
-                decimal f = 1m + DecOrZero(((TextBox)row.FindControl("txtFabLoss")).Text) / 100m;
+                // Process Loss % + Extra Cutting % (added), then Cuff Double ply x2
+                decimal f = FabRow.AllowanceFactorOf(
+                    DecOrZero(((TextBox)row.FindControl("txtFabLoss")).Text),
+                    DecOrZero(((TextBox)row.FindControl("txtFabExtra")).Text));
                 f *= FabRow.PlyFactorOf(((Literal)row.FindControl("litFabPart")).Text,
                                         ((DropDownList)row.FindControl("ddlFabPlyRow")).SelectedValue);
                 decimal tk = qty * kgPc * f, ty = qty * ydPc * f, am = qty * ratePc;
@@ -1020,7 +1056,10 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 using (SqlCommand c = new SqlCommand(@"
                     SELECT ColorCode, ISNULL(PartName,'Body') AS PartName, ISNULL(SizeCode,'ALL') AS SizeCode,
                            FabricCode, FabricName, GSM, FabricForm, Dia, PartSize, Ply,
-                           KgPerDzn, YdPerDzn, RatePerDzn, Qty, LossPct, IsBooked
+                           ISNULL(YarnDyed,'No') AS YarnDyed,
+                           KgPerDzn, YdPerDzn, RatePerDzn, Qty, LossPct,
+                           ISNULL(ExtraCutPct,0) AS ExtraCutPct,
+                           IsBooked
                     FROM   dbo.POFabricBooking
                     WHERE  POID=@ID
                     ORDER BY SortOrder, FabBookID", con))
@@ -1042,11 +1081,13 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                                 Dia = GetStr(r["Dia"]),
                                 PartSize = GetStr(r["PartSize"]),
                                 Ply = GetStr(r["Ply"]),
+                                YarnDyed = GetStr(r["YarnDyed"]),
                                 KgDzn = Convert.ToDecimal(r["KgPerDzn"]),
                                 YdDzn = Convert.ToDecimal(r["YdPerDzn"]),
                                 RateDzn = Convert.ToDecimal(r["RatePerDzn"]),
                                 Qty = Convert.ToInt32(r["Qty"]),
                                 LossPct = Convert.ToDecimal(r["LossPct"]),
+                                ExtraPct = Convert.ToDecimal(r["ExtraCutPct"]),
                                 IsBooked = Convert.ToBoolean(r["IsBooked"])
                             });
                         }
@@ -1494,6 +1535,10 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                         hfPOId.Value = poId.ToString();
                         hfStyleId.Value = GetStr(r["StyleID"]);
 
+                        // Fabric Booking Report বাটন চালু (এই PO-র জন্য)
+                        hlFabRpt.NavigateUrl = "~/MerchandisingMarketing/MerchandisingReports/FabricBookingReport.aspx?poid=" + poId;
+                        hlFabRpt.Visible = true;
+
                         txtPONo.Text = GetStr(r["PONo"]);
                         txtPODate.Text = r["PODate"] != DBNull.Value
                             ? Convert.ToDateTime(r["PODate"]).ToString("yyyy-MM-dd") : "";
@@ -1743,13 +1788,13 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                             using (SqlCommand c = new SqlCommand(@"
                                 INSERT INTO dbo.POFabricBooking
                                     (POID, ColorCode, PartName, SizeCode, FabricCode, FabricName, GSM,
-                                     FabricForm, Dia, PartSize, Ply,
+                                     FabricForm, Dia, PartSize, Ply, YarnDyed,
                                      KgPerDzn, YdPerDzn, RatePerDzn,
-                                     Qty, LossPct, TotalKg, TotalYd, Amount, IsBooked, SortOrder)
+                                     Qty, LossPct, ExtraCutPct, TotalKg, TotalYd, Amount, IsBooked, SortOrder)
                                 VALUES (@ID, @Color, @Part, @SizeCode, @Code, @Name, @Gsm,
-                                        @Form, @Dia, @PartSize, @Ply,
+                                        @Form, @Dia, @PartSize, @Ply, @Yarn,
                                         @Kg, @Yd, @Rate,
-                                        @Qty, @Loss, @TKg, @TYd, @Amt, @Booked, @Sort)", con, tx))
+                                        @Qty, @Loss, @Extra, @TKg, @TYd, @Amt, @Booked, @Sort)", con, tx))
                             {
                                 c.Parameters.AddWithValue("@ID", poId);
                                 c.Parameters.AddWithValue("@Color", fr.ColorCode);
@@ -1762,11 +1807,13 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                                 c.Parameters.AddWithValue("@Dia", NullIfEmpty(fr.Dia));
                                 c.Parameters.AddWithValue("@PartSize", NullIfEmpty(fr.PartSize));
                                 c.Parameters.AddWithValue("@Ply", NullIfEmpty(fr.Ply));
+                                c.Parameters.AddWithValue("@Yarn", string.IsNullOrEmpty(fr.YarnDyed) ? "No" : fr.YarnDyed);
                                 c.Parameters.AddWithValue("@Kg", fr.KgDzn);
                                 c.Parameters.AddWithValue("@Yd", fr.YdDzn);
                                 c.Parameters.AddWithValue("@Rate", fr.RateDzn);
                                 c.Parameters.AddWithValue("@Qty", fr.Qty);
                                 c.Parameters.AddWithValue("@Loss", fr.LossPct);
+                                c.Parameters.AddWithValue("@Extra", fr.ExtraPct);
                                 c.Parameters.AddWithValue("@TKg", fr.TotalKg);
                                 c.Parameters.AddWithValue("@TYd", fr.TotalYd);
                                 c.Parameters.AddWithValue("@Amt", fr.Amount);
@@ -1893,6 +1940,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ============================================================
         private void ClearForm()
         {
+            hlFabRpt.Visible = false;     // নতুন PO তে রিপোর্ট বাটন লুকাও
             ViewState["POID"] = null;
             ViewState["LastQty"] = null;
             hfPOId.Value = "0";
@@ -1936,8 +1984,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             ddlFabPart.SelectedIndex = 0;
             ddlFabForm.SelectedIndex = 0;
             ddlFabPly.SelectedIndex = 0;
+            ddlFabYarnDyed.SelectedValue = "No";
             txtFabDia.Text = txtFabPartSize.Text = "";
-            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = "";
+            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = txtFabExtra.Text = "";
 
             BindMatrix(new MatrixData());
             BindEmb(new List<EmbRow>());

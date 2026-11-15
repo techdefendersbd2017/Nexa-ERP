@@ -249,6 +249,7 @@
     <Content Include="HRMPayroll\EmployeeLifecycle\ContinuousAbsentProcess.aspx" />
     <Content Include="HRMPayroll\EmployeeLifecycle\EmployeeEntry.aspx" />
     <Content Include="HRMPayroll\HRConfiguration\LeaveSetting\EmployeeWiseHolidays.aspx" />
+    <Content Include="HRMPayroll\HRConfiguration\PayrollSetting\SalaryAdvancePolicy.aspx" />
     <Content Include="HRMPayroll\HRMApproval\AttendanceDeleteApproval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\DeductionEarningApproval.aspx">
       <BrowseToURL>&lt;%25%40 Page Language="C#" AutoEventWireup="true" CodeBehind="DeductionEarningApproval.aspx.cs" Inherits="Nexa_ERP.HRMPayroll.HRMApproval.DeductionEarningApproval" %25&gt;
@@ -546,6 +547,7 @@ function showNotification%28message%29 {
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ItemsInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\ProductDepartmentInformation.aspx" />
     <Content Include="MerchandisingMarketing\MerchandisingConfiguration\YarnCountInformation.aspx" />
+    <Content Include="MerchandisingMarketing\MerchandisingReports\FabricBookingReport.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\POEntryInformation.aspx" />
     <Content Include="MerchandisingMarketing\OrderInformation\PORegistration.aspx" />
@@ -813,6 +815,13 @@ function showNotification%28message%29 {
     </Compile>
     <Compile Include="HRMPayroll\HRConfiguration\LeaveSetting\EmployeeWiseHolidays.aspx.designer.cs">
       <DependentUpon>EmployeeWiseHolidays.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\PayrollSetting\SalaryAdvancePolicy.aspx.cs">
+      <DependentUpon>SalaryAdvancePolicy.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRConfiguration\PayrollSetting\SalaryAdvancePolicy.aspx.designer.cs">
+      <DependentUpon>SalaryAdvancePolicy.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRMApproval\AttendanceDeleteApproval.aspx.cs">
       <DependentUpon>AttendanceDeleteApproval.aspx</DependentUpon>
@@ -1570,6 +1579,13 @@ function showNotification%28message%29 {
     </Compile>
     <Compile Include="MerchandisingMarketing\MerchandisingConfiguration\YarnCountInformation.aspx.designer.cs">
       <DependentUpon>YarnCountInformation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingReports\FabricBookingReport.aspx.cs">
+      <DependentUpon>FabricBookingReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\MerchandisingReports\FabricBookingReport.aspx.designer.cs">
+      <DependentUpon>FabricBookingReport.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\OrderInformation\CreateStyleBuyerWise.aspx.cs">
       <DependentUpon>CreateStyleBuyerWise.aspx</DependentUpon>

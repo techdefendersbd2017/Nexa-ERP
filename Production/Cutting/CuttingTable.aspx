@@ -49,6 +49,7 @@
         .card-header h4 { font-size: 1.05rem; font-weight: 600; letter-spacing: 0.2px; margin: 0; }
 
         label { font-weight: 600; font-size: 0.85rem; color: #374151; margin-bottom: 6px; display: block; }
+        .req { color: var(--brand-danger); }
 
         .form-control, .form-select { border-radius: 8px; border: 1px solid #d7dce3; padding: 9px 12px; font-size: 0.92rem; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
         .form-control:focus, .form-select:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15); }
@@ -57,6 +58,7 @@
         .btn-success { background: linear-gradient(135deg, var(--brand-success), var(--brand-success-dark)); border: none; color: #fff; }
         .btn-danger { background: var(--brand-danger); border: none; color: #fff; }
         .btn-secondary { background-color: #eef0f3; border: 1px solid #d7dce3; color: #374151; }
+        .btn:disabled, .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
 
         .left-panel { padding: 22px; }
         .action-bar { border-top: 1px solid var(--border-soft); margin-top: 20px; padding-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
@@ -64,6 +66,9 @@
         .grid-wrapper { max-height: calc(100vh - 250px); overflow-y: auto; overflow-x: auto; }
         .grid-wrapper table { margin-bottom: 0; white-space: nowrap; font-size: 0.88rem; }
         .grid-wrapper th { position: sticky; top: 0; background: #f8f9fa; z-index: 100; font-weight: 600; font-size: 0.82rem; text-transform: uppercase; padding: 12px 14px; border: none; }
+        .grid-wrapper td { vertical-align: middle; }
+        .grid-wrapper a.select-link { text-decoration: none; font-weight: 600; color: var(--brand-primary); }
+        .grid-wrapper a.select-link:hover { text-decoration: underline; }
 
         @media (max-width: 991.98px) { .main-container { padding: 14px; } }
     </style>
@@ -71,7 +76,7 @@
 <body>
     <form id="form1" runat="server">
         <div class="container-fluid main-container">
-            
+
             <div class="page-heading">
                 <i class="bi bi-scissors"></i>
                 <div>
@@ -79,6 +84,12 @@
                     <small>Production &rsaquo; Cutting &rsaquo; Cutting Table</small>
                 </div>
             </div>
+
+            <!-- Success / Error Message -->
+            <asp:Panel ID="pnlMessage" runat="server" Visible="false" CssClass="alert alert-success" role="alert">
+                <i class="bi bi-info-circle-fill"></i>
+                <asp:Label ID="lblMessage" runat="server"></asp:Label>
+            </asp:Panel>
 
             <div class="row">
                 <!-- Left Side Form -->
@@ -90,36 +101,46 @@
                         </div>
                         <div class="card-body left-panel">
                             <asp:HiddenField ID="hfUserId" runat="server" />
-                            
+
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label>Cutting Table ID</label>
-                                    <asp:TextBox ID="txtCuttingTableId" runat="server" ReadOnly="true" CssClass="form-control" />
+                                    <asp:TextBox ID="txtCuttingTableId" runat="server" ReadOnly="true" CssClass="form-control" placeholder="Auto generated" />
                                 </div>
                                 <div class="col-12">
-                                    <label>Floor</label>
+                                    <label>Floor <span class="req">*</span></label>
                                     <asp:DropDownList ID="ddlFloor" runat="server" CssClass="form-select"></asp:DropDownList>
+                                    <asp:RequiredFieldValidator ID="rfvFloor" runat="server" ControlToValidate="ddlFloor"
+                                        InitialValue="" ErrorMessage="Please select a floor." Display="Dynamic"
+                                        CssClass="text-danger small" ValidationGroup="vgCuttingTable" />
                                 </div>
                                 <div class="col-12">
-                                    <label>Name</label>
-                                    <asp:TextBox ID="txtName" runat="server" CssClass="form-control" />
+                                    <label>Name <span class="req">*</span></label>
+                                    <asp:TextBox ID="txtName" runat="server" CssClass="form-control" MaxLength="100" />
+                                    <asp:RequiredFieldValidator ID="rfvName" runat="server" ControlToValidate="txtName"
+                                        ErrorMessage="Name is required." Display="Dynamic"
+                                        CssClass="text-danger small" ValidationGroup="vgCuttingTable" />
                                 </div>
                                 <div class="col-12">
                                     <label>Remarks</label>
-                                    <asp:TextBox ID="txtRemarks" runat="server" TextMode="MultiLine" Rows="3" CssClass="form-control" />
+                                    <asp:TextBox ID="txtRemarks" runat="server" TextMode="MultiLine" Rows="3" MaxLength="500" CssClass="form-control" />
                                 </div>
                                 <div class="col-12">
                                     <div class="form-check mt-2">
-                                        <asp:CheckBox ID="chkIsActive" runat="server" CssClass="form-check-input" />
+                                        <asp:CheckBox ID="chkIsActive" runat="server" Checked="true" CssClass="form-check-input" />
                                         <asp:Label AssociatedControlID="chkIsActive" runat="server" Text="Is Active?" CssClass="form-check-label fw-bold"></asp:Label>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="action-bar">
-                                <asp:Button ID="btnRefresh" runat="server" Text="Refresh" CssClass="btn btn-secondary" />
-                                <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-success" />
-                                <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn btn-danger" />
+                                <asp:Button ID="btnRefresh" runat="server" Text="Refresh" CssClass="btn btn-secondary"
+                                    CausesValidation="false" OnClick="btnRefresh_Click" />
+                                <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-success"
+                                    ValidationGroup="vgCuttingTable" OnClick="btnSave_Click" />
+                                <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn btn-danger"
+                                    CausesValidation="false" Enabled="false" OnClick="btnDelete_Click"
+                                    OnClientClick="return confirm('Are you sure you want to delete this cutting table?');" />
                             </div>
                         </div>
                     </div>
@@ -136,8 +157,27 @@
                             <small class="text-muted">Note: To Edit - Please select a row by clicking on the row head.</small>
                         </div>
                         <div class="grid-wrapper">
-                             <!-- GridView or ListView -->
-                            <asp:GridView ID="gvCuttingTable" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false" Width="100%">
+                            <asp:GridView ID="gvCuttingTable" runat="server" CssClass="table table-bordered table-hover"
+                                AutoGenerateColumns="false" Width="100%" DataKeyNames="CuttingTableId"
+                                OnSelectedIndexChanged="gvCuttingTable_SelectedIndexChanged"
+                                EmptyDataText="No cutting tables found." >
+                                <SelectedRowStyle CssClass="table-primary" />
+                                <EmptyDataRowStyle CssClass="text-center text-muted p-4" />
+                                <Columns>
+                                    <asp:CommandField ShowSelectButton="true" SelectText="Select" HeaderText="Action"
+                                        ControlStyle-CssClass="select-link" />
+                                    <asp:BoundField DataField="CuttingTableId" HeaderText="ID" />
+                                    <asp:BoundField DataField="FloorName" HeaderText="Floor" />
+                                    <asp:BoundField DataField="Name" HeaderText="Name" />
+                                    <asp:BoundField DataField="Remarks" HeaderText="Remarks" />
+                                    <asp:TemplateField HeaderText="Status">
+                                        <ItemTemplate>
+                                            <%# Convert.ToBoolean(Eval("IsActive"))
+                                                ? "<span class='badge bg-success'>Active</span>"
+                                                : "<span class='badge bg-secondary'>Inactive</span>" %>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                </Columns>
                             </asp:GridView>
                         </div>
                     </div>
