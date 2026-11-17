@@ -33,6 +33,24 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.HiddenField hfUserId;
 
         /// <summary>
+        /// txtDate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtDate;
+
+        /// <summary>
+        /// btnCopy control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnCopy;
+
+        /// <summary>
         /// ddlFloor control.
         /// </summary>
         /// <remarks>
@@ -42,67 +60,67 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.DropDownList ddlFloor;
 
         /// <summary>
-        /// ddlSection control.
+        /// ddlTable control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlSection;
+        protected global::System.Web.UI.WebControls.DropDownList ddlTable;
 
         /// <summary>
-        /// ddlLineNo control.
+        /// txtRemarks control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlLineNo;
+        protected global::System.Web.UI.WebControls.TextBox txtRemarks;
 
         /// <summary>
-        /// ddlDateTime control.
+        /// txtTargetHour control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlDateTime;
+        protected global::System.Web.UI.WebControls.TextBox txtTargetHour;
 
         /// <summary>
-        /// ddlBuyer control.
+        /// txtCalculativeHour control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlBuyer;
+        protected global::System.Web.UI.WebControls.TextBox txtCalculativeHour;
 
         /// <summary>
-        /// txtStyleNo control.
+        /// txtTargetEfficiency control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtStyleNo;
+        protected global::System.Web.UI.WebControls.TextBox txtTargetEfficiency;
 
         /// <summary>
-        /// txtPoNo control.
+        /// txtCuttingMan control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtPoNo;
+        protected global::System.Web.UI.WebControls.TextBox txtCuttingMan;
 
         /// <summary>
-        /// ddlColor control.
+        /// txtCuttingAssistant control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlColor;
+        protected global::System.Web.UI.WebControls.TextBox txtCuttingAssistant;
 
         /// <summary>
         /// txtOrderQty control.
@@ -141,31 +159,13 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.TextBox txtCutBalance;
 
         /// <summary>
-        /// txtTargetHour control.
+        /// txtUpperLimit control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTargetHour;
-
-        /// <summary>
-        /// txtCalculativeHour control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCalculativeHour;
-
-        /// <summary>
-        /// txtTargetEfficiency control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTargetEfficiency;
+        protected global::System.Web.UI.WebControls.TextBox txtUpperLimit;
 
         /// <summary>
         /// txtCutSMV control.
@@ -177,31 +177,40 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.TextBox txtCutSMV;
 
         /// <summary>
-        /// txtCuttingMan control.
+        /// ddlBuyer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCuttingMan;
+        protected global::System.Web.UI.WebControls.DropDownList ddlBuyer;
 
         /// <summary>
-        /// TextBox2 control.
+        /// ddlStyleNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox TextBox2;
+        protected global::System.Web.UI.WebControls.DropDownList ddlStyleNo;
 
         /// <summary>
-        /// txtRemarks control.
+        /// ddlPoNo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtRemarks;
+        protected global::System.Web.UI.WebControls.DropDownList ddlPoNo;
+
+        /// <summary>
+        /// ddlColor control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlColor;
 
         /// <summary>
         /// txtDayTarget control.
@@ -211,33 +220,6 @@ namespace Nexa_ERP.Production.Cutting
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtDayTarget;
-
-        /// <summary>
-        /// ddlTable control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlTable;
-
-        /// <summary>
-        /// txtTableCutterMan control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTableCutterMan;
-
-        /// <summary>
-        /// txtTableCutterAssistant control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTableCutterAssistant;
 
         /// <summary>
         /// txtMarkerPcs control.
@@ -276,58 +258,22 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.TextBox txtHour;
 
         /// <summary>
-        /// ddlPlanStartTime control.
+        /// txtPlanStartTime control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlPlanStartTime;
+        protected global::System.Web.UI.WebControls.TextBox txtPlanStartTime;
 
         /// <summary>
-        /// ddlPlanEndTime control.
+        /// txtPlanEndTime control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlPlanEndTime;
-
-        /// <summary>
-        /// txtTEff control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTEff;
-
-        /// <summary>
-        /// txtWHour control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtWHour;
-
-        /// <summary>
-        /// txtTotal control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTotal;
-
-        /// <summary>
-        /// btnAdd control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAdd;
+        protected global::System.Web.UI.WebControls.TextBox txtPlanEndTime;
 
         /// <summary>
         /// txtRemark control.
@@ -339,13 +285,22 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.TextBox txtRemark;
 
         /// <summary>
-        /// GridView1 control.
+        /// btnAdd control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView GridView1;
+        protected global::System.Web.UI.WebControls.LinkButton btnAdd;
+
+        /// <summary>
+        /// btnClearRow control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnClearRow;
 
         /// <summary>
         /// GridView2 control.
@@ -357,13 +312,22 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.GridView GridView2;
 
         /// <summary>
+        /// lblTotalDayTarget control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblTotalDayTarget;
+
+        /// <summary>
         /// btnRefresh control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnRefresh;
+        protected global::System.Web.UI.WebControls.LinkButton btnRefresh;
 
         /// <summary>
         /// chkIsActive control.
@@ -381,7 +345,7 @@ namespace Nexa_ERP.Production.Cutting
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCutingTargetSheet;
+        protected global::System.Web.UI.WebControls.LinkButton btnCutingTargetSheet;
 
         /// <summary>
         /// btnShow control.
@@ -390,7 +354,7 @@ namespace Nexa_ERP.Production.Cutting
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnShow;
+        protected global::System.Web.UI.WebControls.LinkButton btnShow;
 
         /// <summary>
         /// btnSave control.
@@ -399,7 +363,7 @@ namespace Nexa_ERP.Production.Cutting
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSave;
+        protected global::System.Web.UI.WebControls.LinkButton btnSave;
 
         /// <summary>
         /// btnDelete control.
@@ -408,7 +372,7 @@ namespace Nexa_ERP.Production.Cutting
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDelete;
+        protected global::System.Web.UI.WebControls.LinkButton btnDelete;
 
         /// <summary>
         /// btnClear control.
@@ -417,6 +381,6 @@ namespace Nexa_ERP.Production.Cutting
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClear;
+        protected global::System.Web.UI.WebControls.LinkButton btnClear;
     }
 }

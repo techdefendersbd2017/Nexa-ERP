@@ -11,7 +11,7 @@ namespace Nexa_ERP.Production.Cutting
 {
 
 
-    public partial class StyleWiseBodyPartsEntry
+    public partial class BodyPartsNameEntry
     {
 
         /// <summary>
@@ -24,6 +24,24 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
+        /// pnlMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlMessage;
+
+        /// <summary>
+        /// lblMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblMessage;
+
+        /// <summary>
         /// hfUserId control.
         /// </summary>
         /// <remarks>
@@ -33,13 +51,13 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.HiddenField hfUserId;
 
         /// <summary>
-        /// txtStylePartsEntryId control.
+        /// txtBodyPartId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtStylePartsEntryId;
+        protected global::System.Web.UI.WebControls.TextBox txtBodyPartId;
 
         /// <summary>
         /// txtName control.
@@ -51,13 +69,13 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.TextBox txtName;
 
         /// <summary>
-        /// chkIsPrint control.
+        /// rfvName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkIsPrint;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvName;
 
         /// <summary>
         /// chkIsEmbroidery control.
@@ -78,13 +96,13 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.CheckBox chkIsSmoke;
 
         /// <summary>
-        /// ListView1 control.
+        /// chkIsActive control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.ListView ListView1;
+        protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
 
         /// <summary>
         /// btnRefresh control.
@@ -94,15 +112,6 @@ namespace Nexa_ERP.Production.Cutting
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnRefresh;
-
-        /// <summary>
-        /// chkIsActive control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkIsActive;
 
         /// <summary>
         /// btnSave control.
@@ -123,21 +132,12 @@ namespace Nexa_ERP.Production.Cutting
         protected global::System.Web.UI.WebControls.Button btnDelete;
 
         /// <summary>
-        /// btnClear control.
+        /// gvBodyParts control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClear;
-
-        /// <summary>
-        /// btnClose control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClose;
+        protected global::System.Web.UI.WebControls.GridView gvBodyParts;
     }
 }

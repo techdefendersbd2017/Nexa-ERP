@@ -558,6 +558,7 @@ function showNotification%28message%29 {
     <Content Include="Procurement\purchaseOrder.aspx" />
     <Content Include="Procurement\purchaseRequisition.aspx" />
     <Content Include="Procurement\supplierRateEntry.aspx" />
+    <Content Include="Production\Cutting\BodyPartsNameEntry.aspx" />
     <Content Include="Production\Cutting\cuttingContrastFabricsEntry.aspx" />
     <Content Include="Production\Cutting\cuttingNumberWiseRecutEntry.aspx" />
     <Content Include="Production\Cutting\cuttingReject.aspx" />
@@ -566,7 +567,6 @@ function showNotification%28message%29 {
     <Content Include="Production\Cutting\DailyCuttingTargetAndManpowerSet.aspx" />
     <Content Include="Production\Cutting\DailyPieceCuttingEntry.aspx" />
     <Content Include="Production\Cutting\SizeGradingOrPOtoPOTransfer.aspx" />
-    <Content Include="Production\Cutting\StyleWiseBodyPartsEntry.aspx" />
     <Content Include="Production\Cutting\StyleWiseBundlePartsMapping.aspx" />
     <Content Include="Production\Finishing\CartonOrPackedOutput.aspx" />
     <Content Include="Production\Finishing\CreatePackingList.aspx" />
@@ -1657,6 +1657,13 @@ function showNotification%28message%29 {
     <Compile Include="Procurement\supplierRateEntry.aspx.designer.cs">
       <DependentUpon>supplierRateEntry.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Production\Cutting\BodyPartsNameEntry.aspx.cs">
+      <DependentUpon>BodyPartsNameEntry.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Production\Cutting\BodyPartsNameEntry.aspx.designer.cs">
+      <DependentUpon>BodyPartsNameEntry.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Production\Cutting\cuttingContrastFabricsEntry.aspx.cs">
       <DependentUpon>cuttingContrastFabricsEntry.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1712,13 +1719,6 @@ function showNotification%28message%29 {
     </Compile>
     <Compile Include="Production\Cutting\SizeGradingOrPOtoPOTransfer.aspx.designer.cs">
       <DependentUpon>SizeGradingOrPOtoPOTransfer.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Production\Cutting\StyleWiseBodyPartsEntry.aspx.cs">
-      <DependentUpon>StyleWiseBodyPartsEntry.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Production\Cutting\StyleWiseBodyPartsEntry.aspx.designer.cs">
-      <DependentUpon>StyleWiseBodyPartsEntry.aspx</DependentUpon>
     </Compile>
     <Compile Include="Production\Cutting\StyleWiseBundlePartsMapping.aspx.cs">
       <DependentUpon>StyleWiseBundlePartsMapping.aspx</DependentUpon>
