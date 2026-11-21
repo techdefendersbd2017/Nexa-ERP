@@ -241,6 +241,7 @@
     <Content Include="HRMPayroll\AttendanceManagementSystem\GatePunchData.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\LatePermissionEntry.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx" />
+    <Content Include="HRMPayroll\AttendanceManagementSystem\OverTime_Adjustment.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\RandomAbsentAttendance.aspx" />
     <Content Include="HRMPayroll\AttendanceManagementSystem\GeneralDayDeclared.aspx" />
@@ -443,10 +444,13 @@ function showNotification%28message%29 {
     <Content Include="HRMPayroll\HRMApproval\IncrementApproval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\LatePermissionApproval.aspx" />
     <Content Include="HRMPayroll\HRMApproval\LeaveApproval.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceRegister.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceSummaryView.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReport.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeIDCard.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeIDCardEnglish.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBangla.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBanglaCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\Payroll_Reports.aspx" />
@@ -531,8 +535,10 @@ function showNotification%28message%29 {
     <Content Include="MasterConfiguration\BuyerManagement\BuyerSetup.aspx" />
     <Content Include="MasterConfiguration\BuyerManagement\BuyingAgentSetup.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ColorSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\CostingEntry.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx" />
     <Content Include="MasterConfiguration\ProductMaster\ItemTypeSetup.aspx" />
+    <Content Include="MerchandisingMarketing\BasicSetup\FabricBooking.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\JobSerialFormat.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\POEntry.aspx" />
     <Content Include="MerchandisingMarketing\BasicSetup\ProductDepartmentSetup.aspx" />
@@ -760,6 +766,13 @@ function showNotification%28message%29 {
     <Compile Include="HRMPayroll\AttendanceManagementSystem\ManualAttendance.aspx.designer.cs">
       <DependentUpon>ManualAttendance.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\OverTime_Adjustment.aspx.cs">
+      <DependentUpon>OverTime_Adjustment.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\AttendanceManagementSystem\OverTime_Adjustment.aspx.designer.cs">
+      <DependentUpon>OverTime_Adjustment.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\AttendanceManagementSystem\PunchDataImport.aspx.cs">
       <DependentUpon>PunchDataImport.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -879,6 +892,13 @@ function showNotification%28message%29 {
     <Compile Include="HRMPayroll\HRMApproval\LeaveApproval.aspx.designer.cs">
       <DependentUpon>LeaveApproval.aspx</DependentUpon>
     </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceRegister.aspx.cs">
+      <DependentUpon>AttendanceRegister.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceRegister.aspx.designer.cs">
+      <DependentUpon>AttendanceRegister.aspx</DependentUpon>
+    </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReport.cs" />
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\AttendanceReportViewCompliance.aspx.cs">
       <DependentUpon>AttendanceReportViewCompliance.aspx</DependentUpon>
@@ -907,6 +927,20 @@ function showNotification%28message%29 {
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx.designer.cs">
       <DependentUpon>JobCardReportCompliance.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeIDCard.aspx.cs">
+      <DependentUpon>EmployeeIDCard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeIDCard.aspx.designer.cs">
+      <DependentUpon>EmployeeIDCard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeIDCardEnglish.aspx.cs">
+      <DependentUpon>EmployeeIDCardEnglish.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeIDCardEnglish.aspx.designer.cs">
+      <DependentUpon>EmployeeIDCardEnglish.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBangla.aspx.cs">
       <DependentUpon>SalarySheetBangla.aspx</DependentUpon>
@@ -1469,6 +1503,12 @@ function showNotification%28message%29 {
     <Compile Include="MerchandisingMarketing\BasicSetup\ColorSetup.aspx.designer.cs">
       <DependentUpon>ColorSetup.aspx</DependentUpon>
     </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\CostingEntry.aspx.cs">
+      <DependentUpon>CostingEntry.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\CostingEntry.aspx.designer.cs">
+      <DependentUpon>CostingEntry.aspx</DependentUpon>
+    </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\EmbCategorySetup.aspx.cs">
       <DependentUpon>EmbCategorySetup.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1482,6 +1522,12 @@ function showNotification%28message%29 {
     </Compile>
     <Compile Include="MasterConfiguration\ProductMaster\ItemTypeSetup.aspx.designer.cs">
       <DependentUpon>ItemTypeSetup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\FabricBooking.aspx.cs">
+      <DependentUpon>FabricBooking.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MerchandisingMarketing\BasicSetup\FabricBooking.aspx.designer.cs">
+      <DependentUpon>FabricBooking.aspx</DependentUpon>
     </Compile>
     <Compile Include="MerchandisingMarketing\BasicSetup\JobSerialFormat.aspx.cs">
       <DependentUpon>JobSerialFormat.aspx</DependentUpon>
