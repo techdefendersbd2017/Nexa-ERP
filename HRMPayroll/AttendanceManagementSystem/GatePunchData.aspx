@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="GatePunchData.aspx.cs" Inherits="Nexa_ERP.HRMPayroll.AttendanceManagementSystem.GatePunchData" ClientIDMode="Static" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="GatePunchData.aspx.cs" Inherits="Nexa_ERP.HRMPayroll.AttendanceManagementSystem.GatePunchData" ClientIDMode="Static" ResponseEncoding="utf-8" EnableSessionState="ReadOnly" %>
 
 <!DOCTYPE html>
 <html>
@@ -35,17 +35,14 @@
 
     .pd-main { min-height: 100vh; padding: 20px; }
 
-    /* ---------- Page heading ---------- */
     .pd-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
     .pd-heading svg { width: 26px; height: 26px; color: var(--brand-primary); flex: none; }
     .pd-heading h3 { margin: 0; font-weight: 700; font-size: 1.35rem; color: #111827; }
     .pd-heading small { display: block; color: var(--text-muted); font-weight: 400; font-size: 0.8rem; }
 
-    /* ---------- Layout ---------- */
     .pd-row { display: grid; grid-template-columns: minmax(300px, 4fr) 8fr; gap: 16px; align-items: start; }
     .pd-col-right { min-width: 0; }
 
-    /* ---------- Card ---------- */
     .pd-card {
         background: var(--surface);
         border: 1px solid var(--border-soft);
@@ -70,7 +67,6 @@
         white-space: nowrap;
     }
 
-    /* ---------- Form ---------- */
     .pd-left-panel { padding: 22px; }
     .pd-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .pd-span2 { grid-column: 1 / -1; }
@@ -114,7 +110,6 @@
         gap: 8px;
     }
 
-    /* ---------- Buttons ---------- */
     .pd-btn {
         border-radius: 8px;
         border: 1px solid transparent;
@@ -134,7 +129,6 @@
     .pd-btn-secondary:hover:not(:disabled) { background-color: #e2e5ea; color: #111827; }
     .pd-btn-sm { padding: 5px 14px; font-size: 0.85rem; }
 
-    /* ---------- Grid ---------- */
     .pd-toolbar { padding: 12px 16px; border-bottom: 1px solid var(--border-soft); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .pd-toolbar .pd-control { max-width: 340px; flex: 1 1 220px; }
     .pd-toolbar .pd-sel { margin-left: auto; font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
@@ -231,6 +225,36 @@
     @media (prefers-reduced-motion: reduce) {
         * { transition: none !important; }
     }
+
+    .pd-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(17, 24, 39, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        padding: 16px;
+    }
+    .pd-progress-box {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px 26px;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    }
+    .pd-progress-box h4 { margin: 0 0 4px; font-size: 1.05rem; color: #111827; }
+    .pd-progress-box p { margin: 0 0 16px; font-size: 0.85rem; color: var(--text-muted); }
+    .pd-bar { height: 18px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+    .pd-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark));
+        border-radius: 999px;
+        transition: width 0.25s ease;
+    }
+    .pd-bar-text { margin-top: 10px; display: flex; justify-content: space-between; font-size: 0.85rem; color: #374151; font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -249,7 +273,6 @@
 
     <div class="pd-row">
 
-        <!-- Left Side Form -->
         <div class="pd-col-left">
             <div class="pd-card">
 
@@ -309,7 +332,6 @@
             </div>
         </div>
 
-        <!-- Right Side Grid -->
         <div class="pd-col-right">
             <div class="pd-card">
 
@@ -367,10 +389,21 @@
     </div>
 </div>
 
-<%-- Rows loaded from the machine (server -> browser) --%>
 <asp:HiddenField ID="hfRows" runat="server" />
-<%-- Rows ticked for transfer (browser -> server) --%>
 <asp:HiddenField ID="hfSelected" runat="server" />
+<asp:HiddenField ID="hfJobId" runat="server" />
+
+<div class="pd-overlay" id="pdProgress" hidden="hidden">
+    <div class="pd-progress-box" role="dialog" aria-live="polite" aria-label="Transfer progress">
+        <h4>Transferring to Payroll Database</h4>
+        <p id="pdProgStage">Starting...</p>
+        <div class="pd-bar"><div class="pd-bar-fill" id="pdProgFill"></div></div>
+        <div class="pd-bar-text">
+            <span id="pdProgCount">0 / 0</span>
+            <span id="pdProgPct">0%</span>
+        </div>
+    </div>
+</div>
 
 <div class="pd-toast" id="pdToast" role="status" aria-live="polite"></div>
 </form>
@@ -384,7 +417,6 @@
 
     var state = { rows: [], query: "", page: 1, pageSize: 50, view: [] };
 
-    /* ---------- helpers ---------- */
     function esc(s) {
         return String(s).replace(/[&<>"']/g, function (c) {
             return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -405,7 +437,6 @@
     function showOk(msg) { $("pdError").hidden = true; var e = $("pdOk"); e.textContent = msg; e.hidden = false; }
     function clearMsg() { $("pdError").hidden = true; $("pdOk").hidden = true; }
 
-    // Called by the server after Load / Transfer.
     window.pdNotify = function (type, msg) {
         if (type === "error") showError(msg);
         else { showOk(msg); toast(msg); }
@@ -417,7 +448,6 @@
         showError("Unexpected error: " + (m || "unknown"));
     }, true);
 
-    /* ---------- data from server ---------- */
     function loadFromHidden() {
         var raw = $("hfRows").value;
         state.rows = [];
@@ -437,7 +467,6 @@
         }
     }
 
-    /* ---------- view ---------- */
     function recompute() {
         try {
             var tokens = state.query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -505,7 +534,6 @@
         $("btnTransfer").disabled = !has;
     }
 
-    /* ---------- server buttons ---------- */
     window.prepareLoad = function () {
         clearMsg();
         var f = $("txtFrom").value, t = $("txtTill").value;
@@ -513,9 +541,47 @@
         if (f > t) { showError("From Date cannot be later than Till Date."); return false; }
         var ids = $("txtIds").value;
         if (ids && !/^[\d\s,;]*$/.test(ids)) { showError("ID can contain only numbers separated by comma, space or new line."); return false; }
-        $("hfRows").value = "";      // old list is replaced by the new result
+        $("hfRows").value = "";
         return true;
     };
+
+    /* ---------- transfer progress bar ---------- */
+    var progTimer = null, progBusy = false;
+
+    function newJobId() {
+        return "j" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    }
+
+    function setProgress(stage, done, total) {
+        var pct = total > 0 ? Math.floor(done * 100 / total) : 0;
+        $("pdProgStage").textContent = stage || "Please wait...";
+        $("pdProgFill").style.width = pct + "%";
+        $("pdProgCount").textContent = done + " / " + total;
+        $("pdProgPct").textContent = pct + "%";
+    }
+
+    function startProgress(jobId) {
+        setProgress("Starting...", 0, 0);
+        $("pdProgress").hidden = false;
+        clearInterval(progTimer);
+        progTimer = setInterval(function () {
+            if (progBusy) return;
+            progBusy = true;
+            fetch(window.location.pathname + "/GetProgress", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { "Content-Type": "application/json; charset=utf-8" },
+                body: JSON.stringify({ jobId: jobId })
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (j) {
+                    var d = j && j.d;
+                    if (d && d.found) setProgress(d.stage, d.done, d.total);
+                })
+                .catch(function () { })
+                .then(function () { progBusy = false; });
+        }, 500);
+    }
 
     window.prepareTransfer = function () {
         try {
@@ -527,6 +593,9 @@
                 return false;
             }
             $("hfSelected").value = JSON.stringify(picked.map(function (r) { return { id: r.id, time: r.time }; }));
+            var jobId = newJobId();
+            $("hfJobId").value = jobId;
+            startProgress(jobId);
             return true;
         } catch (ex) {
             console.error(ex);

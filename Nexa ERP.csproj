@@ -451,6 +451,7 @@ function showNotification%28message%29 {
     <Content Include="HRMPayroll\HRMPayrollReports\AttendanceReport\JobCardReportCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeIDCard.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeIDCardEnglish.aspx" />
+    <Content Include="HRMPayroll\HRMPayrollReports\LeaveReports.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBangla.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBanglaCompliance.aspx" />
     <Content Include="HRMPayroll\HRMPayrollReports\Payroll_Reports.aspx" />
@@ -941,6 +942,13 @@ function showNotification%28message%29 {
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\HRReports\EmployeeIDCardEnglish.aspx.designer.cs">
       <DependentUpon>EmployeeIDCardEnglish.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\LeaveReports.aspx.cs">
+      <DependentUpon>LeaveReports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HRMPayroll\HRMPayrollReports\LeaveReports.aspx.designer.cs">
+      <DependentUpon>LeaveReports.aspx</DependentUpon>
     </Compile>
     <Compile Include="HRMPayroll\HRMPayrollReports\PayrollReports\SalarySheetBangla.aspx.cs">
       <DependentUpon>SalarySheetBangla.aspx</DependentUpon>

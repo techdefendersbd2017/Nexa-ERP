@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
@@ -8,16 +7,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using System.Web.UI;
+using Nexa_ERP.Connection;
 
 namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
 {
     public partial class GatePunchData : System.Web.UI.Page
     {
-        // web.config <connectionStrings> names - change these to match your project
-        private const string CS_ZK = "ZkTechDB";          // database that has view Punch_View
-        private const string CS_HIK = "HikvisionDB";      // database that has table attlog
-        private const string CS_PAYROLL = "HRPayrollDB";  // HR_PAYROLL_DB (Lock_Months + Pro_Punch_data)
-
         private const int MaxIds = 1000;
         private const int MaxTransferRows = 50000;
         private const string TimeFormat = "yyyy-MM-dd HH:mm:ss";
@@ -64,7 +59,6 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
                 }
 
                 bool zk = ddlMachine.SelectedValue == "Zk";
-                string csName = zk ? CS_ZK : CS_HIK;
 
                 var sql = new StringBuilder();
                 if (zk)
@@ -74,7 +68,9 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
 
                 var list = new List<Dictionary<string, string>>();
 
-                using (var con = new SqlConnection(GetConnectionString(csName)))
+                // ZK = zkDatabaseConnection, Hikvision = HikDatabaseConnection (already opened)
+                using (var con = zk ? new zkDatabaseConnection().openConnection()
+                                    : new HikDatabaseConnection().openConnection())
                 using (var cmd = new SqlCommand())
                 {
                     cmd.Connection = con;
@@ -96,7 +92,6 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
                     cmd.CommandText = sql.ToString();
                     cmd.CommandTimeout = 120;
 
-                    con.Open();
                     using (var rd = cmd.ExecuteReader())
                     {
                         while (rd.Read())
@@ -170,10 +165,9 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
                     months[t.ToString("yyyyMM")] = new DateTime(t.Year, t.Month, 1);
                 }
 
-                using (var con = new SqlConnection(GetConnectionString(CS_PAYROLL)))
+                // PayrollDB.openConnection() returns an already opened connection
+                using (var con = new PayrollDB().openConnection())
                 {
-                    con.Open();
-
                     // ---- Lock month check (every month that appears in the selected rows) ----
                     foreach (var m in months.Values)
                     {
@@ -199,14 +193,14 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
                             {
                                 cmd.CommandType = CommandType.StoredProcedure;
                                 cmd.CommandTimeout = 300;
+
+                                // Desktop version sends only @Id_no and @punch_time
                                 var pId = cmd.Parameters.Add("@Id_no", SqlDbType.BigInt);
-                                var pDate = cmd.Parameters.Add("@punch_Date", SqlDbType.DateTime);
                                 var pTime = cmd.Parameters.Add("@punch_time", SqlDbType.DateTime);
 
                                 for (int i = 0; i < ids.Count; i++)
                                 {
                                     pId.Value = ids[i];
-                                    pDate.Value = times[i];
                                     pTime.Value = times[i];
                                     cmd.ExecuteNonQuery();
                                 }
@@ -237,14 +231,6 @@ namespace Nexa_ERP.HRMPayroll.AttendanceManagementSystem
         private static JavaScriptSerializer Json()
         {
             return new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
-        }
-
-        private static string GetConnectionString(string name)
-        {
-            var cs = ConfigurationManager.ConnectionStrings[name];
-            if (cs == null || string.IsNullOrWhiteSpace(cs.ConnectionString))
-                throw new ConfigurationErrorsException("Connection string '" + name + "' was not found in web.config.");
-            return cs.ConnectionString;
         }
 
         private static bool TryDate(string text, out DateTime value)
