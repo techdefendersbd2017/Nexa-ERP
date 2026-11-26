@@ -51,6 +51,7 @@
         .fab-tbl th { white-space:nowrap; font-size:.78rem; }
         .fab-tbl td { font-size:.8rem; }
         .part-badge { font-size:.7rem; }
+        .fab-tbl th.fab-col, .fab-tbl td.fab-col { min-width:230px; width:230px; }
     </style>
 </head>
 <body>
@@ -120,8 +121,11 @@
                                         <span class='badge <%# GetPOStatusCss(Eval("POStatus")) %>'><%# GetPOStatusText(Eval("POStatus")) %></span>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Action" ItemStyle-Width="110px">
+                                <asp:TemplateField HeaderText="Action" ItemStyle-Width="150px">
                                     <ItemTemplate>
+                                        <a href='MerchandisingMarketing/MerchandisingReports/FabricBookingReport.aspx?poid=<%# Eval("POID") %>' target="_blank"
+                                           class="btn btn-xs btn-outline-success" title="Fabric Booking Report">
+                                            <i class="bi bi-file-earmark-bar-graph"></i></a>
                                         <asp:LinkButton runat="server" CommandName="EditRow" CommandArgument='<%# Eval("POID") %>'
                                             CssClass="btn btn-xs btn-outline-primary"><i class="bi bi-pencil"></i></asp:LinkButton>
                                         <asp:LinkButton runat="server" CommandName="DeleteRow" CommandArgument='<%# Eval("POID") %>'
@@ -180,7 +184,7 @@
                                 <asp:LinkButton ID="btnSave" runat="server" CssClass="btn btn-primary"
                                     OnClick="btnSave_Click"><i class="bi bi-save"></i> Save</asp:LinkButton>
                                 <asp:LinkButton ID="btnClear" runat="server" CssClass="btn btn-outline-secondary"
-                                    OnClick="btnClear_Click"><i class="bi bi-x-lg"></i></asp:LinkButton>
+                                    OnClick="btnClear_Click"><i class="bi bi-x-lg"></i></asp:LinkButton>                                
                                 <asp:LinkButton ID="btnBackToList" runat="server" CssClass="btn btn-outline-dark"
                                     OnClick="btnBackToList_Click"><i class="bi bi-arrow-left"></i> Back</asp:LinkButton>
                             </div>
@@ -475,7 +479,7 @@
                         <div class="tab-pane fade" id="fabric-tab">
                             <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
                                 <h6 class="text-uppercase text-secondary fw-bold m-0"><i class="bi bi-layers"></i> Fabric Booking (Color × Part × Size wise)</h6>
-                                <span class="stock-note"><i class="bi bi-info-circle"></i> Color, Fabric ও Part সিলেক্ট করুন। Size ফাঁকা = সব সাইজ (ALL); সাইজ সিলেক্ট করলে প্রতি সাইজে আলাদা লাইন হবে (আলাদা Cons / Dia)। Dzn দিলে Pc, Pc দিলে Dzn নিজে হবে</span>
+                                <span class="stock-note"><i class="bi bi-info-circle"></i> Color, Fabric ও Part সিলেক্ট করুন। Size ফাঁকা = সব সাইজ (ALL); সাইজ সিলেক্ট করলে প্রতি সাইজে আলাদা লাইন হবে (আলাদা Cons / Dia)। Dzn দিলে Pc, Pc দিলে Dzn নিজে হবে। Total = Qty × Cons × (1 + (Process Loss % + Extra Cutting %) / 100)</span>
                             </div>
 
                             <div class="d-flex flex-wrap gap-2 align-items-end mb-2 fab-in">
@@ -547,6 +551,14 @@
                                         <asp:ListItem>Double</asp:ListItem>
                                     </asp:DropDownList>
                                 </div>
+
+                                <div style="width:95px">
+                                    <label class="form-label">Yarn Dyed</label>
+                                    <asp:DropDownList ID="ddlFabYarnDyed" runat="server" CssClass="form-select form-select-sm">
+                                        <asp:ListItem Value="Yes">Yes</asp:ListItem>
+                                        <asp:ListItem Value="No" Selected="True">No</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
                             </div>
 
                             <div class="d-flex flex-wrap gap-2 align-items-end mb-3 fab-in">
@@ -585,11 +597,16 @@
                                     <asp:TextBox ID="txtFabLoss" runat="server" CssClass="form-control form-control-sm fab-num" placeholder="0" Width="90px" autocomplete="off" />
                                 </div>
                                 <div>
+                                    <label class="form-label">Extra Cutting %</label>
+                                    <asp:TextBox ID="txtFabExtra" runat="server" CssClass="form-control form-control-sm fab-num" placeholder="0" Width="100px" autocomplete="off" />
+                                </div>
+                                <div>
                                     <asp:LinkButton ID="btnAddFab" runat="server" CssClass="btn btn-sm btn-success"
                                         OnClick="btnAddFab_Click"><i class="bi bi-plus-lg"></i> Add</asp:LinkButton>
                                     <asp:LinkButton ID="btnSyncFabQty" runat="server" CssClass="btn btn-sm btn-outline-secondary ms-1"
                                         CausesValidation="false" OnClick="btnSyncFabQty_Click"
                                         ToolTip="Qty &amp; Price ট্যাবের Color×Size Qty থেকে সব লাইনের Qty নতুন করে বসাও"><i class="bi bi-arrow-repeat"></i> Sync Qty</asp:LinkButton>
+                                    <asp:HyperLink ID="hlFabRpt" runat="server" Visible="false" Target="_blank" CssClass="btn btn-outline-success"><i class="bi bi-file-earmark-bar-graph"></i> Fabric Report</asp:HyperLink>
                                 </div>
                             </div>
 
@@ -615,7 +632,8 @@
                                                 <asp:Literal ID="litFabSize" runat="server" Mode="Encode" Text='<%# Eval("SizeCode") %>' />
                                             </ItemTemplate>
                                         </asp:TemplateField>
-                                        <asp:TemplateField HeaderText="Fabric">
+                                        <asp:TemplateField HeaderText="Fabric"
+                                            HeaderStyle-CssClass="fab-col" ItemStyle-CssClass="fab-col">
                                             <ItemTemplate>
                                                 <asp:Literal ID="litFabCode" runat="server" Mode="Encode" Text='<%# Eval("FabricCode") %>' />
                                                 <asp:HiddenField ID="hfFabName" runat="server" Value='<%# Eval("FabricName") %>' />
@@ -652,6 +670,14 @@
                                                     <asp:ListItem Value="">--</asp:ListItem>
                                                     <asp:ListItem>Single</asp:ListItem>
                                                     <asp:ListItem>Double</asp:ListItem>
+                                                </asp:DropDownList>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Yarn Dyed">
+                                            <ItemTemplate>
+                                                <asp:DropDownList ID="ddlFabYarnRow" runat="server" CssClass="form-select form-select-sm">
+                                                    <asp:ListItem Value="Yes">Yes</asp:ListItem>
+                                                    <asp:ListItem Value="No">No</asp:ListItem>
                                                 </asp:DropDownList>
                                             </ItemTemplate>
                                         </asp:TemplateField>
@@ -703,6 +729,11 @@
                                         <asp:TemplateField HeaderText="Loss %">
                                             <ItemTemplate>
                                                 <asp:TextBox ID="txtFabLoss" runat="server" CssClass="grid-input fab-num" Width="50px" Text='<%# Eval("LossPct", "{0:0.##}") %>' autocomplete="off" />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                        <asp:TemplateField HeaderText="Extra Cut %">
+                                            <ItemTemplate>
+                                                <asp:TextBox ID="txtFabExtra" runat="server" CssClass="grid-input fab-num" Width="50px" Text='<%# Eval("ExtraPct", "{0:0.##}") %>' autocomplete="off" />
                                             </ItemTemplate>
                                         </asp:TemplateField>
                                         <asp:TemplateField HeaderText="Total Kg" ItemStyle-CssClass="text-end fw-bold">
@@ -1128,7 +1159,8 @@
         if (!tr) return;
         function val(sel) { var el = tr.querySelector(sel); return el ? num(el.value) : 0; }
         var qty = parseInt((tr.querySelector('.fab-qty') || {}).value, 10); if (isNaN(qty)) qty = 0;
-        var f = 1 + val('[id$="txtFabLoss"]') / 100;
+        /* Process Loss % + Extra Cutting % are added together */
+        var f = 1 + (val('[id$="txtFabLoss"]') + val('[id$="txtFabExtra"]')) / 100;
         /* Cuff + Double ply → x2 */
         var partEl = tr.querySelector('.fab-part'), plyEl = tr.querySelector('[id$="ddlFabPlyRow"]');
         if (partEl && plyEl && partEl.textContent.trim() === 'Cuff' && plyEl.value === 'Double') f *= 2;

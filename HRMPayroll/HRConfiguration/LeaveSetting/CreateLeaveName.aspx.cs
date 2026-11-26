@@ -102,6 +102,7 @@ namespace Nexa_ERP.HRMPayroll.HRConfiguration.LeaveSetting
                         txtTotalLeaveDays.Text = reader["Leave_Days"].ToString();
                         ddlSex.SelectedValue = reader["Sex_Type"].ToString();
                         txtLeaveNameBangla.Text = reader["Leave_Name_Bangla"].ToString();
+                        chkIsActive.Checked = reader["Is_Active"] != DBNull.Value && Convert.ToBoolean(reader["Is_Active"]);
                     }
                 }
                 else

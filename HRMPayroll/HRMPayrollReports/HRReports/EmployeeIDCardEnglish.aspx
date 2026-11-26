@@ -1,0 +1,74 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="EmployeeIDCardEnglish.aspx.cs" Inherits="Nexa_ERP.HRMPayroll.HRMPayrollReports.HRReports.EmployeeIDCardEnglish" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee ID Card (PVC) - English</title>
+    <style>
+        :root { --ink:#000; }
+        * { box-sizing:border-box; }
+        html,body { margin:0; padding:0; background:#e5e7eb; }
+        body { font-family:Arial,'Segoe UI',Helvetica,sans-serif; color:var(--ink); }
+
+        /* ---- screen toolbar ---- */
+        .bar { position:sticky; top:0; z-index:10; display:flex; gap:10px; align-items:center; justify-content:space-between;
+               padding:10px 20px; background:#fff; border-bottom:1px solid #d1d5db; font-family:Arial,sans-serif; }
+        .bar b { font-size:14px; }
+        .bar span { font-size:12px; color:#64748b; }
+        .bar button { height:32px; padding:0 16px; border:0; border-radius:8px; background:#2563eb; color:#fff; font-size:13px; cursor:pointer; }
+        .bar button:hover { background:#1d4ed8; }
+        .msg { max-width:760px; margin:40px auto; padding:18px 22px; background:#fff; border:1px solid #fca5a5; border-radius:10px;
+               font-family:Arial,sans-serif; font-size:14px; color:#7f1d1d; }
+
+        /* ---- A4 page: each row = front + back, 5 rows = 10 PVC cards ---- */
+        .sheet { width:210mm; height:297mm; margin:16px auto; padding:9.5mm 17.4mm 0; background:#fff;
+                 box-shadow:0 2px 10px rgba(0,0,0,.18); overflow:hidden; page-break-after:always;
+                 display:grid; grid-template-columns:85.6mm 85.6mm; grid-auto-rows:54mm; gap:2mm 4mm; align-content:start; }
+        .sheet:last-child { page-break-after:auto; }
+
+        /* ---- PVC card (CR80) 85.6 x 54 mm ---- */
+        .card { width:85.6mm; height:54mm; border:0.2mm solid #000; border-radius:3mm; padding:2mm 2.5mm; overflow:hidden;
+                display:flex; flex-direction:column; font-size:6.6pt; line-height:1.3; background:#fff; }
+        .card .hd { display:flex; align-items:center; gap:2mm; border-bottom:0.3mm solid #000; padding-bottom:1mm; }
+        .card .hd .mid { flex:1; text-align:center; }
+        .card .hd h2 { margin:0; font-size:9pt; line-height:1.2; text-transform:uppercase; }
+        .card .hd .ad { font-size:5.4pt; line-height:1.2; }
+        .logo { width:9mm; height:9mm; object-fit:contain; }
+        .photo { width:19mm; height:23mm; object-fit:cover; border:0.2mm solid #666; }
+        .noimg { display:inline-block; background:#f1f5f9; }
+        .card .bd { display:flex; gap:2mm; margin-top:1.2mm; flex:1; }
+        .card .bd table { flex:1; border-collapse:collapse; align-self:flex-start; }
+        .card .bd td { padding:0.5mm 0.5mm; vertical-align:top; }
+        .card .bd td.k { white-space:nowrap; width:1%; }
+        .card .sg { display:flex; justify-content:space-between; margin-top:auto; font-size:5.8pt; }
+        .card .sg div { border-top:0.2mm solid #000; min-width:24mm; text-align:center; padding-top:0.3mm; }
+        /* back side signature space (blank space above the line) */
+        .card .sg.big { height:8mm; align-items:flex-end; flex:none; }
+        .card .ttl { text-align:center; font-weight:bold; font-size:8pt; border-bottom:0.3mm solid #000; padding-bottom:0.8mm; flex:none; }
+        .card .back { display:flex; gap:3mm; margin-top:1.5mm; font-size:6.6pt; line-height:1.4; flex:1; min-height:0; }
+        .card .back > div { flex:1; display:flex; flex-direction:column; justify-content:space-around; }
+        .card .back > div + div { border-left:0.2mm solid #999; padding-left:3mm; }
+        .card .back p { margin:0; }
+
+        @media print {
+            html,body { background:#fff; }
+            .no-print { display:none !important; }
+            .sheet { margin:0; box-shadow:none; width:210mm; height:297mm; }
+            * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        }
+    </style>
+    <style media="print">@page { size:A4; margin:0; }</style>
+</head>
+<body>
+<form id="form1" runat="server">
+    <div class="bar no-print">
+        <div><b>Employee ID Card (PVC) - English</b>
+             <span>&nbsp;·&nbsp;<asp:Literal ID="litCount" runat="server" /></span></div>
+        <button type="button" onclick="window.print()">Print</button>
+    </div>
+    <asp:Literal ID="litCards" runat="server" />
+</form>
+</body>
+</html>

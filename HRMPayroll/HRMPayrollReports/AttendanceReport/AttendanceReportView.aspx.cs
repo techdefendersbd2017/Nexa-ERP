@@ -17,7 +17,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
     {
         PayrollDB conn = new PayrollDB();
 
-        // Download বাটনের জন্য (প্রতিটি তারিখের পাতার ডাটা)
+        // Download বাটনের জন্য (প্রতিটি পাতার ডাটা)
         List<RptSection> exportSecs;
         string exportName = "Attendance_Report";
 
@@ -27,6 +27,9 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
         const string StatusPresent = "Present";
         const string StatusAbsent = "Absent";
 
+        // Early Out Report: এই সময়ের আগে অফিস ছাড়লে Early Out ধরা হবে (লিংকে &out=16:30 দিয়ে বদলানো যাবে)
+        const string DefaultStdOutTime = "17:00";
+
         // emp_Attendance.Holiday কলামে এই মানগুলো ছাড়া কিছু থাকলে সেই দিন ছুটির দিন ধরা হয়
         const string IsHoliday = "ISNULL(LTRIM(RTRIM(CAST(a.Holiday AS nvarchar(50)))),'') NOT IN ('','0','No','N/A','--')";
 
@@ -35,6 +38,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
 
         // পাঞ্চ আছে = In Time ফাঁকা নয় এবং 00:00 নয় (time / datetime যেকোনো টাইপে কাজ করবে)
         const string HasPunch = "(a.org_in_time IS NOT NULL AND CAST(a.org_in_time AS time) <> '00:00:00')";
+        const string HasOutPunch = "(a.org_out_time IS NOT NULL AND CAST(a.org_out_time AS time) <> '00:00:00')";
 
         // গতকালের স্ট্যাটাস এগুলো হলে তারও আগের দিন দেখা হবে
         const string SkipStatuses = "'WO','CL','SL','EL','FH','GH'";
@@ -45,6 +49,9 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
                                   "AND ISNULL(prv.att_status,'') NOT IN (" + SkipStatuses + ") " +
                                   "ORDER BY prv.Work_date DESC)";
 
+        // OT আছে (ঘণ্টা বা মিনিট শূন্যের বেশি)
+        const string HasOt = "(ISNULL(TRY_CAST(a.OT_Hours AS decimal(18,2)), 0) > 0 OR ISNULL(TRY_CAST(a.OT_Minits AS decimal(18,2)), 0) > 0)";
+
         class Def
         {
             public string Title;        // রিপোর্টের শিরোনাম (তারিখের আগে)
@@ -52,6 +59,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             public bool AbsentLayout;   // true = Absent ধাঁচের কলাম, false = Present ধাঁচের
             public bool AllStatus;      // true = শেষে স্ট্যাটাস অনুযায়ী যোগফল
             public string TotalLabel;
+            public string Kind;         // null = প্রতিদিন আলাদা পাতা | "WeeklyOT" = সাপ্তাহিক OT শীট | "Summary" = মাসিক সারসংক্ষেপ
         }
 
         static readonly Dictionary<string, Def> Reports = new Dictionary<string, Def>(StringComparer.OrdinalIgnoreCase)
@@ -73,7 +81,30 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
                         "OR (a.att_status = '" + StatusAbsent + "' AND (" + IsHoliday + ")))",
                 TotalLabel = "Total Holiday Absent", AbsentLayout = true } },
 
-            { "TodayPresentYesterdayAbsent", new Def { Title = "Today Present Yesterday Absent Report", Where = "a.att_status = '" + StatusPresent + "' AND NOT (" + IsHoliday + ") AND " + PrevStatus + " = '" + StatusAbsent + "'", TotalLabel = "Total Today Present Yesterday Absent" } }
+            { "TodayPresentYesterdayAbsent", new Def { Title = "Today Present Yesterday Absent Report", Where = "a.att_status = '" + StatusPresent + "' AND NOT (" + IsHoliday + ") AND " + PrevStatus + " = '" + StatusAbsent + "'", TotalLabel = "Total Today Present Yesterday Absent" } },
+
+            // দেরিতে আসা কর্মচারী: Present এবং Late_min > 0 (ছুটির দিন বাদে)
+            { "Late", new Def { Title = "Late Report",
+                Where = "a.att_status = '" + StatusPresent + "' AND NOT (" + IsHoliday + ") AND ISNULL(TRY_CAST(a.Late_min AS decimal(18,2)), 0) > 0",
+                TotalLabel = "Total Late" } },
+
+            // Single Punch: ছুটি/WO বাদে যেদিন শুধু একটি পাঞ্চ আছে (In অথবা Out), অন্যটি নেই
+            { "SinglePunch", new Def { Title = "Single Punch Report",
+                Where = "ISNULL(a.att_status,'') NOT IN (" + SkipStatuses + ") AND NOT (" + IsHoliday + ") AND " +
+                        "((" + HasPunch + " AND NOT " + HasOutPunch + ") OR (NOT " + HasPunch + " AND " + HasOutPunch + "))",
+                TotalLabel = "Total Single Punch" } },
+
+            // Early Out: Present, দুটি পাঞ্চই আছে এবং Out Time নির্ধারিত সময়ের (@stdOut) আগে
+            { "EarlyOut", new Def { Title = "Early Out Report",
+                Where = "a.att_status = '" + StatusPresent + "' AND NOT (" + IsHoliday + ") AND " + HasPunch + " AND " + HasOutPunch +
+                        " AND CAST(a.org_out_time AS time) < @stdOut",
+                TotalLabel = "Total Early Out" } },
+
+            // সাপ্তাহিক OT শীট: নির্বাচিত তারিখ ৭ দিনের ভাগে ভাগ হয়, যাদের OT আছে শুধু তারা আসবে
+            { "WeeklyOT", new Def { Title = "Weekly OT Sheet", Where = HasOt, TotalLabel = "Total Employee", Kind = "WeeklyOT" } },
+
+            // মাসিক হাজিরা সারসংক্ষেপ: নির্বাচিত তারিখের মধ্যে প্রতিজনের মোট Present/Absent/Leave/Late/OT
+            { "MonthlySummary", new Def { Title = "Monthly Attendance Summary", Where = "1=1", TotalLabel = "Total Employee", Kind = "Summary" } }
         };
 
         const string BaseSql = @"SELECT e.ID_no,e.Name, c.Company_Name, c.Address, a.Work_date, a.org_in_time AS in_time, a.org_out_time AS out_time, a.att_status, 
@@ -144,16 +175,54 @@ WHERE z.User_ID = @u AND z.From_Code = @rc AND a.Work_date >= @from AND a.Work_d
                 }
             }
 
+            string range = from.ToString(DateFormat, CultureInfo.InvariantCulture) +
+                           (till.Date != from.Date ? " To " + till.ToString(DateFormat, CultureInfo.InvariantCulture) : "");
+
             var sb = new StringBuilder();
             exportSecs = new List<RptSection>();
-            foreach (var g in dt.AsEnumerable().GroupBy(r => Convert.ToDateTime(r["Work_date"]).Date).OrderBy(g => g.Key))
-                exportSecs.Add(RenderDay(sb, def, g.Key, g.ToList(), photos));
+
+            if (def.Kind == "Summary")
+            {
+                var emps = BuildAgg(dt);
+                exportSecs.Add(RenderSummary(sb, def, range, dt.Rows[0], emps, photos));
+                litCount.Text = emps.Count + " employee(s)";
+            }
+            else if (def.Kind == "WeeklyOT")
+            {
+                var emps = BuildAgg(dt);
+                int pages = 0;
+                for (DateTime ws = from.Date; ws <= till.Date; ws = ws.AddDays(7))
+                {
+                    DateTime we = ws.AddDays(6) < till.Date ? ws.AddDays(6) : till.Date;
+                    var days = new List<DateTime>();
+                    for (DateTime d = ws; d <= we; d = d.AddDays(1)) days.Add(d);
+
+                    // এই সপ্তাহে যাদের OT আছে
+                    var weekEmps = emps.Where(x => days.Any(d => x.Ot.ContainsKey(d) && x.Ot[d] > 0)).ToList();
+                    if (weekEmps.Count == 0) continue;
+
+                    exportSecs.Add(RenderWeek(sb, def, days, dt.Rows[0], weekEmps, photos));
+                    pages++;
+                }
+                if (pages == 0)
+                {
+                    litReport.Text = "<div class=\"msg\">নির্বাচিত তারিখে কোনো OT পাওয়া যায়নি।</div>";
+                    litCount.Text = "0";
+                    return;
+                }
+                litCount.Text = emps.Count + " employee(s)";
+            }
+            else
+            {
+                foreach (var g in dt.AsEnumerable().GroupBy(r => Convert.ToDateTime(r["Work_date"]).Date).OrderBy(g => g.Key))
+                    exportSecs.Add(RenderDay(sb, def, g.Key, g.ToList(), photos));
+                litCount.Text = dt.Rows.Count + " record(s)";
+            }
 
             exportName = def.Title.Replace(" ", "_") + "_" + from.ToString("yyyyMMdd", CultureInfo.InvariantCulture) +
                          (till.Date != from.Date ? "_to_" + till.ToString("yyyyMMdd", CultureInfo.InvariantCulture) : "");
 
             litReport.Text = sb.ToString();
-            litCount.Text = dt.Rows.Count + " record(s)";
         }
 
         DataTable Load(Def def, long user, long rc, DateTime from, DateTime till)
@@ -170,6 +239,13 @@ WHERE z.User_ID = @u AND z.From_Code = @rc AND a.Work_date >= @from AND a.Work_d
                     cmd.Parameters.Add("@rc", SqlDbType.BigInt).Value = rc;
                     cmd.Parameters.Add("@from", SqlDbType.DateTime).Value = from;
                     cmd.Parameters.Add("@till", SqlDbType.DateTime).Value = till;
+
+                    // Early Out এর নির্ধারিত সময় (লিংকে &out=16:30 দিলে সেটা, নইলে DefaultStdOutTime)
+                    TimeSpan stdOut;
+                    if (!TimeSpan.TryParse(Request.QueryString["out"], CultureInfo.InvariantCulture, out stdOut))
+                        stdOut = TimeSpan.Parse(DefaultStdOutTime, CultureInfo.InvariantCulture);
+                    cmd.Parameters.Add("@stdOut", SqlDbType.Time).Value = stdOut;
+
                     using (var da = new SqlDataAdapter(cmd)) da.Fill(dt);
                 }
             }
@@ -352,6 +428,244 @@ WHERE z.User_ID = @u AND z.From_Code = @rc AND a.Work_date >= @from AND a.Work_d
             sb.Append("<div class=\"stamp\"><span>" + sec.Stamp + "</span></div>");
             sb.Append("</section>");
 
+            return sec;
+        }
+
+        // ================= কর্মচারী অনুযায়ী যোগফল (Weekly OT / Monthly Summary) =================
+        class Agg
+        {
+            public string Id, Name, Designation, Department, Section;
+            public int Total, P, A, WO, H, L, LateDays;
+            public decimal LateMin;
+            public int OtMin;
+            public Dictionary<DateTime, int> Ot = new Dictionary<DateTime, int>();   // তারিখ -> OT মিনিট
+        }
+
+        static List<Agg> BuildAgg(DataTable dt)
+        {
+            var map = new Dictionary<string, Agg>(StringComparer.OrdinalIgnoreCase);
+            foreach (DataRow r in dt.Rows)
+            {
+                string id = Pick(r, "ID_no");
+                Agg a;
+                if (!map.TryGetValue(id, out a))
+                {
+                    a = new Agg
+                    {
+                        Id = id,
+                        Name = Pick(r, "Name"),
+                        Designation = Pick(r, "Designation"),
+                        Department = Pick(r, "Department"),
+                        Section = Pick(r, "Section")
+                    };
+                    map[id] = a;
+                }
+
+                a.Total++;
+                string st = Pick(r, "att_status");
+                decimal late = 0;
+                decimal.TryParse(Pick(r, "Late_min"), NumberStyles.Any, CultureInfo.InvariantCulture, out late);
+
+                if (st.Equals(StatusPresent, StringComparison.OrdinalIgnoreCase))
+                {
+                    a.P++;
+                    if (late > 0) { a.LateDays++; a.LateMin += late; }
+                }
+                else if (st.Equals(StatusAbsent, StringComparison.OrdinalIgnoreCase)) a.A++;
+                else if (st.Equals("WO", StringComparison.OrdinalIgnoreCase)) a.WO++;
+                else if (st.Equals("FH", StringComparison.OrdinalIgnoreCase) || st.Equals("GH", StringComparison.OrdinalIgnoreCase)) a.H++;
+                else if (st.Equals("CL", StringComparison.OrdinalIgnoreCase) || st.Equals("SL", StringComparison.OrdinalIgnoreCase) ||
+                         st.Equals("EL", StringComparison.OrdinalIgnoreCase)) a.L++;
+
+                int ot = OtMinutes(Pick(r, "OT_Hours"));
+                if (ot > 0)
+                {
+                    DateTime wd = Convert.ToDateTime(r["Work_date"]).Date;
+                    int old; a.Ot.TryGetValue(wd, out old);
+                    a.Ot[wd] = old + ot;
+                    a.OtMin += ot;
+                }
+            }
+            return map.Values
+                .OrderBy(x => x.Department, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Section, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Id, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        // "HH:mm" -> মোট মিনিট
+        static int OtMinutes(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return 0;
+            string[] p = s.Split(':');
+            int h = 0, m = 0;
+            int.TryParse(p[0], out h);
+            if (p.Length > 1) int.TryParse(p[1], out m);
+            return h * 60 + m;
+        }
+
+        // মিনিট -> "HH:mm" (শূন্য হলে ফাঁকা)
+        static string Hm(int min)
+        {
+            if (min <= 0) return "";
+            return (min / 60).ToString("00") + ":" + (min % 60).ToString("00");
+        }
+
+        static string PhotoTd(Dictionary<string, string> photos, string id)
+        {
+            string src;
+            return photos.TryGetValue(id, out src)
+                ? "<td class=\"c\"><img class=\"ph\" src=\"" + src + "\" alt=\"\"/></td>"
+                : "<td class=\"c\"></td>";
+        }
+
+        // ================= সাপ্তাহিক OT শীট (এক সপ্তাহ = একটি পাতা) =================
+        static RptSection RenderWeek(StringBuilder sb, Def def, List<DateTime> days, DataRow first, List<Agg> emps, Dictionary<string, string> photos)
+        {
+            bool withPhoto = photos != null;
+            int cols = 4 + days.Count + 1 + (withPhoto ? 1 : 0);
+            string title = def.Title + " : " + days[0].ToString(DateFormat, CultureInfo.InvariantCulture) +
+                           (days.Count > 1 ? " To " + days[days.Count - 1].ToString(DateFormat, CultureInfo.InvariantCulture) : "");
+
+            var head = new List<string> { "Sl No", "ID No", "Name", "Designation" };
+            var align = new List<int> { 1, 1, 0, 0 };
+            var weights = new List<double> { 4, 9, 16, 14 };
+            foreach (var d in days)
+            {
+                head.Add(d.ToString("dd-MMM ddd", CultureInfo.InvariantCulture));
+                align.Add(1); weights.Add(8);
+            }
+            head.Add("Total OT"); align.Add(1); weights.Add(9);
+
+            var sec = new RptSection
+            {
+                Company = Pick(first, "Company_Name"),
+                Address = Pick(first, "Address"),
+                Title = title,
+                Stamp = DateTime.Now.ToString("dd-MM-yy hh:mm:sstt", CultureInfo.InvariantCulture),
+                Head = head.ToArray(),
+                Align = align.ToArray(),
+                Weights = weights.ToArray()
+            };
+
+            sb.Append("<section class=\"page\">");
+            sb.Append("<div class=\"co\">" + Enc(sec.Company) + "</div>");
+            sb.Append("<div class=\"ad\">" + Enc(sec.Address) + "</div>");
+            sb.Append("<div class=\"ttl\">" + Enc(title) + "</div>");
+
+            sb.Append("<table class=\"rp\"><thead><tr><th>Sl No</th><th>ID No</th>" + (withPhoto ? "<th>Photo</th>" : "") + "<th>Name</th><th>Designation</th>");
+            foreach (var d in days)
+                sb.Append("<th>" + d.ToString("dd-MMM", CultureInfo.InvariantCulture) + "<br/>" + d.ToString("ddd", CultureInfo.InvariantCulture) + "</th>");
+            sb.Append("<th>Total OT</th></tr></thead><tbody>");
+
+            string lastGrp = null;
+            int sl = 0, grand = 0;
+            foreach (var em in emps)
+            {
+                string grp = "Department: " + em.Department + ", Section: " + em.Section;
+                if (grp != lastGrp)
+                {
+                    sb.Append("<tr class=\"grp\"><td colspan=\"" + cols + "\">" + Enc(grp) + "</td></tr>");
+                    sec.Rows.Add(new RptRow { IsGroup = true, Text = grp });
+                    lastGrp = grp;
+                }
+                sl++;
+
+                var cells = new List<string> { sl.ToString(), em.Id, em.Name, em.Designation };
+                sb.Append("<tr><td class=\"c\">" + sl + "</td><td class=\"c\">" + Enc(em.Id) + "</td>" +
+                          (withPhoto ? PhotoTd(photos, em.Id) : "") +
+                          "<td>" + Enc(em.Name) + "</td><td>" + Enc(em.Designation) + "</td>");
+
+                int weekTotal = 0;
+                foreach (var d in days)
+                {
+                    int m; em.Ot.TryGetValue(d, out m);
+                    weekTotal += m;
+                    sb.Append("<td class=\"c\">" + Hm(m) + "</td>");
+                    cells.Add(Hm(m));
+                }
+                grand += weekTotal;
+                sb.Append("<td class=\"c\"><b>" + Hm(weekTotal) + "</b></td></tr>");
+                cells.Add(Hm(weekTotal));
+                sec.Rows.Add(new RptRow { Cells = cells.ToArray() });
+            }
+
+            string tot = def.TotalLabel + " - " + sl + "      Total OT - " + Hm(grand);
+            sb.Append("<tr class=\"tot\"><td colspan=\"" + cols + "\">" + Enc(tot) + "</td></tr>");
+            sec.Rows.Add(new RptRow { IsTotal = true, Text = tot });
+            sb.Append("</tbody></table>");
+
+            sb.Append("<div class=\"signs\"><div>Prepared By</div><div>Time Section</div><div>S.V/Line Chief Incharge</div><div>A.P.M/P.M</div><div>Checked by HR</div><div>Approved By</div></div>");
+            sb.Append("<div class=\"stamp\"><span>" + sec.Stamp + "</span></div>");
+            sb.Append("</section>");
+            return sec;
+        }
+
+        // ================= মাসিক হাজিরা সারসংক্ষেপ =================
+        static RptSection RenderSummary(StringBuilder sb, Def def, string range, DataRow first, List<Agg> emps, Dictionary<string, string> photos)
+        {
+            bool withPhoto = photos != null;
+            int cols = 13 + (withPhoto ? 1 : 0);
+            string title = def.Title + " : " + range;
+
+            var sec = new RptSection
+            {
+                Company = Pick(first, "Company_Name"),
+                Address = Pick(first, "Address"),
+                Title = title,
+                Stamp = DateTime.Now.ToString("dd-MM-yy hh:mm:sstt", CultureInfo.InvariantCulture),
+                Head = new[] { "Sl No", "ID No", "Name", "Designation", "Total Days", "Present", "Absent", "Weekly Off", "Holiday", "Leave", "Late Days", "Late Min", "OT Hours" },
+                Align = new[] { 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+                Weights = new double[] { 4, 9, 16, 14, 6, 7, 7, 6, 7, 6, 6, 7, 8 }
+            };
+
+            sb.Append("<section class=\"page\">");
+            sb.Append("<div class=\"co\">" + Enc(sec.Company) + "</div>");
+            sb.Append("<div class=\"ad\">" + Enc(sec.Address) + "</div>");
+            sb.Append("<div class=\"ttl\">" + Enc(title) + "</div>");
+
+            sb.Append("<table class=\"rp\"><thead><tr><th>Sl No</th><th>ID No</th>" + (withPhoto ? "<th>Photo</th>" : "") +
+                      "<th>Name</th><th>Designation</th><th>Total Days</th><th>Present</th><th>Absent</th><th>Weekly Off</th>" +
+                      "<th>Holiday</th><th>Leave</th><th>Late Days</th><th>Late Min</th><th>OT Hours</th></tr></thead><tbody>");
+
+            string lastGrp = null;
+            int sl = 0;
+            foreach (var em in emps)
+            {
+                string grp = "Department: " + em.Department + ", Section: " + em.Section;
+                if (grp != lastGrp)
+                {
+                    sb.Append("<tr class=\"grp\"><td colspan=\"" + cols + "\">" + Enc(grp) + "</td></tr>");
+                    sec.Rows.Add(new RptRow { IsGroup = true, Text = grp });
+                    lastGrp = grp;
+                }
+                sl++;
+
+                string lateMin = ((int)em.LateMin).ToString();
+                string ot = Hm(em.OtMin);
+
+                sb.Append("<tr><td class=\"c\">" + sl + "</td><td class=\"c\">" + Enc(em.Id) + "</td>" +
+                          (withPhoto ? PhotoTd(photos, em.Id) : "") +
+                          "<td>" + Enc(em.Name) + "</td><td>" + Enc(em.Designation) + "</td>" +
+                          "<td class=\"c\">" + em.Total + "</td><td class=\"c\">" + em.P + "</td><td class=\"c\">" + em.A + "</td>" +
+                          "<td class=\"c\">" + em.WO + "</td><td class=\"c\">" + em.H + "</td><td class=\"c\">" + em.L + "</td>" +
+                          "<td class=\"c\">" + em.LateDays + "</td><td class=\"c\">" + lateMin + "</td><td class=\"c\">" + ot + "</td></tr>");
+
+                sec.Rows.Add(new RptRow
+                {
+                    Cells = new[] { sl.ToString(), em.Id, em.Name, em.Designation, em.Total.ToString(), em.P.ToString(), em.A.ToString(),
+                                    em.WO.ToString(), em.H.ToString(), em.L.ToString(), em.LateDays.ToString(), lateMin, ot }
+                });
+            }
+
+            string tot = def.TotalLabel + " - " + sl;
+            sb.Append("<tr class=\"tot\"><td colspan=\"" + cols + "\">" + Enc(tot) + "</td></tr>");
+            sec.Rows.Add(new RptRow { IsTotal = true, Text = tot });
+            sb.Append("</tbody></table>");
+
+            sb.Append("<div class=\"signs\"><div>Prepared By</div><div>Time Section</div><div>S.V/Line Chief Incharge</div><div>A.P.M/P.M</div><div>Checked by HR</div><div>Approved By</div></div>");
+            sb.Append("<div class=\"stamp\"><span>" + sec.Stamp + "</span></div>");
+            sb.Append("</section>");
             return sec;
         }
 

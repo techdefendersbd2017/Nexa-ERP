@@ -5,9 +5,9 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-namespace Nexa_ERP.Production.Cutting
+namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.PayrollReports
 {
-    public partial class StyleWiseBodyPartsEntry : System.Web.UI.Page
+    public partial class SalarySheetBanglaCompliance : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {

@@ -29,6 +29,7 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
         const string Sql =
             "SELECT e.ID_no, e.Name, e.Joining_Date, c.Company_Name, c.Address, " +
             "       a.Work_date, a.org_in_time, a.org_out_time, a.att_status, a.Late_min, a.OT_Hours, a.Holiday, " +
+            "       a.OTAdd, a.OTDeduction, " +
             "       sh.Shift_Name AS Shift, sh.In_Time AS Shift_In, sh.Out_Time AS Shift_Out, " +
             "       d.Department_Name AS Department, s.Section_Name AS Section, l.Line_Name AS Line, " +
             "       g.Desigation_name AS Designation " +
@@ -135,10 +136,10 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
             sb.Append("</table>");
 
             sb.Append("<table class=\"rp\"><thead><tr><th>Work Date</th><th>Day</th><th>Working Shift</th><th>In Time</th>" +
-                      "<th>Out Time</th><th>Late (min)</th><th>OT</th><th>Status</th></tr></thead><tbody>");
+                      "<th>Out Time</th><th>Late (min)</th><th>OT</th><th>OT Add</th><th>OT Deduct</th><th>Status</th></tr></thead><tbody>");
 
             int present = 0, late = 0, absent = 0, wo = 0, gh = 0, fh = 0, cl = 0, sl = 0, ml = 0, el = 0, sp = 0, lwp = 0;
-            decimal otTotal = 0;
+            decimal otTotal = 0, otAddTotal = 0, otDedTotal = 0;
 
             foreach (DataRow r in rows)
             {
@@ -149,6 +150,11 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
 
                 decimal ot = Dec(r["OT_Hours"]);
                 otTotal += ot;
+
+                decimal otAdd = Dec(r["OTAdd"]);
+                decimal otDed = Dec(r["OTDeduction"]);
+                otAddTotal += otAdd;
+                otDedTotal += otDed;
 
                 string cls = "";
                 switch (st.ToUpperInvariant())
@@ -171,20 +177,24 @@ namespace Nexa_ERP.HRMPayroll.HRMPayrollReports.AttendanceReport
                 sb.Append("<tr class=\"" + cls + "\">");
                 sb.Append("<td class=\"c\">" + wd.ToString(DateFormat, CultureInfo.InvariantCulture) + "</td>");
                 sb.Append("<td class=\"c\">" + wd.ToString("ddd", CultureInfo.InvariantCulture) + "</td>");
-                sb.Append("<td class=\"c\">" + Enc(Pick(r, "Shift")) + "</td>"); 
+                sb.Append("<td class=\"c\">" + Enc(Pick(r, "Shift")) + "</td>");
                 sb.Append("<td class=\"c\">" + Enc(Tm(r["org_in_time"]).ToUpperInvariant()) + "</td>");
                 sb.Append("<td class=\"c\">" + Enc(Tm(r["org_out_time"]).ToUpperInvariant()) + "</td>");
                 sb.Append("<td class=\"c\">" + Dec(r["Late_min"]).ToString("0", CultureInfo.InvariantCulture) + "</td>");
                 sb.Append("<td class=\"c\">" + ot.ToString("0.00", CultureInfo.InvariantCulture) + "</td>");
+                sb.Append("<td class=\"c\">" + otAdd.ToString("0.00", CultureInfo.InvariantCulture) + "</td>");
+                sb.Append("<td class=\"c\">" + otDed.ToString("0.00", CultureInfo.InvariantCulture) + "</td>");
                 sb.Append("<td class=\"c st\">" + Enc(st) + "</td>");
                 sb.Append("</tr>");
             }
             sb.Append("</tbody></table>");
 
             sb.Append("<table class=\"sm\"><tr><th>Total Days</th><th>Present Days</th><th>Late Days</th><th>Absent Days</th>" +
-                      "<th>Weekend</th><th>General Holiday</th><th>Festival Holiday</th><th>OT Hour</th></tr><tr>" +
+                      "<th>Weekend</th><th>General Holiday</th><th>Festival Holiday</th><th>OT Hour</th><th>OT Add</th><th>OT Deduct</th></tr><tr>" +
                       "<td>" + rows.Count + "</td><td>" + present + "</td><td>" + late + "</td><td>" + absent + "</td>" +
-                      "<td>" + wo + "</td><td>" + gh + "</td><td>" + fh + "</td><td>" + otTotal.ToString("0.0", CultureInfo.InvariantCulture) + "</td></tr></table>");
+                      "<td>" + wo + "</td><td>" + gh + "</td><td>" + fh + "</td><td>" + otTotal.ToString("0.0", CultureInfo.InvariantCulture) + "</td>" +
+                      "<td>" + otAddTotal.ToString("0.0", CultureInfo.InvariantCulture) + "</td>" +
+                      "<td>" + otDedTotal.ToString("0.0", CultureInfo.InvariantCulture) + "</td></tr></table>");
 
             sb.Append("<table class=\"sm\"><tr><th>Casual Leave</th><th>Sick Leave</th><th>Maternity Leave</th><th>Earn Leave</th>" +
                       "<th>Special Leave</th><th>Leave Without Pay</th></tr><tr>" +

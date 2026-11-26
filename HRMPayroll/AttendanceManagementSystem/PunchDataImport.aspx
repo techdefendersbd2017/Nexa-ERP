@@ -411,6 +411,12 @@
     var NCOL = COLUMNS.length;
     var DATE_COL_JSON = "Date";   // which COLUMNS entry gets normalised to dd-MMM-yyyy
 
+    // [FIX] Order used for numeric dates like 11/09/2026 when BOTH parts are <= 12 (ambiguous).
+    //   "MDY" = MM/dd/yyyy  (11/09/2026 -> 09-Nov-2026)   <-- your Excel file
+    //   "DMY" = dd/MM/yyyy  (11/09/2026 -> 11-Sep-2026)
+    // Dates where one part is > 12 (e.g. 25/11/2026 or 11/25/2026) are always detected correctly.
+    var NUMERIC_DATE_ORDER = "MDY";
+
     var state = {
         wb: null, fileName: "", fileSize: 0, sheetIndex: 0,
         rows: [], missing: [], loaded: false,
@@ -494,18 +500,19 @@
             return formatDMY(y3, MONTH_LOOKUP[m[1].toLowerCase()], +m[2]);
         }
 
-        // 4) dd-mm-yyyy / dd/mm/yyyy / mm-dd-yyyy / mm/dd/yyyy (numeric, ambiguous order)
-        //    Whichever of the two leading parts is > 12 is treated as the day;
-        //    if both are <= 12, defaults to day-first (dd-mm-yyyy), the common
-        //    layout for attendance/punch machine exports.
+        // 4) Numeric dates: 11/09/2026, 25/11/2026, 11-25-2026 ...
+        //    - If the first part is > 12  -> it must be the day   (dd/MM/yyyy)
+        //    - If the second part is > 12 -> it must be the day   (MM/dd/yyyy)
+        //    - If both are <= 12 (ambiguous) -> follow NUMERIC_DATE_ORDER setting above.
         m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/);
         if (m) {
             var a = +m[1], b = +m[2], y4 = +m[3];
             if (y4 < 100) y4 += (y4 < 70 ? 2000 : 1900);
             var day, mIdx4;
-            if (a > 12 && b <= 12) { day = a; mIdx4 = b - 1; }
-            else if (b > 12 && a <= 12) { day = b; mIdx4 = a - 1; }
-            else { day = a; mIdx4 = b - 1; }   // ambiguous: assume day-first
+            if (a > 12 && b <= 12) { day = a; mIdx4 = b - 1; }                  // dd/MM/yyyy
+            else if (b > 12 && a <= 12) { day = b; mIdx4 = a - 1; }             // MM/dd/yyyy
+            else if (NUMERIC_DATE_ORDER === "MDY") { day = b; mIdx4 = a - 1; }  // ambiguous -> MM/dd/yyyy
+            else { day = a; mIdx4 = b - 1; }                                    // ambiguous -> dd/MM/yyyy
             if (mIdx4 >= 0 && mIdx4 <= 11 && day >= 1 && day <= 31) return formatDMY(y4, mIdx4, day);
         }
 
@@ -586,7 +593,7 @@
             return false;
         }
 
-        // [new] positions of these columns, used for files such as "Original Records Report.csv"
+        // positions of these columns, used for files such as "Original Records Report.csv"
         var iUser = -1, iDate = -1, iTime = -1, derivedDate = false;
         COLUMNS.forEach(function (c, k) {
             if (c.json === "UserID") iUser = k;
@@ -600,11 +607,11 @@
             for (var k = 0; k < NCOL; k++) {
                 var v = m.map[k] === -1 ? "" : (src[m.map[k]] || "");
                 if (COLUMNS[k].json === DATE_COL_JSON && v !== "") v = normalizeDateText(v);
-                // [new] Person ID comes as '100 (leading apostrophe) -> 100
+                // Person ID comes as '100 (leading apostrophe) -> 100
                 if (k === iUser && v !== "") v = v.replace(/^['"\s]+/, "");
                 out.push(v);
             }
-            // [new] No Date column, but Time holds "2026-10-19 20:37:56" -> split into Date + Time
+            // No Date column, but Time holds "2026-10-19 20:37:56" -> split into Date + Time
             if (out[iDate] === "" && out[iTime] !== "") {
                 var dm = out[iTime].match(/^(\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2})[T\s]+(\d{1,2}:\d{2}(?::\d{2})?)/);
                 if (dm) {

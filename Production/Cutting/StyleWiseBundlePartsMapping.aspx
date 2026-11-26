@@ -1,307 +1,259 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="StyleWiseBundlePartsMapping.aspx.cs" Inherits="Nexa_ERP.Production.Cutting.StyleWiseBundlePartsMapping" %>
 
 <!DOCTYPE html>
-
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head runat="server">
-    <title>Style Party Mapping</title>
+    <title>Style Wise Bundle Parts Mapping - NexaERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- tailwind css link -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <style>
-        .page {
-            display: none;
+        :root {
+            --brand-primary: #0d6efd;
+            --brand-primary-dark: #0b5ed7;
+            --brand-success: #198754;
+            --brand-success-dark: #157347;
+            --brand-danger: #dc3545;
+            --brand-danger-dark: #bb2d3b;
+            --surface: #ffffff;
+            --page-bg: #f2f4f8;
+            --border-soft: #e6e9ef;
+            --text-muted: #6b7280;
         }
 
-            .page.active {
-                display: block;
-                background-color: white; 
-            }
-    </style>
+        * { font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif; }
 
+        body { background: var(--page-bg); margin: 0; padding: 0; color: #1f2937; }
+
+        .main-container { min-height: 100vh; padding: 20px; }
+
+        .page-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .page-heading i { font-size: 1.4rem; color: var(--brand-primary); }
+        .page-heading h3 { margin: 0; font-weight: 700; font-size: 1.35rem; color: #111827; }
+        .page-heading small { display: block; color: var(--text-muted); font-weight: 400; font-size: 0.8rem; }
+
+        .card { border: 1px solid var(--border-soft); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(17, 24, 39, 0.06); }
+        .card-header { border: none; padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+        .card-header.bg-primary { background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark)) !important; color: #fff; }
+        .card-header.bg-success { background: linear-gradient(135deg, var(--brand-success), var(--brand-success-dark)) !important; color: #fff; }
+        .card-header h4 { font-size: 1.05rem; font-weight: 600; letter-spacing: 0.2px; margin: 0; }
+
+        label { font-weight: 600; font-size: 0.85rem; color: #374151; margin-bottom: 6px; display: block; }
+        .req { color: var(--brand-danger); }
+
+        .form-control, .form-select { border-radius: 8px; border: 1px solid #d7dce3; padding: 9px 12px; font-size: 0.92rem; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+        .form-control:focus, .form-select:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15); }
+        .form-select:disabled { background-color: #eef0f3; }
+
+        .btn { border-radius: 8px; font-weight: 600; font-size: 0.9rem; padding: 8px 20px; }
+        .btn-primary { background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark)); border: none; color: #fff; }
+        .btn-success { background: linear-gradient(135deg, var(--brand-success), var(--brand-success-dark)); border: none; color: #fff; }
+        .btn-danger { background: var(--brand-danger); border: none; color: #fff; }
+        .btn-secondary { background-color: #eef0f3; border: 1px solid #d7dce3; color: #374151; }
+        .btn:disabled, .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+        .left-panel { padding: 22px; }
+        .action-bar { border-top: 1px solid var(--border-soft); margin-top: 20px; padding-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+
+        /* Embellishment checkbox list */
+        .emb-box { border: 1px solid #d7dce3; border-radius: 8px; padding: 9px 12px; background: #fff; }
+        .emb-box label { display: inline-block; margin: 0 22px 0 6px; font-weight: 600; cursor: pointer; }
+        .emb-box input[type=checkbox] { cursor: pointer; accent-color: var(--brand-primary); }
+
+        .grid-wrapper { max-height: 320px; overflow-y: auto; overflow-x: auto; }
+        .grid-wrapper table { margin-bottom: 0; white-space: nowrap; font-size: 0.88rem; }
+        .grid-wrapper th { position: sticky; top: 0; background: #f8f9fa; z-index: 100; font-weight: 600; font-size: 0.82rem; text-transform: uppercase; padding: 12px 14px; border: none; }
+        .grid-wrapper td { vertical-align: middle; }
+        .grid-wrapper a.select-link { text-decoration: none; font-weight: 600; color: var(--brand-primary); }
+        .grid-wrapper a.select-link:hover { text-decoration: underline; }
+        .grid-wrapper a.remove-link { text-decoration: none; font-weight: 600; color: var(--brand-danger); }
+        .grid-wrapper a.remove-link:hover { text-decoration: underline; }
+
+        @media (max-width: 991.98px) { .main-container { padding: 14px; } }
+    </style>
 </head>
 <body>
-    <form id="form1" runat="server" class="min-h-screen p-2 mt-2">
-        <div class="max-w-[1320px] w-full m-auto rounded-lg border">
+    <form id="form1" runat="server">
+        <div class="container-fluid main-container">
 
-            <div class="bg-[#0d6efd] text-white rounded-t-lg px-4 py-2">
-                <p class="text-2xl mb-1">Style Party Mapping</p>
-                <p class="">Label</p>
+            <div class="page-heading">
+                <i class="bi bi-diagram-3"></i>
+                <div>
+                    <h3>Style Wise Bundle Parts Mapping</h3>
+                    <small>Production &rsaquo; Cutting &rsaquo; Style Wise Bundle Parts Mapping</small>
+                </div>
             </div>
 
-            <div class="bg-[#f0f0f0] shadow-xl rounded-b-lg px-4 py-4">
-                <asp:HiddenField ID="hfUserId" runat="server" />
+            <!-- Success / Error Message -->
+            <asp:Panel ID="pnlMessage" runat="server" Visible="false" CssClass="alert alert-success" role="alert">
+                <i class="bi bi-info-circle-fill"></i>
+                <asp:Label ID="lblMessage" runat="server"></asp:Label>
+            </asp:Panel>
 
-                <%-- main container --%>
-                <div class="grid grid-cols-12 space-y-3">
-
-                    <%-- top input --%>
-                    <div class="col-span-12">
-                        <div class="flex flex-col flex-grow h-full">
-                            <div class="grid grid-cols-4 space-x-3 items-end">
-                                <div class="flex flex-col gap-0.5 w-full">
-                                    <label class="whitespace-nowrap">Style Mapping ID</label>
-                                    <asp:TextBox ID="txtStylePartsMappingId" runat="server" ReadOnly="true" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:TextBox>
-                                </div>
-                                <div class="flex flex-col gap-0.5 w-full">
-                                    <label>Stle No</label>
-                                    <asp:TextBox ID="txtStyleNo" runat="server" CssClass="w-full border rounded outline-none border-gray-300 px-2 h-7 focus:border-blue-500 shadow-sm transition delay-150 duration-150 ease-in-out"></asp:TextBox>
-                                </div>
-                                <div class="flex items-center space-x-6 w-full">
-                                    <div class="flex items-center gap-1 ml-3">
-                                        <asp:CheckBox ID="chkIsPrint" runat="server" CssClass="cursor-pointer accent-[#198754]" />
-                                        <asp:Label for="chkIsPrint" AssociatedControlID="chkIsPrint" runat="server" Text="Is Print" CssClass="cursor-pointer whitespace-nowrap"></asp:Label>
-                                    </div>
-                                    <div class="flex items-center gap-1">
-                                        <asp:CheckBox ID="chkIsEmbroidery" runat="server" CssClass="cursor-pointer accent-[#198754]" />
-                                        <asp:Label for="chkIsEmbroidery" AssociatedControlID="chkIsEmbroidery" runat="server" Text="Is Embroidery" CssClass="cursor-pointer whitespace-nowrap"></asp:Label>
-                                    </div>
-                                    <div class="flex items-center gap-1">
-                                        <asp:CheckBox ID="chkIsSmoke" runat="server" CssClass="cursor-pointer accent-[#198754]" />
-                                        <asp:Label for="chkIsSmoke" AssociatedControlID="chkIsSmoke" runat="server" Text="Is Smoke" CssClass="cursor-pointer whitespace-nowrap"></asp:Label>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="row">
+                <!-- Left Side Form -->
+                <div class="col-12 col-lg-5 mb-3">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <i class="bi bi-pencil-square"></i>
+                            <h4>Style Mapping Information</h4>
                         </div>
-                    </div>
+                        <div class="card-body left-panel">
+                            <asp:HiddenField ID="hfUserId" runat="server" />
 
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label>Style Mapping ID</label>
+                                    <asp:TextBox ID="txtStylePartsMappingId" runat="server" ReadOnly="true" CssClass="form-control" placeholder="Auto generated" />
+                                </div>
 
-                    <%-- left container --%>
+                                <div class="col-12">
+                                    <label>Buyer Name <span class="req">*</span></label>
+                                    <asp:DropDownList ID="ddlBuyer" runat="server" AutoPostBack="true"
+                                        OnSelectedIndexChanged="ddlBuyer_SelectedIndexChanged" CssClass="form-select"></asp:DropDownList>
+                                </div>
 
-                    <div class="border border-gray-400 rounded p-3 col-span-3 w-full overflow-y-auto">
-                        <div class="flex flex-col space-y-1">
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label1" runat="server" class="text-sm" Text="+"></asp:Label>
+                                <div class="col-12">
+                                    <label>Style Name <span class="req">*</span></label>
+                                    <asp:DropDownList ID="ddlStyle" runat="server" AutoPostBack="true"
+                                        OnSelectedIndexChanged="ddlStyle_SelectedIndexChanged" CssClass="form-select"></asp:DropDownList>
+                                </div>
+
+                                <div class="col-12">
+                                    <label>PO No <span class="req">*</span></label>
+                                    <asp:DropDownList ID="ddlPO" runat="server" CssClass="form-select"></asp:DropDownList>
+                                </div>
+
+                                <div class="col-12">
+                                    <label>Body Part <span class="req">*</span></label>
+                                    <asp:DropDownList ID="ddlBodyPart" runat="server" CssClass="form-select"></asp:DropDownList>
+                                </div>
+
+                                <div class="col-12">
+                                    <label>Embellishment Type <span class="text-muted fw-normal">(optional)</span></label>
+                                    <asp:DropDownList ID="ddlEmbellishment" runat="server" CssClass="form-select">
+                                        <asp:ListItem Text="-- None --" Value="" />
+                                        <asp:ListItem Text="Print" Value="Print" />
+                                        <asp:ListItem Text="Embroidery" Value="Embroidery" />
+                                        <asp:ListItem Text="Smoke" Value="Smoke" />
+                                    </asp:DropDownList>
+                                </div>
+
+                                <div class="col-12">
+                                    <asp:Button ID="btnAdd" runat="server" Text="Add" CssClass="btn btn-primary"
+                                        CausesValidation="false" OnClick="btnAdd_Click" />
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-check mt-1">
+                                        <asp:CheckBox ID="chkIsActive" runat="server" Checked="true" CssClass="form-check-input" />
+                                        <asp:Label AssociatedControlID="chkIsActive" runat="server" Text="Is Active?" CssClass="form-check-label fw-bold"></asp:Label>
                                     </div>
-                                    <asp:Label ID="Label2" runat="server" Text="--"></asp:Label>
                                 </div>
-                                <asp:Label ID="Label3" runat="server" Text="CARNET"></asp:Label>
                             </div>
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label4" runat="server" class="text-sm" Text="+"></asp:Label>
-                                    </div>
-                                    <asp:Label ID="Label5" runat="server" Text="--"></asp:Label>
-                                </div>
-                                <asp:Label ID="Label6" runat="server" Text="CECIL"></asp:Label>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label7" runat="server" class="text-sm" Text="+"></asp:Label>
-                                    </div>
-                                    <asp:Label ID="Label8" runat="server" Text="--"></asp:Label>
-                                </div>
-                                <asp:Label ID="Label9" runat="server" Text="COPENHAGEN TOURIST"></asp:Label>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label50" runat="server" class="text-sm" Text="+"></asp:Label>
-                                    </div>
-                                    <asp:Label ID="Label10" runat="server" Text="--"></asp:Label>
-                                </div>
-                                <asp:Label ID="Label11" runat="server" Text="OUI"></asp:Label>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label12" runat="server" class="text-sm" Text="+"></asp:Label>
-                                    </div>
-                                    <asp:Label ID="Label13" runat="server" Text="--"></asp:Label>
-                                </div>
-                                <asp:Label ID="Label14" runat="server" Text="PRE-END"></asp:Label>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label15" runat="server" class="text-sm" Text="+"></asp:Label>
-                                    </div>
-                                    <asp:Label ID="Label16" runat="server" Text="--"></asp:Label>
-                                </div>
-                                <asp:Label ID="Label17" runat="server" Text="RENNER"></asp:Label>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label18" runat="server" class="text-sm" Text="+"></asp:Label>
-                                    </div>
-                                    <asp:Label ID="Label19" runat="server" Text="--"></asp:Label>
-                                </div>
-                                <asp:Label ID="Label20" runat="server" Text="STREET ONE"></asp:Label>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label60" runat="server" class="text-sm" Text="+"></asp:Label>
-                                    </div>
-                                    <asp:Label ID="Label21" runat="server" Text="--"></asp:Label>
-                                </div>
-                                <asp:Label ID="Label22" runat="server" Text="STREET ONE STUDIO"></asp:Label>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label23" runat="server" class="text-sm" Text="+"></asp:Label>
-                                    </div>
-                                    <asp:Label ID="Label24" runat="server" Text="--"></asp:Label>
-                                </div>
-                                <asp:Label ID="Label25" runat="server" Text="TOM TAILOR"></asp:Label>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <div class="flex items-center">
-                                    <div class="w-4 h-4 rounded border border-gray-700 flex justify-center items-center">
-                                        <asp:Label ID="Label26" runat="server" class="text-sm" Text="+"></asp:Label>
-                                    </div>
-                                    <asp:Label ID="Label27" runat="server" Text="--"></asp:Label>
-                                </div>
-                                <asp:Label ID="Label28" runat="server" Text="ZERO"></asp:Label>
-                            </div>
-                        </div>
-                    </div>
 
-                    <%-- Right container --%>
-                    <div class="col-span-9 ml-3 border border-gray-400 rounded overflow-y-auto overflow-x-auto">
-
-                        <!-- tab list view 1st -->
-                        <div class=" w-full flex-1 ">
-                            <div class="tabs  flex">
-                                <div class="tab-wrapper bg-white flex items-center">
-                                    <button type="button" data-page="allParts" class="px-4 h-10 whitespace-nowrap">All Parts</button>
-                                    <span class="w-0.5 h-10 bg-gray-500"></span>
-                                </div>
-                                <div class="tab-wrapper flex items-center">
-                                    <button type="button" data-page="bundlingParts" class="px-4 h-10 whitespace-nowrap">Bundling Parts</button>
-                                    <span class="w-0.5 h-10 bg-gray-500"></span>
-                                </div>
-                                <div class="tab-wrapper flex items-center">
-                                    <button type="button" data-page="contrastBuildlingParts" class="px-4 h-10 whitespace-nowrap">Contrast Buildling Parts</button>
-                                    <span class="w-0.5 h-10 bg-gray-500"></span>
-                                </div>
-                                <div class="tab-wrapper flex items-center">
-                                    <button type="button" data-page="printParts" class="px-4 h-10 whitespace-nowrap">Print Parts</button>
-                                    <span class="w-0.5 h-10 bg-gray-500"></span>
-                                </div>
-                                <div class="tab-wrapper flex items-center">
-                                    <button type="button" data-page="embroideryParts" class="px-4 h-10 whitespace-nowrap">Embroidrry Parts</button>
-                                    <span class="w-0.5 h-10 bg-gray-500"></span>
-                                </div>
-                                <div class="tab-wrapper flex items-center">
-                                    <button type="button" data-page="smokeParts" class="px-4 h-10 whitespace-nowrap">Smoke Parts</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <%-- all parts --%>
-                        <div class="page active" id="allParts">
-                            <div class="p-2 pb-0 mb-4">
-                                dfsgggggggggggg
-                            </div>
-                        </div>
-
-                        <%-- bundling parts --%>
-                        <div class="page" id="bundlingParts">
-                            <div class="p-2 pb-0 mb-4">
-                                aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                            </div>
-                        </div>
-
-                        <%-- contrast building parts --%>
-                        <div class="page" id="contrastBuildlingParts">
-                            <div class="p-2 pb-0 mb-4">
-                                bbbbbbbbbbbbbbbbbbbbbbbbbbbb
-                            </div>
-                        </div>
-
-                        <%-- print parts --%>
-                        <div class="page" id="printParts">
-                            <div class="p-2 pb-0 mb-4">
-                                ccccccccccccccccccccccccccccccccccc
-                            </div>
-                        </div>
-
-                        <%-- embroidery parts --%>
-                        <div class="page" id="embroideryParts">
-                            <div class="p-2 pb-0 mb-4">
-                                ddddddddddddddddddddddddd
-                            </div>
-                        </div>
-
-                        <%-- smoke parts --%>
-                        <div class="page" id="smokeParts">
-                            <div class="p-2 pb-0 mb-4">
-                                eeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+                            <div class="action-bar">
+                                <asp:Button ID="btnRefresh" runat="server" Text="Refresh" CssClass="btn btn-secondary"
+                                    CausesValidation="false" OnClick="btnRefresh_Click" />
+                                <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-success"
+                                    CausesValidation="false" OnClick="btnSave_Click" />
+                                <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn btn-danger"
+                                    CausesValidation="false" Enabled="false" OnClick="btnDelete_Click"
+                                    OnClientClick="return confirm('Are you sure you want to delete this mapping?');" />
+                                <asp:Button ID="btnClear" runat="server" Text="Clear" CssClass="btn btn-secondary"
+                                    CausesValidation="false" OnClick="btnClear_Click" />
+                                <asp:Button ID="btnClose" runat="server" Text="Close" CssClass="btn btn-secondary"
+                                    CausesValidation="false" OnClientClick="window.close(); return false;" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- btn -->
-                <div class="space-x-4 flex justify-between items-center mt-3">
-                    <div class="flex items-center gap-3">
-                        <asp:Button ID="btnRefresh" runat="server" Text="Refresh" CssClass="rounded bg-[#2BBBAD] text-white px-4 py-1 shadow-sm hover:bg-[#239A8D] cursor-pointer transition delay-150 duration-300 ease-in-out" />
+                <!-- Right Side -->
+                <div class="col-12 col-lg-7">
 
-                        <div class="flex items-center gap-1">
-                            <asp:CheckBox ID="chkIsActive" runat="server" CssClass="cursor-pointer accent-[#198754]" />
-                            <asp:Label for="chkIsActive" AssociatedControlID="chkIsActive" runat="server" Text="Is Active?" CssClass="cursor-pointer"></asp:Label>
+                    <!-- Added items -->
+                    <div class="card shadow mb-3">
+                        <div class="card-header bg-success text-white">
+                            <i class="bi bi-list-check"></i>
+                            <h4>Added Body Parts</h4>
+                        </div>
+                        <div class="grid-wrapper">
+                            <asp:GridView ID="gvMap" runat="server" CssClass="table table-bordered table-hover"
+                                AutoGenerateColumns="false" Width="100%"
+                                OnRowCommand="gvMap_RowCommand"
+                                EmptyDataText="No item added yet. Select values and click Add.">
+                                <EmptyDataRowStyle CssClass="text-center text-muted p-4" />
+                                <Columns>
+                                    <asp:TemplateField HeaderText="SL" ItemStyle-Width="50px">
+                                        <ItemTemplate><%# Container.DataItemIndex + 1 %></ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:BoundField DataField="Buyer" HeaderText="Buyer" />
+                                    <asp:BoundField DataField="Style" HeaderText="Style" />
+                                    <asp:BoundField DataField="PO" HeaderText="PO No" />
+                                    <asp:BoundField DataField="BodyPart" HeaderText="Body Part" />
+                                    <asp:BoundField DataField="Embellishment" HeaderText="Embellishment Type" NullDisplayText="-" />
+                                    <asp:TemplateField HeaderText="Action" ItemStyle-Width="90px">
+                                        <ItemTemplate>
+                                            <asp:LinkButton ID="lnkRemove" runat="server" CommandName="RemoveItem"
+                                                CommandArgument='<%# Container.DataItemIndex %>'
+                                                CssClass="remove-link">Remove</asp:LinkButton>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                </Columns>
+                            </asp:GridView>
                         </div>
                     </div>
-                    <div class="flex gap-3">
-                        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="rounded bg-[#22C55E] text-white px-4 py-1 shadow-sm hover:bg-[#16A34A] cursor-pointer transition delay-150 duration-300 ease-in-out" />
 
-                        <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="rounded bg-[#E55353] text-white px-4 py-1 shadow-sm hover:bg-[#C93F3F] cursor-pointer transition delay-150 duration-300 ease-in-out" />
-
-
-                        <asp:Button ID="btnClear" runat="server" Text="Clear" CssClass="rounded bg-[#64748B] text-white px-4 py-1 shadow-sm hover:bg-[#475569] cursor-pointer transition delay-150 duration-300 ease-in-out" />
-
-                        <asp:Button ID="btnClose" runat="server" Text="Close" CssClass="rounded bg-[#E55353] text-white px-4 py-1 shadow-sm hover:bg-[#475569] cursor-pointer transition delay-150 duration-300 ease-in-out" />
-
+                    <!-- Saved mappings -->
+                    <div class="card shadow mb-3">
+                        <div class="card-header bg-primary text-white">
+                            <i class="bi bi-database-check"></i>
+                            <h4>Saved Mappings</h4>
+                        </div>
+                        <div class="p-3 bg-light border-bottom">
+                            <small class="text-muted">Note: To Edit - Please select a row by clicking on the row head.</small>
+                        </div>
+                        <div class="grid-wrapper">
+                            <asp:GridView ID="gvSaved" runat="server" CssClass="table table-bordered table-hover"
+                                AutoGenerateColumns="false" Width="100%" DataKeyNames="MappingId"
+                                OnSelectedIndexChanged="gvSaved_SelectedIndexChanged"
+                                EmptyDataText="No mapping saved yet.">
+                                <SelectedRowStyle CssClass="table-primary" />
+                                <EmptyDataRowStyle CssClass="text-center text-muted p-4" />
+                                <Columns>
+                                    <asp:CommandField ShowSelectButton="true" SelectText="Select" HeaderText="Action"
+                                        ControlStyle-CssClass="select-link" />
+                                    <asp:BoundField DataField="MappingId" HeaderText="ID" />
+                                    <asp:BoundField DataField="BuyerName" HeaderText="Buyer" />
+                                    <asp:BoundField DataField="StyleText" HeaderText="Style" />
+                                    <asp:BoundField DataField="PONo" HeaderText="PO No" />
+                                    <asp:BoundField DataField="ItemCount" HeaderText="Parts" />
+                                    <asp:TemplateField HeaderText="Status">
+                                        <ItemTemplate>
+                                            <%# Convert.ToBoolean(Eval("IsActive"))
+                                                ? "<span class='badge bg-success'>Active</span>"
+                                                : "<span class='badge bg-secondary'>Inactive</span>" %>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                </Columns>
+                            </asp:GridView>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
     </form>
-
-
-
-    <script>
-
-        const buttons = document.querySelectorAll(".tabs button");
-        const pages = document.querySelectorAll(".page");
-        const tabWrapper = document.querySelectorAll(".tab-wrapper");
-
-        buttons.forEach(btn => {
-            btn.addEventListener("click", function () {
-
-                pages.forEach(p => {
-                    p.classList.remove("active");
-                });
-                tabWrapper.forEach(w => {
-                    w.classList.remove("bg-white");
-                });
-                buttons.forEach(b => {
-                    b.classList.remove("bg-white");
-                });
-
-                const btnId = btn.dataset.page;
-
-                document.getElementById(btnId).classList.add("active");
-                btn.classList.add("bg-white");
-            });
-
-        });
-
-        // initial show
-        document.getElementById("allParts").classList.add("active");
-
-
-    </script>
 </body>
 </html>
-
-

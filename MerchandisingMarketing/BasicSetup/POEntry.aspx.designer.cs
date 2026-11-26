@@ -582,6 +582,15 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         protected global::System.Web.UI.WebControls.DropDownList ddlFabPly;
 
         /// <summary>
+        /// ddlFabYarnDyed control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlFabYarnDyed;
+
+        /// <summary>
         /// txtFabKgDzn control.
         /// </summary>
         /// <remarks>
@@ -645,6 +654,15 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         protected global::System.Web.UI.WebControls.TextBox txtFabLoss;
 
         /// <summary>
+        /// txtFabExtra control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtFabExtra;
+
+        /// <summary>
         /// btnAddFab control.
         /// </summary>
         /// <remarks>
@@ -661,6 +679,15 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton btnSyncFabQty;
+
+        /// <summary>
+        /// hlFabRpt control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink hlFabRpt;
 
         /// <summary>
         /// gvFab control.

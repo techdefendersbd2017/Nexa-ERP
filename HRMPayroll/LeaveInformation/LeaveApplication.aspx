@@ -18,6 +18,12 @@
         ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
         ::-webkit-scrollbar-thumb:hover{background:#94a3b8}
 
+        /* ---- SutonnyMJ: ক্লায়েন্ট পিসিতে ইনস্টল থাকলে local() নেবে, নইলে সার্ভারের ফাইল থেকে ---- */
+        @font-face{
+            font-family:'SutonnyMJ';
+            src:local('SutonnyMJ'), url('../../Fonts/SutonnyMJ.ttf') format('truetype'); /* পাথ আপনার প্রজেক্ট অনুযায়ী ঠিক করুন */
+        }
+
         /* ---- Filter fields (HRM Reports এর মতই) ---- */
         .fld{display:flex;align-items:center;justify-content:space-between;gap:6px;height:32px;padding:0 10px;
              border:1px solid #d9dce5;border-radius:6px;background:#f6f7fb;font-size:13px;color:#1e293b;
@@ -33,6 +39,14 @@
         .lbl{display:block;font-size:13px;color:#334155;margin-bottom:6px}
         .chk label{margin-left:4px;cursor:pointer;font-size:13px;color:#334155}
         .chk input{cursor:pointer;accent-color:#198754}
+
+        /* ---- Font selector (Purpose / Address) ---- */
+        .fontSel{height:24px;font-size:11px;border:1px solid #d9dce5;border-radius:6px;background:#fff;color:#334155;padding:0 6px;cursor:pointer}
+        .fontSel:focus{outline:none;border-color:#3b82f6}
+        .convBtn{height:24px;font-size:11px;font-weight:500;border:1px solid #bfdbfe;border-radius:6px;background:#eff6ff;color:#1d4ed8;padding:0 8px;cursor:pointer;white-space:nowrap}
+        .convBtn:hover{background:#dbeafe}
+        .undoBtn{height:24px;width:24px;font-size:11px;border:1px solid #d9dce5;border-radius:6px;background:#fff;color:#475569;cursor:pointer}
+        .undoBtn:hover{background:#f1f5f9}
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased h-screen flex flex-col overflow-hidden">
@@ -74,10 +88,37 @@
                 <div class="lg:col-span-1 hidden lg:block"></div>
                 <div class="hidden lg:block"></div>
 
-                <div class="sm:col-span-2"><label class="lbl">Purpose</label>
-                    <asp:TextBox ID="txtPurpose" runat="server" TextMode="MultiLine" Rows="3" CssClass="fld" /></div>
-                <div class="sm:col-span-2"><label class="lbl">Address</label>
-                    <asp:TextBox ID="txtAddress" runat="server" TextMode="MultiLine" Rows="3" CssClass="fld" /></div>
+                <%-- Purpose: SutonnyMJ / Unicode মাল্টি ফন্ট --%>
+                <div class="sm:col-span-2">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="lbl" style="margin-bottom:0">Purpose</label>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" class="convBtn" title="ঘরের Bijoy লেখাকে Unicode এ রূপান্তর করে" onclick="convertField('txtPurpose','fontPurpose')">Bijoy → Unicode</button>
+                            <button type="button" class="undoBtn" title="রূপান্তরের আগের লেখা ফিরিয়ে আনে" onclick="undoConvert('txtPurpose','fontPurpose')">↩</button>
+                            <select id="fontPurpose" class="fontSel" onchange="setFont('txtPurpose', this.value)">
+                                <option value="mj">SutonnyMJ</option>
+                                <option value="uni">Unicode</option>
+                            </select>
+                        </div>
+                    </div>
+                    <asp:TextBox ID="txtPurpose" runat="server" ClientIDMode="Static" TextMode="MultiLine" Rows="3" CssClass="fld" />
+                </div>
+
+                <%-- Address: SutonnyMJ / Unicode মাল্টি ফন্ট --%>
+                <div class="sm:col-span-2">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="lbl" style="margin-bottom:0">Address</label>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" class="convBtn" title="ঘরের Bijoy লেখাকে Unicode এ রূপান্তর করে" onclick="convertField('txtAddress','fontAddress')">Bijoy → Unicode</button>
+                            <button type="button" class="undoBtn" title="রূপান্তরের আগের লেখা ফিরিয়ে আনে" onclick="undoConvert('txtAddress','fontAddress')">↩</button>
+                            <select id="fontAddress" class="fontSel" onchange="setFont('txtAddress', this.value)">
+                                <option value="mj">SutonnyMJ</option>
+                                <option value="uni">Unicode</option>
+                            </select>
+                        </div>
+                    </div>
+                    <asp:TextBox ID="txtAddress" runat="server" ClientIDMode="Static" TextMode="MultiLine" Rows="3" CssClass="fld" />
+                </div>
             </div>
         </div>
 
@@ -169,6 +210,348 @@
 <script>
 // @ts-nocheck
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// ---- Multi font: Purpose / Address (SutonnyMJ ও Unicode) ----
+var FONTS = {
+    uni: "'Inter','Noto Sans Bengali','Nirmala UI','Vrinda',sans-serif",
+    mj:  "'SutonnyMJ',sans-serif"
+};
+
+function setFont(id, mode) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.fontFamily = FONTS[mode] || FONTS.uni;
+    el.style.fontSize = (mode === 'mj') ? '16px' : '13px';   // SutonnyMJ ছোট দেখায়, তাই বড়
+    try { localStorage.setItem('font_' + id, mode); } catch (e) {}
+}
+
+// পেজ লোড/পোস্টব্যাকের পর আগের পছন্দ ফিরিয়ে আনে (ডিফল্ট: SutonnyMJ)
+document.addEventListener('DOMContentLoaded', function () {
+    [['txtPurpose', 'fontPurpose'], ['txtAddress', 'fontAddress']].forEach(function (p) {
+        var mode = 'mj';
+        try { mode = localStorage.getItem('font_' + p[0]) || 'mj'; } catch (e) {}
+        document.getElementById(p[1]).value = mode;
+        setFont(p[0], mode);
+    });
+});
+
+// ======================================================================
+// Bijoy (SutonnyMJ ইত্যাদি ANSI) -> Unicode কনভার্টার
+// ম্যাপিং টেবিল: "bijoy-unicode-converter" (MIT, Naim Howlader) থেকে নেওয়া।
+// কার/রেফ সাজানোর অংশ নতুন করে লেখা (ে ি ৈ এবং র্ এর ক্রম ঠিক রাখতে)।
+// (সব বাংলা/বিশেষ অক্ষর \uXXXX আকারে, যাতে ফাইলের এনকোডিং নিয়ে সমস্যা না হয়)
+// ======================================================================
+var BIJOY_MAP = [
+    ["0","\u09e6"],
+    ["1","\u09e7"],
+    ["2","\u09e8"],
+    ["3","\u09e9"],
+    ["4","\u09ea"],
+    ["5","\u09eb"],
+    ["6","\u09ec"],
+    ["7","\u09ed"],
+    ["8","\u09ee"],
+    ["9","\u09ef"],
+    ["i\u00a8","\u09b0\u200c\u09cd\u09af"],
+    ["\u00aa\u00a8","\u09cd\u09b0\u09cd\u09af"],
+    ["\u00b0","\u0995\u09cd\u0995"],
+    ["\u00b1","\u0995\u09cd\u099f"],
+    ["\u00b3","\u0995\u09cd\u09a4"],
+    ["K\u00a1","\u0995\u09cd\u09ac"],
+    ["\u00af\u0152","\u09b8\u09cd\u0995\u09cd\u09b0"],
+    ["\u00b5","\u0995\u09cd\u09b0"],
+    ["K\u00ac","\u0995\u09cd\u09b2"],
+    ["\u00b6","\u0995\u09cd\u09b7"],
+    ["\u00ff","\u0995\u09cd\u09b7"],
+    ["\u00b7","\u0995\u09cd\u09b8"],
+    ["\u00b8","\u0997\u09c1"],
+    ["\u00bb","\u0997\u09cd\u09a7"],
+    ["M\u0153","\u0997\u09cd\u09a8"],
+    ["M\u00a5","\u0997\u09cd\u09ae"],
+    ["M\u00ad","\u0997\u09cd\u09b2"],
+    ["\u00bc","\u0999\u09cd\u0995"],
+    ["\u2022\u00b6","\u0999\u09cd\u0995\u09cd\u09b7"],
+    ["\u2022L","\u0999\u09cd\u0996"],
+    ["\u00bd","\u0999\u09cd\u0997"],
+    ["\u2022N","\u0999\u09cd\u0998"],
+    ["\u2022","\u0995\u09cd\u09b8"],
+    ["\u201dP","\u099a\u09cd\u099a"],
+    ["\u201dQ","\u099a\u09cd\u099b"],
+    ["\u201dQ\u00a1","\u099a\u09cd\u099b\u09cd\u09ac"],
+    ["\u201dT","\u099a\u09cd\u099e"],
+    ["\u00be\u00a1","\u099c\u09cd\u099c\u09cd\u09ac"],
+    ["\u00be","\u099c\u09cd\u099c"],
+    ["\u00c0","\u099c\u09cd\u099d"],
+    ["\u00c1","\u099c\u09cd\u099e"],
+    ["R\u00a1","\u099c\u09cd\u09ac"],
+    ["\u00c2","\u099e\u09cd\u099a"],
+    ["\u00c3","\u099e\u09cd\u099b"],
+    ["\u00c4","\u099e\u09cd\u099c"],
+    ["\u00c5","\u099e\u09cd\u099d"],
+    ["\u00c6","\u099f\u09cd\u099f"],
+    ["U\u00a1","\u099f\u09cd\u09ac"],
+    ["U\u00a5","\u099f\u09cd\u09ae"],
+    ["\u00c7","\u09a1\u09cd\u09a1"],
+    ["\u00c8","\u09a3\u09cd\u099f"],
+    ["\u00c9","\u09a3\u09cd\u09a0"],
+    ["\u00dd","\u09a8\u09cd\u09b8"],
+    ["\u00ca","\u09a3\u09cd\u09a1"],
+    ["\u0161\u2018","\u09a8\u09cd\u09a4\u09c1"],
+    ["Y^","\u09a3\u09cd\u09ac"],
+    ["\u00cb","\u09a4\u09cd\u09a4"],
+    ["\u00cb\u00a1","\u09a4\u09cd\u09a4\u09cd\u09ac"],
+    ["\u00cc","\u09a4\u09cd\u09a5"],
+    ["Z\u00a5","\u09a4\u09cd\u09ae"],
+    ["\u0161\u2014\u00a1","\u09a8\u09cd\u09a4\u09cd\u09ac"],
+    ["Z\u00a1","\u09a4\u09cd\u09ac"],
+    ["\u00ce","\u09a4\u09cd\u09b0"],
+    ["_\u00a1","\u09a5\u09cd\u09ac"],
+    ["\u02dcM","\u09a6\u09cd\u0997"],
+    ["\u02dcN","\u09a6\u09cd\u0998"],
+    ["\u00cf","\u09a6\u09cd\u09a6"],
+    ["\u00d7","\u09a6\u09cd\u09a7"],
+    ["\u02dc\u00a1","\u09a6\u09cd\u09ac"],
+    ["\u00d8","\u09a6\u09cd\u09ac"],
+    ["\u2122\u00a2","\u09a6\u09cd\u09ad"],
+    ["\u00d9","\u09a6\u09cd\u09ae"],
+    ["`\u00aa\u201c","\u09a6\u09cd\u09b0\u09c1"],
+    ["a\u0178","\u09a7\u09cd\u09ac"],
+    ["a\u00a5","\u09a7\u09cd\u09ae"],
+    ["\u203aU","\u09a8\u09cd\u099f"],
+    ["\u00da","\u09a8\u09cd\u09a0"],
+    ["\u00db","\u09a8\u09cd\u09a1"],
+    ["\u0161\u00cd","\u09a8\u09cd\u09a4"],
+    ["\u0161\u2014","\u09a8\u09cd\u09a4"],
+    ["\u0161\u00bf","\u09a8\u09cd\u09a4\u09cd\u09b0"],
+    ["\u0161\u2019","\u09a8\u09cd\u09a5"],
+    ["\u203a`","\u09a8\u09cd\u09a6"],
+    ["\u203a\u00d8","\u09a8\u09cd\u09a6\u09cd\u09ac"],
+    ["\u00dc","\u09a8\u09cd\u09a7"],
+    ["b\u0153","\u09a8\u09cd\u09a8"],
+    ["\u0161^","\u09a8\u09cd\u09ac"],
+    ["b\u00a5","\u09a8\u09cd\u09ae"],
+    ["\u00de","\u09aa\u09cd\u099f"],
+    ["\u00df","\u09aa\u09cd\u09a4"],
+    ["c\u0153","\u09aa\u09cd\u09a8"],
+    ["\u00e0","\u09aa\u09cd\u09aa"],
+    ["c\u00f8","\u09aa\u09cd\u09b2"],
+    ["c\u00ad","\u09aa\u09cd\u09b2"],
+    ["\u00e1","\u09aa\u09cd\u09b8"],
+    ["d\u00ac","\u09ab\u09cd\u09b2"],
+    ["\u00e2","\u09ac\u09cd\u099c"],
+    ["\u00e3","\u09ac\u09cd\u09a6"],
+    ["\u00e4","\u09ac\u09cd\u09a7"],
+    ["e\u0178","\u09ac\u09cd\u09ac"],
+    ["e\u00ad","\u09ac\u09cd\u09b2"],
+    ["\u00e5","\u09ad\u09cd\u09b0"],
+    ["g\u0153","\u09ae\u09cd\u09a8"],
+    ["\u00a4\u00fa","\u09ae\u09cd\u09aa"],
+    ["\u00e7","\u09ae\u09cd\u09ab"],
+    ["\u00a4^","\u09ae\u09cd\u09ac"],
+    ["\u00a4\u00a2","\u09ae\u09cd\u09ad"],
+    ["\u00a4\u00a3","\u09ae\u09cd\u09ad\u09cd\u09b0"],
+    ["\u00a4\u00a7","\u09ae\u09cd\u09ae"],
+    ["\u00a4\u00ad","\u09ae\u09cd\u09b2"],
+    ["i\u201c","\u09b0\u09c1"],
+    ["i\u00e6","\u09b0\u09c1"],
+    ["i\u0192","\u09b0\u09c2"],
+    ["\u00e9","\u09b2\u09cd\u0995"],
+    ["\u00ea","\u09b2\u09cd\u0997"],
+    ["\u00eb","\u09b2\u09cd\u099f"],
+    ["\u00ec","\u09b2\u09cd\u09a1"],
+    ["\u00ed","\u09b2\u09cd\u09aa"],
+    ["\u00ee","\u09b2\u09cd\u09ab"],
+    ["j\u00a6","\u09b2\u09cd\u09ac"],
+    ["j\u00a5","\u09b2\u09cd\u09ae"],
+    ["j\u00f8","\u09b2\u09cd\u09b2"],
+    ["\u00ef","\u09b6\u09c1"],
+    ["\u00f0","\u09b6\u09cd\u099a"],
+    ["k\u0153","\u09b6\u09cd\u09a8"],
+    ["k\u00f8","\u09b6\u09cd\u09b2"],
+    ["k\u00a6","\u09b6\u09cd\u09ac"],
+    ["k\u00a5","\u09b6\u09cd\u09ae"],
+    ["k\u00ad","\u09b6\u09cd\u09b2"],
+    ["\u00ae\u2039","\u09b7\u09cd\u0995"],
+    ["\u00ae\u0152","\u09b7\u09cd\u0995\u09cd\u09b0"],
+    ["\u00f3","\u09b7\u09cd\u099f"],
+    ["\u00f4","\u09b7\u09cd\u09a0"],
+    ["\u00f2","\u09b7\u09cd\u09a3"],
+    ["\u00ae\u00fa","\u09b7\u09cd\u09aa"],
+    ["\u00f5","\u09b7\u09cd\u09ab"],
+    ["\u00ae\u00a7","\u09b7\u09cd\u09ae"],
+    ["\u00af\u2039","\u09b8\u09cd\u0995"],
+    ["\u00f7","\u09b8\u09cd\u099f"],
+    ["\u00f6","\u09b8\u09cd\u0996"],
+    ["\u00af\u2014","\u09b8\u09cd\u09a4"],
+    ["\u00af\u00cd","\u09b8\u09cd\u09a4"],
+    ["\u00af\u2018","\u09b8\u09cd\u09a4\u09c1"],
+    ["\u00af\u00bf","\u09b8\u09cd\u09a4\u09cd\u09b0"],
+    ["\u00af\u2019","\u09b8\u09cd\u09a5"],
+    ["m\u0153","\u09b8\u09cd\u09a8"],
+    ["\u00af\u00fa","\u09b8\u09cd\u09aa"],
+    ["\u00f9","\u09b8\u09cd\u09ab"],
+    ["\u00af^","\u09b8\u09cd\u09ac"],
+    ["\u00af\u00a7","\u09b8\u09cd\u09ae"],
+    ["\u00af\u00ad","\u09b8\u09cd\u09b2"],
+    ["\u00fb","\u09b9\u09c1"],
+    ["n\u00e8","\u09b9\u09cd\u09a3"],
+    ["\u00fd","\u09b9\u09cd\u09a8"],
+    ["\u00fe","\u09b9\u09cd\u09ae"],
+    ["n\u00ac","\u09b9\u09cd\u09b2"],
+    ["\u00fc","\u09b9\u09c3"],
+    ["\u00a9","\ue000"],
+    ["Av","\u0986"],
+    ["A","\u0985"],
+    ["B","\u0987"],
+    ["C","\u0988"],
+    ["D","\u0989"],
+    ["E","\u098a"],
+    ["F","\u098b"],
+    ["G","\u098f"],
+    ["H","\u0990"],
+    ["I","\u0993"],
+    ["J","\u0994"],
+    ["K","\u0995"],
+    ["L","\u0996"],
+    ["M","\u0997"],
+    ["N","\u0998"],
+    ["O","\u0999"],
+    ["P","\u099a"],
+    ["Q","\u099b"],
+    ["R","\u099c"],
+    ["S","\u099d"],
+    ["T","\u099e"],
+    ["U","\u099f"],
+    ["V","\u09a0"],
+    ["W","\u09a1"],
+    ["X","\u09a2"],
+    ["Y","\u09a3"],
+    ["Z","\u09a4"],
+    ["_","\u09a5"],
+    ["`","\u09a6"],
+    ["a","\u09a7"],
+    ["b","\u09a8"],
+    ["c","\u09aa"],
+    ["d","\u09ab"],
+    ["e","\u09ac"],
+    ["f","\u09ad"],
+    ["g","\u09ae"],
+    ["h","\u09af"],
+    ["i","\u09b0"],
+    ["j","\u09b2"],
+    ["k","\u09b6"],
+    ["l","\u09b7"],
+    ["m","\u09b8"],
+    ["n","\u09b9"],
+    ["o","\u09dc"],
+    ["p","\u09dd"],
+    ["q","\u09df"],
+    ["r","\u09ce"],
+    ["v","\u09be"],
+    ["w","\u09bf"],
+    ["x","\u09c0"],
+    ["y","\u09c1"],
+    ["z","\u09c1"],
+    ["~","\u09c2"],
+    ["\u201e","\u09c3"],
+    ["\u2021","\u09c7"],
+    ["\u2020","\u09c7"],
+    ["\u2030","\u09c8"],
+    ["\u02c6","\u09c8"],
+    ["\u0160","\u09d7"],
+    ["\u00d4","\u2018"],
+    ["\u00d5","\u2019"],
+    ["|","\u0964"],
+    ["\u00d2","\u201c"],
+    ["\u00d3","\u201d"],
+    ["s","\u0982"],
+    ["t","\u0983"],
+    ["u","\u0981"],
+    ["\u00aa","\u09cd\u09b0"],
+    ["\u00d6","\u09cd\u09b0"],
+    ["\u00ab","\u09cd\u09b0"],
+    ["\u00a8","\u09cd\u09af"],
+    ["&","\u09cd"],
+    ["\u2026","\u09c3"]
+];
+
+var BJ_MARK = "\uE000", BJ_H = "\u09CD", BJ_ZWNJ = "\u200C";
+function bjIsCons(c) {
+    if (!c) return false;
+    var x = c.charCodeAt(0);
+    return (x >= 0x0995 && x <= 0x09B9) || x === 0x09CE || x === 0x09DC || x === 0x09DD || x === 0x09DF;
+}
+function bjIsPre(c) { return c === "\u09BF" || c === "\u09C7" || c === "\u09C8"; } // ি ে ৈ
+
+// Bijoy-তে ি ে ৈ ব্যঞ্জনের আগে বসে এবং র্ (রেফ) ব্যঞ্জনের পরে বসে; Unicode-এ উল্টো।
+function bjReorder(t) {
+    var out = "", i = 0, n = t.length;
+    while (i < n) {
+        var j = i;
+        while (j < n && bjIsPre(t.charAt(j))) j++;
+        var pres = t.substring(i, j);
+        if (j < n && bjIsCons(t.charAt(j))) {
+            var k = j + 1, reph = false, body = t.charAt(j);
+            for (;;) {
+                var a = t.charAt(k);
+                if (a === BJ_MARK) { reph = true; k++; continue; }
+                if (a === BJ_ZWNJ && t.charAt(k + 1) === BJ_H && bjIsCons(t.charAt(k + 2))) { body += a + BJ_H + t.charAt(k + 2); k += 3; continue; }
+                if (a === BJ_H && bjIsCons(t.charAt(k + 1))) { body += a + t.charAt(k + 1); k += 2; continue; }
+                break;
+            }
+            if (pres) {
+                var last = pres.charAt(pres.length - 1), nx = t.charAt(k);
+                if (last === "\u09C7" && nx === "\u09BE") { pres = pres.slice(0, -1) + "\u09CB"; k++; }       // ে + া = ো
+                else if (last === "\u09C7" && nx === "\u09D7") { pres = pres.slice(0, -1) + "\u09CC"; k++; }  // ে + ৗ = ৌ
+            }
+            out += (reph ? "\u09B0" + BJ_H : "") + body + pres;
+            i = k;
+            continue;
+        }
+        if (pres) { out += pres; i = j; continue; }
+        out += (t.charAt(i) === BJ_MARK ? "\u09B0" + BJ_H : t.charAt(i));
+        i++;
+    }
+    return out;
+}
+
+function bijoyToUnicode(text) {
+    var s = String(text == null ? "" : text);
+    for (var m = 0; m < BIJOY_MAP.length; m++) s = s.split(BIJOY_MAP[m][0]).join(BIJOY_MAP[m][1]);
+    s = bjReorder(s);
+    s = s.replace(/\u0985\u09BE/g, "\u0986");                                  // অ + া = আ
+    s = s.replace(/\u0981([\u09BE\u09CB\u09CC\u09D7\u09C1\u09C2\u09C0\u09C3])/g, "$1\u0981"); // ঁ কারের পরে
+    return s;
+}
+function hasBengaliUnicode(s) { return /[\u0980-\u09FF]/.test(s); }
+
+
+// ---- "Bijoy → Unicode" বাটন: ডাটাবেসের পুরাতন Bijoy লেখাকে Unicode এ রূপান্তর ----
+function convertField(id, fontId) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var txt = el.value;
+    if (!txt || !txt.trim()) { showNotification('রূপান্তর করার মতো কোনো লেখা নেই।'); return; }
+    if (hasBengaliUnicode(txt)) { showNotification('এই লেখায় আগে থেকেই Unicode বাংলা আছে, তাই রূপান্তর করা হয়নি।'); return; }
+    el._bijoyBackup = txt;                       // ভুল হলে ↩ বাটনে ফেরত আনা যাবে
+    el.value = bijoyToUnicode(txt);
+    var sel = document.getElementById(fontId);
+    if (sel) sel.value = 'uni';
+    setFont(id, 'uni');                          // Unicode ফন্টে দেখাবে
+    showNotification('Bijoy থেকে Unicode এ রূপান্তর হয়েছে।');
+}
+
+function undoConvert(id, fontId) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (el._bijoyBackup === undefined) { showNotification('ফেরত আনার মতো আগের লেখা নেই।'); return; }
+    el.value = el._bijoyBackup;
+    el._bijoyBackup = undefined;
+    var sel = document.getElementById(fontId);
+    if (sel) sel.value = 'mj';
+    setFont(id, 'mj');                           // আগের Bijoy লেখা SutonnyMJ তে দেখাবে
+    showNotification('আগের লেখা ফিরিয়ে আনা হয়েছে।');
+}
 
 // Application (রিপোর্ট) বাটন: নতুন ট্যাবে খোলে, এই পেজ অপরিবর্তিত থাকে
 function onAppClick() {

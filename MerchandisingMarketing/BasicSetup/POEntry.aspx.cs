@@ -39,16 +39,20 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         public string Dia { get; set; }           // finish dia (inch)
         public string PartSize { get; set; }      // collar size / cuff size / bottom size
         public string Ply { get; set; }           // Single / Double (cuff)
+        public string YarnDyed { get; set; }      // Yes / No (default No)
         public decimal KgDzn { get; set; }
         public decimal YdDzn { get; set; }
         public decimal RateDzn { get; set; }
         public int Qty { get; set; }
         public bool IsBooked { get; set; }
 
-        public decimal LossPct { get; set; }
+        public decimal LossPct { get; set; }      // Process Loss %
+        public decimal ExtraPct { get; set; }     // Extra Cutting % (added on top of Process Loss %)
+
         public decimal KgPc { get { return KgDzn / 12m; } }
         public decimal YdPc { get { return YdDzn / 12m; } }
         public decimal RatePc { get { return RateDzn / 12m; } }
+
         // Cuff + Double = fabric is used twice → Total Kg / Yds x 2 (Kg/Pc, Yds/Pc stay as entered)
         public static decimal PlyFactorOf(string part, string ply)
         {
@@ -56,14 +60,22 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
         public decimal PlyFactor { get { return PlyFactorOf(PartName, Ply); } }
 
-        public decimal TotalKg { get { return Qty * KgPc * (1m + LossPct / 100m) * PlyFactor; } }
-        public decimal TotalYd { get { return Qty * YdPc * (1m + LossPct / 100m) * PlyFactor; } }
+        // Process Loss % + Extra Cutting % are added together
+        public static decimal AllowanceFactorOf(decimal lossPct, decimal extraPct)
+        {
+            return 1m + (lossPct + extraPct) / 100m;
+        }
+        public decimal AllowanceFactor { get { return AllowanceFactorOf(LossPct, ExtraPct); } }
+
+        public decimal TotalKg { get { return Qty * KgPc * AllowanceFactor * PlyFactor; } }
+        public decimal TotalYd { get { return Qty * YdPc * AllowanceFactor * PlyFactor; } }
         public decimal Amount { get { return Qty * RatePc; } }
 
         public FabRow()
         {
             PartName = "Body";
             SizeCode = AllSizes;
+            YarnDyed = "No";
         }
     }
 
@@ -145,6 +157,16 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 ViewState["POID"] = null;
                 LoadPOList();
             }
+            else if (pnlEntry.Visible && cblFabSizes.Items.Count == 0)
+            {
+                // safety: refill Fabric "Sizes" list from the Style's sizes if it ever comes back empty
+                int sid;
+                if (int.TryParse(hfStyleId.Value, out sid) && sid > 0)
+                {
+                    foreach (string s in GetStyleSizes(sid))
+                        cblFabSizes.Items.Add(new ListItem(s, s));
+                }
+            }
         }
 
         // Every render: refresh row/column totals, PO Qty, Total Value, Accessories qty, Embellishment & Fabric amounts
@@ -213,6 +235,54 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         private string GetStr(object o) => o == null || o == DBNull.Value ? "" : o.ToString();
 
         // ============================================================
+        // STORED PROCEDURE HELPERS  (all procedures start with POEntry_)
+        // ============================================================
+
+        // plain parameter (null → DBNull)
+        private static SqlParameter P(string name, object value)
+        {
+            return new SqlParameter(name, value ?? DBNull.Value);
+        }
+
+        // decimal parameter with explicit precision / scale (so decimals are never rounded to 0 places)
+        private static SqlParameter PD(string name, decimal value)
+        {
+            SqlParameter p = new SqlParameter(name, SqlDbType.Decimal);
+            p.Precision = 18;
+            p.Scale = 4;
+            p.Value = value;
+            return p;
+        }
+
+        // command for a stored procedure on the current open connection (optional transaction)
+        private SqlCommand Proc(string name, SqlTransaction tx = null)
+        {
+            SqlCommand c = new SqlCommand(name, con, tx);
+            c.CommandType = CommandType.StoredProcedure;
+            return c;
+        }
+
+        // run a SELECT procedure and return the rows
+        private DataTable ProcTable(string name, params SqlParameter[] ps)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                con = conn.openConnection();
+                using (SqlCommand c = Proc(name))
+                {
+                    if (ps != null && ps.Length > 0) c.Parameters.AddRange(ps);
+                    new SqlDataAdapter(c).Fill(dt);
+                }
+            }
+            finally
+            {
+                CloseConnection();
+            }
+            return dt;
+        }
+
+        // ============================================================
         // PO STATUS HELPERS
         // ============================================================
         public string GetPOStatusCss(object v)
@@ -246,49 +316,23 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
 
         // ============================================================
-        // PO LIST
+        // PO LIST   → POEntry_GetPOList
         // ============================================================
         private void LoadPOList()
         {
             try
             {
-                con = conn.openConnection();
-                string query = @"
-                    SELECT  p.POID, p.PONo, p.PODate,
-                            s.StyleNo,
-                            ISNULL(b.BuyerName,'') AS BuyerName,
-                            p.POQty, p.Currency, p.UnitPrice,
-                            p.POStatus
-                    FROM    dbo.POHeader p
-                    LEFT JOIN dbo.StyleMaster s ON s.StyleID = p.StyleID
-                    LEFT JOIN dbo.Buyer b       ON b.BuyerID = s.BuyerID
-                    WHERE   ISNULL(p.IsActive,1) = 1";
-
                 string search = txtSearch.Text.Trim();
-                if (search.Length > 0)
-                    query += " AND (p.PONo LIKE @Q OR p.BuyerPORef LIKE @Q)";
 
                 int status = -1;
                 int.TryParse(ddlStatusFilter.SelectedValue, out status);
-                if (status >= 0)
-                    query += " AND p.POStatus = @POStatus";
 
-                query += " ORDER BY p.POID DESC";
+                DataTable dt = ProcTable("POEntry_GetPOList",
+                    P("@Search", search.Length > 0 ? search : null),
+                    P("@POStatus", status));
 
-                using (SqlCommand c = new SqlCommand(query, con))
-                {
-                    if (search.Length > 0)
-                        c.Parameters.AddWithValue("@Q", "%" + search + "%");
-                    if (status >= 0)
-                        c.Parameters.AddWithValue("@POStatus", status);
-
-                    SqlDataAdapter da = new SqlDataAdapter(c);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    GridView1.DataSource = dt;
-                    GridView1.DataBind();
-                }
-                CloseConnection();
+                GridView1.DataSource = dt;
+                GridView1.DataBind();
             }
             catch (Exception ex)
             {
@@ -334,34 +378,19 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
 
         // ============================================================
-        // STYLE DROPDOWN
+        // STYLE DROPDOWN   → POEntry_GetStyleDropdown
         // ============================================================
         private void LoadStyleDropdown()
         {
             try
             {
-                con = conn.openConnection();
-                string sql = @"
-                    SELECT s.StyleID,
-                           s.StyleNo + ' - ' + ISNULL(s.StyleName,'') +
-                           ' (' + ISNULL(b.BuyerName,'') + ')' AS DisplayText
-                    FROM   dbo.StyleMaster s
-                    LEFT JOIN dbo.Buyer b ON b.BuyerID = s.BuyerID
-                    WHERE  s.IsActive = 1
-                    ORDER BY s.StyleNo";
-                using (SqlCommand c = new SqlCommand(sql, con))
-                {
-                    SqlDataAdapter da = new SqlDataAdapter(c);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
+                DataTable dt = ProcTable("POEntry_GetStyleDropdown");
 
-                    ddlStyle.DataSource = dt;
-                    ddlStyle.DataTextField = "DisplayText";
-                    ddlStyle.DataValueField = "StyleID";
-                    ddlStyle.DataBind();
-                    ddlStyle.Items.Insert(0, new ListItem("-- Select Style --", "0"));
-                }
-                CloseConnection();
+                ddlStyle.DataSource = dt;
+                ddlStyle.DataTextField = "DisplayText";
+                ddlStyle.DataValueField = "StyleID";
+                ddlStyle.DataBind();
+                ddlStyle.Items.Insert(0, new ListItem("-- Select Style --", "0"));
             }
             catch (Exception ex)
             {
@@ -397,78 +426,53 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             PopulateStyleLists(styleId);
         }
 
+        // → POEntry_GetStyleSnapshot
         private void LoadStyleSnapshot(int styleId)
         {
             try
             {
-                con = conn.openConnection();
+                DataTable dt = ProcTable("POEntry_GetStyleSnapshot", P("@StyleID", styleId));
 
-                string sql = @"
-                    SELECT s.StyleNo, s.StyleName, s.StyleStatus, s.RevisionNo,
-                           s.TargetPrice, s.Currency, s.KnitWoven,
-                           s.FabricType, s.SpecGSM, s.SpecComposition,
-                           s.SeasonYear,
-                           ISNULL(b.BuyerName,'')  AS BuyerName,
-                           ISNULL(sn.SeasonName,'') AS SeasonName,
-                           ISNULL(br.BrandName,'')  AS BrandName,
-                           ISNULL(ag.AgentName,'')  AS AgentName,
-                           ISNULL(u.UserName,'')    AS MerchName
-                    FROM   dbo.StyleMaster s
-                    LEFT JOIN dbo.Buyer  b  ON b.BuyerID  = s.BuyerID
-                    LEFT JOIN dbo.Season sn ON sn.SeasonID = s.SeasonID
-                    LEFT JOIN dbo.Brand  br ON br.BrandID  = s.BrandID
-                    LEFT JOIN dbo.Agent  ag ON ag.AgentID  = s.AgentID
-                    LEFT JOIN dbo.AppUser  u  ON u.UserID    = s.MerchandiserID
-                    WHERE  s.StyleID = @ID";
-
-                using (SqlCommand c = new SqlCommand(sql, con))
+                if (dt.Rows.Count == 0)
                 {
-                    c.Parameters.AddWithValue("@ID", styleId);
-                    using (SqlDataReader r = c.ExecuteReader())
-                    {
-                        if (!r.Read())
-                        {
-                            ShowAlert("Style not found!");
-                            r.Close();
-                            CloseConnection();
-                            return;
-                        }
-
-                        lblStyleNoName.Text = GetStr(r["StyleNo"]) + " — " + GetStr(r["StyleName"]);
-                        lblBuyer.Text = GetStr(r["BuyerName"]);
-                        lblBrand.Text = GetStr(r["BrandName"]);
-                        lblAgent.Text = GetStr(r["AgentName"]);
-                        lblSeason.Text = GetStr(r["SeasonName"]) + " / " + GetStr(r["SeasonYear"]);
-                        lblMerch.Text = GetStr(r["MerchName"]);
-                        lblKnitWoven.Text = GetStr(r["KnitWoven"]);
-                        lblFabric.Text = GetStr(r["FabricType"]) + " / " + GetStr(r["SpecGSM"]);
-                        lblComposition.Text = GetStr(r["SpecComposition"]);
-                        lblTargetPrice.Text = GetStr(r["Currency"]) + " " + GetStr(r["TargetPrice"]);
-                        lblStyleRev.Text = GetStr(r["RevisionNo"]);
-
-                        string rawStatus = GetStr(r["StyleStatus"]);
-                        string displayStatus;
-                        switch (rawStatus)
-                        {
-                            case "A": displayStatus = "Active"; break;
-                            case "D": displayStatus = "Draft"; break;
-                            case "I": displayStatus = "Inactive"; break;
-                            case "C": displayStatus = "Closed"; break;
-                            default: displayStatus = rawStatus; break;
-                        }
-                        lblStyleStatus.Text = displayStatus;
-                        lblStyleStatus.CssClass = "badge " + (rawStatus == "A" ? "bg-success" : "bg-secondary");
-
-                        btnSave.Enabled = (rawStatus == "A");
-                        if (rawStatus != "A")
-                            ShowAlert("⚠️ Style is not Active. PO cannot be saved.");
-
-                        imgFront.Visible = false;
-                        imgBack.Visible = false;
-                        imgSketch.Visible = false;
-                    }
+                    ShowAlert("Style not found!");
+                    return;
                 }
-                CloseConnection();
+
+                DataRow r = dt.Rows[0];
+
+                lblStyleNoName.Text = GetStr(r["StyleNo"]) + " — " + GetStr(r["StyleName"]);
+                lblBuyer.Text = GetStr(r["BuyerName"]);
+                lblBrand.Text = GetStr(r["BrandName"]);
+                lblAgent.Text = GetStr(r["AgentName"]);
+                lblSeason.Text = GetStr(r["SeasonName"]) + " / " + GetStr(r["SeasonYear"]);
+                lblMerch.Text = GetStr(r["MerchName"]);
+                lblKnitWoven.Text = GetStr(r["KnitWoven"]);
+                lblFabric.Text = GetStr(r["FabricType"]) + " / " + GetStr(r["SpecGSM"]);
+                lblComposition.Text = GetStr(r["SpecComposition"]);
+                lblTargetPrice.Text = GetStr(r["Currency"]) + " " + GetStr(r["TargetPrice"]);
+                lblStyleRev.Text = GetStr(r["RevisionNo"]);
+
+                string rawStatus = GetStr(r["StyleStatus"]);
+                string displayStatus;
+                switch (rawStatus)
+                {
+                    case "A": displayStatus = "Active"; break;
+                    case "D": displayStatus = "Draft"; break;
+                    case "I": displayStatus = "Inactive"; break;
+                    case "C": displayStatus = "Closed"; break;
+                    default: displayStatus = rawStatus; break;
+                }
+                lblStyleStatus.Text = displayStatus;
+                lblStyleStatus.CssClass = "badge " + (rawStatus == "A" ? "bg-success" : "bg-secondary");
+
+                btnSave.Enabled = (rawStatus == "A");
+                if (rawStatus != "A")
+                    ShowAlert("⚠️ Style is not Active. PO cannot be saved.");
+
+                imgFront.Visible = false;
+                imgBack.Visible = false;
+                imgSketch.Visible = false;
             }
             catch (Exception ex)
             {
@@ -480,55 +484,36 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ============================================================
         // STYLE COLOR / SIZE / FABRIC LISTS (multi-select dropdowns)
         // ============================================================
-        private List<string> GetStyleCodes(string sql, int styleId)
+
+        // first column of a procedure result as a distinct list
+        private List<string> GetStyleCodes(string procName, int styleId)
         {
             List<string> list = new List<string>();
-            con = conn.openConnection();
-            using (SqlCommand c = new SqlCommand(sql, con))
+            DataTable dt = ProcTable(procName, P("@StyleID", styleId));
+            foreach (DataRow dr in dt.Rows)
             {
-                c.Parameters.AddWithValue("@ID", styleId);
-                using (SqlDataReader r = c.ExecuteReader())
-                {
-                    while (r.Read())
-                    {
-                        string v = GetStr(r[0]);
-                        if (v.Length > 0 && !list.Contains(v)) list.Add(v);
-                    }
-                }
+                string v = GetStr(dr[0]);
+                if (v.Length > 0 && !list.Contains(v)) list.Add(v);
             }
-            CloseConnection();
             return list;
         }
 
+        // → POEntry_GetStyleColors
         private List<string> GetStyleColors(int styleId)
         {
-            return GetStyleCodes(@"SELECT ColorCode FROM dbo.StyleColor
-                                   WHERE StyleID=@ID AND ISNULL(IsActive,1)=1
-                                   ORDER BY SortOrder, StyleColorID", styleId);
+            return GetStyleCodes("POEntry_GetStyleColors", styleId);
         }
 
+        // → POEntry_GetStyleSizes
         private List<string> GetStyleSizes(int styleId)
         {
-            return GetStyleCodes(@"SELECT SizeCode FROM dbo.StyleSize
-                                   WHERE StyleID=@ID AND ISNULL(IsActive,1)=1
-                                   ORDER BY SortOrder, StyleSizeID", styleId);
+            return GetStyleCodes("POEntry_GetStyleSizes", styleId);
         }
 
+        // → POEntry_GetStyleFabrics
         private DataTable GetStyleFabrics(int styleId)
         {
-            DataTable dt = new DataTable();
-            con = conn.openConnection();
-            using (SqlCommand c = new SqlCommand(@"
-                SELECT FabricCode, FabricName, GSM
-                FROM   dbo.StyleFabric
-                WHERE  StyleID=@ID
-                ORDER BY SortOrder, StyleFabricID", con))
-            {
-                c.Parameters.AddWithValue("@ID", styleId);
-                new SqlDataAdapter(c).Fill(dt);
-            }
-            CloseConnection();
-            return dt;
+            return ProcTable("POEntry_GetStyleFabrics", P("@StyleID", styleId));
         }
 
         private void PopulateStyleLists(int styleId)
@@ -818,11 +803,13 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 r.Dia = ((TextBox)row.FindControl("txtFabDiaRow")).Text.Trim();
                 r.PartSize = ((TextBox)row.FindControl("txtFabPartSizeRow")).Text.Trim();
                 r.Ply = ((DropDownList)row.FindControl("ddlFabPlyRow")).SelectedValue;
+                r.YarnDyed = ((DropDownList)row.FindControl("ddlFabYarnRow")).SelectedValue;
                 r.KgDzn = DznFrom(((TextBox)row.FindControl("txtFabKgDzn")).Text, ((TextBox)row.FindControl("txtFabKgPc")).Text);
                 r.YdDzn = DznFrom(((TextBox)row.FindControl("txtFabYdDzn")).Text, ((TextBox)row.FindControl("txtFabYdPc")).Text);
                 r.RateDzn = DznFrom(((TextBox)row.FindControl("txtFabRateDzn")).Text, ((TextBox)row.FindControl("txtFabRatePc")).Text);
                 r.Qty = IntOrZero(((TextBox)row.FindControl("txtFabQty")).Text.Trim());
                 r.LossPct = DecOrZero(((TextBox)row.FindControl("txtFabLoss")).Text.Trim());
+                r.ExtraPct = DecOrZero(((TextBox)row.FindControl("txtFabExtra")).Text.Trim());
                 r.IsBooked = ((CheckBox)row.FindControl("chkBookFab")).Checked;
                 list.Add(r);
             }
@@ -842,6 +829,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             if (r == null) return;
             SelectDDL((DropDownList)e.Row.FindControl("ddlFabFormRow"), r.FabForm ?? "");
             SelectDDL((DropDownList)e.Row.FindControl("ddlFabPlyRow"), r.Ply ?? "");
+            SelectDDL((DropDownList)e.Row.FindControl("ddlFabYarnRow"),
+                      string.IsNullOrEmpty(r.YarnDyed) ? "No" : r.YarnDyed);
         }
 
         protected void btnAddFab_Click(object sender, EventArgs e)
@@ -860,6 +849,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             decimal ydDzn = DznFrom(txtFabYdDzn.Text, txtFabYdPc.Text);
             decimal rateDzn = DznFrom(txtFabRateDzn.Text, txtFabRatePc.Text);
             decimal lossPct = DecOrZero(txtFabLoss.Text);
+            decimal extraPct = DecOrZero(txtFabExtra.Text);
 
             if (kgDzn <= 0m && ydDzn <= 0m)
             { ShowAlert("Enter Consumption (Kg or Yds), then click Add."); return; }
@@ -868,6 +858,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             string dia = txtFabDia.Text.Trim();
             string partSize = txtFabPartSize.Text.Trim();
             string ply = ddlFabPly.SelectedValue;
+            string yarn = ddlFabYarnDyed.SelectedValue;
 
             int styleId;
             int.TryParse(hfStyleId.Value, out styleId);
@@ -908,10 +899,12 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                             Dia = dia,
                             PartSize = partSize,
                             Ply = ply,
+                            YarnDyed = yarn,
                             KgDzn = kgDzn,
                             YdDzn = ydDzn,
                             RateDzn = rateDzn,
                             LossPct = lossPct,
+                            ExtraPct = extraPct,
                             Qty = QtyFor(m, color, size),
                             IsBooked = true
                         });
@@ -926,8 +919,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             cblFabSizes.ClearSelection();
             ddlFabForm.SelectedIndex = 0;
             ddlFabPly.SelectedIndex = 0;
+            ddlFabYarnDyed.SelectedValue = "No";
             txtFabDia.Text = txtFabPartSize.Text = "";
-            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = "";
+            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = txtFabExtra.Text = "";
 
             if (added == 0)
                 ShowAlert("Selected color / fabric / part / size combination(s) already added.");
@@ -961,10 +955,12 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                     Dia = s.Dia,
                     PartSize = s.PartSize,
                     Ply = s.Ply,
+                    YarnDyed = s.YarnDyed,
                     KgDzn = s.KgDzn,
                     YdDzn = s.YdDzn,
                     RateDzn = s.RateDzn,
                     LossPct = s.LossPct,
+                    ExtraPct = s.ExtraPct,
                     Qty = s.Qty,
                     IsBooked = s.IsBooked
                 });
@@ -997,7 +993,10 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 decimal ratePc = DznFrom(((TextBox)row.FindControl("txtFabRateDzn")).Text, ((TextBox)row.FindControl("txtFabRatePc")).Text) / 12m;
                 int qty = IntOrZero(((TextBox)row.FindControl("txtFabQty")).Text.Trim());
 
-                decimal f = 1m + DecOrZero(((TextBox)row.FindControl("txtFabLoss")).Text) / 100m;
+                // Process Loss % + Extra Cutting % (added), then Cuff Double ply x2
+                decimal f = FabRow.AllowanceFactorOf(
+                    DecOrZero(((TextBox)row.FindControl("txtFabLoss")).Text),
+                    DecOrZero(((TextBox)row.FindControl("txtFabExtra")).Text));
                 f *= FabRow.PlyFactorOf(((Literal)row.FindControl("litFabPart")).Text,
                                         ((DropDownList)row.FindControl("ddlFabPlyRow")).SelectedValue);
                 decimal tk = qty * kgPc * f, ty = qty * ydPc * f, am = qty * ratePc;
@@ -1011,48 +1010,37 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             lblFabSumAmt.Text = sAmt.ToString("N2");
         }
 
+        // → POEntry_GetPOFabricBooking
         private void LoadFabFromPO(int poId)
         {
             List<FabRow> rows = new List<FabRow>();
             try
             {
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand(@"
-                    SELECT ColorCode, ISNULL(PartName,'Body') AS PartName, ISNULL(SizeCode,'ALL') AS SizeCode,
-                           FabricCode, FabricName, GSM, FabricForm, Dia, PartSize, Ply,
-                           KgPerDzn, YdPerDzn, RatePerDzn, Qty, LossPct, IsBooked
-                    FROM   dbo.POFabricBooking
-                    WHERE  POID=@ID
-                    ORDER BY SortOrder, FabBookID", con))
+                DataTable dt = ProcTable("POEntry_GetPOFabricBooking", P("@POID", poId));
+                foreach (DataRow r in dt.Rows)
                 {
-                    c.Parameters.AddWithValue("@ID", poId);
-                    using (SqlDataReader r = c.ExecuteReader())
+                    rows.Add(new FabRow
                     {
-                        while (r.Read())
-                        {
-                            rows.Add(new FabRow
-                            {
-                                ColorCode = GetStr(r["ColorCode"]),
-                                PartName = GetStr(r["PartName"]),
-                                SizeCode = GetStr(r["SizeCode"]),
-                                FabricCode = GetStr(r["FabricCode"]),
-                                FabricName = GetStr(r["FabricName"]),
-                                GSM = GetStr(r["GSM"]),
-                                FabForm = GetStr(r["FabricForm"]),
-                                Dia = GetStr(r["Dia"]),
-                                PartSize = GetStr(r["PartSize"]),
-                                Ply = GetStr(r["Ply"]),
-                                KgDzn = Convert.ToDecimal(r["KgPerDzn"]),
-                                YdDzn = Convert.ToDecimal(r["YdPerDzn"]),
-                                RateDzn = Convert.ToDecimal(r["RatePerDzn"]),
-                                Qty = Convert.ToInt32(r["Qty"]),
-                                LossPct = Convert.ToDecimal(r["LossPct"]),
-                                IsBooked = Convert.ToBoolean(r["IsBooked"])
-                            });
-                        }
-                    }
+                        ColorCode = GetStr(r["ColorCode"]),
+                        PartName = GetStr(r["PartName"]),
+                        SizeCode = GetStr(r["SizeCode"]),
+                        FabricCode = GetStr(r["FabricCode"]),
+                        FabricName = GetStr(r["FabricName"]),
+                        GSM = GetStr(r["GSM"]),
+                        FabForm = GetStr(r["FabricForm"]),
+                        Dia = GetStr(r["Dia"]),
+                        PartSize = GetStr(r["PartSize"]),
+                        Ply = GetStr(r["Ply"]),
+                        YarnDyed = GetStr(r["YarnDyed"]),
+                        KgDzn = Convert.ToDecimal(r["KgPerDzn"]),
+                        YdDzn = Convert.ToDecimal(r["YdPerDzn"]),
+                        RateDzn = Convert.ToDecimal(r["RatePerDzn"]),
+                        Qty = Convert.ToInt32(r["Qty"]),
+                        LossPct = Convert.ToDecimal(r["LossPct"]),
+                        ExtraPct = Convert.ToDecimal(r["ExtraCutPct"]),
+                        IsBooked = Convert.ToBoolean(r["IsBooked"])
+                    });
                 }
-                CloseConnection();
             }
             catch (Exception ex)
             {
@@ -1065,21 +1053,11 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ============================================================
         // ACCESSORIES BOOKING (Color x Accessories)
         // ============================================================
+
+        // → POEntry_GetStyleAccessories
         private DataTable GetStyleAccessories(int styleId)
         {
-            DataTable dt = new DataTable();
-            con = conn.openConnection();
-            using (SqlCommand c = new SqlCommand(@"
-                SELECT ItemCode, ItemName, AccTypeName, SizeColor, UnitCode, Consumption, WastagePercent
-                FROM   dbo.StyleAccessories
-                WHERE  StyleID=@ID
-                ORDER BY SortOrder, StyleAccID", con))
-            {
-                c.Parameters.AddWithValue("@ID", styleId);
-                new SqlDataAdapter(c).Fill(dt);
-            }
-            CloseConnection();
-            return dt;
+            return ProcTable("POEntry_GetStyleAccessories", P("@StyleID", styleId));
         }
 
         private List<AccRow> ReadAcc()
@@ -1217,42 +1195,30 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             lblAccSumAmt.Text = sAmt.ToString("N2");
         }
 
+        // → POEntry_GetPOAccessoriesBooking
         private void LoadAccFromPO(int poId)
         {
             List<AccRow> rows = new List<AccRow>();
             try
             {
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand(@"
-                    SELECT ColorCode, ItemCode, ItemName, ItemType, SizeColor, UnitCode,
-                           ConsPerDzn, RatePerDzn, WastagePct, Qty, IsBooked
-                    FROM   dbo.POAccessoriesBooking
-                    WHERE  POID=@ID
-                    ORDER BY SortOrder, AccBookID", con))
+                DataTable dt = ProcTable("POEntry_GetPOAccessoriesBooking", P("@POID", poId));
+                foreach (DataRow r in dt.Rows)
                 {
-                    c.Parameters.AddWithValue("@ID", poId);
-                    using (SqlDataReader r = c.ExecuteReader())
+                    rows.Add(new AccRow
                     {
-                        while (r.Read())
-                        {
-                            rows.Add(new AccRow
-                            {
-                                ColorCode = GetStr(r["ColorCode"]),
-                                ItemCode = GetStr(r["ItemCode"]),
-                                ItemName = GetStr(r["ItemName"]),
-                                ItemType = GetStr(r["ItemType"]),
-                                SizeColor = GetStr(r["SizeColor"]),
-                                Unit = GetStr(r["UnitCode"]),
-                                ConsDzn = Convert.ToDecimal(r["ConsPerDzn"]),
-                                RateDzn = Convert.ToDecimal(r["RatePerDzn"]),
-                                WastePct = Convert.ToDecimal(r["WastagePct"]),
-                                Qty = Convert.ToInt32(r["Qty"]),
-                                IsBooked = Convert.ToBoolean(r["IsBooked"])
-                            });
-                        }
-                    }
+                        ColorCode = GetStr(r["ColorCode"]),
+                        ItemCode = GetStr(r["ItemCode"]),
+                        ItemName = GetStr(r["ItemName"]),
+                        ItemType = GetStr(r["ItemType"]),
+                        SizeColor = GetStr(r["SizeColor"]),
+                        Unit = GetStr(r["UnitCode"]),
+                        ConsDzn = Convert.ToDecimal(r["ConsPerDzn"]),
+                        RateDzn = Convert.ToDecimal(r["RatePerDzn"]),
+                        WastePct = Convert.ToDecimal(r["WastagePct"]),
+                        Qty = Convert.ToInt32(r["Qty"]),
+                        IsBooked = Convert.ToBoolean(r["IsBooked"])
+                    });
                 }
-                CloseConnection();
             }
             catch (Exception ex)
             {
@@ -1381,37 +1347,26 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             lblEmbTotal.Text = total.ToString("N2");
         }
 
+        // → POEntry_GetPOEmbellishment
         private void LoadEmbFromPO(int poId)
         {
             List<EmbRow> rows = new List<EmbRow>();
             try
             {
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand(@"
-                    SELECT ColorCode, EmbType, Description, Placement, Supplier, Qty, Rate
-                    FROM   dbo.POEmbellishment
-                    WHERE  POID=@ID
-                    ORDER BY SortOrder, EmbID", con))
+                DataTable dt = ProcTable("POEntry_GetPOEmbellishment", P("@POID", poId));
+                foreach (DataRow r in dt.Rows)
                 {
-                    c.Parameters.AddWithValue("@ID", poId);
-                    using (SqlDataReader r = c.ExecuteReader())
+                    rows.Add(new EmbRow
                     {
-                        while (r.Read())
-                        {
-                            rows.Add(new EmbRow
-                            {
-                                ColorCode = GetStr(r["ColorCode"]),
-                                EmbType = GetStr(r["EmbType"]),
-                                Description = GetStr(r["Description"]),
-                                Placement = GetStr(r["Placement"]),
-                                Supplier = GetStr(r["Supplier"]),
-                                Qty = r["Qty"] != DBNull.Value ? Convert.ToInt32(r["Qty"]) : 0,
-                                Rate = r["Rate"] != DBNull.Value ? Convert.ToDecimal(r["Rate"]) : 0m
-                            });
-                        }
-                    }
+                        ColorCode = GetStr(r["ColorCode"]),
+                        EmbType = GetStr(r["EmbType"]),
+                        Description = GetStr(r["Description"]),
+                        Placement = GetStr(r["Placement"]),
+                        Supplier = GetStr(r["Supplier"]),
+                        Qty = r["Qty"] != DBNull.Value ? Convert.ToInt32(r["Qty"]) : 0,
+                        Rate = r["Rate"] != DBNull.Value ? Convert.ToDecimal(r["Rate"]) : 0m
+                    });
                 }
-                CloseConnection();
             }
             catch (Exception ex)
             {
@@ -1442,16 +1397,16 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             }
         }
 
+        // → POEntry_DeletePO
         private void DeletePO(int poId)
         {
             try
             {
                 con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand(
-                    "UPDATE dbo.POHeader SET IsActive=0, UpdatedBy=@U, UpdatedDate=GETDATE() WHERE POID=@ID", con))
+                using (SqlCommand c = Proc("POEntry_DeletePO"))
                 {
-                    c.Parameters.AddWithValue("@U", CurrentUserId);
-                    c.Parameters.AddWithValue("@ID", poId);
+                    c.Parameters.Add(P("@POID", poId));
+                    c.Parameters.Add(P("@UserID", CurrentUserId));
                     c.ExecuteNonQuery();
                 }
                 CloseConnection();
@@ -1466,7 +1421,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
 
         // ============================================================
-        // LOAD PO FOR EDIT
+        // LOAD PO FOR EDIT   → POEntry_GetPOHeader
         // ============================================================
         private void LoadPOForEdit(int poId)
         {
@@ -1475,62 +1430,56 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                 hfActiveTab.Value = "#qty-tab";
                 LoadStyleDropdown();
 
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand(
-                    "SELECT * FROM dbo.POHeader WHERE POID=@ID AND ISNULL(IsActive,1)=1", con))
+                DataTable dt = ProcTable("POEntry_GetPOHeader", P("@POID", poId));
+                if (dt.Rows.Count == 0)
                 {
-                    c.Parameters.AddWithValue("@ID", poId);
-                    using (SqlDataReader r = c.ExecuteReader())
-                    {
-                        if (!r.Read())
-                        {
-                            ShowAlert("PO not found!");
-                            r.Close();
-                            CloseConnection();
-                            return;
-                        }
-
-                        ViewState["POID"] = poId;
-                        hfPOId.Value = poId.ToString();
-                        hfStyleId.Value = GetStr(r["StyleID"]);
-
-                        txtPONo.Text = GetStr(r["PONo"]);
-                        txtPODate.Text = r["PODate"] != DBNull.Value
-                            ? Convert.ToDateTime(r["PODate"]).ToString("yyyy-MM-dd") : "";
-                        txtBuyerPORef.Text = GetStr(r["BuyerPORef"]);
-                        SelectDDL(ddlPOType, GetStr(r["POType"]));
-                        SelectDDL(ddlPOStatus, r["POStatus"] != DBNull.Value ? r["POStatus"].ToString() : "0");
-                        SelectDDL(ddlStyle, GetStr(r["StyleID"]));
-
-                        txtPOQty.Text = GetStr(r["POQty"]);
-                        txtUnitPrice.Text = r["UnitPrice"] != DBNull.Value
-                            ? Convert.ToDecimal(r["UnitPrice"]).ToString("N2") : "0";
-                        SelectDDL(ddlCurrency, GetStr(r["Currency"]));
-                        txtTotalValue.Text = r["TotalValue"] != DBNull.Value
-                            ? Convert.ToDecimal(r["TotalValue"]).ToString("N2") : "0";
-
-                        SelectDDL(ddlShipMode, GetStr(r["ShipMode"]));
-                        SelectDDL(ddlIncoterms, GetStr(r["Incoterms"]));
-                        txtPOL.Text = GetStr(r["POL"]);
-                        txtPOD.Text = GetStr(r["POD"]);
-                        txtShipDate.Text = r["ShipDate"] != DBNull.Value
-                            ? Convert.ToDateTime(r["ShipDate"]).ToString("yyyy-MM-dd") : "";
-                        txtDeliveryDate.Text = r["DeliveryDate"] != DBNull.Value
-                            ? Convert.ToDateTime(r["DeliveryDate"]).ToString("yyyy-MM-dd") : "";
-                        SelectDDL(ddlPartial, GetStr(r["PartialShipment"]));
-                        SelectDDL(ddlTranship, GetStr(r["Transhipment"]));
-                        txtForwarder.Text = GetStr(r["FreightForwarder"]);
-                        txtLCNo.Text = GetStr(r["LCNo"]);
-                        SelectDDL(ddlInspection, GetStr(r["InspectionType"]));
-                        txtRemarks.Text = GetStr(r["Remarks"]);
-
-                        SelectDDL(ddlPaymentTerms, GetStr(r["PaymentTerms"]));
-                        txtAdvance.Text = GetStr(r["AdvancePct"]);
-                        txtBalance.Text = GetStr(r["BalancePct"]);
-                        SelectDDL(ddlBankCharge, GetStr(r["BankChargeBear"]));
-                    }
+                    ShowAlert("PO not found!");
+                    return;
                 }
-                CloseConnection();
+                DataRow r = dt.Rows[0];
+
+                ViewState["POID"] = poId;
+                hfPOId.Value = poId.ToString();
+                hfStyleId.Value = GetStr(r["StyleID"]);
+
+                // Fabric Booking Report বাটন চালু (এই PO-র জন্য)
+                hlFabRpt.NavigateUrl = "~/MerchandisingMarketing/MerchandisingReports/FabricBookingReport.aspx?poid=" + poId;
+                hlFabRpt.Visible = true;
+
+                txtPONo.Text = GetStr(r["PONo"]);
+                txtPODate.Text = r["PODate"] != DBNull.Value
+                    ? Convert.ToDateTime(r["PODate"]).ToString("yyyy-MM-dd") : "";
+                txtBuyerPORef.Text = GetStr(r["BuyerPORef"]);
+                SelectDDL(ddlPOType, GetStr(r["POType"]));
+                SelectDDL(ddlPOStatus, r["POStatus"] != DBNull.Value ? r["POStatus"].ToString() : "0");
+                SelectDDL(ddlStyle, GetStr(r["StyleID"]));
+
+                txtPOQty.Text = GetStr(r["POQty"]);
+                txtUnitPrice.Text = r["UnitPrice"] != DBNull.Value
+                    ? Convert.ToDecimal(r["UnitPrice"]).ToString("N2") : "0";
+                SelectDDL(ddlCurrency, GetStr(r["Currency"]));
+                txtTotalValue.Text = r["TotalValue"] != DBNull.Value
+                    ? Convert.ToDecimal(r["TotalValue"]).ToString("N2") : "0";
+
+                SelectDDL(ddlShipMode, GetStr(r["ShipMode"]));
+                SelectDDL(ddlIncoterms, GetStr(r["Incoterms"]));
+                txtPOL.Text = GetStr(r["POL"]);
+                txtPOD.Text = GetStr(r["POD"]);
+                txtShipDate.Text = r["ShipDate"] != DBNull.Value
+                    ? Convert.ToDateTime(r["ShipDate"]).ToString("yyyy-MM-dd") : "";
+                txtDeliveryDate.Text = r["DeliveryDate"] != DBNull.Value
+                    ? Convert.ToDateTime(r["DeliveryDate"]).ToString("yyyy-MM-dd") : "";
+                SelectDDL(ddlPartial, GetStr(r["PartialShipment"]));
+                SelectDDL(ddlTranship, GetStr(r["Transhipment"]));
+                txtForwarder.Text = GetStr(r["FreightForwarder"]);
+                txtLCNo.Text = GetStr(r["LCNo"]);
+                SelectDDL(ddlInspection, GetStr(r["InspectionType"]));
+                txtRemarks.Text = GetStr(r["Remarks"]);
+
+                SelectDDL(ddlPaymentTerms, GetStr(r["PaymentTerms"]));
+                txtAdvance.Text = GetStr(r["AdvancePct"]);
+                txtBalance.Text = GetStr(r["BalancePct"]);
+                SelectDDL(ddlBankCharge, GetStr(r["BankChargeBear"]));
 
                 int styleId;
                 if (int.TryParse(hfStyleId.Value, out styleId) && styleId > 0)
@@ -1551,19 +1500,12 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             }
         }
 
+        // → POEntry_GetPOColorSize
         private void LoadMatrixFromPO(int poId, int styleId)
         {
             try
             {
-                DataTable saved = new DataTable();
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand(
-                    "SELECT ColorCode, SizeCode, Qty FROM dbo.POColorSize WHERE POID=@ID", con))
-                {
-                    c.Parameters.AddWithValue("@ID", poId);
-                    new SqlDataAdapter(c).Fill(saved);
-                }
-                CloseConnection();
+                DataTable saved = ProcTable("POEntry_GetPOColorSize", P("@POID", poId));
 
                 List<string> styleColors = GetStyleColors(styleId);
                 List<string> styleSizes = GetStyleSizes(styleId);
@@ -1596,6 +1538,10 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
 
         // ============================================================
         // SAVE PO
+        //   POEntry_SaveUpdatePOHeader  (insert if POID = 0, otherwise update)
+        //   POEntry_ClearPODetails      (remove old child rows)
+        //   POEntry_SavePOColorSize / POEntry_SavePOEmbellishment /
+        //   POEntry_SavePOFabricBooking / POEntry_SavePOAccessoriesBooking
         // ============================================================
         protected void btnSave_Click(object sender, EventArgs e)
         {
@@ -1632,9 +1578,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                     try
                     {
                         // 1. PO Header
-                        using (SqlCommand c = new SqlCommand("sp_SaveUpdatePOHeader", con, tx))
+                        using (SqlCommand c = Proc("POEntry_SaveUpdatePOHeader", tx))
                         {
-                            c.CommandType = CommandType.StoredProcedure;
                             c.Parameters.Add("@POID", SqlDbType.Int).Value = poId;
                             c.Parameters.Add("@PONo", SqlDbType.NVarChar, 30).Value = txtPONo.Text.Trim();
                             c.Parameters.Add("@PODate", SqlDbType.Date).Value = DateOrNull(txtPODate.Text);
@@ -1642,9 +1587,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                             c.Parameters.Add("@POType", SqlDbType.NVarChar, 30).Value = NullIfEmpty(ddlPOType.SelectedValue);
                             c.Parameters.Add("@StyleID", SqlDbType.Int).Value = styleId;
                             c.Parameters.Add("@Currency", SqlDbType.NVarChar, 5).Value = NullIfEmpty(ddlCurrency.SelectedValue);
-                            c.Parameters.Add("@UnitPrice", SqlDbType.Decimal).Value = unitPrice;
+                            c.Parameters.Add(PD("@UnitPrice", unitPrice));
                             c.Parameters.Add("@POQty", SqlDbType.Int).Value = poQty;
-                            c.Parameters.Add("@TotalValue", SqlDbType.Decimal).Value = totalValue;
+                            c.Parameters.Add(PD("@TotalValue", totalValue));
                             c.Parameters.Add("@ShipMode", SqlDbType.NVarChar, 20).Value = NullIfEmpty(ddlShipMode.SelectedValue);
                             c.Parameters.Add("@Incoterms", SqlDbType.NVarChar, 10).Value = NullIfEmpty(ddlIncoterms.SelectedValue);
                             c.Parameters.Add("@POL", SqlDbType.NVarChar, 100).Value = NullIfEmpty(txtPOL.Text);
@@ -1658,8 +1603,8 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                             c.Parameters.Add("@InspectionType", SqlDbType.NVarChar, 30).Value = NullIfEmpty(ddlInspection.SelectedValue);
                             c.Parameters.Add("@Remarks", SqlDbType.NVarChar, 500).Value = NullIfEmpty(txtRemarks.Text);
                             c.Parameters.Add("@PaymentTerms", SqlDbType.NVarChar, 50).Value = NullIfEmpty(ddlPaymentTerms.SelectedValue);
-                            c.Parameters.Add("@AdvancePct", SqlDbType.Decimal).Value = DecOrZero(txtAdvance.Text);
-                            c.Parameters.Add("@BalancePct", SqlDbType.Decimal).Value = DecOrZero(txtBalance.Text);
+                            c.Parameters.Add(PD("@AdvancePct", DecOrZero(txtAdvance.Text)));
+                            c.Parameters.Add(PD("@BalancePct", DecOrZero(txtBalance.Text)));
                             c.Parameters.Add("@BankChargeBear", SqlDbType.NVarChar, 10).Value = NullIfEmpty(ddlBankCharge.SelectedValue);
                             c.Parameters.Add("@POStatus", SqlDbType.Int).Value = IntOrZero(ddlPOStatus.SelectedValue);
                             c.Parameters.Add("@UserID", SqlDbType.Int).Value = CurrentUserId;
@@ -1673,12 +1618,14 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                             poId = Convert.ToInt32(outId.Value);
                         }
 
-                        // 2. Color × Size (unit price = PO unit price)
-                        using (SqlCommand c = new SqlCommand("DELETE FROM dbo.POColorSize WHERE POID=@ID", con, tx))
+                        // 2. remove old Color x Size / Embellishment / Fabric / Accessories rows
+                        using (SqlCommand c = Proc("POEntry_ClearPODetails", tx))
                         {
-                            c.Parameters.AddWithValue("@ID", poId);
+                            c.Parameters.Add(P("@POID", poId));
                             c.ExecuteNonQuery();
                         }
+
+                        // 3. Color × Size (unit price = PO unit price)
                         foreach (string color in matrix.Colors)
                         {
                             foreach (string size in matrix.Sizes)
@@ -1686,128 +1633,96 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
                                 int qty;
                                 if (!matrix.Qty.TryGetValue(Key(color, size), out qty) || qty <= 0) continue;
 
-                                using (SqlCommand c = new SqlCommand(@"
-                                    INSERT INTO dbo.POColorSize (POID, ColorCode, SizeCode, Qty, UnitPrice, LineTotal)
-                                    VALUES (@ID, @Color, @Size, @Qty, @Price, @Total)", con, tx))
+                                using (SqlCommand c = Proc("POEntry_SavePOColorSize", tx))
                                 {
-                                    c.Parameters.AddWithValue("@ID", poId);
-                                    c.Parameters.AddWithValue("@Color", color);
-                                    c.Parameters.AddWithValue("@Size", size);
-                                    c.Parameters.AddWithValue("@Qty", qty);
-                                    c.Parameters.AddWithValue("@Price", unitPrice);
-                                    c.Parameters.AddWithValue("@Total", qty * unitPrice);
+                                    c.Parameters.Add(P("@POID", poId));
+                                    c.Parameters.Add(P("@ColorCode", color));
+                                    c.Parameters.Add(P("@SizeCode", size));
+                                    c.Parameters.Add(P("@Qty", qty));
+                                    c.Parameters.Add(PD("@UnitPrice", unitPrice));
+                                    c.Parameters.Add(PD("@LineTotal", qty * unitPrice));
                                     c.ExecuteNonQuery();
                                 }
                             }
                         }
 
-                        // 3. Embellishment work order
-                        using (SqlCommand c = new SqlCommand("DELETE FROM dbo.POEmbellishment WHERE POID=@ID", con, tx))
-                        {
-                            c.Parameters.AddWithValue("@ID", poId);
-                            c.ExecuteNonQuery();
-                        }
+                        // 4. Embellishment work order
                         int sort = 0;
                         foreach (EmbRow er in embRows)
                         {
                             sort++;
-                            using (SqlCommand c = new SqlCommand(@"
-                                INSERT INTO dbo.POEmbellishment
-                                    (POID, ColorCode, EmbType, Description, Placement, Supplier, Qty, Rate, Amount, SortOrder)
-                                VALUES (@ID, @Color, @Type, @Desc, @Place, @Sup, @Qty, @Rate, @Amt, @Sort)", con, tx))
+                            using (SqlCommand c = Proc("POEntry_SavePOEmbellishment", tx))
                             {
-                                c.Parameters.AddWithValue("@ID", poId);
-                                c.Parameters.AddWithValue("@Color", er.ColorCode);
-                                c.Parameters.AddWithValue("@Type", er.EmbType);
-                                c.Parameters.AddWithValue("@Desc", NullIfEmpty(er.Description));
-                                c.Parameters.AddWithValue("@Place", NullIfEmpty(er.Placement));
-                                c.Parameters.AddWithValue("@Sup", NullIfEmpty(er.Supplier));
-                                c.Parameters.AddWithValue("@Qty", er.Qty);
-                                c.Parameters.AddWithValue("@Rate", er.Rate);
-                                c.Parameters.AddWithValue("@Amt", er.Qty * er.Rate);
-                                c.Parameters.AddWithValue("@Sort", sort);
+                                c.Parameters.Add(P("@POID", poId));
+                                c.Parameters.Add(P("@ColorCode", er.ColorCode));
+                                c.Parameters.Add(P("@EmbType", er.EmbType));
+                                c.Parameters.Add(P("@Description", NullIfEmpty(er.Description)));
+                                c.Parameters.Add(P("@Placement", NullIfEmpty(er.Placement)));
+                                c.Parameters.Add(P("@Supplier", NullIfEmpty(er.Supplier)));
+                                c.Parameters.Add(P("@Qty", er.Qty));
+                                c.Parameters.Add(PD("@Rate", er.Rate));
+                                c.Parameters.Add(PD("@Amount", er.Qty * er.Rate));
+                                c.Parameters.Add(P("@SortOrder", sort));
                                 c.ExecuteNonQuery();
                             }
                         }
 
-                        // 4. Fabric booking (Color x Part x Size x Fabric)
-                        using (SqlCommand c = new SqlCommand("DELETE FROM dbo.POFabricBooking WHERE POID=@ID", con, tx))
-                        {
-                            c.Parameters.AddWithValue("@ID", poId);
-                            c.ExecuteNonQuery();
-                        }
+                        // 5. Fabric booking (Color x Part x Size x Fabric)
                         int fsort = 0;
                         foreach (FabRow fr in fabRows)
                         {
                             fsort++;
-                            using (SqlCommand c = new SqlCommand(@"
-                                INSERT INTO dbo.POFabricBooking
-                                    (POID, ColorCode, PartName, SizeCode, FabricCode, FabricName, GSM,
-                                     FabricForm, Dia, PartSize, Ply,
-                                     KgPerDzn, YdPerDzn, RatePerDzn,
-                                     Qty, LossPct, TotalKg, TotalYd, Amount, IsBooked, SortOrder)
-                                VALUES (@ID, @Color, @Part, @SizeCode, @Code, @Name, @Gsm,
-                                        @Form, @Dia, @PartSize, @Ply,
-                                        @Kg, @Yd, @Rate,
-                                        @Qty, @Loss, @TKg, @TYd, @Amt, @Booked, @Sort)", con, tx))
+                            using (SqlCommand c = Proc("POEntry_SavePOFabricBooking", tx))
                             {
-                                c.Parameters.AddWithValue("@ID", poId);
-                                c.Parameters.AddWithValue("@Color", fr.ColorCode);
-                                c.Parameters.AddWithValue("@Part", string.IsNullOrEmpty(fr.PartName) ? "Body" : fr.PartName);
-                                c.Parameters.AddWithValue("@SizeCode", string.IsNullOrEmpty(fr.SizeCode) ? FabRow.AllSizes : fr.SizeCode);
-                                c.Parameters.AddWithValue("@Code", fr.FabricCode);
-                                c.Parameters.AddWithValue("@Name", NullIfEmpty(fr.FabricName));
-                                c.Parameters.AddWithValue("@Gsm", NullIfEmpty(fr.GSM));
-                                c.Parameters.AddWithValue("@Form", NullIfEmpty(fr.FabForm));
-                                c.Parameters.AddWithValue("@Dia", NullIfEmpty(fr.Dia));
-                                c.Parameters.AddWithValue("@PartSize", NullIfEmpty(fr.PartSize));
-                                c.Parameters.AddWithValue("@Ply", NullIfEmpty(fr.Ply));
-                                c.Parameters.AddWithValue("@Kg", fr.KgDzn);
-                                c.Parameters.AddWithValue("@Yd", fr.YdDzn);
-                                c.Parameters.AddWithValue("@Rate", fr.RateDzn);
-                                c.Parameters.AddWithValue("@Qty", fr.Qty);
-                                c.Parameters.AddWithValue("@Loss", fr.LossPct);
-                                c.Parameters.AddWithValue("@TKg", fr.TotalKg);
-                                c.Parameters.AddWithValue("@TYd", fr.TotalYd);
-                                c.Parameters.AddWithValue("@Amt", fr.Amount);
-                                c.Parameters.AddWithValue("@Booked", fr.IsBooked);
-                                c.Parameters.AddWithValue("@Sort", fsort);
+                                c.Parameters.Add(P("@POID", poId));
+                                c.Parameters.Add(P("@ColorCode", fr.ColorCode));
+                                c.Parameters.Add(P("@PartName", string.IsNullOrEmpty(fr.PartName) ? "Body" : fr.PartName));
+                                c.Parameters.Add(P("@SizeCode", string.IsNullOrEmpty(fr.SizeCode) ? FabRow.AllSizes : fr.SizeCode));
+                                c.Parameters.Add(P("@FabricCode", fr.FabricCode));
+                                c.Parameters.Add(P("@FabricName", NullIfEmpty(fr.FabricName)));
+                                c.Parameters.Add(P("@GSM", NullIfEmpty(fr.GSM)));
+                                c.Parameters.Add(P("@FabricForm", NullIfEmpty(fr.FabForm)));
+                                c.Parameters.Add(P("@Dia", NullIfEmpty(fr.Dia)));
+                                c.Parameters.Add(P("@PartSize", NullIfEmpty(fr.PartSize)));
+                                c.Parameters.Add(P("@Ply", NullIfEmpty(fr.Ply)));
+                                c.Parameters.Add(P("@YarnDyed", string.IsNullOrEmpty(fr.YarnDyed) ? "No" : fr.YarnDyed));
+                                c.Parameters.Add(PD("@KgPerDzn", fr.KgDzn));
+                                c.Parameters.Add(PD("@YdPerDzn", fr.YdDzn));
+                                c.Parameters.Add(PD("@RatePerDzn", fr.RateDzn));
+                                c.Parameters.Add(P("@Qty", fr.Qty));
+                                c.Parameters.Add(PD("@LossPct", fr.LossPct));
+                                c.Parameters.Add(PD("@ExtraCutPct", fr.ExtraPct));
+                                c.Parameters.Add(PD("@TotalKg", fr.TotalKg));
+                                c.Parameters.Add(PD("@TotalYd", fr.TotalYd));
+                                c.Parameters.Add(PD("@Amount", fr.Amount));
+                                c.Parameters.Add(P("@IsBooked", fr.IsBooked));
+                                c.Parameters.Add(P("@SortOrder", fsort));
                                 c.ExecuteNonQuery();
                             }
                         }
 
-                        // 5. Accessories booking (Color x Accessories)
-                        using (SqlCommand c = new SqlCommand("DELETE FROM dbo.POAccessoriesBooking WHERE POID=@ID", con, tx))
-                        {
-                            c.Parameters.AddWithValue("@ID", poId);
-                            c.ExecuteNonQuery();
-                        }
+                        // 6. Accessories booking (Color x Accessories)
                         int asort = 0;
                         foreach (AccRow ar in accRows)
                         {
                             asort++;
-                            using (SqlCommand c = new SqlCommand(@"
-                                INSERT INTO dbo.POAccessoriesBooking
-                                    (POID, ColorCode, ItemCode, ItemName, ItemType, SizeColor, UnitCode,
-                                     ConsPerDzn, RatePerDzn, WastagePct, Qty, TotalQty, Amount, IsBooked, SortOrder)
-                                VALUES (@ID, @Color, @Code, @Name, @Type, @Size, @Unit,
-                                        @Cons, @Rate, @Waste, @Qty, @TQty, @Amt, @Booked, @Sort)", con, tx))
+                            using (SqlCommand c = Proc("POEntry_SavePOAccessoriesBooking", tx))
                             {
-                                c.Parameters.AddWithValue("@ID", poId);
-                                c.Parameters.AddWithValue("@Color", ar.ColorCode);
-                                c.Parameters.AddWithValue("@Code", ar.ItemCode);
-                                c.Parameters.AddWithValue("@Name", NullIfEmpty(ar.ItemName));
-                                c.Parameters.AddWithValue("@Type", NullIfEmpty(ar.ItemType));
-                                c.Parameters.AddWithValue("@Size", NullIfEmpty(ar.SizeColor));
-                                c.Parameters.AddWithValue("@Unit", NullIfEmpty(ar.Unit));
-                                c.Parameters.AddWithValue("@Cons", ar.ConsDzn);
-                                c.Parameters.AddWithValue("@Rate", ar.RateDzn);
-                                c.Parameters.AddWithValue("@Waste", ar.WastePct);
-                                c.Parameters.AddWithValue("@Qty", ar.Qty);
-                                c.Parameters.AddWithValue("@TQty", ar.TotalQty);
-                                c.Parameters.AddWithValue("@Amt", ar.Amount);
-                                c.Parameters.AddWithValue("@Booked", ar.IsBooked);
-                                c.Parameters.AddWithValue("@Sort", asort);
+                                c.Parameters.Add(P("@POID", poId));
+                                c.Parameters.Add(P("@ColorCode", ar.ColorCode));
+                                c.Parameters.Add(P("@ItemCode", ar.ItemCode));
+                                c.Parameters.Add(P("@ItemName", NullIfEmpty(ar.ItemName)));
+                                c.Parameters.Add(P("@ItemType", NullIfEmpty(ar.ItemType)));
+                                c.Parameters.Add(P("@SizeColor", NullIfEmpty(ar.SizeColor)));
+                                c.Parameters.Add(P("@UnitCode", NullIfEmpty(ar.Unit)));
+                                c.Parameters.Add(PD("@ConsPerDzn", ar.ConsDzn));
+                                c.Parameters.Add(PD("@RatePerDzn", ar.RateDzn));
+                                c.Parameters.Add(PD("@WastagePct", ar.WastePct));
+                                c.Parameters.Add(P("@Qty", ar.Qty));
+                                c.Parameters.Add(PD("@TotalQty", ar.TotalQty));
+                                c.Parameters.Add(PD("@Amount", ar.Amount));
+                                c.Parameters.Add(P("@IsBooked", ar.IsBooked));
+                                c.Parameters.Add(P("@SortOrder", asort));
                                 c.ExecuteNonQuery();
                             }
                         }
@@ -1893,6 +1808,7 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         // ============================================================
         private void ClearForm()
         {
+            hlFabRpt.Visible = false;     // নতুন PO তে রিপোর্ট বাটন লুকাও
             ViewState["POID"] = null;
             ViewState["LastQty"] = null;
             hfPOId.Value = "0";
@@ -1936,8 +1852,9 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
             ddlFabPart.SelectedIndex = 0;
             ddlFabForm.SelectedIndex = 0;
             ddlFabPly.SelectedIndex = 0;
+            ddlFabYarnDyed.SelectedValue = "No";
             txtFabDia.Text = txtFabPartSize.Text = "";
-            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = "";
+            txtFabKgDzn.Text = txtFabKgPc.Text = txtFabYdDzn.Text = txtFabYdPc.Text = txtFabRateDzn.Text = txtFabRatePc.Text = txtFabLoss.Text = txtFabExtra.Text = "";
 
             BindMatrix(new MatrixData());
             BindEmb(new List<EmbRow>());
@@ -1962,20 +1879,15 @@ namespace Nexa_ERP.MasterConfiguration.BuyerManagement
         }
 
         // ============================================================
-        // AUTO PO NO
+        // AUTO PO NO   → POEntry_GetNextPONo
         // ============================================================
         private string GeneratePONo()
         {
             try
             {
-                con = conn.openConnection();
-                using (SqlCommand c = new SqlCommand(
-                    "SELECT ISNULL(MAX(POID),0)+1 FROM dbo.POHeader", con))
-                {
-                    int next = Convert.ToInt32(c.ExecuteScalar());
-                    CloseConnection();
-                    return "PO-" + DateTime.Now.Year + "-" + next.ToString("D5");
-                }
+                DataTable dt = ProcTable("POEntry_GetNextPONo");
+                int next = Convert.ToInt32(dt.Rows[0][0]);
+                return "PO-" + DateTime.Now.Year + "-" + next.ToString("D5");
             }
             catch
             {
